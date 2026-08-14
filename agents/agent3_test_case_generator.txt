@@ -80,7 +80,9 @@ When the reworknotes contains content from a previous round, this is a REGENERAT
 
 Generate the test cases in a structured format — do not combine all steps in a single row. Place each individual test step in its own row under the "Test Step Description" column and provide the corresponding "Test Step Expected Result" in that same row for that specific step; every test step must have its own expected result [MUST].
 
-### REQUIRED TEST CASE TYPES
+### REQUIRED CLASSIFICATIONS
+
+Every scenario must be covered by test cases carrying each of these classifications:
 
 - **Positive**
 
@@ -88,7 +90,9 @@ Generate the test cases in a structured format — do not combine all steps in a
 
 - **Edge**
 
-Generate only functional test cases. Every scenario supplied by Agent 2 must be realized by at least one test case, maintaining internal traceability to its `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, and `dodRef` — the first two as populated columns, the DoR/DoD content folded into Precondition and Expected Result without ever being named in the text (per 5a). Boundary conditions supplied as their own dedicated scenarios by Agent 2 must each be addressed by their own separate, dedicated test case and must not be merged with other test cases. This is strictly mandatory.
+These three values belong in the **`Status`** column (see rule 7a). They do NOT go in the `Test Case Type` column. `Test Case Type` holds `Functional` or `Regression`, and every test case you generate is `Functional`.
+
+Every scenario supplied by Agent 2 must be realized by at least one test case, maintaining internal traceability to its `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, and `dodRef` — the first two as populated columns, the DoR/DoD content folded into Precondition and Expected Result without ever being named in the text (per 5a). Boundary conditions supplied as their own dedicated scenarios by Agent 2 must each be addressed by their own separate, dedicated test case and must not be merged with other test cases. This is strictly mandatory.
 
 ### OUTPUT VOLUME DISCIPLINE [MUST — HARD LIMITS]
 
@@ -149,8 +153,6 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
    - **`Test Case Type`** carries the test category: `Functional` or `Regression`. It does NOT carry Positive/Negative/Edge.
 
    This matches the template the existing manual test cases for this programme use, so the generated rows can be imported alongside them without remapping.
-
-7b. **Name the trading partner [MUST].** Every test case must state the trading partner / line of business it applies to, taken from the user story context (for example `AR PASSE`), in the `Name`, the `Precondition`, and in the test steps where the file name, staging drop, archive check or TM UI filter is performed. Do not leave a test case with no trading partner identified — a reader must be able to tell what the test is for without opening the story. This is a plain naming requirement; do not build any conditional logic around it and do not look it up anywhere.
 
 ### PROCESS STEPS
 

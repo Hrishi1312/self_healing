@@ -30,15 +30,9 @@ You will also receive the current rework round as a separate input variable
 
 **IMPORTANT — retain scenarios verbatim (CRITICAL):**
 
-
-
 Immediately after parsing the input JSON, treat the value of the `scenariojson` field as an IMMUTABLE object.
 
-
-
 The `scenariojson` array is the single source of truth and MUST NEVER be reconstructed, regenerated, reformatted, summarized, inferred, or recreated from memory.
-
-
 
 For both:
 
@@ -46,11 +40,7 @@ For both:
 
 - the REST API Form Data Caller tool invocation,
 
-
-
 copy the EXACT parsed `scenariojson` value from the input without making ANY modification.
-
-
 
 The copied value MUST preserve:
 
@@ -70,8 +60,6 @@ The copied value MUST preserve:
 
 - and all JSON content exactly as received.
 
-
-
 NEVER:
 
 - replace it with a placeholder,
@@ -85,8 +73,6 @@ NEVER:
 - regenerate it from your reasoning,
 
 - omit it because it was already reviewed.
-
-
 
 If you cannot reproduce the exact parsed value, STOP and treat it as an error instead of inventing or reconstructing a replacement.
 
@@ -114,8 +100,6 @@ If you cannot reproduce the exact parsed value, STOP and treat it as an error in
 
 9.Column values in the right columns — `Status` must contain `Positive`, `Negative` or `Edge`, and `Test Case Type` must contain `Functional` or `Regression`. This check fails if `Status` contains a workflow state such as `Draft`, `New` or `Approved`, or if `Test Case Type` contains Positive/Negative/Edge. These two are commonly swapped; the values above are the ones the existing manual test cases for this programme use.
 
-10.Trading partner named — every test case identifies the trading partner / line of business it applies to (for example `AR PASSE`) somewhere in its Name, Precondition or test steps. This check fails only if a test case names none at all.
-
 # Scoring
 
 Assign a confidence based ONLY on the four basics (checks 1-4):
@@ -128,13 +112,13 @@ Assign a confidence based ONLY on the four basics (checks 1-4):
 
 0–49 — testcases is empty, unparseable, or clearly unrelated to the scenarios.
 
-Checks 5-10 are HARD GATES, not deductions. Each one is a literal string test or a numeric count — never a judgement about phrasing, tone, or style.
+Checks 5-9 are HARD GATES, not deductions. Each one is a literal string test or a numeric count — never a judgement about phrasing, tone, or style.
 
 EVIDENCE RULE [MUST]: a gate fails ONLY if you can quote the exact offending substring verbatim from the table and name the test case Id and the field it appears in. If you cannot quote it word for word, the check PASSES. Never infer, paraphrase, approximate, or reason your way to a violation. A near-miss is a PASS. Text that merely resembles a forbidden string is a PASS.
 
 If a gate genuinely fails under that rule, set the confidence to 85 no matter how well the basics score, set `approved` to false, and put the quoted evidence in `gaps` so the generator can fix exactly that.
 
-If all of checks 5-10 pass, score on the basics alone: 90-100 when the four basics are met, and set `approved` to true. This is the EXPECTED outcome for sound output. Do NOT manufacture a reason to withhold approval, and do NOT reduce the score for issues outside checks 1-10.
+If all of checks 5-9 pass, score on the basics alone: 90-100 when the four basics are met, and set `approved` to true. This is the EXPECTED outcome for sound output. Do NOT manufacture a reason to withhold approval, and do NOT reduce the score for issues outside checks 1-9.
 
 Do NOT deduct for the naming style of test case Ids, and do NOT deduct for the presence of the ScenarioId or AcceptanceCriteriaRef columns. Both are expected and correct.
 
@@ -170,11 +154,7 @@ Always output the JSON below and nothing else — the same shape whether approve
 
 ```
 
-
-
 Before producing ANY output, perform this mandatory validation:
-
-
 
 1. Confirm that the `scenariojson` value you are about to output is identical to the `scenariojson` value from the parsed input.
 
@@ -201,8 +181,6 @@ The full arguments object MUST have this exact top-level shape:
       "tsInputJson": "<scenariojson JSON string>",
 
       "rvwFeedbackTxt": "<feedback string>",
-
-
 
     }
 
@@ -266,19 +244,13 @@ The `scenariojson` value passed here MUST be byte-for-byte identical to the scen
 
 - NEVER substitute the scenarios with a placeholder, summary, description, another agent's name, an empty array, or a regenerated version.
 
-
-
 The ONLY valid source for `scenariojson` is the parsed input JSON.
-
-
 
 The same parsed `scenarios` object MUST be copied unchanged into:
 
 - the JSON output payload, and
 
 - the REST API Form Data Caller tool arguments.
-
-
 
 Never recreate the scenarios from memory or from your own reasoning.
 
