@@ -7,10 +7,10 @@ false` on all, no manager LLM, so it is strictly sequential):
 
 1. **ADO Story Fetcher** (agent 367) — calls tool 2 to pull the user story from Azure
    DevOps and passes it through unchanged.
-2. **Test Scenario Generator** — turns the story's description + acceptance criteria into
-   scenarios. *Note: the agent running in production is named `test 6 EDI 834 Inbound Test
-   Scenario Generator Embed KB Clone`, which is not the agent 366 in the original export.
-   Its numeric id was never confirmed.*
+2. **Test Scenario Generator** (agent 613, `test 6 EDI 834 Inbound Test Scenario Generator
+   Embed KB Clone`) — turns the story's description + acceptance criteria into scenarios.
+   Note this is **not** the agent 366 that appears in older exports; 366 was replaced.
+   Agent 613 carries **5 knowledge bases**.
 3. **Test Case Generator** (agent 564) — expands each scenario into test cases.
 4. **Reviewer / LLM-as-a-judge** (agent 559) — scores the output and calls tool 76.
 

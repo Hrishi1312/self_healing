@@ -1,7 +1,10 @@
-# cs_wf
+# self_healing
 
 Prompts and tool code for the AAVA workflow that generates EDI 834 Inbound test cases from
 an Azure DevOps user story.
+
+Agent ids in play: **613** scenario generator, **564** test case generator, **559** reviewer,
+**367** ADO fetcher; tool **76** drives the rework loop.
 
 ## What's here
 

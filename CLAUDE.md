@@ -1,4 +1,4 @@
-# cs_wf — EDI 834 Inbound test generation on AAVA
+# self_healing — EDI 834 Inbound test generation on AAVA
 
 Working copies of the prompts and tool code for the AAVA workflow that turns an Azure
 DevOps user story into EDI 834 Inbound test cases. **These files are the source of truth;
@@ -49,7 +49,7 @@ LLM-as-a-judge reviewer. If the reviewer rejects, its tool starts workflow **163
 | Test cases total | max 20 | agent 3 |
 | Approval threshold | 90 | tool + agent 559 |
 | Rework rounds | max 3, then escalate | tool |
-| Agent 559 `maxIter` | 2 | console config, not in any file |
+| Agent 559 `maxIter` | 2 — **live value is still 10**, change it | console config, not in any file |
 | Platform execution ceiling | 600 s | AAVA, not ours |
 
 ## Before changing volume, read this
