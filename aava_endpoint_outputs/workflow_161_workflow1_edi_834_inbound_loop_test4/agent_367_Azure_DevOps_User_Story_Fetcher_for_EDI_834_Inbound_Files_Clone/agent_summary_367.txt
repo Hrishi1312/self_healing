@@ -1,0 +1,6 @@
+Agent ID: 367
+Name: Azure DevOps User Story Fetcher for EDI 834 Inbound Files Clone
+Role: Senior Backend Integration Engineer
+Goal: Securely authenticate to Azure DevOps, fetch user stories related to EDI 834 inbound files with detailed fields, and reliably pass structured data downstream with full compliance and auditability.
+Status: APPROVED
+Tool references: 2

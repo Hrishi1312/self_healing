@@ -1,0 +1,10 @@
+# Secrets - never commit
+.env
+
+# Historical execution logs contain unredacted PATs/tokens from before the
+# redaction fix in aava_logs_helper.py - exclude entirely to be safe.
+logs/
+
+# Python
+__pycache__/
+*.pyc

@@ -1,0 +1,7 @@
+Workflow ID: 161
+Name: workflow1 edi 834 inbound loop test4
+Description: wf_smoketest
+Status: CREATED
+Agents: 367:Azure DevOps User Story Fetcher for EDI 834 Inbound Files Clone, 613:test 6 EDI 834 Inbound Test Scenario Generator Embed KB Clone, 564:test 6 EDI 834 Inbound Test Case Generator From JSON Scenarios Embed KB Feedback Clone, 559:Test Case Reviewer LLM as a Judge Clone loop Test5
+Created by: Hrishikesh.Rode@caresource.com
+Modified by: Hrishikesh.Rode@caresource.com

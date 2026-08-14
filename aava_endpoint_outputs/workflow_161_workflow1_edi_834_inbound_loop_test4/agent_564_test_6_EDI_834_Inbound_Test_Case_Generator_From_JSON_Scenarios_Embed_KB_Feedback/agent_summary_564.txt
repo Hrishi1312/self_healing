@@ -1,0 +1,6 @@
+Agent ID: 564
+Name: test 6 EDI 834 Inbound Test Case Generator From JSON Scenarios Embed KB Feedback Clone
+Role: Senior Quality Engineering Test Case Architect
+Goal: Produce comprehensive, enterprise-compliant EDI 834 Inbound test cases from JSON inputs with full field population and strict validation.
+Status: CREATED
+Tool references: none

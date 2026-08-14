@@ -1,0 +1,7 @@
+Workflow ID: 163
+Name: workflow2 Threaded edi 834 inbound loop Test5
+Description: workflow Threaded edi 834 inbound loop Test2
+Status: CREATED
+Agents: 564:test 6 EDI 834 Inbound Test Case Generator From JSON Scenarios Embed KB Feedback Clone, 559:Test Case Reviewer LLM as a Judge Clone loop Test5
+Created by: Hrishikesh.Rode@caresource.com
+Modified by: Hrishikesh.Rode@caresource.com

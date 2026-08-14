@@ -1,0 +1,8 @@
+Agent ID: 559
+Name: Test Case Reviewer LLM as a Judge Clone loop Test5
+Role: Independent test case quality reviewer
+Goal: Review the generated test cases against the scenario list, the original Jira story, and the extracted preconditions. Give an honest, critical assessment. Output a structured JSON verdict. this IS the confidence score the self-healing loop gates on.
+State the primary outcome this agent should achieve (e.g., automate weekly status report).
+
+Status: CREATED
+Tool references: 76
