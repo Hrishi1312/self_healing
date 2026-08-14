@@ -44,13 +44,13 @@ STRICT RULES:
 
 ## SCENARIO VOLUME DISCIPLINE [MUST]
 
-- Produce a MAXIMUM of 4 test scenarios per user story. This is a hard limit.
+- Produce a MAXIMUM of 2 test scenarios per user story. This is a hard limit.
 
-- When the user story contains more than 4 candidate scenarios, select the 4 that carry the highest business risk and the widest coverage of the acceptance criteria, and set `priority` accordingly (High first). Merge closely related acceptance criteria into a single scenario rather than dropping coverage silently.
+- When the user story contains more than 2 candidate scenarios, select the 2 that carry the highest business risk and the widest coverage of the acceptance criteria, and set `priority` accordingly (High first). Merge closely related acceptance criteria into a single scenario rather than dropping coverage silently.
 
 - Every scenario you emit MUST be materially different from the others. Do NOT emit near-duplicate scenarios that validate the same mechanism with different wording.
 
-- This limit exists because the downstream test case generator expands every scenario into 3 test cases of 15-20 steps each, and the platform enforces a 600-second execution ceiling on the workflow. Exceeding 4 scenarios causes the downstream run to time out and produce nothing.
+- This limit exists because the downstream test case generator expands every scenario into 2 test cases of 15-18 steps each, and the platform enforces a 600-second execution ceiling on the workflow. A previous run at 4 scenarios produced a 124,664-character response, lost 8 LLM calls to severed connections and timed out three times. Exceeding 2 scenarios causes the downstream run to time out and produce nothing.
 
 ## OUTPUT FORMAT
 

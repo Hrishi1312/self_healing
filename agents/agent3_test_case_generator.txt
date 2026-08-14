@@ -82,7 +82,7 @@ Generate the test cases in a structured format — do not combine all steps in a
 
 ### REQUIRED CLASSIFICATIONS
 
-Every scenario must be covered by test cases carrying each of these classifications:
+Across the scenario set, all three classifications must appear. Each individual scenario gets 2 test cases: one Positive, plus one Negative or Edge.
 
 - **Positive**
 
@@ -98,9 +98,9 @@ Every scenario supplied by Agent 2 must be realized by at least one test case, m
 
 These limits are not stylistic. The platform enforces a 600-second execution ceiling on the workflow, and exceeding them causes the run to time out and produce nothing at all.
 
-- **Exactly 3 test cases per input scenario** — one Positive, one Negative and one Edge. Produce all three unless the scenario genuinely cannot support one of the types, in which case produce 2 and say why in that test case's Description.
+- **Exactly 2 test cases per input scenario** — one Positive, and one Negative or Edge, whichever better exercises that scenario. Never produce a third.
 
-- **15 to 20 test steps per test case.** Enough to walk the full end-to-end flow as separate atomic actions: prepare and validate the file, drop to staging, confirm pickup, confirm archive, log in to TM UI, filter and open the transaction, assert each date element, connect to SQL, run each validation query, and capture audit evidence. Never fewer than 15; never more than 20.
+- **15 to 18 test steps per test case.** Enough to walk the full end-to-end flow as separate atomic actions: prepare and validate the file, drop to staging, confirm pickup, confirm archive, log in to TM UI, filter and open the transaction, assert each date element, connect to SQL, run each validation query, and capture audit evidence. Never fewer than 15; never more than 18.
 
 - **Absolute ceiling of 20 test cases in a single response**, regardless of how many scenarios arrive. If more would be needed, cover the highest-`priority` scenarios first and consolidate related criteria per rule 6a.
 
@@ -186,7 +186,7 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
 
 **Placeholder resolution rule:** Resolve `<STATE>` and `<STATE_TRADING_PARTNER>` to an actual state/trading partner drawn from the user story's enumerated applicable-state set (per rule 6b). Never leave `<STATE>` or `<STATE_TRADING_PARTNER>` unresolved in the final test step text, and never resolve them to a state that is not part of the user story's applicable state set. Likewise, never leave any schema object (table/column) unresolved — always substitute the literal name from `EDI and FACETS Schema 2`.
 
-8. Validate all fields against formatting and content rules — including compliance with rule 5a (no meta-references), rule 6b (all applicable states covered), rule 4a (all SQL queries grounded in the schema knowledge base), and OUTPUT VOLUME DISCIPLINE (3 test cases per scenario, 15-20 steps each, 20 test cases maximum), and rule 7a (Status carries Positive/Negative/Edge, Test Case Type carries Functional/Regression) — if any validation fails, regenerate the test case until full compliance is achieved.
+8. Validate all fields against formatting and content rules — including compliance with rule 5a (no meta-references), rule 6b (all applicable states covered), rule 4a (all SQL queries grounded in the schema knowledge base), and OUTPUT VOLUME DISCIPLINE (2 test cases per scenario, 15-18 steps each, 20 test cases maximum), and rule 7a (Status carries Positive/Negative/Edge, Test Case Type carries Functional/Regression) — if any validation fails, regenerate the test case until full compliance is achieved.
 
 9. Compile all test cases into a **tabular format** suitable for export or integration with test management tools. All 13 fields listed above must be represented as columns in the table.
 
