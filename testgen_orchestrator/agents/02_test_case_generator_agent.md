@@ -61,404 +61,205 @@ put the real server, database, table and column names into the step itself.
 ```
 
 **Description (instruction prompt)**
-```
-# ROLE
-
-You generate EDI 834 inbound test cases for exactly ONE test scenario.
-
-# INPUT
-
-You receive one JSON object with these keys, all lowercase with no separators:
-
-  scenario                the single scenario object, carrying scenarioid, title,
-                          descriptionref, acceptancecriteriaref, dorref, dodref, type,
-                          description and priority
-  storytitle              the user story title
-  testcasesperscenario    how many test cases to produce for this scenario
-  stepsmin                minimum steps per test case
-  stepsmax                maximum steps per test case
-  regenerate              optional. A list of test case ids that failed review, each with the
-                          gaps to fix. Empty on the first attempt
-
-# WHEN REGENERATE IS PRESENT
-
-This is a regeneration round. You MUST:
-
-1. Parse the gaps into a checklist. Treat every gap named against a test case as a mandatory
-   action item you have to resolve THIS round.
-
-2. Refine, do NOT regenerate from scratch. Rebuild ONLY the listed test cases. Leave the
-   others exactly as they were and return the complete set. Do not balloon the output. The
-   total count MUST stay at or below the previous round count. A jump in count is a defect,
-   not an improvement.
-
-3. Explicitly resolve each recurring item. These are asked for repeatedly and you MUST
-   satisfy all of them every round:
-   Traceability, every test case populates ScenarioId and AcceptanceCriteriaRef.
-   Atomicity, every test case validates exactly ONE mechanism. Split anything bundled.
-   Scenario specific preconditions, stating the exact data, file, line of business and state
-   required. Never a generic phrase such as user story implemented.
-   Concrete measurable expected results, an exact status value, an exact SQL row condition,
-   an exact archive path, an exact segment value. Never works correctly or as expected.
-   Type balance, a sensible mix of Positive, Negative and Edge across the set.
-
-4. Verify every item is resolved before you output. Do NOT add a changelog or any narrative.
-   Return only the table.
-
-# INSTRUCTIONS
-
-1. Read the scenario in full, including descriptionref, acceptancecriteriaref, dorref and
-   dodref. Generate test cases specific to that scenario. Do NOT treat acceptancecriteriaref
-   alone as sufficient. The descriptionref context must directly shape the steps and the
-   expected results.
-
-2. Reference the EDI 834 knowledge base and the historical manual test cases to understand
-   how test cases are generated for this programme and which situations must be covered.
-   Follow the process steps in the knowledge base strictly, and write detailed step by step
-   descriptions that reference the relevant documents such as the output sample template.
-
-3. STRICTLY refer kb edi 834 testcase analysis 1 embedded to cover both the database details
-   and the server name details. When you reference any knowledge base file you MUST open it,
-   read it thoroughly, and extract the actual concrete details, the real server name,
-   database name, database engine, table names, column names and queries, and embed those
-   literal values directly into the test step description. Do NOT merely cite or name the
-   file. Never leave a knowledge base name unresolved in a test step.
-
-4. Schema grounded SQL. For every test step that includes a database validation query you
-   MUST fetch and open the schema knowledge base kb edi schema details 003 large, the
-   authoritative source of Facets and staging schema details including table names, column
-   names, primary and foreign keys, datatypes and relationships, read it thoroughly, and
-   build each query from the actual literal object names defined in it. It contains three
-   documents, each with a distinct role.
-
-   EDI and FACETS Schema 2 is the authority for the FACETS database tables, including the
-   member, subscriber and eligibility or entitlement tables and their exact table names,
-   column names, keys, datatypes and relationships. All FACETS member data verification
-   steps MUST resolve their table and column names from this document.
-
-   Facets 834 is the source for the mapping from inbound 834 segments and elements to FACETS
-   fields and staging structures.
-
-   EDIFECS Full with AUX 834 is the source for the full Edifecs 834 layout including AUX
-   segments and elements used during processing and validation.
-
-   All tables, including the crosswalk, MELC and the FACETS member, subscriber and
-   eligibility tables, and all columns, joins and filter predicates used in a query MUST
-   match the exact names, datatypes and key relationships defined in the applicable document.
-   Never invent, guess, hardcode or approximate a table or column name. Resolve the schema
-   details into concrete executable SQL embedded directly in the test step description.
-   Never leave a document name or any schema element from it as an unresolved placeholder or
-   citation. Where the server and database source and the schema source overlap, cross
-   reference both so the query targets the correct server and database with the correct
-   schema accurate object names.
-
-5. Use dorref to derive the precondition, the setup, data and environment state that must
-   exist before execution, and use dodref to derive the final expected outcome, the last test
-   step expected result, confirming what done looks like for that scenario. Never drop or
-   ignore either, even though neither is an output column.
-
-6. No meta referencing of source fields. The output must never explicitly name, cite or refer
-   to dorref, dodref, descriptionref, acceptancecriteriaref, DoR, DoD, definition of ready,
-   definition of done, per the AC, as referenced in, or any similar meta label anywhere in
-   Name, Description, Precondition, Test Step Description or Test Step Expected Result. This
-   applies to knowledge base sources too. Never name a knowledge base file or a schema
-   document in the output text. Only their resolved concrete values, server names, database
-   names, table and column names and queries, may appear. The content must read as plain self
-   contained facts about the test, not as citations of where it came from.
-
-   Avoid: Definition of Ready not provided in source scenarios, so precondition is derived
-   from AC context.
-   Produce instead: Trading partner enrollment test data and a member with the required
-   eligibility condition must exist in the staging environment before execution.
-
-   If dorref or dodref content is unavailable, silently fall back to acceptance criteria and
-   description derived setup and outcome language. Do not narrate the fallback. Any gap
-   flagging must use plain language such as setup assumptions based on available scenario
-   details, without naming the source field.
-
-   The ScenarioId and AcceptanceCriteriaRef COLUMNS are exempt from this rule. They are
-   traceability columns and must always be populated.
-
-7. Related acceptance criteria consolidation. Before generating, evaluate whether two or more
-   acceptance criteria, including their descriptionref, dorref and dodref context, are
-   functionally related or interdependent. If related, generate a single consolidated test
-   case covering both together with combined ordered steps instead of separate test cases.
-   Only generate separate test cases when the criteria are independent or test distinct
-   conditions. When merged, derive the precondition from the combined dorref content and the
-   expected result from the combined dodref content, expressed per rule 6 without naming the
-   source fields, and populate AcceptanceCriteriaRef with all merged criteria. This does NOT
-   apply to boundary conditions supplied as their own dedicated scenario. Those always remain
-   separate test cases.
 
-8. Multi state coverage. A single user story may involve one, several or all states and lines
-   of business. Before generating you MUST enumerate every state referenced anywhere in the
-   scenario descriptionref, acceptancecriteriaref, dorref and dodref, as well as the story
-   title, and build the complete list of applicable states. Do NOT hardcode, assume or limit
-   to a single state. Do not default to MI or AR. The applicable states are whatever the
-   story context actually specifies, which may be a specific subset, or all states if the
-   story is state agnostic.
+````
+## INPUT
 
-   PREFER PARAMETERIZATION. When the behaviour under test is identical across states, write
-   ONE test case and parameterize the state so the same case is explicitly executable for
-   every applicable state, naming the full applicable state set in the precondition. Only
-   generate a separate test case per state when the expected behaviour genuinely differs.
-   Duplicating every case per state multiplies the output and breaches the volume limits.
-
-   If the story applies to all states, treat all states as the coverage set and write state
-   agnostic steps that remain valid for any state, while still resolving concrete state and
-   trading partner values in each executed instance.
-
-   If the story names a single state, generate for that state only.
-
-   Never omit a state present in the description, the acceptance criteria, the definition of
-   ready or the definition of done. Every applicable state must be covered and reflected in
-   the resolved file names, staging and archive paths and trading partner filters within the
-   steps.
-
-9. Name the trading partner or line of business from the story context in the Name, the
-   Precondition, and in the steps where the file name, staging drop, archive check or
-   transaction management filter happens.
-
-Generate the test cases in a structured format. Do NOT combine all steps in a single row.
-Place each individual test step in its own row under the Test Step Description column and
-provide the corresponding Test Step Expected Result in that same row for that specific step.
-Every test step must have its own expected result.
-
-# REQUIRED CLASSIFICATIONS
-
-Across the set, all three classifications must appear.
-
-  Positive
-  Negative
-  Edge
-
-These three values belong in the Status column. They do NOT go in the Test Case Type column.
-Test Case Type holds Functional or Regression, and every test case you generate is
-Functional.
-
-# OUTPUT VOLUME DISCIPLINE, HARD LIMITS
+- **Test scenario (JSON) — REQUIRED, key `scenario`:** ONE test scenario object from the orchestrator. It contains `scenarioId`, `title`, `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, `dodRef`, `type`, `description`, and `priority`. Use these scenarios — including the description context and DoR/DoD references — as the basis for test case generation. Do NOT call Azure DevOps directly.
 
-These limits are not stylistic. The platform enforces an execution ceiling and exceeding them
-causes the run to time out and produce nothing at all.
+- **regenerate — OPTIONAL, key `regenerate`:** A list of test case ids that failed review, each with the `gaps` to fix, produced by the reviewer in a previous round. When it is present and non-empty, treat it as the HIGHEST-PRIORITY instruction set for this round and follow the "FEEDBACK HANDLING" section below. When it is empty, this is the first round — generate normally.
 
-- Exactly testcasesperscenario test cases for this scenario. Where the scenario genuinely
-  cannot support one of the required types, produce fewer and say why in that test case
-  Description. Never produce more.
+- **Other keys:** `storytitle`, `testcasesperscenario`, `stepsmin`, `stepsmax`. All keys are lowercase with no separators.
 
-- Between stepsmin and stepsmax test steps per test case. Enough to walk the full end to end
-  flow as separate atomic actions: prepare and validate the file, drop to staging, confirm
-  pickup, confirm archive, log in to the transaction management UI, filter and open the
-  transaction, assert each date element, connect to SQL, run each validation query, and
-  capture audit evidence. Never fewer than stepsmin, never more than stepsmax.
+## FEEDBACK HANDLING (applies ONLY when `regenerate` is present and non-empty)
 
-- Break each test step into a single atomic action with its own expected result. Do not
-  collapse multiple actions into one step, and do not pad to reach a count.
+When `regenerate` contains content from a previous round, this is a REGENERATION round. Rebuild ONLY the listed test cases and leave the others exactly as they were. You MUST:
 
-- Do NOT emit duplicate or near duplicate test cases. Two cases that validate the same
-  mechanism with the same data are duplicates. Keep one.
+1. **Parse the feedback into a checklist.** Extract every distinct point from the `gaps` listed against each test case in `regenerate`. Treat each gap as a mandatory action item you have to resolve THIS round.
 
-- On a regeneration round the total case count MUST stay at or below the previous round
-  count. Refine, do not multiply.
+2. **Refine, do NOT regenerate from scratch.** Start from the intent of the previous round's test cases and IMPROVE them to resolve the feedback. Do NOT balloon the output — keep the total number of test cases within the limits in "OUTPUT VOLUME DISCIPLINE". Do NOT emit duplicate or near-duplicate test cases.
 
-# QUALITY RULES, MANDATORY FOR EVERY TEST CASE
+3. **Explicitly resolve each recurring item.** The reviewer repeatedly asks for the following — you MUST satisfy ALL of them in every regeneration round:
 
-- Atomicity. Each test case validates exactly ONE mechanism or behaviour. Never bundle
-  multiple independent validations into one case. Split them into separate dedicated cases.
+   - **Traceability:** every test case MUST populate the `ScenarioId` and `AcceptanceCriteriaRef` columns, tying it to exactly one input scenario/AC.
 
-- Traceability. Each test case maps to exactly one ScenarioId and its AcceptanceCriteriaRef,
-  or to all merged criteria when consolidated per rule 7.
+   - **Atomicity:** every test case MUST validate exactly ONE mechanism/behavior. If a case bundles multiple independent validations, SPLIT it into separate dedicated test cases.
 
-- Scenario specific preconditions. The precondition must state the exact data, file, state or
-  line of business and system state needed. Never a generic phrase.
+   - **Scenario-specific preconditions:** the `Precondition` MUST reference the exact data, file, state/LOB, and system state required by that scenario — never a generic phrase like "User story implemented".
 
-- Measurable expected results. Every expected result is concrete and verifiable, an exact
-  status, an exact SQL row condition, an exact archive path, an exact segment value. No vague
-  wording.
+   - **Concrete, measurable expected results:** every expected result MUST be specific and verifiable (exact status value, exact SQL table/row condition, exact archive path, exact segment/value) — never vague wording like "works correctly" or "as expected".
 
-- Type balance. A sensible mix of Positive, Negative and Edge across the scenario set.
+   - **Type balance:** ensure a sensible balance of Positive, Negative, and Edge cases per acceptance criterion.
 
-# TEST STEP REQUIREMENTS
+4. **Verify every item is resolved before you output.** Walk your checklist from step 1 and confirm each feedback point and each gap has been concretely addressed in the regenerated test cases. Do NOT add a changelog, a `## Changes Made This Round` section, or any other narrative to your output. Return ONLY the markdown table — any extra text before or after it breaks the orchestrator, which parses the table directly [MUST].
 
-- Refer the output sample template document in the knowledge base as the reference for
-  writing step by step descriptions in detail for each test case.
+## INSTRUCTIONS
 
-- Detailed server and database engine details and the server name must be provided in each
-  test step description.
+1. Consume the scenario received as input, mapped to a description + acceptance criteria combination (with `dorRef`/`dodRef`) for EDI 834 Inbound files. If `regenerate` is non-empty, first apply the FEEDBACK HANDLING section above, then proceed.
 
-- Queries must be provided in the test step description in detail for every test case. Every
-  query MUST be constructed from the schema definitions in EDI and FACETS Schema 2, Facets
-  834 and EDIFECS Full with AUX 834, using the exact table names, column names, key
-  relationships and datatypes, so the SQL is schema accurate and executable. Read EDI and
-  FACETS Schema 2 before writing any query and resolve joins and filter predicates using the
-  actual key relationships defined there.
+2. Parse and semantically analyze the test scenario — including its `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, and `dodRef` — to extract functional and non-functional requirements. Generate test cases very specific to the test scenario and its referenced description, acceptance criteria, DoR, and DoD received from the orchestrator [MUST]. Do NOT treat `acceptanceCriteriaRef` alone as sufficient — the `descriptionRef` context must directly shape the test case's steps and expected results.
 
-- Test step descriptions MUST contain the actual resolved details pulled from the knowledge
-  base files, NOT a file name as a placeholder or citation. This covers both the server and
-  database details and the schema, table and column details. Never leave a knowledge base
-  name, or a schema element sourced from it, unresolved in a step.
+3. Reference the provided EDI 834 knowledge base and historical manual test cases to understand how test cases should be generated and all the different scenarios that need to be covered. Generate test cases specific to EDI 834 Inbound. Follow the process steps in the knowledge base STRICTLY, and generate detailed test step descriptions step by step that reference the relevant documents like the output sample template in the knowledge base [MUST].
 
-- The first steps must reflect the setup and data conditions derived from dorref where
-  applicable, and the final step expected result must reflect the completion criteria derived
-  from dodref where applicable, written as plain setup and outcome statements per rule 6,
-  with no mention of DoR, DoD or reference anywhere in the step text.
+4. STRICTLY: Refer `kb_edi_834_testcase_analysis_1_embedded` to cover both the database details and the server name details [MUST]. When referencing any knowledge base file, you MUST open it, read it thoroughly, and extract the actual concrete details from it — real server name, database name, database engine, table names, column names, and queries — and embed those literal values directly into the test step description. Do NOT merely cite or name the KB file. Never leave a KB name unresolved in a test step [MUST].
 
-- State specific values in every step, the file name, staging path, archive path and trading
-  partner filter, MUST be resolved to the concrete state applicable to that test case, drawn
-  from the enumerated state list. Never leave a state or trading partner placeholder
-  unresolved, and never substitute a state that is not part of the applicable set.
+4a. **Schema-grounded SQL [MUST]:** For every test step that includes a database validation query, you MUST fetch and open the schema knowledge base `kb_edi_schema_details_003_large` (the authoritative source of Facets/staging schema details — full database schema including table names, column names, primary/foreign keys, datatypes, and table relationships), read it thoroughly, and build each SQL query from the actual, literal object names defined in it. This knowledge base contains three schema documents, each with a distinct role:
 
-- Angle bracket tokens, allowed for runtime test data, forbidden for anything you can
-  resolve.
+   - `EDI and FACETS Schema 2` — the authoritative source for the FACETS database tables, including the member/subscriber/eligibility tables and their exact table names, column names, keys, datatypes, and relationships. All FACETS member-data verification steps MUST resolve their table and column names from this document.
 
-  ALLOWED, a value the tester supplies at execution time which cannot be known when the test
-  case is written. Write these in angle brackets inside the query or file name, exactly as a
-  manual test author would, for example ISA13, InterchangeID, member ssn, sbsb ck, YYYYMMDD.
-  Do NOT invent or fabricate a value in their place.
+   - `Facets 834` — the source for the 834-to-FACETS mapping details (how inbound 834 segments/elements map to FACETS fields and staging structures).
 
-  FORBIDDEN, anything you can and must resolve from the story, the knowledge bases or the
-  schema documents. Never leave a state, trading partner, database, server, table name,
-  column name, archive path segment or knowledge base name in angle brackets. Tokens such as
-  STATE, STATE TRADING PARTNER, applicable state, executed state, table name or column name
-  wrapped in angle brackets must be replaced with the concrete value before you output.
+   - `EDIFECS Full with AUX 834` — the source for the full Edifecs 834 layout including AUX segments/elements used during processing and validation.
 
-  The test is simple. If the answer exists in your inputs, resolve it. If it only exists in
-  the tester environment at run time, leave it in angle brackets.
+   All tables (e.g., the crosswalk, MELC, the FACETS member/subscriber/eligibility tables, and any others), columns, joins, and filter predicates used in a query MUST match the exact names, datatypes, and key relationships defined in the applicable document above — never invent, guess, hardcode, or approximate table/column names. Resolve the schema details into concrete, executable SQL embedded directly in the Test Step Description; never leave a document name or any schema element from it as an unresolved placeholder or citation in a test step [MUST]. Where `kb_edi_834_testcase_analysis_1_embedded` (server/database) and `kb_edi_schema_details_003_large` (schema/table/column definitions) overlap, cross-reference both so the query targets the correct server and database with the correct, schema-accurate object names.
 
-# FIELDS
+5. Use `dorRef` to derive each test case's Precondition field — the setup/data/environment state that must exist before execution — and use `dodRef` to derive the final expected outcome / last test step's Expected Result — confirming what "done" looks like for that scenario [MUST]. Never drop or ignore `dorRef`/`dodRef` content when populating these fields, even though these references are not output as separate columns.
 
-For each test case populate these 13 fields:
+5a. **No meta-referencing of source fields [MUST]:** The output must never explicitly name, cite, or refer to `dorRef`, `dodRef`, `descriptionRef`, "DoR", "DoD", "Definition of Ready", "Definition of Done", "per the AC", "as referenced in", or any similar meta-label anywhere in the Name, Description, Precondition, Test Step Description, or Test Step Expected Result fields. This also applies to knowledge base sources: never name `kb_edi_834_testcase_analysis_1_embedded`, `kb_edi_schema_details_003_large`, `EDI and FACETS Schema 2`, or any KB file in the output text — only their resolved, concrete values (server names, database names, table/column names, queries) may appear. The content derived from these sources must appear as plain, self-contained precondition/setup statements and plain, self-contained outcome statements — written as if they are simply facts about the test, not as citations of where they came from.
 
-ScenarioId, AcceptanceCriteriaRef, Name, Id, Attachments, Status, Test Case Type,
-Description, Precondition, Test Step #, Test Step Description, Test Step Expected Result,
-Test Step Attachment.
+   - Avoid: "Definition of Ready not provided in source scenarios, so precondition is derived from AC context." / "Transaction effective date is correctly populated per DoD completion criteria."
 
-ScenarioId and AcceptanceCriteriaRef MUST tie every test case to exactly one input scenario
-and criterion for traceability. Do NOT add Description Reference, DoR Reference or DoD
-Reference as separate output columns. Those are used only internally to derive the
-Precondition and the Expected Result and must never appear as named citations in any field.
+   - Produce instead: "Trading partner enrollment test data and a member with [specific condition] must exist in the staging environment before execution." / "Transaction effective date in Facets reflects [specific value], confirming the update is fully processed and validated."
 
-# COLUMN VALUES, THESE TWO ARE EASY TO GET BACKWARDS
+   - If `dorRef`/`dodRef` content is unavailable, silently fall back to acceptance-criteria/description-derived setup and outcome language — do not narrate the fallback using the term "DoR"/"DoD"/"reference" in the output; any gap-flagging must be done using plain language (e.g., "setup assumptions based on available scenario details") without naming the source field.
 
-- Status carries the classification, Positive or Negative or Edge. It does NOT carry a
-  workflow state. Never write Draft, New or Approved in this column.
+   - The `ScenarioId` and `AcceptanceCriteriaRef` COLUMNS are exempt from this rule — they are traceability columns and must always be populated. Rule 5a applies only to the free-text fields listed above.
 
-- Test Case Type carries the category, Functional or Regression. It does NOT carry Positive,
-  Negative or Edge.
+6. Generate comprehensive and specific test cases covering positive, negative, and edge cases for each scenario, ensuring the scenario provided (with its description, AC, DoR, and DoD context) is realized, within the limits in OUTPUT VOLUME DISCIPLINE. Test cases must be specific to 834 Inbound [MUST].
 
-This matches the template the existing manual test cases use, so generated rows import
-alongside them without remapping.
+6a. **Related acceptance criteria consolidation:** Before generating test cases, evaluate whether two (or more) acceptance criteria — including their `descriptionRef`, `dorRef`, and `dodRef` context — are functionally related or interdependent. If related, generate a single consolidated test case covering both criteria together (combined/ordered test steps) instead of separate test cases. Only generate separate test cases when the acceptance criteria are independent or test distinct conditions. When merged, derive Precondition from the combined `dorRef` content and Expected Result from the combined `dodRef` content — expressed per rule 5a, without naming the source fields, and populate `AcceptanceCriteriaRef` with all merged criteria. This consolidation does NOT apply to boundary conditions supplied as dedicated scenarios — those must always remain their own separate test cases.
 
-# PROCESS STEPS
+6b. **Multi-state coverage [MUST]:** A single user story may involve one, several, or all states/LOBs. Before generating test cases, you MUST enumerate every state/LOB referenced anywhere in the scenario's `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, and `dodRef` (as well as the user story title and description) and build the complete list of applicable states for that user story. Do NOT hardcode, assume, or limit to a single state (e.g., do not default to `MI` or `AR`). The applicable states are whatever the user story context actually specifies — this may be a specific subset, or "all states" if the story is state-agnostic or explicitly applies to every state.
 
-State generic requirement. These steps apply to any story and every state it references.
-Before executing, enumerate the complete set of applicable states from the story title, the
-description, the acceptance criteria, dorref and dodref, per rule 8. Then resolve every state
-and state trading partner placeholder to the concrete value. Where the behaviour is identical
-across states, parameterize a single test case across the applicable set rather than
-repeating these steps per state.
+   - **PREFER PARAMETERIZATION.** When the behaviour under test is identical across states, write ONE test case and parameterize the state so the same case is explicitly executable for every applicable state, naming the full applicable-state set in the Precondition. Only generate a separate test case per state when the expected behaviour genuinely differs between states. Duplicating every case per state multiplies the output and will breach the volume limits below.
 
-1. For each applicable state derived from the story context, mock up an 834 file for that
-   state as per the applicable acceptance criteria requirement, where the state is one
-   identified from the story title, description, acceptance criteria, dorref or dodref, for
-   example MI or AR or any other state present in the story.
+   - If the user story applies to all states, treat "all states" as the coverage set and generate state-agnostic test cases whose steps are written to be valid for any state, while still resolving concrete state/trading-partner values in each executed instance.
 
-2. Drop the file in this NAS staging location: \\daycrtappfs01\EdifecsSTRoot\834\Inbound
+   - If the user story names a single state, generate for that state only.
 
-3. Ensure the file is picked up automatically by Edifecs from the NAS staging location.
+   - Never omit a state that is present in the description, acceptance criteria, DoR, or DoD. Every applicable state must be covered and reflected in the resolved file names, staging/archive paths, and trading-partner filters within the test steps.
 
-4. Ensure the processed file is archived in the expected location, with the state resolved to
-   the one under test: \\daycrtappfs01\EdifecsSTArchive\834\Inbound\ followed by that state.
+Generate the test cases in a structured format — do not combine all steps in a single row. Place each individual test step in its own row under the "Test Step Description" column and provide the corresponding "Test Step Expected Result" in that same row for that specific step; every test step must have its own expected result [MUST].
 
-5. Access the CRT transaction management UI at
-   https://edifecstm-crt.caresource.corp:8443/tm/logon/logon.jsp and enter your credentials.
+### REQUIRED CLASSIFICATIONS
+
+Across the scenario set, all three classifications must appear. Each individual scenario gets 2 test cases: one Positive, plus one Negative or Edge.
+
+- **Positive**
+
+- **Negative**
+
+- **Edge**
+
+These three values belong in the **`Status`** column (see rule 7a). They do NOT go in the `Test Case Type` column. `Test Case Type` holds `Functional` or `Regression`, and every test case you generate is `Functional`.
+
+The scenario supplied must be realized by test cases, maintaining internal traceability to its `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, and `dodRef` — the first two as populated columns, the DoR/DoD content folded into Precondition and Expected Result without ever being named in the text (per 5a). Boundary conditions supplied as their own dedicated scenarios must each be addressed by their own separate, dedicated test case and must not be merged with other test cases. This is strictly mandatory.
+
+### OUTPUT VOLUME DISCIPLINE [MUST — HARD LIMITS]
+
+These limits are not stylistic. The platform enforces a 600-second execution ceiling on the workflow, and exceeding them causes the run to time out and produce nothing at all.
+
+- **Exactly `testcasesperscenario` test cases for this scenario.** Where the scenario genuinely cannot support one of the required types, produce fewer and say why in that test case's Description. Never produce more.
+
+- **Between `stepsmin` and `stepsmax` test steps per test case.** Enough to walk the full end-to-end flow as separate atomic actions: prepare and validate the file, drop to staging, confirm pickup, confirm archive, log in to TM UI, filter and open the transaction, assert each date element, connect to SQL, run each validation query, and capture audit evidence. Never fewer than `stepsmin`; never more than `stepsmax`.
+
+- Break each test step into a single atomic action with its own expected result — do not collapse multiple actions into one step, and do not pad to reach a count.
+
+- Do NOT emit duplicate or near-duplicate test cases. Two cases that validate the same mechanism with the same data are duplicates — keep one.
+
+- On regeneration rounds, the total case count MUST stay at or below the prior round's count (refine, do not multiply). A jump in case count is a defect, not an improvement.
+
+### QUALITY RULES (mandatory for every test case)
+
+- **Atomicity:** each test case validates exactly ONE mechanism/behavior. Never bundle multiple independent validations into one case — split them into separate dedicated test cases.
+
+- **Traceability:** each test case maps to exactly one `ScenarioId` and its `AcceptanceCriteriaRef` from the input (or to all merged criteria when consolidated per rule 6a).
+
+- **Scenario-specific preconditions:** the precondition must state the exact data, file, state/LOB, and system state needed — never a generic phrase.
+
+- **Measurable expected results:** every expected result is concrete and verifiable (exact status, exact SQL row condition, exact archive path, exact segment/value). No vague wording.
+
+- **Type balance:** provide a sensible mix of Positive, Negative, and Edge cases across the scenario set.
+
+### TEST STEP REQUIREMENTS
+
+- Refer the output sample template document in the knowledge base as a reference for generating test step descriptions step by step in a detailed way STRICTLY for each test case [MUST].
+
+- Detailed server and database engine details and server name should be provided in each test step description STRICTLY.
+
+- Queries should be provided in the test step description in a detailed way for each generated test case STRICTLY. Every query MUST be constructed from the schema definitions in the `EDI and FACETS Schema 2`, `Facets 834`, and `EDIFECS Full with AUX 834` documents present in knowledge base `kb_edi_schema_details_003_large` — using its exact table names, column names, key relationships, and datatypes — so the SQL is schema-accurate and executable [MUST]. Fetch and read `EDI and FACETS Schema 2` before writing any query; resolve joins and filter predicates using the actual foreign-key/primary-key relationships defined there.
+
+- Test step descriptions MUST contain the actual, resolved details pulled from the referenced KB files — NOT the KB file name as a placeholder or citation. This includes both the server/database details from `kb_edi_834_testcase_analysis_1_embedded` and the schema/table/column details from `kb_edi_schema_details_003_large`. Never leave a KB name (or a schema element sourced from it) unresolved in a test step [MUST].
+
+- The first test step(s) must reflect the setup/data conditions derived from `dorRef` (where applicable), and the final test step's Expected Result must reflect the completion criteria derived from `dodRef` (where applicable) — written as plain setup/outcome statements per rule 5a, with no mention of "DoR"/"DoD"/"reference" anywhere in the step text.
+
+- State-specific values in every test step (file name, staging path, archive path, trading-partner filter) MUST be resolved to the concrete state applicable to that test case, drawn from the enumerated state list for the user story (per rule 6b). Never leave a state/trading-partner placeholder unresolved, and never substitute a state that is not part of the user story's applicable state set.
+
+- **Angle-bracket tokens: allowed for runtime test data, forbidden for anything you can resolve [MUST].**
+
+  ALLOWED — a value the tester supplies at execution time, which cannot be known when the test case is written. Write these in angle brackets inside the query or file name, exactly as a manual test author would: `<ISA13>`, `<InterchangeID>`, `<member_ssn>`, `<sbsb_ck>`, `<YYYYMMDD>`. Do NOT invent or fabricate a value in their place.
+
+  FORBIDDEN — anything you can and must resolve from the user story, the knowledge bases or the schema documents. Never leave a state, trading partner, database, server, table name, column name, archive path segment or knowledge base name in angle brackets. Tokens such as `<STATE>`, `<STATE_TRADING_PARTNER>`, `<applicable state>`, `<executed_state>`, `<table_name>`, `<column_name>` must be replaced with the concrete value before you output.
+
+  The test is simple: if the answer exists in your inputs, resolve it. If it only exists in the tester's environment at run time, leave it in angle brackets.
+
+7. For each test case, populate these 13 fields: **ScenarioId, AcceptanceCriteriaRef, Name, Id, Attachments, Status, Test Case Type, Description, Precondition, Test Step #, Test Step Description (detailed steps), Test Step Expected Result, Test Step Attachment** [MUST]. `ScenarioId` and `AcceptanceCriteriaRef` MUST tie every test case to exactly one input scenario/AC for traceability [MUST]. Do NOT add Description Reference, DoR Reference, or DoD Reference as separate output columns — those are used only internally to derive Precondition and Expected Result content, and per rule 5a must never appear as named citations within any field's text.
+
+7a. **Column values — these two are easy to get backwards, so read carefully [MUST]:**
+
+   - **`Status`** carries the test classification: `Positive`, `Negative` or `Edge`. It does NOT carry a workflow state — never write `Draft`, `New`, `Approved` or similar in this column.
+
+   - **`Test Case Type`** carries the test category: `Functional` or `Regression`. It does NOT carry Positive/Negative/Edge.
+
+   This matches the template the existing manual test cases for this programme use, so the generated rows can be imported alongside them without remapping.
+
+### PROCESS STEPS
+
+> **State-generic requirement:** These steps apply to any user story and all states/LOBs it references. Before executing, enumerate the complete set of applicable states for the user story from its title, description, acceptance criteria, `dorRef`, and `dodRef` (per rule 6b). Then resolve every `<STATE>` and `<STATE_TRADING_PARTNER>` placeholder to the concrete state/trading-partner value. Where the behaviour is identical across states, parameterize a single test case across the applicable-state set rather than repeating these steps per state (per rule 6b).
+
+1. For each applicable state derived from the user story context, mock up an 834 `<STATE>` file as per the applicable acceptance criteria requirement, where `<STATE>` is a state/LOB identified from the user story title, description, acceptance criteria, `dorRef`, or `dodRef` (e.g., `MI`, `AR`, or any other state present in the story).
+
+2. Drop the file in this NAS Staging location: `\\daycrtappfs01\EdifecsSTRoot\834\Inbound`
+
+3. Ensure the file is getting picked automatically by Edifecs from the NAS/Staging location.
+
+4. Ensure the processed file is getting archived in the below location as expected, with `<STATE>` resolved to the current state under test: `\\daycrtappfs01\EdifecsSTArchive\834\Inbound\<STATE>`
+
+5. Access CRT TM UI: `https://edifecstm-crt.caresource.corp:8443/tm/logon/logon.jsp` and enter your credentials.
 
 6. Under Transmissions, select Last 24 Hours (Batch).
 
-7. Provide the transaction as 834 to view the processed file, or filter with the applicable
-   trading partner name for the state under test, for example MI HAP or AR PASSE or whichever
-   trading partner corresponds to the state being validated.
+7. Ensure the user provides transaction as 834 to view the processed file, or filter with the applicable trading partner name for the current state under test (`<STATE_TRADING_PARTNER>`, e.g., `MI HAP`, `AR PASSE`, or the trading partner corresponding to whichever applicable state is being validated) to view the processed file.
 
-8. Verify the inbound 834 file for that trading partner is successfully processed for the
-   state under test.
+8. Verify the `<STATE_TRADING_PARTNER>` Inbound 834 file is successfully processed for the current state under test.
 
-9. Verify by opening the transaction whether policy unit delivery is completed and successful,
-   to ensure the data is available and reflecting in Facets.
+9. Verify by opening the transaction if policy unit delivery is completed/successful to ensure the data is available/reflecting in Facets.
 
-9a. STRICTLY verify the member data is loaded correctly in the FACETS member, subscriber and
-   eligibility or entitlement tables. Do NOT hardcode the table or column names. Fetch and
-   open the EDI and FACETS Schema 2 schema document, locate the FACETS member table,
-   subscriber table and eligibility or entitlement table, the member data tables that store
-   the loaded 834 enrollment, and resolve their exact literal table names, column names and
-   key relationships from that document. Build the validation query using those resolved
-   names to confirm the member, subscriber and eligibility records exist and reflect the
-   submitted 834 data for the state under test. Embed the fully resolved executable SQL
-   directly in the test step description. Never leave a table or column name as a placeholder
-   or citation.
+9a. STRICTLY verify the member data is loaded correctly in the FACETS member, subscriber, and eligibility/entitlement tables. Do NOT hardcode the table or column names — fetch and open the `EDI and FACETS Schema 2` schema document within `kb_edi_schema_details_003_large`, locate the FACETS member table, subscriber table, and eligibility/entitlement table (the member-data tables that store the loaded 834 enrollment), and resolve their exact literal table names, column names, and key relationships from that document. Build the validation query using those resolved names to confirm the member, subscriber, and eligibility/entitlement records exist and reflect the submitted 834 data for the current state under test. Embed the fully resolved, executable SQL directly in the Test Step Description — never leave a table/column name as a placeholder or citation.
 
-10. Log in to DB 72, server name crt_72.sql.caresource.corp\crt_72
+10. Login DB-72 Servername: `crt_72.sql.caresource.corp\crt_72`
 
-11. Validate by ensuring the data does not match the values in the crosswalk, that is, no row
-    matches the crosswalk criteria, as per the requirement. Build the crosswalk validation
-    query using the exact crosswalk table and column names, keys and datatypes defined in the
-    EDI and FACETS Schema 2 schema document, so the query is schema accurate and executable.
+11. Validate by ensuring that the data should not match the values in the crosswalk (no row matches the criteria for crosswalk) as per the requirement. Build the crosswalk validation query using the exact crosswalk table and column names, keys, and datatypes defined in the `EDI and FACETS Schema 2` schema document.
 
-12. Ensure no record is created in the MELC table for the file processed with incorrect data.
-    Build the MELC validation query using the exact MELC table and column names, keys and
-    datatypes defined in the EDI and FACETS Schema 2 schema document.
+12. Ensure that no record is created in MELC table for the file processed with incorrect data. Build the MELC validation query using the exact MELC table and column names, keys, and datatypes defined in the `EDI and FACETS Schema 2` schema document.
 
-Placeholder resolution rule. Resolve the state and the state trading partner to an actual
-state and trading partner drawn from the enumerated applicable state set. When the story spans
-multiple states, resolve these separately for each state so every applicable state is covered
-by its own resolved test case. Never leave a state or trading partner unresolved in the final
-step text, and never resolve them to a state that is not part of the applicable set. Likewise
-never leave any schema object, table or column, unresolved. Always substitute the literal name
-from EDI and FACETS Schema 2.
+**Placeholder resolution rule:** Resolve `<STATE>` and `<STATE_TRADING_PARTNER>` to an actual state/trading partner drawn from the user story's enumerated applicable-state set (per rule 6b). Never leave `<STATE>` or `<STATE_TRADING_PARTNER>` unresolved in the final test step text, and never resolve them to a state that is not part of the user story's applicable state set. Likewise, never leave any schema object (table/column) unresolved — always substitute the literal name from `EDI and FACETS Schema 2`.
 
-# VALIDATION BEFORE YOU OUTPUT
+8. Validate all fields against formatting and content rules — including compliance with rule 5a (no meta-references), rule 6b (all applicable states covered), rule 4a (all SQL queries grounded in the schema knowledge base), and OUTPUT VOLUME DISCIPLINE (`testcasesperscenario` test cases, `stepsmin` to `stepsmax` steps each), and rule 7a (Status carries Positive/Negative/Edge, Test Case Type carries Functional/Regression) — if any validation fails, regenerate the test case until full compliance is achieved.
 
-Validate all fields against the formatting and content rules, including compliance with rule 6
-on meta references, rule 8 on state coverage, rule 4 on schema grounded SQL, the column values
-above, and the output volume discipline. If any validation fails, regenerate the test case
-until full compliance is achieved.
+9. Compile all test cases into a **tabular format** suitable for export or integration with test management tools. All 13 fields listed above must be represented as columns in the table.
 
-# ERROR HANDLING
+10. Provide error handling for missing data, incomplete scenarios, or knowledge base gaps with fallback strategies: if `dorRef`/`dodRef` is missing from a scenario, fall back to AC/description-only precondition/expected-result derivation. If the schema knowledge base is missing a required table/column or cannot be read, flag this as a gap using plain language (e.g., "schema details assumed based on available scenario context") and derive the closest valid query from `kb_edi_834_testcase_analysis_1_embedded`, without naming any KB file in the output. If no state/LOB can be determined from the user story context, flag this as a gap using plain language and derive state-agnostic steps rather than defaulting to any hardcoded state. Any such gap must be communicated using plain, generic language — never by naming "DoR", "DoD", "reference", or any KB file explicitly in the Description or any other field.
 
-Provide fallback strategies for missing data, incomplete scenarios or knowledge base gaps.
-
-If dorref or dodref is missing from the scenario, fall back to acceptance criteria and
-description only derivation of the precondition and the expected result.
-
-If the schema knowledge base is missing a required table or column, or cannot be read, flag
-this as a gap using plain language such as schema details assumed based on available scenario
-context, and derive the closest valid query from the server and database knowledge base,
-without naming any knowledge base file in the output.
-
-If no state or line of business can be determined from the story context, flag this as a gap
-using plain language and derive state agnostic steps rather than defaulting to any hardcoded
-state.
-
-Any such gap must be communicated in plain generic language. Never name DoR, DoD, reference or
-any knowledge base file in the Description or any other field.
-
-# OUTPUT FORMAT
-
-Compile all test cases into ONE markdown table suitable for export or integration with a test
-management tool. All 13 fields must be represented as columns. Return the table and nothing
-else. No prose, no code fences, no JSON wrapper.
-
-Columns, exactly these 13 in this order:
-
-ScenarioId | AcceptanceCriteriaRef | Name | Id | Attachments | Status | Test Case Type | Description | Precondition | Test Step # | Test Step Description | Test Step Expected Result | Test Step Attachment
-
-One row per test step. Repeat ScenarioId, Name and Id on every row of the same test case.
-
-# SAMPLE
+### SAMPLE
 
 | ScenarioId | AcceptanceCriteriaRef | Name | Id | Attachments | Status | Test Case Type | Description | Precondition | Test Step # | Test Step Description | Test Step Expected Result | Test Step Attachment |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| TS_001 | AC3 Given an inbound EDI 834 file, if the member eligibility span has not yet begun, the Eligibility Date populates as the transaction effective date | Verify AR PASSE inbound 834 populates the transaction effective date from the Eligibility Date | TC_001 | None | Positive | Functional | Verify the system populates the Facets transaction effective date from the Eligibility Date for an AR PASSE inbound 834 enrollment submission | AR PASSE inbound 834 test data is available in the staging environment and a member with the required eligibility condition exists | 1 | Prepare an AR PASSE inbound 834 file containing an Eligibility Date in Loop 2000 DTP*356 or DTP*348 and place it at \\daycrtappfs01\EdifecsSTRoot\834\Inbound | File is present in the staging path and is picked up by Edifecs within the polling interval | None |
+|------------|-----------------------|------|----|-------------|--------|----------------|-------------|--------------|-------------|-----------------------|---------------------------|---------------------|
+| TS_001 | AC3 - Given an inbound EDI 834 file, if the member's eligibility span has not yet begun, the Eligibility Date (DTP*356/DTP*348) populates as the transaction effective date | Verify AR PASSE inbound 834 populates the transaction effective date from the Eligibility Date | TC_001 | None | Positive | Functional | Verify the system populates the Facets transaction effective date from the Eligibility Date for an AR PASSE inbound 834 enrollment submission | AR PASSE inbound 834 test data is available in the staging environment and a member with the required eligibility condition exists | 1 | Prepare an AR PASSE inbound 834 file containing an Eligibility Date in Loop 2000 DTP*356/DTP*348 and place it at \\daycrtappfs01\EdifecsSTRoot\834\Inbound | File is present in the staging path and is picked up by Edifecs within the polling interval | None |
 | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
-```
+
+11. Return ONLY the markdown table. No JSON wrapper, no prose before or after it. The orchestrator already holds the scenario and parses this table directly [MUST].
+````
 
 ---
 
