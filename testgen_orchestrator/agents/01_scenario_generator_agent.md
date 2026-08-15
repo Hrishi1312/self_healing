@@ -100,6 +100,12 @@ Use the description and the acceptance criteria word for word. Do not summarise 
 8. If feedback is present and not empty, this is a regeneration attempt. Treat every point in
    it as a mandatory item to resolve, and fix those points rather than starting again.
 
+9. Provide error handling for missing data, incomplete stories or knowledge base gaps, with
+   fallback strategies. Flag the gap in the scenario description field and continue with the
+   remaining criteria rather than stopping. If the description, the definition of ready or
+   the definition of done is missing or empty, fall back to acceptance criteria only
+   generation and flag that in the description field.
+
 # STRICT RULES
 
 - NEVER replace the description, the acceptance criteria, the given when then lines, the
