@@ -82,3 +82,18 @@ is named, and no `<STATE>`-style token survives (`<ISA13>`-style runtime data is
 The human-authored test cases for the same story — 21 test cases, 23 steps each, 11 columns
 — are the quality bar. See `readme/04_history_and_findings.md` for how the generated output
 compares. That file lives outside this repo; its path is recorded there.
+
+## Two designs live in this repo
+
+| | Where | Status |
+|---|---|---|
+| Current — two workflows, model-driven self-heal | repo root `agents/`, `tool/` | in production |
+| Next — one orchestrator agent + tool, batched and threaded | `testgen_orchestrator/` | designed, not built |
+
+**Decision taken 2026-08-14: move to the orchestrator pattern.** Every serious defect in the
+current design came from state travelling through payloads and control flow being a model's
+decision. The orchestrator removes both causes and enables per-scenario batching. Full
+rationale in `testgen_orchestrator/DESIGN.md`.
+
+Until the orchestrator is built and proven, the invariants above still govern the current
+design. Do not change one design to suit the other.

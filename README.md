@@ -1,15 +1,41 @@
 # self_healing
 
-Prompts and tool code for the AAVA workflow that generates EDI 834 Inbound test cases from
+Prompts and tool code for the AAVA pipeline that generates EDI 834 Inbound test cases from
 an Azure DevOps user story.
 
 Agent ids in play: **613** scenario generator, **564** test case generator, **559** reviewer,
 **367** ADO fetcher; tool **76** drives the rework loop.
 
+## Two designs live here
+
+| | Where | Status |
+|---|---|---|
+| **Current** — two workflows, model-driven self-heal | repo root: `agents/`, `tool/`, `readme/` | **in production** |
+| **Next** — one orchestrator agent + tool, batched and threaded | `testgen_orchestrator/` | designed, not built |
+
+**The decision, taken 2026-08-14:** move to the orchestrator pattern.
+
+Every serious defect in the current design traces to two causes — state travelling through
+payloads, and control flow being a model's decision. That produced placeholders that never
+bound, an agent asked to copy 100 KB verbatim, a round counter that could reset silently, a
+reviewer echoing the whole table until the gateway severed the connection, an unexplained
+double execution per trigger, and a PAT in plaintext in exported logs. Patching each one has
+cost weeks.
+
+The orchestrator removes the causes: state is a Python dict, the self-heal loop is a `while`,
+secrets never enter a prompt. It also enables **batching** — one execution per scenario, run
+in parallel, each healing independently — which is the only way to reach 7 scenarios × 3 test
+cases × 20 steps without a single response hitting the size that severs connections.
+
+Rationale and trade-offs in full: `testgen_orchestrator/DESIGN.md`.
+The current design stays in production and unchanged until the orchestrator is built and proven.
+
 ## What's here
 
 | Path | Contents |
 |---|---|
+| `testgen_orchestrator/` | **the next design** — orchestrator agent + tool, batched, threaded |
+| `probe/` | execution-timeout probe: measures the real ceiling, which sizes the orchestrator's budget |
 | `agents/agent2_test_scenario_generator.txt` | Story → test scenarios |
 | `agents/agent3_test_case_generator.txt` | Scenarios → test cases |
 | `agents/agent559_reviewer_llm_judge.txt` | Scores the test cases, fires the rework loop |
