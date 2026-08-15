@@ -246,7 +246,7 @@ def fetch_story(cfg: Dict[str, Any], pat: str, log: _Log) -> Dict[str, Any]:
 
 # ── agent execution ─────────────────────────────────────────────────────────
 def exec_agent(agentid: int, userinputs: Dict[str, Any], cfg: Dict[str, Any],
-               token: str, budget: _Budget, log: _Log, label: str) -> str:
+               token: str, budget: _Budget, log: _Log, label: str) -> Tuple[str, int]:
     """POST /agents/execute. Synchronous: the answer comes back in the response body, so no
     polling is involved. To switch to trigger and poll, this is the only function to change.
     """
@@ -274,8 +274,9 @@ def exec_agent(agentid: int, userinputs: Dict[str, Any], cfg: Dict[str, Any],
             out = payload.get("output") or payload.get("result") or ""
     if not out:
         raise RuntimeError(f"{label}: agent {agentid} returned an empty output")
-    log.line("agentcall", label=label, agentid=agentid, outchars=len(str(out)), ms=ms)
-    return str(out)
+    # No log line here on purpose: the caller logs one line carrying this ms plus the
+    # thing you actually want to see, so a run reads as one line per step, not two.
+    return str(out), ms
 
 
 # ── parsers, one per boundary ───────────────────────────────────────────────
@@ -423,8 +424,8 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                 "regenerate": json.dumps(regenerate) if regenerate else "",
             }
             try:
-                raw = exec_agent(cfg["testcaseagentid"], gen_inputs, cfg, token, budget, log,
-                                 f"generate:{sid}")
+                raw, gen_ms = exec_agent(cfg["testcaseagentid"], gen_inputs, cfg, token,
+                                         budget, log, f"generate:{sid}")
                 parsed = parse_testcases(raw, cfg["stepsmin"], cfg["stepsmax"])
             except Exception as e:
                 log.line("generate", scenario=sid, round=rnd, error=str(e)[:120])
@@ -436,7 +437,8 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             rec["chars"] = parsed["chars"]
             rec["testcasecount"] = len(parsed["ids"])
             log.line("generate", scenario=sid, round=rnd, tc=len(parsed["ids"]),
-                     chars=parsed["chars"])
+                     ids=",".join(parsed["ids"]), chars=parsed["chars"], ms=gen_ms,
+                     regen=len(regenerate) or None)
 
             rev_inputs = {
                 "scenario": json.dumps(scenario),
@@ -447,8 +449,8 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                 "testcasesperscenario": cfg["testcasesperscenario"],
             }
             try:
-                raw = exec_agent(cfg["reviewagentid"], rev_inputs, cfg, token, budget, log,
-                                 f"review:{sid}")
+                raw, rev_ms = exec_agent(cfg["reviewagentid"], rev_inputs, cfg, token,
+                                         budget, log, f"review:{sid}")
                 verdict = parse_verdict(raw, parsed["ids"])
             except Exception as e:
                 log.line("review", scenario=sid, round=rnd, error=str(e)[:120])
@@ -463,7 +465,7 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             rec["gaps"] = [g for s in failing for g in (s.get("gaps") or [])]
             log.line("review", scenario=sid, round=rnd, score=batchscore,
                      passed=f"{len(scores) - len(failing)}/{len(scores)}",
-                     failing=",".join(s["id"] for s in failing) or None)
+                     failing=",".join(s["id"] for s in failing) or None, ms=rev_ms)
 
             if not failing:
                 rec["status"] = "approved"
@@ -641,7 +643,7 @@ class AavaTestGenOrchestrator(BaseTool):
         feedback = ""
         for attempt in range(1, 4):
             try:
-                raw = exec_agent(cfg["scenarioagentid"], {
+                raw, scen_ms = exec_agent(cfg["scenarioagentid"], {
                     "storyid": story["storyid"], "title": story["title"],
                     "description": story["description"],
                     "acceptancecriteria": story["acceptancecriteria"],
@@ -657,7 +659,7 @@ class AavaTestGenOrchestrator(BaseTool):
                                "error": "scenario generation did not return a valid array",
                                "log": log.dump()})
         log.line("scenarios", count=len(scenarios),
-                 ids=",".join(s["scenarioid"] for s in scenarios))
+                 ids=",".join(s["scenarioid"] for s in scenarios), ms=scen_ms)
 
         # 3. batches, one thread per scenario
         records: List[Dict[str, Any]] = []
@@ -701,6 +703,20 @@ class AavaTestGenOrchestrator(BaseTool):
         }
         log.line("done", **counts, testcases=summary["testcases"],
                  agentcalls=budget.calls, ms=budget.elapsed_ms())
+
+        # One human readable line to close the log. Everything above is for grepping;
+        # this is the line you read first when someone asks how the run went.
+        board = "  ".join(
+            f"{r['scenarioid']}:{r['status']}"
+            + (f"({'>'.join(str(s) for s in r['scorehistory'])})" if r["scorehistory"] else "")
+            for r in records)
+        log.line("summary", story=cfg["adostoryid"],
+                 verdict=f"{counts['approved']}/{len(records)} approved",
+                 testcases=summary["testcases"],
+                 elapsed=f"{budget.elapsed_ms() // 1000}s",
+                 calls=budget.calls,
+                 warnings=len(warnings) or None,
+                 scoreboard=board)
 
         return json.dumps({
             "status": "completed",
