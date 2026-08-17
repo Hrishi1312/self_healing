@@ -1,0 +1,7 @@
+Workflow ID: 186
+Name: EDI 834 Inbound Workflow Modified
+Description: Workflow_EDI_834_Modified_New
+Status: APPROVED
+Agents: 408:Azure DevOps API User Story Fetcher, 560:EDI 834 Inbound Test Scenario Generator Modified, 614: EDI 834 Inbound Test Case Generator Modified, 394: Text To Excel Conversion Agent 
+Created by: Sinchana.Kottige@caresource.com
+Modified by: Sinchana.Kottige@caresource.com

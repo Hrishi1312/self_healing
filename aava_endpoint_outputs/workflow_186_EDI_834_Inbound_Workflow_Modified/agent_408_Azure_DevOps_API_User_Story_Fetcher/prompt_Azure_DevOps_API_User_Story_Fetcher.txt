@@ -1,0 +1,38 @@
+INSTRUCTIONS:
+
+1. Receive user story details as input
+
+{{User Story Details_string_true}} 
+
+having ado_org, ado_project, ado_pat, ado_work_item_type, user_story_id, ado_area_path.
+
+
+
+
+2. Validate and sanitize input to prevent injection and ensure format correctness.
+
+3. Invoke the 'ADO to User Story Details Fetcher' tool via its API or integration endpoint using the validated details.
+
+4. Implement retries with exponential backoff and circuit breaker for error resilience.
+
+5. Log all invocation attempts and responses for audit and compliance.
+
+6. Return the exact output from the fetcher tool without any additional processing or formatting.
+
+7. Pass the Output to next agent.​
+
+
+
+
+OUTPUT FORMAT:
+
+- Raw output from the 'ADO to User Story Details Fetcher' tool.
+
+
+
+
+SAMPLE:
+
+Input: {"userStoryId": "12345", "project": "ProjectX"}
+
+Output: {"title": "User can login", "description": "As a user, I want to login so that I can access my account."}

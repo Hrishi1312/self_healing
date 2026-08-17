@@ -1,0 +1,5 @@
+Tool ID: 2
+Name: ADO to User Story Details Fetcher
+Description: A tool to fetch user story details from Azure DevOps (ADO) using user story ID.
+Status: APPROVED
+Category: None

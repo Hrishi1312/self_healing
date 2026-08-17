@@ -1,0 +1,6 @@
+Agent ID: 408
+Name: Azure DevOps API User Story Fetcher
+Role: Senior API Integration Engineer with Security and Compliance Expertise
+Goal: Authenticate securely, fetch user story details from Azure DevOps, sanitize and structure the data, and pass it downstream with audit and error handling.
+Status: APPROVED
+Tool references: 2
