@@ -88,7 +88,12 @@ compares. That file lives outside this repo; its path is recorded there.
 | | Where | Status |
 |---|---|---|
 | Current — two workflows, model-driven self-heal | repo root `agents/`, `tool/` | in production |
-| Next — one orchestrator agent + tool, batched and threaded | `testgen_orchestrator/` | designed, not built |
+| Next — one orchestrator agent + tool, batched and threaded | `testgen_orchestrator/` | built, 136 offline checks pass, not yet run on the platform |
+
+**Client constraint: Azure Container Apps severs a request at 240 seconds.** This governs
+every volume decision in `testgen_orchestrator/`. The current design fits 8 scenarios x 3 test
+cases x 15-18 steps with one heal round only because the generator emits nested JSON and the
+assembled table goes to stdout rather than back through the calling agent.
 
 **Decision taken 2026-08-14: move to the orchestrator pattern.** Every serious defect in the
 current design came from state travelling through payloads and control flow being a model's

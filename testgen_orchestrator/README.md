@@ -29,18 +29,20 @@ fails is reported in the result, it does not fail the run.
 | Timing data | none, the platform logs no timestamps | every line stamps its own UTC |
 | Local testing | not possible | run it from a developer machine |
 
-**Status: designed and written, not yet run on the platform.** `DESIGN.md` carries the full
-rationale. The one unverified number is the execution ceiling, which sizes the budget; the
-probe in `../probe/` measures it.
+**Status: written and covered by an offline suite, not yet run on the platform.**
+`DESIGN.md` carries the full rationale. `tool/run_local.py` is the next step: it exercises the
+tool against the real platform, and `--probe` checks that `{{variable}}` binding works before
+anything else is attempted.
+
+**The binding constraint is time.** The client fronts AAVA with Azure Container Apps, which
+severs a request at **240 seconds**. Every guard in the tool sits below that on purpose, so it
+stops on its own terms and returns what it has. Measured against real output, 8 scenarios x 3
+test cases x 15-18 steps runs in roughly 140s without healing and 220s with one heal round,
+which fits only because two things are true: the generator emits nested JSON rather than
+repeating nine columns on every step row, and the assembled table goes to stdout instead of
+back through the calling agent.
 
 **Cost.** Roughly N+1 agent calls per story rather than 2, traded for capacity and isolation.
-A five scenario story is about 8 minutes wall clock because the scenarios run in parallel.
-
-The **next** design for EDI 834 test case generation: one orchestrator agent and one
-orchestrator tool, replacing the two-workflow pipeline in the repo root.
-
-**Status: designed, not built.** `DESIGN.md` is approved in shape; the tool and the adapted
-agent prompts are the next step.
 
 ## Why this exists
 
