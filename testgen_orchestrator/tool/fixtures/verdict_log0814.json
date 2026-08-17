@@ -1,0 +1,63 @@
+{
+ "confidence": 85,
+ "approved": false,
+ "feedback": "Fix hard-gate issues: remove unresolved design token \"State_of_AR\", remove meta-label text copied into fields, and reduce per-scenario test case count from 4 to 3 max while keeping 15-20 steps each.",
+ "strengths": [
+  "All four scenarios have related test coverage.",
+  "Each test case includes usable step descriptions and expected results.",
+  "Content is on-topic to the EDI 834 transaction effective date logic update."
+ ],
+ "gaps": [
+  "Check 7 failed: exact forbidden meta-label string \"acceptance criteria\" appears in TC_004, field AcceptanceCriteriaRef: \"Confirm that Maintenance Date is only used when specified in acceptance criteria.\"",
+  "Check 8 failed: scenario counts measured as TS_001=3, TS_002=3, TS_003=3, TS_004=3; total test cases=12; but TC_005 has 17 steps with one duplicated outcome-recording pattern and several negative cases validate non-applicability rather than a concrete expected system result, so tighten to clearer executable negatives if reworking.",
+  "Check 5 failed: exact unresolved design token substring \"State_of_AR\" appears in TC_001, field Precondition/steps/expected results via archive path \"\\\\daycrtappfs01\\EdifecsSTArchive\\834\\Inbound\\State_of_AR\".",
+  "Negative cases TC_008 and TC_011 are weakly grounded: they prove the target rule is 'not applicable' but do not assert which alternate rule should win, leaving outcome ambiguity for execution.",
+  "TC_005 states a negative around unchanged Assessment Date but does not tie expected result to the story's alternate effective-date logic, so the tester cannot confirm the correct downstream date selection."
+ ],
+ "scenariojson": [
+  {
+   "scenarioId": "TS_001",
+   "title": "Identify inbound 834 date sources and populate Eligibility Date for future-span transactions",
+   "descriptionRef": "This feature details the functionality required to correct the improper entry of split spans in Facets, based on Eligibility Date and Assessment Date, for changes received via EDI 834 E and U. \nThe business needs to utilize the Eligibility Date 2000 Loop (DTP*356/DTP*348) from the EDI 834 as the transaction effective date for all new enrollments, regardless of the Assessment Date. For example: Eligibility Date = 1/31/25 and Assessment Date = 1/24/25, use Eligibility Date (1/31/25). \nCurrent State \nCurrently, Maintenance effective date is being used to split spans on Update files. This is causing mismatches with capitation calculations, and the Finance team is misreporting revenue. \nWhat is Changing \nThe Maintenance Date 2000 Loop (DTP*303) cannot be used for all change transactions. Depending on the change, and whether it is received prior to or after the initial Eligibility Date, the transaction effective date may reflect either the Assessment Date, Eligibility Date, or Maintenance Date. \nExamples / Scenarios \nScenario | Eligibility Started? | Transaction Effective Date \nNew enrollment (Future eligibility date) | No | Eligibility Date \nTechnical Notes \nData values are contained in the 834 transaction loops as follows: \nAssessment Date - Loop 2300, HD03 \nEffective Date - Loop 2000, DTP03 \nMaintenance Date - Loop 2000, DTP01 \nAdjust logic to selectively use Eligibility Date, Assessment Date, or Maintenance Date as transaction effective date based on the outlined business rules. \nWhen multiple dates come in, use the first one.",
+   "acceptanceCriteriaRef": "1. EDI is able to identify the following dates in the EDI 834 file (existing functionality): Effective Date, Assessment Date, Maintenance Date. \n2. Enrollment IT can populate any of the three dates above into the transaction effective date in Facets (existing functionality). \n3. Given an inbound EDI 834 file, if the member\u2019s eligibility span has not yet begun, the Eligibility Date (DTP*356/DTP*348) populates as the transaction effective date.",
+   "dorRef": "",
+   "dodRef": "1. All functionality detailed in the feature has been developed, implemented, and tested in Production. \n2. Transaction effective date in Facets is correctly populated per the detailed business rules and requirements. \n4. Unit and integration tests have passed. \n5. User acceptance testing has been completed and approved. \n6. Relevant documentation has been updated.",
+   "type": "Positive",
+   "description": "Validate that inbound EDI 834 processing identifies Effective Date, Assessment Date, and Maintenance Date from the specified loops and populates Facets transaction effective date with the Eligibility Date for future eligibility/new enrollment scenarios, using the first date when multiple dates are present.",
+   "priority": "High"
+  },
+  {
+   "scenarioId": "TS_002",
+   "title": "Use Assessment Date for current eligibility updates when Assessment Date changes",
+   "descriptionRef": "The business needs to utilize the Assessment Date as the transaction effective date for changes to current eligibility, if the Assessment Date has changed. For example: Eligibility Date = 1/31/25 and Assessment Date changes to 6/29/25, use Assessment Date (6/29/25). \nThe business needs to update the Assessment Date as the transaction effective date for changes to current eligibility when the Assessment Date changes, but none of the other elements listed below have changed: \nAssessment Number \nAssessment Tier \nAssessment Division \nAid Category \nRate Cell \nPregnancy \nWhat is Changing \nThe Maintenance Date 2000 Loop (DTP*303) cannot be used for all change transactions. Depending on the change, and whether it is received prior to or after the initial Eligibility Date, the transaction effective date may reflect either the Assessment Date, Eligibility Date, or Maintenance Date. \nExamples / Scenarios \nScenario | Eligibility Started? | Transaction Effective Date \nCurrent eligibility, Assessment Date changed | Yes | Assessment Date \nAssessment Date changed, No changes to relevant fields | Yes | Assessment Date \nTechnical Notes \nAdjust logic to selectively use Eligibility Date, Assessment Date, or Maintenance Date as transaction effective date based on the outlined business rules.",
+   "acceptanceCriteriaRef": "4. Given an inbound EDI 834 file, if the member\u2019s eligibility span has already begun and the Assessment Date has changed, the Assessment Date populates as the transaction effective date. \n5. Given an inbound EDI 834 file, if the Assessment Date has changed and none of the relevant fields have changed, the Assessment Date populates as the transaction effective date, maintaining values of relevant fields.",
+   "dorRef": "",
+   "dodRef": "1. All functionality detailed in the feature has been developed, implemented, and tested in Production. \n2. Transaction effective date in Facets is correctly populated per the detailed business rules and requirements. \n4. Unit and integration tests have passed. \n5. User acceptance testing has been completed and approved.",
+   "type": "Positive",
+   "description": "Validate that for inbound 834 updates to current eligibility, a changed Assessment Date is selected as the Facets transaction effective date and relevant field values remain unchanged when Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy do not change.",
+   "priority": "High"
+  },
+  {
+   "scenarioId": "TS_003",
+   "title": "Use Eligibility Date for relevant-field changes received before eligibility start when Assessment Date is unchanged",
+   "descriptionRef": "The business needs to utilize the Eligibility Date as the transaction effective date for any changes to the items listed in Requirement 3 above, when the Assessment Date does NOT change, and those changes are received prior to the Eligibility Date. \nExamples / Scenarios \nScenario | Eligibility Started? | Transaction Effective Date \nFuture eligibility date, Changes to relevant fields, Assessment Date unchanged | No | Eligibility Date \nRelevant fields include Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy. \nFuture State \nThe Maintenance Date will no longer be used to split spans based on Update (834) files, except as detailed in Requirement 4 above. The transaction dates in Facets will conform to the functionality detailed in Requirements 1-5.",
+   "acceptanceCriteriaRef": "6. Given an inbound EDI 834 file, if the member\u2019s eligibility span has not yet begun and any relevant fields have changed but Assessment Date has NOT changed, the Eligibility Date populates as the transaction effective date.",
+   "dorRef": "",
+   "dodRef": "1. All functionality detailed in the feature has been developed, implemented, and tested in Production. \n2. Transaction effective date in Facets is correctly populated per the detailed business rules and requirements. \n4. Unit and integration tests have passed. \n5. User acceptance testing has been completed and approved.",
+   "type": "Edge",
+   "description": "Validate that when relevant fields change before the member\u2019s eligibility span begins and the Assessment Date is unchanged, inbound 834 processing uses the Eligibility Date rather than Maintenance Date as the Facets transaction effective date.",
+   "priority": "Medium"
+  },
+  {
+   "scenarioId": "TS_004",
+   "title": "Use Maintenance Date only for current eligibility relevant-field changes after eligibility start when Assessment Date is unchanged",
+   "descriptionRef": "The business needs to utilize the Maintenance Date (DTP*303) as the transaction effective date for any changes to the items listed in Requirement 3 above, when the Assessment Date does NOT change, and those changes are received after the Eligibility Date. \nCurrent State \nCurrently, Maintenance effective date is being used to split spans on Update files. This is causing mismatches with capitation calculations, and the Finance team is misreporting revenue. \nWhat is Changing \nThe Maintenance Date 2000 Loop (DTP*303) cannot be used for all change transactions. Depending on the change, and whether it is received prior to or after the initial Eligibility Date, the transaction effective date may reflect either the Assessment Date, Eligibility Date, or Maintenance Date. \nFuture State \nThe Maintenance Date will no longer be used to split spans based on Update (834) files, except as detailed in Requirement 4 above. \nExamples / Scenarios \nScenario | Eligibility Started? | Transaction Effective Date \nCurrent eligibility, Changes to relevant fields, Assessment Date unchanged | Yes | Maintenance Date \nRelevant fields include Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy.",
+   "acceptanceCriteriaRef": "7. Given an inbound EDI 834 file, if the member\u2019s eligibility span has already begun and any relevant fields have changed but Assessment Date has NOT changed, the Maintenance Date (DTP*303) populates as the transaction effective date. \nQA Regression Testing \nConfirm that Maintenance Date is only used when specified in acceptance criteria. \nVerify no change in capitation calculations and accurate reporting for finance team.",
+   "dorRef": "",
+   "dodRef": "1. All functionality detailed in the feature has been developed, implemented, and tested in Production. \n2. Transaction effective date in Facets is correctly populated per the detailed business rules and requirements. \n4. Unit and integration tests have passed. \n5. User acceptance testing has been completed and approved. \n6. Relevant documentation has been updated.",
+   "type": "Negative",
+   "description": "Validate that inbound 834 processing uses Maintenance Date as the Facets transaction effective date only when current eligibility has already begun, relevant fields changed, and Assessment Date did not change, and does not use Maintenance Date in any other covered scenario.",
+   "priority": "High"
+  }
+ ]
+}

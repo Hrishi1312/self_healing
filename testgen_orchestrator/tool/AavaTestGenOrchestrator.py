@@ -49,21 +49,29 @@ DEF_STEPSMIN = 15
 DEF_STEPSMAX = 18
 DEF_MAXHEALROUNDS = 3
 DEF_PASSSCORE = 90
-DEF_MAXWORKERS = 5
+DEF_HARDSTOPSCORE = 50        # below this, healing does not help; stop and report
+# Three, not five. Five concurrent completions against the same gateway is the load that
+# produced eight RemoteDisconnected errors in the two workflow design.
+DEF_MAXWORKERS = 3
 DEF_DEADLINESECONDS = 3000
 DEF_MAXAGENTCALLS = 60
 
-HTTP_TIMEOUT = 600          # per agent call
+# Per agent call. Deliberately below the observed platform execution ceiling: one hung sub
+# agent must not consume the whole run's budget before the internal deadline can fire.
+HTTP_TIMEOUT = 300
 ADO_TIMEOUT = (15, 45)
-RETRY_STATUSES = {0, 403, 429, 500, 502, 503, 504}
-MAX_HTTP_ATTEMPTS = 3
 
 COLUMNS = ["ScenarioId", "AcceptanceCriteriaRef", "Name", "Id", "Attachments", "Status",
            "Test Case Type", "Description", "Precondition", "Test Step #",
            "Test Step Description", "Test Step Expected Result", "Test Step Attachment"]
 
-SCENARIO_KEYS = ["scenarioid", "title", "descriptionref", "acceptancecriteriaref",
-                 "dorref", "dodref", "type", "description", "priority"]
+# Field names INSIDE a scenario object, as the scenario generator emits them. These are
+# camelCase because the agent prompt is carried verbatim from production and specifies
+# camelCase, and real logged output confirms it. Do not "tidy" these to lowercase: the
+# config keys are lowercase, the scenario object fields are not, and they are different
+# namespaces.
+SCENARIO_KEYS = ["scenarioId", "title", "descriptionRef", "acceptanceCriteriaRef",
+                 "dorRef", "dodRef", "type", "description", "priority"]
 
 TYPES = {"Positive", "Negative", "Edge"}
 PRIORITIES = {"High", "Medium", "Low"}
@@ -144,33 +152,27 @@ class _Budget:
 # ── http ────────────────────────────────────────────────────────────────────
 def _http(method: str, url: str, log: _Log, headers: Dict[str, str] = None,
           json_body: Any = None, timeout: Any = HTTP_TIMEOUT) -> Tuple[int, Any]:
-    """One request with bounded retry. Returns (status, parsed_body). Status 0 means the
-    client never got a response, which is how a severed long request shows up."""
-    last: Tuple[int, Any] = (0, None)
-    for attempt in range(1, MAX_HTTP_ATTEMPTS + 1):
+    """ONE attempt. Returns (status, parsed_body); status 0 means no response, which is how a
+    severed long request shows up.
+
+    Deliberately no retry, matching CGSelfhealingV3Tool. The platform severs an agent call at
+    roughly 265 seconds, so a blind retry of a timed out call costs another full timeout: three
+    attempts would burn about 800 seconds inside a single scenario and take the whole run's
+    budget with it. Retrying is the heal loop's job, under the budget, not this function's.
+    """
+    try:
+        r = requests.request(method, url, headers=headers or {}, json=json_body, timeout=timeout)
         try:
-            r = requests.request(method, url, headers=headers or {}, json=json_body,
-                                 timeout=timeout)
-            try:
-                body = r.json()
-            except Exception:
-                body = r.text
-            if r.status_code not in RETRY_STATUSES:
-                return r.status_code, body
-            last = (r.status_code, body)
-        except requests.RequestException as e:
-            last = (0, str(e))
-        if attempt < MAX_HTTP_ATTEMPTS:
-            wait = 2.0 ** attempt
-            log.line("retry", url=url.rsplit("/", 1)[-1], attempt=f"{attempt}/{MAX_HTTP_ATTEMPTS}",
-                     status=last[0], wait=f"{wait:.0f}s")
-            time.sleep(wait)
-    return last
+            return r.status_code, r.json()
+        except Exception:
+            return r.status_code, r.text
+    except requests.RequestException as e:
+        return 0, str(e)
 
 
 # ── secrets ─────────────────────────────────────────────────────────────────
 def _secret(key: str, fallback: str = "") -> str:
-    """AVASecret first, the inputs blob only as a local development fallback."""
+    """AVASecret first, the argument only as a local development fallback."""
     if AVASecret is not None:
         try:
             v = AVASecret.getValue(key)
@@ -245,6 +247,10 @@ def fetch_story(cfg: Dict[str, Any], pat: str, log: _Log) -> Dict[str, Any]:
 
 
 # ── agent execution ─────────────────────────────────────────────────────────
+def _j(value: Any) -> str:
+    return json.dumps(value, ensure_ascii=False)
+
+
 def exec_agent(agentid: int, userinputs: Dict[str, Any], cfg: Dict[str, Any],
                token: str, budget: _Budget, log: _Log, label: str) -> Tuple[str, int]:
     """POST /agents/execute. Synchronous: the answer comes back in the response body, so no
@@ -306,7 +312,7 @@ def parse_scenarios(raw: str, maxscenarios: int) -> List[Dict[str, Any]]:
         missing = [k for k in SCENARIO_KEYS if k not in s]
         if missing:
             raise ValueError(f"scenario {i} missing keys: {', '.join(missing)}")
-        sid = str(s["scenarioid"]).strip()
+        sid = str(s["scenarioId"]).strip()
         if not re.match(r"^TS_\d+$", sid):
             raise ValueError(f"scenario {i} scenarioid '{sid}' is not TS_ followed by digits")
         if sid in seen:
@@ -316,7 +322,7 @@ def parse_scenarios(raw: str, maxscenarios: int) -> List[Dict[str, Any]]:
             raise ValueError(f"{sid} type '{s['type']}' is not Positive, Negative or Edge")
         if str(s["priority"]).strip() not in PRIORITIES:
             raise ValueError(f"{sid} priority '{s['priority']}' is not High, Medium or Low")
-        # dorref and dodref may legitimately be empty; the story has no definition of ready.
+        # dorRef and dodRef may legitimately be empty; the story has no definition of ready.
         out.append({k: s[k] for k in SCENARIO_KEYS})
 
     order = {"High": 0, "Medium": 1, "Low": 2}
@@ -327,7 +333,16 @@ def parse_scenarios(raw: str, maxscenarios: int) -> List[Dict[str, Any]]:
 def parse_testcases(raw: str, stepsmin: int, stepsmax: int) -> Dict[str, Any]:
     """Parse the markdown table and check its shape. Returns rows plus a per test case index."""
     text = _strip_fences(raw)
-    rows = [r.strip() for r in text.split("\n") if r.strip().startswith("|")]
+    # A cell holding a newline splits one table row across physical lines. Real output does
+    # this whenever acceptanceCriteriaRef carries two AC lines. Rejoin before splitting on
+    # pipes, or the row is dropped and its steps vanish without any check noticing.
+    rows: List[str] = []
+    for line in text.split("\n"):
+        s = line.strip()
+        if s.startswith("|"):
+            rows.append(s)
+        elif s and rows and rows[-1].count("|") < len(COLUMNS) + 1:
+            rows[-1] += " " + s
     if len(rows) < 3:
         raise ValueError("no markdown table found")
     cells = [[c.strip() for c in r.strip().strip("|").split("|")] for r in rows]
@@ -389,12 +404,62 @@ def parse_verdict(raw: str, known_ids: List[str]) -> Dict[str, Any]:
     return v
 
 
+# ── cheap deterministic gate, no llm ────────────────────────────────────────
+# Checks 3, 6 and 7 of the reviewer's checklist are literal string tests. Doing them here is
+# strictly better than paying an Opus call to do them: free, deterministic, and immune to the
+# evidence-rule ambiguity that had the reviewer inventing violations. Only work that survives
+# this gate is worth a reviewer call.
+SOURCE_NAMES = ["kb_", "EDI and FACETS Schema 2", "Facets 834", "EDIFECS Full with AUX 834"]
+META_LABELS = ["DoR", "DoD", "Definition of Ready", "Definition of Done",
+               "descriptionRef", "dorRef", "dodRef", "per the AC", "as referenced in"]
+DESIGN_TOKENS = ["<STATE>", "<STATE_TRADING_PARTNER>", "<applicable state>",
+                 "<executed_state>", "<table_name>", "<column_name>"]
+# Name, Description, Precondition, Test Step Description, Test Step Expected Result.
+# ScenarioId and AcceptanceCriteriaRef are exempt, as they are in the reviewer's own rules.
+_META_COLS = [2, 7, 8, 10, 11]
+
+
+def pregate(parsed: Dict[str, Any]) -> List[str]:
+    """Return the problems a machine can prove. Empty means it is worth reviewing."""
+    problems: List[str] = []
+
+    for tid, rows in parsed["cases"].items():
+        for r in rows:
+            if not r[10].strip():
+                problems.append(f"{tid} step {r[9] or '?'} has an empty Test Step Description")
+                break
+            if not r[11].strip():
+                problems.append(f"{tid} step {r[9] or '?'} has an empty Test Step Expected Result")
+                break
+
+    table = parsed["table"]
+    for name in SOURCE_NAMES:
+        if name in table:
+            problems.append(f"the knowledge base or schema name '{name}' appears in the output")
+    for tok in DESIGN_TOKENS:
+        if tok in table:
+            problems.append(f"unresolved design value '{tok}' was left in the output")
+    for row in parsed["rows"]:
+        for c in _META_COLS:
+            for label in META_LABELS:
+                if label in row[c]:
+                    problems.append(f"{row[3] or 'a test case'} carries the meta label "
+                                    f"'{label}' in {COLUMNS[c]}")
+                    break
+    seen, unique = set(), []
+    for p in problems:                      # one line per distinct fault, not per row
+        if p not in seen:
+            seen.add(p)
+            unique.append(p)
+    return unique[:20]
+
+
 # ── one scenario, start to finish, on its own thread ────────────────────────
 def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[str, Any],
                      token: str, budget: _Budget, log: _Log) -> Dict[str, Any]:
     """Generate, review and heal one scenario. Never raises: every failure becomes a record
     so that one bad scenario cannot take the run down with it."""
-    sid = scenario["scenarioid"]
+    sid = scenario["scenarioId"]
     rec: Dict[str, Any] = {
         "scenarioid": sid, "title": scenario.get("title", ""), "status": "failed",
         "scorehistory": [], "finalscore": None, "rounds": 0,
@@ -405,9 +470,12 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
     passscore = cfg["passscore"]
     parsed: Optional[Dict[str, Any]] = None
     regenerate: List[Dict[str, Any]] = []
+    # maxhealrounds 0 means one pass and no regeneration: score it, report it, change nothing.
+    passes = max(1, cfg["maxhealrounds"])
+    reviewing = int(cfg["reviewagentid"]) > 0          # 0 disables the judge entirely
 
     try:
-        for rnd in range(1, cfg["maxhealrounds"] + 1):
+        for rnd in range(1, passes + 1):
             if not budget.allows(need_seconds=60):
                 rec["status"] = "skipped" if rnd == 1 else rec["status"]
                 rec["error"] = "budget exhausted"
@@ -416,13 +484,13 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             rec["rounds"] = rnd
 
             gen_inputs = {
-                "scenario": json.dumps(scenario),
+                "scenario": _j(scenario),
                 "storytitle": story["title"],
-                "testcasesperscenario": cfg["testcasesperscenario"],
-                "stepsmin": cfg["stepsmin"],
-                "stepsmax": cfg["stepsmax"],
-                "regenerate": json.dumps(regenerate) if regenerate else "",
+                "limits": _j({"testcasesperscenario": cfg["testcasesperscenario"],
+                              "stepsmin": cfg["stepsmin"], "stepsmax": cfg["stepsmax"]}),
             }
+            if regenerate:
+                gen_inputs["regenerate"] = _j(regenerate)   # omitted on the first round
             try:
                 raw, gen_ms = exec_agent(cfg["testcaseagentid"], gen_inputs, cfg, token,
                                          budget, log, f"generate:{sid}")
@@ -440,13 +508,32 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                      ids=",".join(parsed["ids"]), chars=parsed["chars"], ms=gen_ms,
                      regen=len(regenerate) or None)
 
+            # Deterministic gate first. A structurally broken table is regenerated without
+            # spending a reviewer call on it, exactly as the working copy does with _score.
+            problems = pregate(parsed)
+            if problems:
+                log.line("pregate", scenario=sid, round=rnd, failed=len(problems),
+                         first=problems[0][:90])
+                rec["gaps"] = problems
+                rec["status"] = "unhealed"
+                if rnd >= passes:
+                    break
+                regenerate = [{"id": "all", "gaps": problems}]
+                continue
+
+            if not reviewing:
+                # Degraded mode: no judge configured. The pre gate is the whole gate.
+                rec["status"] = "unreviewed"
+                rec["gaps"] = []
+                log.line("review", scenario=sid, round=rnd, note="skipped, reviewagentid=0")
+                break
+
             rev_inputs = {
-                "scenario": json.dumps(scenario),
+                "scenario": _j(scenario),
                 "testcases": parsed["table"],
-                "passscore": passscore,
-                "stepsmin": cfg["stepsmin"],
-                "stepsmax": cfg["stepsmax"],
-                "testcasesperscenario": cfg["testcasesperscenario"],
+                "limits": _j({"passscore": passscore, "stepsmin": cfg["stepsmin"],
+                              "stepsmax": cfg["stepsmax"],
+                              "testcasesperscenario": cfg["testcasesperscenario"]}),
             }
             try:
                 raw, rev_ms = exec_agent(cfg["reviewagentid"], rev_inputs, cfg, token,
@@ -471,13 +558,21 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                 rec["status"] = "approved"
                 break
 
+            # Hard stop: this far below the bar the output is wrong, not rough, and another
+            # round spends budget to arrive at the same place. Report it for a human instead.
+            if batchscore < cfg["hardstopscore"]:
+                rec["status"] = "hardstop"
+                log.line("hardstop", scenario=sid, round=rnd, score=batchscore,
+                         floor=cfg["hardstopscore"], note="too low to heal, stopping")
+                break
+
             if cfg["stoponstagnation"] and len(rec["scorehistory"]) >= 2 \
                     and rec["scorehistory"][-1] <= rec["scorehistory"][-2]:
                 rec["status"] = "stagnant"
                 log.line("stagnant", scenario=sid, round=rnd, scores=rec["scorehistory"])
                 break
 
-            if rnd >= cfg["maxhealrounds"]:
+            if rnd >= passes:
                 rec["status"] = "unhealed"
                 break
 
@@ -501,8 +596,8 @@ def cross_batch_check(records: List[Dict[str, Any]], scenarios: List[Dict[str, A
     warnings: List[str] = []
     covered = {r["scenarioid"] for r in records if r["testcasecount"] > 0}
     for s in scenarios:
-        if s["scenarioid"] not in covered:
-            warnings.append(f"{s['scenarioid']} produced no test cases")
+        if s["scenarioId"] not in covered:
+            warnings.append(f"{s['scenarioId']} produced no test cases")
 
     seen: Dict[str, str] = {}
     statuses: Dict[str, int] = {}
@@ -526,18 +621,25 @@ def cross_batch_check(records: List[Dict[str, Any]], scenarios: List[Dict[str, A
 
 # ── crewai surface ──────────────────────────────────────────────────────────
 class AavaTestGenOrchestratorSchema(BaseModel):
-    """Input schema for AavaTestGenOrchestrator."""
+    """Input schema for AavaTestGenOrchestrator.
 
-    inputs: str = Field(
+    ONE object, not one field per setting. The orchestrator agent is an LLM: every separate
+    variable it has to relay is another chance for it to reformat, reorder or drop a value.
+    One opaque string is a single copy operation, and the tool does the parsing.
+    """
+
+    runinputs: str = Field(
         ...,
         description=(
-            "One JSON blob with every run setting. Keys are lowercase with no separators: "
-            "adoorg, adoproject, adostoryid, adoworkitemtype, adoareapath, scenarioagentid, "
-            "testcaseagentid, reviewagentid, maxscenarios, testcasesperscenario, stepsmin, "
-            "stepsmax, maxhealrounds, passscore, maxworkers, stoponstagnation, "
+            "One JSON object carrying every run setting. Keys are lowercase with no "
+            "separators: adoorg, adoproject, adostoryid, scenarioagentid, testcaseagentid, "
+            "reviewagentid, maxscenarios, testcasesperscenario, stepsmin, stepsmax, "
+            "maxhealrounds, passscore, hardstopscore, maxworkers, stoponstagnation, "
             "deadlineseconds, maxagentcalls, aavabaseurl, realmid, userprincipal, and for "
-            "local testing only adopat and aavatoken. Pass the value through exactly as "
-            "received, including any credential fields; do not parse or rebuild it."
+            "local testing only adopat and aavatoken. Set maxhealrounds to 0 for a single "
+            "pass with no regeneration, or reviewagentid to 0 to run without the judge. Pass "
+            "the value through EXACTLY as received, as one opaque string. Do not parse it, "
+            "rebuild it, reorder it or drop any field."
         ),
     )
 
@@ -552,29 +654,38 @@ class AavaTestGenOrchestrator(BaseTool):
         "independent reviewer score every one, healing the failures, with all scenarios "
         "running in parallel. Returns one JSON envelope carrying a score per scenario, the "
         "assembled test case table and a full structured log. Always returns: a scenario that "
-        "failed is reported inside the envelope, never raised. Takes a single argument, "
-        "inputs, which is a JSON blob."
+        "failed is reported inside the envelope, never raised."
     )
     args_schema: Type[BaseModel] = AavaTestGenOrchestratorSchema
 
     # ── config ──────────────────────────────────────────────────────────────
-    def _config(self, blob: str) -> Dict[str, Any]:
+    def _config(self, blob: Any) -> Dict[str, Any]:
+        """Parse the runinputs object, then clamp and coerce. Form data arrives as strings,
+        and an unbound {{variable}} arrives as its own literal name, so nothing is trusted
+        by type."""
         raw = _strip_fences(blob if isinstance(blob, str) else json.dumps(blob))
         start, end = raw.find("{"), raw.rfind("}")
         if start == -1 or end == -1:
-            raise ValueError("inputs is not a JSON object")
+            raise ValueError("runinputs is not a JSON object")
         cfg = json.loads(raw[start:end + 1])
         if not isinstance(cfg, dict):
-            raise ValueError("inputs did not parse to an object")
+            raise ValueError("runinputs did not parse to an object")
+        cfg = {k: v for k, v in cfg.items() if v is not None}
 
         for key in ("adoorg", "adoproject", "adostoryid"):
             if not str(cfg.get(key, "")).strip():
-                raise ValueError(f"inputs is missing {key}")
+                raise ValueError(f"runinputs is missing {key}")
+            cfg[key] = str(cfg[key]).strip()
         for key in ("scenarioagentid", "testcaseagentid", "reviewagentid"):
             try:
                 cfg[key] = int(cfg[key])
             except (KeyError, TypeError, ValueError):
-                raise ValueError(f"inputs {key} must be an agent id number")
+                raise ValueError(f"{key} must be an agent id number")
+        # reviewagentid 0 is the documented way to run without the judge; the other two are
+        # the pipeline itself and cannot be switched off.
+        for key in ("scenarioagentid", "testcaseagentid"):
+            if cfg[key] <= 0:
+                raise ValueError(f"{key} must be a real agent id")
 
         def num(key, default, lo, hi):
             try:
@@ -589,6 +700,7 @@ class AavaTestGenOrchestrator(BaseTool):
         num("stepsmax", DEF_STEPSMAX, cfg.get("stepsmin", DEF_STEPSMIN), 40)
         num("maxhealrounds", DEF_MAXHEALROUNDS, 0, 5)
         num("passscore", DEF_PASSSCORE, 1, 100)
+        num("hardstopscore", DEF_HARDSTOPSCORE, 0, cfg.get("passscore", DEF_PASSSCORE))
         num("maxworkers", DEF_MAXWORKERS, 1, 10)
         num("deadlineseconds", DEF_DEADLINESECONDS, 60, 3600)
         num("maxagentcalls", DEF_MAXAGENTCALLS, 1, 500)
@@ -608,7 +720,7 @@ class AavaTestGenOrchestrator(BaseTool):
         log = _Log()
 
         try:
-            cfg = self._config(a.get("inputs") or "")
+            cfg = self._config(a.get("runinputs") or "")
         except Exception as e:
             return json.dumps({"status": "failed", "stage": "validation",
                                "error": str(e)[:400], "log": log.dump()})
@@ -629,6 +741,8 @@ class AavaTestGenOrchestrator(BaseTool):
                  tcper=cfg["testcasesperscenario"],
                  steps=f"{cfg['stepsmin']}-{cfg['stepsmax']}",
                  rounds=cfg["maxhealrounds"], workers=cfg["maxworkers"],
+                 pass_=f"{cfg['passscore']}/{cfg['hardstopscore']}",
+                 judge=cfg["reviewagentid"] or "off",
                  deadline=f"{cfg['deadlineseconds']}s")
 
         # 1. story
@@ -643,12 +757,16 @@ class AavaTestGenOrchestrator(BaseTool):
         feedback = ""
         for attempt in range(1, 4):
             try:
-                raw, scen_ms = exec_agent(cfg["scenarioagentid"], {
-                    "storyid": story["storyid"], "title": story["title"],
-                    "description": story["description"],
-                    "acceptancecriteria": story["acceptancecriteria"],
-                    "maxscenarios": cfg["maxscenarios"], "feedback": feedback,
-                }, cfg, aavatoken, budget, log, "scenarios")
+                scen_inputs = {
+                    "storydata": _j({"storyid": story["storyid"], "title": story["title"],
+                                     "description": story["description"],
+                                     "acceptancecriteria": story["acceptancecriteria"]}),
+                    "maxscenarios": str(cfg["maxscenarios"]),
+                }
+                if feedback:
+                    scen_inputs["feedback"] = feedback      # omitted on the first attempt
+                raw, scen_ms = exec_agent(cfg["scenarioagentid"], scen_inputs,
+                                          cfg, aavatoken, budget, log, "scenarios")
                 scenarios = parse_scenarios(raw, cfg["maxscenarios"])
                 break
             except Exception as e:
@@ -659,7 +777,7 @@ class AavaTestGenOrchestrator(BaseTool):
                                "error": "scenario generation did not return a valid array",
                                "log": log.dump()})
         log.line("scenarios", count=len(scenarios),
-                 ids=",".join(s["scenarioid"] for s in scenarios), ms=scen_ms)
+                 ids=",".join(s["scenarioId"] for s in scenarios), ms=scen_ms)
 
         # 3. batches, one thread per scenario
         records: List[Dict[str, Any]] = []
@@ -671,12 +789,12 @@ class AavaTestGenOrchestrator(BaseTool):
                 try:
                     records.append(fut.result())
                 except Exception as e:                        # belt and braces
-                    records.append({"scenarioid": s["scenarioid"], "status": "failed",
+                    records.append({"scenarioid": s["scenarioId"], "status": "failed",
                                     "error": str(e)[:300], "scorehistory": [], "rounds": 0,
                                     "testcasecount": 0, "chars": 0, "elapsedms": 0,
                                     "gaps": [], "table": "", "finalscore": None,
                                     "title": s.get("title", "")})
-        order = {s["scenarioid"]: i for i, s in enumerate(scenarios)}
+        order = {s["scenarioId"]: i for i, s in enumerate(scenarios)}
         records.sort(key=lambda r: order.get(r["scenarioid"], 999))
 
         # 4. cross batch check and assembly
@@ -694,7 +812,8 @@ class AavaTestGenOrchestrator(BaseTool):
                                "|" + "---|" * len(COLUMNS)] + body)
 
         counts = {k: sum(1 for r in records if r["status"] == k)
-                  for k in ("approved", "unhealed", "stagnant", "failed", "skipped")}
+                  for k in ("approved", "unreviewed", "unhealed", "stagnant", "hardstop",
+                            "failed", "skipped")}
         summary = {
             "scenarios": len(records), **counts,
             "testcases": sum(r["testcasecount"] for r in records),
@@ -711,7 +830,7 @@ class AavaTestGenOrchestrator(BaseTool):
             + (f"({'>'.join(str(s) for s in r['scorehistory'])})" if r["scorehistory"] else "")
             for r in records)
         log.line("summary", story=cfg["adostoryid"],
-                 verdict=f"{counts['approved']}/{len(records)} approved",
+                 verdict=f"{counts['approved'] + counts['unreviewed']}/{len(records)} passed",
                  testcases=summary["testcases"],
                  elapsed=f"{budget.elapsed_ms() // 1000}s",
                  calls=budget.calls,

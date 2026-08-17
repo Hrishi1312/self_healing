@@ -65,17 +65,32 @@ put the real server, database, table and column names into the step itself.
 ````
 ## INPUT
 
-- **Test scenario (JSON) — REQUIRED, key `scenario`:** ONE test scenario object from the orchestrator. It contains `scenarioId`, `title`, `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, `dodRef`, `type`, `description`, and `priority`. Use these scenarios — including the description context and DoR/DoD references — as the basis for test case generation. Do NOT call Azure DevOps directly.
+Any JSON input may be wrapped in markdown fences — strip fences before parsing.
 
-- **regenerate — OPTIONAL, key `regenerate`:** A list of test case ids that failed review, each with the `gaps` to fix, produced by the reviewer in a previous round. When it is present and non-empty, treat it as the HIGHEST-PRIORITY instruction set for this round and follow the "FEEDBACK HANDLING" section below. When it is empty, this is the first round — generate normally.
+- {{scenario}}   — JSON: ONE test scenario object, carrying the fields `scenarioId`, `title`, `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, `dodRef`, `type`, `description`, `priority`
+- {{storytitle}} — the title of the user story the scenario came from
+- {{limits}}     — JSON with: testcasesperscenario, stepsmin, stepsmax
+- {{regenerate}} — present ONLY on a rework round. Absent on the first round, which is normal.
 
-- **Other keys:** `storytitle`, `testcasesperscenario`, `stepsmin`, `stepsmax`. All keys are lowercase with no separators.
+- {{scenario}} — REQUIRED. ONE test scenario object as JSON. It contains the fields `scenarioId`, `title`, `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, `dodRef`, `type`, `description`, and `priority`. Use it — including the description context and the DoR/DoD references — as the basis for test case generation. Do NOT call Azure DevOps directly.
 
-## FEEDBACK HANDLING (applies ONLY when `regenerate` is present and non-empty)
+- {{storytitle}} — the title of the user story the scenario came from.
 
-When `regenerate` contains content from a previous round, this is a REGENERATION round. Rebuild ONLY the listed test cases and leave the others exactly as they were. You MUST:
+- `limits.testcasesperscenario` — how many test cases to produce for this one scenario.
 
-1. **Parse the feedback into a checklist.** Extract every distinct point from the `gaps` listed against each test case in `regenerate`. Treat each gap as a mandatory action item you have to resolve THIS round.
+- `limits.stepsmin` — the minimum number of test steps per test case.
+
+- `limits.stepsmax` — the maximum number of test steps per test case.
+
+- {{regenerate}} — OPTIONAL, empty on the first round. When NON-EMPTY it is a JSON list of test case ids that failed review, each with the `gaps` to fix, produced by the reviewer in a previous round. Treat it as the HIGHEST-PRIORITY instruction set for this round and follow the "FEEDBACK HANDLING" section below. When it is empty, this is the first round — generate normally.
+
+{{scenario}} and {{regenerate}} may arrive wrapped in markdown fences; strip the fences before using them.
+
+## FEEDBACK HANDLING (applies ONLY when {{regenerate}} is present and non-empty)
+
+When {{regenerate}} contains content from a previous round, this is a REGENERATION round. Rebuild ONLY the listed test cases and leave the others exactly as they were. You MUST:
+
+1. **Parse the feedback into a checklist.** Extract every distinct point from the `gaps` listed against each test case in {{regenerate}}. Treat each gap as a mandatory action item you have to resolve THIS round.
 
 2. **Refine, do NOT regenerate from scratch.** Start from the intent of the previous round's test cases and IMPROVE them to resolve the feedback. Do NOT balloon the output — keep the total number of test cases within the limits in "OUTPUT VOLUME DISCIPLINE". Do NOT emit duplicate or near-duplicate test cases.
 
@@ -95,7 +110,7 @@ When `regenerate` contains content from a previous round, this is a REGENERATION
 
 ## INSTRUCTIONS
 
-1. Consume the scenario received as input, mapped to a description + acceptance criteria combination (with `dorRef`/`dodRef`) for EDI 834 Inbound files. If `regenerate` is non-empty, first apply the FEEDBACK HANDLING section above, then proceed.
+1. Consume the scenario received as input, mapped to a description + acceptance criteria combination (with `dorRef`/`dodRef`) for EDI 834 Inbound files. If {{regenerate}} is non-empty, first apply the FEEDBACK HANDLING section above, then proceed.
 
 2. Parse and semantically analyze the test scenario — including its `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, and `dodRef` — to extract functional and non-functional requirements. Generate test cases very specific to the test scenario and its referenced description, acceptance criteria, DoR, and DoD received from the orchestrator [MUST]. Do NOT treat `acceptanceCriteriaRef` alone as sufficient — the `descriptionRef` context must directly shape the test case's steps and expected results.
 
@@ -143,7 +158,7 @@ Generate the test cases in a structured format — do not combine all steps in a
 
 ### REQUIRED CLASSIFICATIONS
 
-Across the scenario set, all three classifications must appear. Each individual scenario gets 2 test cases: one Positive, plus one Negative or Edge.
+Across the scenario set, all three classifications must appear. This scenario gets `limits.testcasesperscenario` test cases, covering Positive, Negative and Edge in that order of priority. Produce fewer only when the scenario genuinely cannot support a classification, and say why in that test case's Description.
 
 - **Positive**
 
@@ -159,9 +174,9 @@ The scenario supplied must be realized by test cases, maintaining internal trace
 
 These limits are not stylistic. The platform enforces a 600-second execution ceiling on the workflow, and exceeding them causes the run to time out and produce nothing at all.
 
-- **Exactly `testcasesperscenario` test cases for this scenario.** Where the scenario genuinely cannot support one of the required types, produce fewer and say why in that test case's Description. Never produce more.
+- **Exactly `limits.testcasesperscenario` test cases for this scenario.** Where the scenario genuinely cannot support one of the required types, produce fewer and say why in that test case's Description. Never produce more.
 
-- **Between `stepsmin` and `stepsmax` test steps per test case.** Enough to walk the full end-to-end flow as separate atomic actions: prepare and validate the file, drop to staging, confirm pickup, confirm archive, log in to TM UI, filter and open the transaction, assert each date element, connect to SQL, run each validation query, and capture audit evidence. Never fewer than `stepsmin`; never more than `stepsmax`.
+- **Between `limits.stepsmin` and `limits.stepsmax` test steps per test case.** Enough to walk the full end-to-end flow as separate atomic actions: prepare and validate the file, drop to staging, confirm pickup, confirm archive, log in to TM UI, filter and open the transaction, assert each date element, connect to SQL, run each validation query, and capture audit evidence. Never fewer than `limits.stepsmin`; never more than `limits.stepsmax`.
 
 - Break each test step into a single atomic action with its own expected result — do not collapse multiple actions into one step, and do not pad to reach a count.
 
@@ -245,7 +260,7 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
 
 **Placeholder resolution rule:** Resolve `<STATE>` and `<STATE_TRADING_PARTNER>` to an actual state/trading partner drawn from the user story's enumerated applicable-state set (per rule 6b). Never leave `<STATE>` or `<STATE_TRADING_PARTNER>` unresolved in the final test step text, and never resolve them to a state that is not part of the user story's applicable state set. Likewise, never leave any schema object (table/column) unresolved — always substitute the literal name from `EDI and FACETS Schema 2`.
 
-8. Validate all fields against formatting and content rules — including compliance with rule 5a (no meta-references), rule 6b (all applicable states covered), rule 4a (all SQL queries grounded in the schema knowledge base), and OUTPUT VOLUME DISCIPLINE (`testcasesperscenario` test cases, `stepsmin` to `stepsmax` steps each), and rule 7a (Status carries Positive/Negative/Edge, Test Case Type carries Functional/Regression) — if any validation fails, regenerate the test case until full compliance is achieved.
+8. Validate all fields against formatting and content rules — including compliance with rule 5a (no meta-references), rule 6b (all applicable states covered), rule 4a (all SQL queries grounded in the schema knowledge base), and OUTPUT VOLUME DISCIPLINE (`limits.testcasesperscenario` test cases, `limits.stepsmin` to `limits.stepsmax` steps each), and rule 7a (Status carries Positive/Negative/Edge, Test Case Type carries Functional/Regression) — if any validation fails, regenerate the test case until full compliance is achieved.
 
 9. Compile all test cases into a **tabular format** suitable for export or integration with test management tools. All 13 fields listed above must be represented as columns in the table.
 

@@ -18,7 +18,7 @@ The three sub agents are **not** wired onto the canvas. The tool calls them by i
 
 ---
 
-This is a thin dispatcher. It receives one input blob and calls one tool. Every decision that
+This is a thin dispatcher. It receives one input object and calls one tool. Every decision that
 matters, the batching, the threading, the self healing loop, the budget and the logging, lives
 in the tool. Keep this agent dumb.
 
@@ -41,7 +41,7 @@ Pipeline dispatcher
 
 **Goal**
 ```
-Call AavaTestGenOrchestrator exactly once, passing the run inputs through as the inputs
+Call AavaTestGenOrchestrator exactly once, passing the run inputs through as the runinputs
 argument. Return the tool JSON result unchanged. Do not summarise, edit, reorder or invent
 any field.
 ```
@@ -60,26 +60,25 @@ with a score per scenario. Your only job is to invoke it and relay its answer.
 INSTRUCTIONS:
 You have exactly ONE tool: AavaTestGenOrchestrator.
 
-# Inputs
-- {{inputs}} is one JSON blob. All keys are lowercase with no separators, per the AAVA
-  variable rule. It carries the Azure DevOps coordinates, the sub agent ids, the run settings,
-  the budget and, for local testing only, the credential fields. It may arrive wrapped in
-  json fences. That is fine. Pass it through.
+# Input
+- {{runinputs}} is ONE JSON object carrying every run setting. All keys are lowercase with no
+  separators. It holds the Azure DevOps coordinates, the sub agent ids, the run settings, the
+  budget and, for local testing only, the credential fields. It may arrive wrapped in json
+  fences. That is fine. Pass it through.
 
 # What to do
 1. Call AavaTestGenOrchestrator with a single argument:
-      inputs = {{inputs}}
+      runinputs = {{runinputs}}
    Pass the value through EXACTLY as received, as one opaque string. Do NOT parse it. Do NOT
-   rebuild the JSON. Do NOT drop, filter, redact or omit ANY field. Every key present in
-   {{inputs}}, including credential fields, must reach the tool unchanged. The tool resolves
-   secrets itself, reading AVASecret first and falling back to these values.
+   rebuild the JSON. Do NOT reorder, rename, drop, filter or redact ANY field. The tool does
+   all the parsing and resolves secrets itself, reading AVASecret first and falling back to
+   whatever is present here.
 2. Take the tool output, which is a JSON string, and return it EXACTLY as received.
 
 # Rules
 - Call the tool exactly ONCE. Never call it twice.
 - Do NOT parse, reformat, summarise or add prose around the tool output.
-- Forward {{inputs}} verbatim with every field intact. Do NOT strip credentials. During local
-  testing the tool relies on that fallback.
+- Forward {{runinputs}} verbatim with every field intact.
 - If the tool returns an error envelope, return that error envelope unchanged.
 - The tool always returns. A scenario that failed is reported inside the envelope, not raised
   as an error. Never treat a partial result as a failure.
@@ -92,7 +91,7 @@ You have exactly ONE tool: AavaTestGenOrchestrator.
 - **AI Engine:** `AiGateway`
 - **Model:** `Claude Sonnet 4.6-GATEWAY`
 - **Behavior Preset:** `Balanced`
-- **Max Iterations:** `2` (call tool, return output)
+- **Max Iterations:** `2` (call tool, return output) — matches the working copy
 - **Output Schema:** none
 
 ## Tool Attachment
@@ -103,9 +102,13 @@ Attach **AavaTestGenOrchestrator**. It is the only tool.
 
 | Variable | Source | Notes |
 |---|---|---|
-| `inputs` | Workflow input | One JSON blob. No secrets on the platform, the tool reads AVASecret |
+| `runinputs` | Workflow input | ONE JSON object. Leave the credential fields empty on the platform; the tool reads AVASecret |
 
-## The inputs blob
+One variable, not twenty one. This agent is an LLM, and every separate variable it has to
+relay into a tool call is another chance for it to reformat, reorder or drop a value. One
+opaque string is a single copy operation.
+
+## The runinputs object
 
 Flat, lowercase, no separators.
 
@@ -114,8 +117,6 @@ Flat, lowercase, no separators.
   "adoorg": "CSGRP",
   "adoproject": "ADO",
   "adostoryid": "640764",
-  "adoworkitemtype": "User Story",
-  "adoareapath": "ADO\\Products and Services\\EDI\\jEDI Warriors",
 
   "scenarioagentid": 613,
   "testcaseagentid": 564,
@@ -127,7 +128,8 @@ Flat, lowercase, no separators.
   "stepsmax": 18,
   "maxhealrounds": 3,
   "passscore": 90,
-  "maxworkers": 5,
+  "hardstopscore": 50,
+  "maxworkers": 3,
   "stoponstagnation": true,
 
   "deadlineseconds": 3000,
@@ -135,12 +137,19 @@ Flat, lowercase, no separators.
 
   "aavabaseurl": "https://int-ai.aava.ai",
   "realmid": "4",
-  "userprincipal": "you@caresource.com",
+  "userprincipal": "",
 
   "adopat": "",
   "aavatoken": ""
 }
 ```
+
+Degraded modes: `maxhealrounds: 0` runs a single pass with no regeneration;
+`reviewagentid: 0` runs without the judge and gates on the deterministic pre gate alone.
+`hardstopscore` is the floor below which healing is abandoned as hopeless.
+
+`adopat` and `aavatoken` stay empty on the platform: the tool reads `AVASecret` first and only
+falls back to these. `adoworkitemtype` and `adoareapath` are gone, the tool never read them.
 
 ## Sub agents invoked inside the tool (not on the canvas)
 

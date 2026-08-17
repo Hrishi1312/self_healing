@@ -43,7 +43,7 @@ single response reaches ~124,000 characters, which reliably fails.
 
 ## 3. Architecture
 
-One agent, one tool. The agent's only job is to pass `{{inputs}}` to the tool.
+One agent, one tool. The agent's only job is to pass `{{runinputs}}` to the tool.
 
 ```
 Orchestrator Agent  →  AavaTestGenOrchestrator (tool)
@@ -71,47 +71,53 @@ unchanged.
 
 ## 4. Input contract
 
-A single object, `{{inputs}}`, validated before any work begins.
+**Shape follows the working copy** — `Aava-local-testing/aava_selfheal_bugfixer`, which is
+deployed and running on AAVA. Two different rules, for two different reasons.
+
+**Agent 00 takes ONE `{{runinputs}}` blob.** It is an LLM that has to carry every value into a
+tool call, and each separate variable is another chance to reformat, reorder or drop one. One
+opaque string is a single copy operation. This matches `00_entry_orchestrator_agent.md`.
+
+**Each sub agent takes several semantically grouped variables.** Nothing relays these — the
+tool builds `userInputs` directly — so the risk that justifies the blob does not exist. Related
+fields are bundled into one variable (`storydata`, `limits`); distinct payloads get their own
+(`scenario`, `testcases`). Fields inside a grouped variable are referenced in the prompt as
+`` `storydata.title` ``, in backticks so a model reads them as identifiers rather than prose.
+This matches `04_code_reviewer_agent.md`, which takes `{{jiradata}}` `{{codecontext}}`
+`{{manifest}}` `{{appliedcode}}` and refers to `jiradata.issuetype`.
+
+**Optional inputs are omitted, not sent empty**, exactly as `CGSelfhealingV3Tool` does with
+`appliedcode`. `feedback` is absent on the first attempt, `regenerate` absent on round one.
+
+| Boundary | Variables |
+|---|---|
+| Workflow → agent 00 | `{{runinputs}}` — every run setting |
+| Agent 00 → tool | `runinputs`, the tool's only argument, untouched |
+| Tool → agent 01 | `{{storydata}}` (storyid, title, description, acceptancecriteria), `{{maxscenarios}}`, `{{feedback}}` *(retry only)* |
+| Tool → agent 02 | `{{scenario}}`, `{{storytitle}}`, `{{limits}}` (testcasesperscenario, stepsmin, stepsmax), `{{regenerate}}` *(rework only)* |
+| Tool → agent 03 | `{{scenario}}`, `{{testcases}}`, `{{limits}}` (passscore, stepsmin, stepsmax, testcasesperscenario) |
+
+The workflow object, flat and lowercase:
 
 ```json
 {
-  "ado": {
-    "org": "CSGRP",
-    "project": "ADO",
-    "storyId": "640764",
-    "workItemType": "User Story",
-    "areaPath": "ADO\\Products and Services\\EDI\\jEDI Warriors"
-  },
-  "agents": {
-    "scenarioGenerator": 613,
-    "testCaseGenerator": 564,
-    "reviewer": 559
-  },
-  "run": {
-    "maxScenarios": 5,
-    "testCasesPerScenario": 3,
-    "stepsMin": 15,
-    "stepsMax": 18,
-    "maxHealRounds": 3,
-    "passScore": 90,
-    "maxWorkers": 5,
-    "stopOnStagnation": true
-  },
-  "budget": {
-    "deadlineSeconds": 3000,
-    "maxAgentCalls": 60
-  },
-  "secrets": {
-    "adoPat": "",
-    "aavaToken": ""
-  }
+  "adoorg": "CSGRP", "adoproject": "ADO", "adostoryid": "640764",
+  "scenarioagentid": 613, "testcaseagentid": 564, "reviewagentid": 559,
+  "maxscenarios": 5, "testcasesperscenario": 3, "stepsmin": 15, "stepsmax": 18,
+  "maxhealrounds": 3, "passscore": 90, "maxworkers": 5, "stoponstagnation": true,
+  "deadlineseconds": 3000, "maxagentcalls": 60,
+  "aavabaseurl": "https://int-ai.aava.ai", "realmid": "4", "userprincipal": "",
+  "adopat": "", "aavatoken": ""
 }
 ```
 
+Every value is coerced and clamped before use: form data arrives as strings, and an unbound
+`{{variable}}` arrives as its own literal name, so nothing is trusted by type.
+
 **Agent ids are configuration.** Swapping a subagent is a number change, not a code change.
 
-**Secrets resolve `AVASecret` first**; the `secrets` block is a local-development fallback
-only. Secret values are scrubbed from every log line and are never placed in any agent's
+**Secrets resolve `AVASecret` first**; `adopat` and `aavatoken` inside `runinputs` are a
+local-development fallback only, and stay empty on the platform. Secret values are scrubbed from every log line and are never placed in any agent's
 `userInputs`. This removes the PAT and JWT from prompt context entirely.
 
 **Validation.** Missing or malformed required fields fail fast with a named error before any
@@ -287,21 +293,36 @@ review; throwing it away is worse than shipping it marked.
 
 ## 8. Failure isolation
 
-**No thread can fail the run.** Every task body is wrapped; an exception becomes a record with
-`status: "failed"` and the error text. `as_completed` gathers whatever comes back.
+Two gates per round, cheap one first — the shape `CGSelfhealingV3Tool` uses.
 
-The run returns `status: "completed"` whenever the orchestrator itself completed, regardless
-of how many scenarios succeeded. Only a failure in validation, the ADO fetch, or scenario
-generation aborts — because in those cases there is nothing to batch.
+**1. The deterministic pre gate (`pregate`, no LLM).** Reviewer checks 3, 6 and 7 are literal
+string tests, so they run here for free: every step has a non-empty Description and Expected
+Result; no knowledge base or schema name (`kb_`, `Facets 834`, …) leaked into the table; no
+meta label (`DoR`, `dorRef`, `per the AC`, …) in Name, Description, Precondition or either step
+column; no unresolved design value (`<STATE>`, `<table_name>`, …). Runtime data tokens such as
+`<ISA13>` pass, as they must. `ScenarioId` and `AcceptanceCriteriaRef` are exempt.
 
-**Cross-batch check**, after all threads finish, in Python — no LLM, no payload:
+A table that fails the pre gate is regenerated with the proven problems as feedback and **never
+reaches the reviewer**. Paying an Opus call to discover a missing expected result is waste, and
+it was that same judgement call that had the reviewer inventing violations.
 
-- duplicate test cases across scenarios (normalised name + description comparison)
-- scenarios with zero test cases
-- Positive / Negative / Edge balance across the whole set
-- total test case count against expectation
+**2. The reviewer**, only on work that survived the pre gate. Its verdict then meets three
+exits:
 
-Findings are reported as warnings; they never fail the run.
+| Condition | Status | Why |
+|---|---|---|
+| every test case passes | `approved` | done |
+| `batchscore < hardstopscore` (50) | `hardstop` | wrong, not rough. Another round arrives at the same place |
+| score did not improve | `stagnant` | needs two rounds to see, so the hard stop catches the worst case first |
+| rounds exhausted | `unhealed` | kept, reported, not discarded |
+
+**Degraded modes.** `maxhealrounds: 0` scores once and reports, no regeneration.
+`reviewagentid: 0` skips the judge entirely and gates on the pre gate alone, status
+`unreviewed` — so a reviewer outage yields usable output instead of a failed run.
+
+**No blind HTTP retry.** `_http` makes one attempt. The platform severs an agent call near
+265 s; three blind retries would spend ~800 s inside a single scenario. Retrying is the heal
+loop's job, under the budget.
 
 ## 9. Budget
 
