@@ -2,31 +2,68 @@ import requests
 from typing import Any, Dict, Type
 from pydantic import BaseModel, Field, model_validator
 from crewai.tools import BaseTool
+from datetime import datetime, timezone
 import json
+import time
+
 # Confidence threshold below which the workflow is triggered for re-execution.
 # Must match the "approved: true if confidence >= N" line in the reviewer agent's
 # prompt. 90 aligns with the reviewer's own "all four basics pass" band; its
 # checks 5-8 are hard gates that cap the score at 85 and force a rework round.
-
 _CONFIDENCE_THRESHOLD = 90
 
 # Maximum number of rework rounds. Round 1 is the first re-trigger. Once the
 # incoming round_no reaches this value the loop stops and escalates instead of
 # posting another run.
-
-
 _MAX_ROUNDS = 3
 
 # Priority is always hardcoded; it is not received from the agent.
 _PRIORITY = 1
+
 # Network timeouts (connect, read) in SECONDS. Must stay well below the
 # gateway/ingress ceiling so this client gives up first and returns a readable
 # error instead of a truncated 504.
 _TIMEOUT = (10, 30)
 
+# Prefix on every log line this tool emits. Grep the activity log for it to get
+# one line per decision, in order, with timestamps.
+_LOG_TAG = "[AAVA-LOOP]"
+
+
+def _now() -> str:
+    """UTC timestamp. The platform activity log carries no timestamps of its
+    own, so this is the only wall-clock reference available when reviewing a run."""
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _log(decision: str, **fields: Any) -> str:
+    """One compact, greppable line. Kept short on purpose: this string lands in
+    the calling agent's context, and a verbose blob risks being echoed into the
+    agent's own output."""
+    parts = [f"{_LOG_TAG} ts={_now()}", f"decision={decision}"]
+    parts += [f"{k}={v}" for k, v in fields.items() if v is not None and v != ""]
+    return " ".join(parts)
+
+
+def _execution_id(body: Any) -> str:
+    """Pull the child execution id out of the trigger response so a rework run
+    can be correlated back to the run that started it. Key name varies, so try
+    the known shapes before giving up."""
+    if isinstance(body, dict):
+        for key in ("execution_id", "executionId", "executionID", "id"):
+            if body.get(key):
+                return str(body[key])
+        data = body.get("data")
+        if isinstance(data, dict):
+            for key in ("execution_id", "executionId", "executionID", "id"):
+                if data.get(key):
+                    return str(data[key])
+    return "unknown"
+
 
 class RestApiFormDataCallerSchema(BaseModel):
     """Input schema for RestApiFormDataCaller."""
+
     form_data: Dict[str, Any] = Field(
         ...,
         description=(
@@ -82,6 +119,10 @@ class RestApiFormDataCaller(BaseTool):
     score, and the current rework round. Triggers a workflow re-execution via the
     AAVA workflow API only when the confidence score is below threshold AND the
     rework limit has not been reached.
+
+    Every exit path returns one compact log line prefixed with [AAVA-LOOP],
+    carrying a UTC timestamp, the decision, the inputs that drove it, and the
+    child execution id when a run was started.
     """
 
     name: str = "REST API Form Data Caller"
@@ -101,6 +142,7 @@ class RestApiFormDataCaller(BaseTool):
         pat_token: str,
         round_no: int = 0,
     ) -> str:
+        started = time.monotonic()
         try:
             api_url = "https://aava-core-api-workflows-svc.redtree-f4541a84.eastus.azurecontainerapps.io/workflows/workflow-executions"
 
@@ -108,34 +150,51 @@ class RestApiFormDataCaller(BaseTool):
                 "Authorization": f"Bearer {pat_token}",
             }
 
-            if confidence_score <= 30:
-                return (
-                    "Error: confidence score is too low. Aborting - no valid reviewer "
-                    "confidence was produced, so the workflow will not be triggered."
-                )
+            # ---- Measure the payload so ballooning is visible in the log ------
+            ui = form_data.get("userInputs") or {}
+            ts_in = str(ui.get("tsInputJson", "") or "")
+            fb_in = str(ui.get("rvwFeedbackTxt", "") or "")
+            scenario_count = ts_in.count('"scenarioId"')
+            sizes = {
+                "scenarios": scenario_count,
+                "scenario_chars": len(ts_in),
+                "feedback_chars": len(fb_in),
+            }
 
-            if confidence_score >= _CONFIDENCE_THRESHOLD:
-                return (
-                    f"Confidence score {confidence_score} meets threshold "
-                    f"({_CONFIDENCE_THRESHOLD}). No workflow re-execution needed."
-                )
-
-            # ---- Rework limit -------------------------------------------------
-            # round_no is how many rework rounds have ALREADY run. The run we are
-            # about to start would be round_no + 1.
             try:
                 current_round = int(round_no)
             except (TypeError, ValueError):
                 current_round = 0
             next_round = current_round + 1
 
+            if confidence_score <= 30:
+                return _log(
+                    "ABORT_LOW_CONFIDENCE",
+                    confidence=confidence_score,
+                    threshold=_CONFIDENCE_THRESHOLD,
+                    round=f"{current_round}/{_MAX_ROUNDS}",
+                    note="score_too_low_to_be_a_real_verdict",
+                    **sizes,
+                )
+
+            if confidence_score >= _CONFIDENCE_THRESHOLD:
+                return _log(
+                    "APPROVED_STOP",
+                    confidence=confidence_score,
+                    threshold=_CONFIDENCE_THRESHOLD,
+                    round=f"{current_round}/{_MAX_ROUNDS}",
+                    note="met_threshold_no_rework_needed",
+                    **sizes,
+                )
+
             if next_round > _MAX_ROUNDS:
-                return (
-                    f"Confidence score {confidence_score} is below threshold "
-                    f"({_CONFIDENCE_THRESHOLD}), but {current_round} rework rounds "
-                    f"have already run and the limit is {_MAX_ROUNDS}. STOPPING - no "
-                    f"further workflow will be triggered. Escalate to a human "
-                    f"reviewer with the latest feedback."
+                return _log(
+                    "LIMIT_REACHED",
+                    confidence=confidence_score,
+                    threshold=_CONFIDENCE_THRESHOLD,
+                    round=f"{current_round}/{_MAX_ROUNDS}",
+                    note="rework_limit_reached_escalate_to_human",
+                    **sizes,
                 )
 
             # Override priority with the hardcoded value (not from agent).
@@ -158,24 +217,23 @@ class RestApiFormDataCaller(BaseTool):
             # userInputs keys arrive holding their own values. Re-key them here.
             # roundNo is stamped by this tool, never by the agent - that is what
             # makes the count reliable.
-
-            ui = form_data.get("userInputs") or {}
-
             form_data["userInputs"] = {
-                "tsInputJson_string_true": ui.get("tsInputJson", ""),
-                "rvwFeedbackTxt_string_false": ui.get("rvwFeedbackTxt", ""),
+                "tsInputJson_string_true": ts_in,
+                "rvwFeedbackTxt_string_false": fb_in,
                 "roundNo_string_false": str(next_round),
                 "reviewinputs": ui.get("reviewinputs", ""),
             }
 
             normalized = normalize_form_data(form_data)
 
+            post_started = time.monotonic()
             response = requests.post(
                 api_url,
                 files={k: (None, v) for k, v in normalized.items()},
                 headers=headers,
                 timeout=_TIMEOUT,
             )
+            post_ms = int((time.monotonic() - post_started) * 1000)
             response.raise_for_status()
 
             try:
@@ -183,11 +241,33 @@ class RestApiFormDataCaller(BaseTool):
             except Exception:
                 body = response.text
 
-            return (
-                f"Confidence score {confidence_score} is below threshold "
-                f"({_CONFIDENCE_THRESHOLD}). Triggered rework round {next_round} of "
-                f"{_MAX_ROUNDS}. Response: {body}"
+            return _log(
+                "REWORK_TRIGGERED",
+                confidence=confidence_score,
+                threshold=_CONFIDENCE_THRESHOLD,
+                round=f"{next_round}/{_MAX_ROUNDS}",
+                pipeline=form_data.get("pipelineId"),
+                child_execution_id=_execution_id(body),
+                http_status=response.status_code,
+                post_ms=post_ms,
+                total_ms=int((time.monotonic() - started) * 1000),
+                **sizes,
             )
 
+        except requests.Timeout:
+            return _log(
+                "API_TIMEOUT",
+                confidence=confidence_score,
+                round=f"{round_no}/{_MAX_ROUNDS}",
+                timeout_s=f"{_TIMEOUT[0]}c/{_TIMEOUT[1]}r",
+                total_ms=int((time.monotonic() - started) * 1000),
+                note="client_gave_up_before_gateway",
+            )
         except requests.RequestException as e:
-            return f"Error during API call: {str(e)}"
+            return _log(
+                "API_ERROR",
+                confidence=confidence_score,
+                round=f"{round_no}/{_MAX_ROUNDS}",
+                total_ms=int((time.monotonic() - started) * 1000),
+                error=str(e)[:160].replace(" ", "_"),
+            )

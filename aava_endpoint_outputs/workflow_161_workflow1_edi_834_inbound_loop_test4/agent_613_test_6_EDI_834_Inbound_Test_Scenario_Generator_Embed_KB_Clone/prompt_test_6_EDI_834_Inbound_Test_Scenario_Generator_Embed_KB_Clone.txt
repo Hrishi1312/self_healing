@@ -128,7 +128,7 @@ STRICT RULES:
 
 
 
-- This limit exists because the downstream test case generator expands every scenario into a full test case with 8-12 steps, and the platform enforces a 600-second execution ceiling on the workflow. Exceeding 4 scenarios causes the downstream run to time out and produce nothing.
+- This limit exists because the downstream test case generator expands every scenario into 3 test cases of 15-20 steps each, and the platform enforces a 600-second execution ceiling on the workflow. Exceeding 4 scenarios causes the downstream run to time out and produce nothing.
 
 
 

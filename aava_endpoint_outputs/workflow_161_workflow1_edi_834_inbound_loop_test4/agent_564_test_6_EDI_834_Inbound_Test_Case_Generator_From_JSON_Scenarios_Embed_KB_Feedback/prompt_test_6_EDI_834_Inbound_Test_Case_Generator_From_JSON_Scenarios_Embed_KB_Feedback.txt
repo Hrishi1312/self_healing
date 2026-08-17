@@ -203,7 +203,12 @@ Generate the test cases in a structured format — do not combine all steps in a
 
 
 
-### REQUIRED TEST CASE TYPES
+### REQUIRED CLASSIFICATIONS
+
+
+
+
+Every scenario must be covered by test cases carrying each of these classifications:
 
 
 
@@ -223,7 +228,12 @@ Generate the test cases in a structured format — do not combine all steps in a
 
 
 
-Generate only functional test cases. Every scenario supplied by Agent 2 must be realized by at least one test case, maintaining internal traceability to its `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, and `dodRef` — the first two as populated columns, the DoR/DoD content folded into Precondition and Expected Result without ever being named in the text (per 5a). Boundary conditions supplied as their own dedicated scenarios by Agent 2 must each be addressed by their own separate, dedicated test case and must not be merged with other test cases. This is strictly mandatory.
+These three values belong in the **`Status`** column (see rule 7a). They do NOT go in the `Test Case Type` column. `Test Case Type` holds `Functional` or `Regression`, and every test case you generate is `Functional`.
+
+
+
+
+Every scenario supplied by Agent 2 must be realized by at least one test case, maintaining internal traceability to its `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, and `dodRef` — the first two as populated columns, the DoR/DoD content folded into Precondition and Expected Result without ever being named in the text (per 5a). Boundary conditions supplied as their own dedicated scenarios by Agent 2 must each be addressed by their own separate, dedicated test case and must not be merged with other test cases. This is strictly mandatory.
 
 
 
@@ -238,17 +248,17 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
 
 
 
-- **At most 2 test cases per input scenario.** Typically one Positive and one Negative or Edge.
+- **Exactly 3 test cases per input scenario** — one Positive, one Negative and one Edge. Produce all three unless the scenario genuinely cannot support one of the types, in which case produce 2 and say why in that test case's Description.
 
 
 
 
-- **8 to 12 test steps per test case.** Enough to walk the full end-to-end flow (mock file, staging drop, Edifecs pickup, archive, TM UI, Facets, SQL validation) without padding. Never fewer than 8; never more than 12.
+- **15 to 20 test steps per test case.** Enough to walk the full end-to-end flow as separate atomic actions: prepare and validate the file, drop to staging, confirm pickup, confirm archive, log in to TM UI, filter and open the transaction, assert each date element, connect to SQL, run each validation query, and capture audit evidence. Never fewer than 15; never more than 20.
 
 
 
 
-- **Absolute ceiling of 12 test cases in a single response**, regardless of how many scenarios arrive. If more would be needed, cover the highest-`priority` scenarios first and consolidate related criteria per rule 6a.
+- **Absolute ceiling of 20 test cases in a single response**, regardless of how many scenarios arrive. If more would be needed, cover the highest-`priority` scenarios first and consolidate related criteria per rule 6a.
 
 
 
@@ -333,17 +343,47 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
 
 
 
-- **Angle brackets are forbidden in the output [MUST].** No angle-bracket token of any kind may remain anywhere in Precondition, Test Step Description, or Test Step Expected Result — not for states, trading partners, table names, column names, file names, paths, or anything else. This applies to every form, including ones not named elsewhere in these instructions (for example `applicable state`, `executed_state`, `member_ssn`, `sbsb_ck` wrapped in angle brackets). Every such value must be resolved to a concrete value before you output.
+- **Angle-bracket tokens: allowed for runtime test data, forbidden for anything you can resolve [MUST].**
 
 
 
 
-- **Runtime test data uses square brackets instead [MUST].** Some values genuinely cannot be resolved at authoring time because the tester supplies them at execution — a specific subscriber key, member id, SSN, or interchange control number. Do NOT invent or fabricate these, and do NOT wrap them in angle brackets. Write them as `[TEST DATA: plain description]`, for example `[TEST DATA: subscriber SBSB_CK for the test member]` or `[TEST DATA: member SSN used in the mocked 834 file]`. Square brackets in this exact form are expected and correct, and will not be flagged. Anything you can resolve from the user story, the knowledge bases, or the schema documents MUST be resolved and must never appear as test data.
+  ALLOWED — a value the tester supplies at execution time, which cannot be known when the test case is written. Write these in angle brackets inside the query or file name, exactly as a manual test author would: `<ISA13>`, `<InterchangeID>`, `<member_ssn>`, `<sbsb_ck>`, `<YYYYMMDD>`. Do NOT invent or fabricate a value in their place.
+
+
+
+
+  FORBIDDEN — anything you can and must resolve from the user story, the knowledge bases or the schema documents. Never leave a state, trading partner, database, server, table name, column name, archive path segment or knowledge base name in angle brackets. Tokens such as `<STATE>`, `<STATE_TRADING_PARTNER>`, `<applicable state>`, `<executed_state>`, `<table_name>`, `<column_name>` must be replaced with the concrete value before you output.
+
+
+
+
+  The test is simple: if the answer exists in your inputs, resolve it. If it only exists in the tester's environment at run time, leave it in angle brackets.
 
 
 
 
 7. For each test case, populate these 13 fields: **ScenarioId, AcceptanceCriteriaRef, Name, Id, Attachments, Status, Test Case Type, Description, Precondition, Test Step #, Test Step Description (detailed steps), Test Step Expected Result, Test Step Attachment** [MUST]. `ScenarioId` and `AcceptanceCriteriaRef` MUST tie every test case to exactly one input scenario/AC for traceability [MUST]. Do NOT add Description Reference, DoR Reference, or DoD Reference as separate output columns — those are used only internally to derive Precondition and Expected Result content, and per rule 5a must never appear as named citations within any field's text.
+
+
+
+
+7a. **Column values — these two are easy to get backwards, so read carefully [MUST]:**
+
+
+
+
+   - **`Status`** carries the test classification: `Positive`, `Negative` or `Edge`. It does NOT carry a workflow state — never write `Draft`, `New`, `Approved` or similar in this column.
+
+
+
+
+   - **`Test Case Type`** carries the test category: `Functional` or `Regression`. It does NOT carry Positive/Negative/Edge.
+
+
+
+
+   This matches the template the existing manual test cases for this programme use, so the generated rows can be imported alongside them without remapping.
 
 
 
@@ -428,7 +468,7 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
 
 
 
-8. Validate all fields against formatting and content rules — including compliance with rule 5a (no meta-references), rule 6b (all applicable states covered), rule 4a (all SQL queries grounded in the schema knowledge base), and OUTPUT VOLUME DISCIPLINE (at most 2 test cases per scenario, 8-12 steps each, 12 test cases maximum) — if any validation fails, regenerate the test case until full compliance is achieved.
+8. Validate all fields against formatting and content rules — including compliance with rule 5a (no meta-references), rule 6b (all applicable states covered), rule 4a (all SQL queries grounded in the schema knowledge base), and OUTPUT VOLUME DISCIPLINE (3 test cases per scenario, 15-20 steps each, 20 test cases maximum), and rule 7a (Status carries Positive/Negative/Edge, Test Case Type carries Functional/Regression) — if any validation fails, regenerate the test case until full compliance is achieved.
 
 
 
@@ -468,7 +508,7 @@ testcases:"
 
 
 
-| TS_001 | AC1 - Given valid enrollment data is submitted, When the 834 inbound file is generated, Then the system produces a valid EDI 834 file with correct segments | Verify Valid EDI 834 Inbound File Generation | TC_001 | None | Draft | Positive | Verify the system generates a valid EDI 834 Inbound file with correct segments for a trading partner enrollment submission | Trading partner enrollment test data is available in the staging environment and a member with the required eligibility condition exists | 1 | Mock up an 834 file for the applicable state and place it at \\daycrtappfs01\EdifecsSTRoot\834\Inbound | File is present in the staging path and picked up by Edifecs within the polling interval | None |
+| TS_001 | AC1 - Given valid enrollment data is submitted, When the 834 inbound file is generated, Then the system produces a valid EDI 834 file with correct segments | Verify AR PASSE inbound 834 populates the transaction effective date from the Eligibility Date | TC_001 | None | Positive | Functional | Verify the system populates the Facets transaction effective date from the Eligibility Date for an AR PASSE inbound 834 enrollment submission | AR PASSE inbound 834 test data is available in the staging environment and a member with the required eligibility condition exists | 1 | Prepare an AR PASSE inbound 834 file containing an Eligibility Date in Loop 2000 DTP*356/DTP*348 and place it at \\daycrtappfs01\EdifecsSTRoot\834\Inbound | File is present in the staging path and is picked up by Edifecs within the polling interval | None |
 
 
 
@@ -484,3 +524,8 @@ scenariojson: "<scenariojson received as input>"
 
 
 }
+
+
+
+
+11. Pass the generated testcase to the next agent along with the scenariojson received as input. The output object MUST contain exactly two fields, `testcases` and `scenariojson`, and the `scenariojson` value MUST be the exact array you received as input, copied verbatim with no modification. The downstream reviewer and the rework loop both depend on this — omitting or altering `scenariojson` breaks them [MUST].
