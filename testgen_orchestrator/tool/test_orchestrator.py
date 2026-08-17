@@ -309,9 +309,9 @@ check("run completes", res.get("status") == "completed")
 check("every scenario got a record", len(res["scenarios"]) == res["summary"]["scenarios"])
 check("all scenarios approved when the reviewer passes them",
       res["summary"]["approved"] == res["summary"]["scenarios"], json.dumps(res["summary"]))
-check("test cases were assembled into one table", res["testcases"].count("| TS_") > 0)
-check("the assembled table has exactly one header row",
-      res["testcases"].count("| ScenarioId |") == 1)
+check("test cases were assembled", res["testcases"]["rows"] > 0)
+check("the envelope carries a pointer, not the table",
+      isinstance(res["testcases"], dict) and "where" in res["testcases"])
 check("score history recorded per scenario",
       all(r["scorehistory"] for r in res["scenarios"]))
 check("summary line present in the log",
@@ -354,8 +354,8 @@ check("exactly one scenario is marked failed", statuses.count("failed") >= 1, st
 check("the other scenarios still approved", statuses.count("approved") >= 1, str(statuses))
 check("the failure carries an error message",
       any(r.get("error") for r in res2["scenarios"] if r["status"] == "failed"))
-check("test cases from the surviving scenarios are still returned",
-      res2["testcases"].count("| TS_") > 0)
+check("test cases from the surviving scenarios are still counted",
+      res2["testcases"]["rows"] > 0)
 
 
 # ── healing ─────────────────────────────────────────────────────────────────
@@ -634,7 +634,7 @@ res8 = json.loads(tool._run(runinputs=json.dumps(dict(
 check("reviewagentid=0 never calls a judge", nojudge["rev"] == 0)
 check("reviewagentid=0 yields status unreviewed",
       res8["scenarios"][0]["status"] == "unreviewed", str(res8["scenarios"][0]["status"]))
-check("unreviewed test cases are still returned", res8["testcases"].count("| TS_") > 0)
+check("unreviewed test cases are still counted", res8["testcases"]["rows"] > 0)
 check("a real agent id is still required for the generator",
       _try(lambda: tool._config(json.dumps(dict(base, testcaseagentid=0)))))
 
@@ -699,7 +699,83 @@ check("the log flushes every line", "flush=True" in open(
     os.path.join(HERE, "AavaTestGenOrchestrator.py"), encoding="utf-8").read())
 
 
-section("13. AAVA UPLOAD GATE")
+section("13. THE TABLE LEAVES THE ENVELOPE  (~900s of agent relay at 8 scenarios)")
+
+import io as _io, contextlib as _ctx                        # noqa: E402
+
+T.exec_agent, T.fetch_story, T._secret = fake_exec, fake_story, lambda k, f="": "t"
+_buf = _io.StringIO()
+with _ctx.redirect_stdout(_buf):
+    res9 = json.loads(tool._run(runinputs=json.dumps(dict(
+        base, maxscenarios=2, stepsmin=1, stepsmax=100, maxworkers=2, deadlineseconds=120))))
+out = _buf.getvalue()
+T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
+
+check("the envelope no longer carries the table text",
+      isinstance(res9["testcases"], dict), str(type(res9["testcases"])))
+check("it carries rows, chars and where to find it",
+      {"rows", "chars", "scenarios", "where"} <= set(res9["testcases"]))
+check("the table was printed to stdout between markers",
+      "[ORCH-TABLE-BEGIN]" in out and "[ORCH-TABLE-END]" in out)
+body = out.split("[ORCH-TABLE-BEGIN]", 1)[1].split("[ORCH-TABLE-END]", 1)[0]
+check("what was printed is a valid 13 column table",
+      T.parse_testcases(body[body.index("|"):], 1, 200)["header"] == T.COLUMNS)
+check("the printed table has exactly one header row", body.count("| ScenarioId |") == 1)
+check("the reported row count matches what was printed",
+      T.parse_testcases(body[body.index("|"):], 1, 200)["rows"].__len__() == res9["testcases"]["rows"])
+env = json.dumps(res9)
+check("the envelope is small enough to relay cheaply", len(env) < 20000,
+      f"{len(env)} chars = {len(env)//4} tokens")
+print("          -> envelope %d chars (~%d tokens, ~%.0fs relay @100 tok/s); "
+      "table %d chars on stdout"
+      % (len(env), len(env)/4, len(env)/4/100, res9["testcases"]["chars"]))
+check("userprincipal is never blank",
+      tool._config(json.dumps(base))["userprincipal"] == T.DEF_USERPRINCIPAL)
+
+
+section("14. ERROR DETAIL  (a bare status code is useless on someone else's platform)")
+
+for shape, want in [
+    ({"message": "agent is not in an executable state"}, "executable state"),
+    ({"error": "realm mismatch"}, "realm mismatch"),
+    ({"detail": "model deployment not found"}, "deployment not found"),
+    ({"errors": ["knowledge base 172 unavailable"]}, "knowledge base 172"),
+    ({"data": {"message": "nested reason"}}, "nested reason"),
+    ("plain text upstream error", "plain text upstream"),
+]:
+    got = T._err_detail(shape)
+    check(f"extracts the reason from {str(shape)[:44]}", want in got, f"got {got!r}")
+check("falls back to the raw payload when no known key is present",
+      "unexpected" in T._err_detail({"weird": "unexpected shape"}))
+check("an empty body does not crash the extractor", T._err_detail(None) == "")
+
+_seen = {}
+
+
+def failing_exec(method, url, log, headers=None, json_body=None, timeout=None):
+    return 502, {"message": "upstream agent execution failed"}
+
+
+_orig_http = T._http
+T._http = failing_exec
+_log = T._Log()
+try:
+    T.exec_agent(625, {"x": "y"}, {"aavabaseurl": "https://x", "realmid": "4",
+                                   "userprincipal": "a@b"}, "tok",
+                 T._Budget(60, 5), _log, "scenarios")
+except Exception as e:
+    _seen["msg"] = str(e)
+T._http = _orig_http
+line = "\n".join(_log.dump())
+check("the agenterror line carries the upstream reason",
+      "upstream agent execution failed" in line, line[-160:])
+check("it also records realm and user, the two usual suspects",
+      "realm=4" in line and "user=a@b" in line, line[-160:])
+check("the raised error repeats the reason",
+      "upstream agent execution failed" in _seen.get("msg", ""), _seen.get("msg", ""))
+
+
+section("15. AAVA UPLOAD GATE")
 
 src = open(os.path.join(HERE, "AavaTestGenOrchestrator.py"), encoding="utf-8").read()
 import re as _re

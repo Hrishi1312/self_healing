@@ -58,6 +58,7 @@ DEF_MAXWORKERS = 5
 # because a connection ACA cuts returns nothing at all.
 DEF_DEADLINESECONDS = 190
 DEF_MAXAGENTCALLS = 60
+DEF_USERPRINCIPAL = "aava@testgen"   # audit identity when the caller supplies none
 
 # Per agent call, below the client's 240s ACA cut so the timeout is ours, not theirs.
 HTTP_TIMEOUT = 200
@@ -176,6 +177,30 @@ def _http(method: str, url: str, log: _Log, headers: Dict[str, str] = None,
         return 0, str(e)
 
 
+def _err_detail(body: Any, limit: int = 300) -> str:
+    """Pull the human reason out of an error body, whatever shape the service used.
+
+    Services disagree on the key, so try them all and fall back to the raw payload. A bare
+    "http 502" with no reason is useless when the run is on someone else's platform and you
+    cannot reproduce it.
+    """
+    if isinstance(body, dict):
+        for k in ("message", "error", "detail", "title", "reason", "errorMessage"):
+            v = body.get(k)
+            if isinstance(v, str) and v.strip():
+                return v[:limit]
+        errs = body.get("errors")
+        if isinstance(errs, list) and errs:
+            return str(errs[0])[:limit]
+        data = body.get("data")
+        if isinstance(data, dict):
+            inner = _err_detail(data, limit)
+            if inner:
+                return inner
+        return json.dumps(body)[:limit]
+    return str(body or "")[:limit]
+
+
 # ── secrets ─────────────────────────────────────────────────────────────────
 def _secret(key: str, fallback: str = "") -> str:
     """AVASecret first, the argument only as a local development fallback."""
@@ -275,8 +300,12 @@ def exec_agent(agentid: int, userinputs: Dict[str, Any], cfg: Dict[str, Any],
     status, payload = _http("POST", url, log, headers, body)
     ms = int((time.monotonic() - t0) * 1000)
     if status != 200:
-        log.line("agenterror", label=label, agentid=agentid, status=status, ms=ms)
-        raise RuntimeError(f"{label}: agent {agentid} returned http {status}")
+        why = _err_detail(payload)
+        log.line("agenterror", label=label, agentid=agentid, status=status, ms=ms,
+                 realm=cfg.get("realmid") or "none", user=cfg.get("userprincipal") or "none",
+                 why=why[:200] or None)
+        raise RuntimeError(f"{label}: agent {agentid} returned http {status}"
+                           + (f" — {why[:200]}" if why else ""))
 
     out = ""
     if isinstance(payload, dict):
@@ -285,7 +314,9 @@ def exec_agent(agentid: int, userinputs: Dict[str, Any], cfg: Dict[str, Any],
         except (KeyError, TypeError):
             out = payload.get("output") or payload.get("result") or ""
     if not out:
-        raise RuntimeError(f"{label}: agent {agentid} returned an empty output")
+        log.line("agenterror", label=label, agentid=agentid, status=200, ms=ms,
+                 why="http 200 but no output field; payload=" + _err_detail(payload, 160))
+        raise RuntimeError(f"{label}: agent {agentid} returned http 200 with an empty output")
     # No log line here on purpose: the caller logs one line carrying this ms plus the
     # thing you actually want to see, so a run reads as one line per step, not two.
     return str(out), ms
@@ -446,8 +477,14 @@ def parse_testcases(raw: str, stepsmin: int, stepsmax: int) -> Dict[str, Any]:
     if problems:
         raise ValueError("; ".join(problems))
 
-    return {"header": header, "rows": body, "cases": cases, "table": text,
-            "chars": len(text), "ids": list(cases.keys())}
+    # Rebuild the table from the parsed rows rather than handing back the raw text. The raw
+    # text still contains any physically split rows this function just rejoined, so returning
+    # it would put the split rows straight back into the assembled output and the row counts
+    # would disagree with what was parsed. One row per line, always.
+    clean = "\n".join(["| " + " | ".join(header) + " |", "|" + "---|" * len(COLUMNS)]
+                      + ["| " + " | ".join(r) + " |" for r in body])
+    return {"header": header, "rows": body, "cases": cases, "table": clean,
+            "chars": len(clean), "ids": list(cases.keys())}
 
 
 def parse_verdict(raw: str, known_ids: List[str]) -> Dict[str, Any]:
@@ -776,7 +813,9 @@ class AavaTestGenOrchestrator(BaseTool):
         cfg["stoponstagnation"] = bool(stag)
         cfg["aavabaseurl"] = str(cfg.get("aavabaseurl") or DEF_AAVA_BASE)
         cfg["realmid"] = str(cfg.get("realmid") or "")
-        cfg["userprincipal"] = str(cfg.get("userprincipal") or "")
+        # Attribution on every /agents/execute call. Never blank: an unattributed
+        # execution is hard to find later in the platform analytics.
+        cfg["userprincipal"] = str(cfg.get("userprincipal") or DEF_USERPRINCIPAL)
         return cfg
 
     # ── entrypoint ──────────────────────────────────────────────────────────
@@ -902,12 +941,26 @@ class AavaTestGenOrchestrator(BaseTool):
                  warnings=len(warnings) or None,
                  scoreboard=board)
 
+        # The table goes to stdout, NOT into the envelope. Returning it would make the calling
+        # agent regenerate every one of its tokens to relay them: measured at 8 scenarios that
+        # is ~53,000 tokens and ~900 seconds to move text the tool already holds. stdout is the
+        # only tool output AAVA surfaces, so this reaches the activity log directly.
+        rows = table.count("\n") - 1 if table else 0
+        if table:
+            print(f"[ORCH-TABLE-BEGIN] story={cfg['adostoryid']} scenarios={len(records)} "
+                  f"rows={rows}", flush=True)
+            print(table, flush=True)
+            print(f"[ORCH-TABLE-END] chars={len(table)}", flush=True)
+
         return json.dumps({
             "status": "completed",
             "story": {"id": story["storyid"], "title": story["title"]},
             "summary": summary,
             "scenarios": [{k: v for k, v in r.items() if k != "table"} for r in records],
             "warnings": warnings,
-            "testcases": table,
+            "testcases": {
+                "rows": rows, "chars": len(table), "scenarios": len(records),
+                "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]",
+            },
             "log": log.dump(),
         })
