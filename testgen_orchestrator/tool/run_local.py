@@ -93,7 +93,7 @@ def main():
     ap.add_argument("--scenarioagent", type=int, default=613)
     ap.add_argument("--testcaseagent", type=int, default=564)
     ap.add_argument("--reviewagent", type=int, default=559)
-    ap.add_argument("--base", default="https://int-ai.aava.ai")
+    ap.add_argument("--base", default=T.DEF_AAVA_BASE)
     ap.add_argument("--realm", default=os.environ.get("AAVA_REALM", "4"))
     ap.add_argument("--user", default=os.environ.get("AAVA_USER", T.DEF_USERPRINCIPAL))
     ap.add_argument("--probe", action="store_true", help="check {{variable}} binding and exit")

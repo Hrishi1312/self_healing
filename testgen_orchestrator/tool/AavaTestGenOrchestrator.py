@@ -40,7 +40,8 @@ except ImportError:
 
 
 # ── defaults ────────────────────────────────────────────────────────────────
-DEF_AAVA_BASE = "https://int-ai.aava.ai"
+DEF_AAVA_BASE = ("https://aava-core-api-agents-svc"
+                 ".redtree-f4541a84.eastus.azurecontainerapps.io")
 DEF_ADO_BASE = "https://dev.azure.com"
 
 DEF_MAXSCENARIOS = 5
@@ -60,8 +61,19 @@ DEF_DEADLINESECONDS = 190
 DEF_MAXAGENTCALLS = 60
 DEF_USERPRINCIPAL = "aava@testgen"   # audit identity when the caller supplies none
 
-# Per agent call, below the client's 240s ACA cut so the timeout is ours, not theirs.
-HTTP_TIMEOUT = 200
+# This deployment executes agents ASYNCHRONOUSLY: the submit returns a job id, and the answer
+# is fetched separately. Submit accepts multipart/form-data ONLY (JSON gets HTTP 415).
+SUBMIT_PATH = "/agents/execute/agent-executions"
+POLL_PATH = "/agents/execute/history/execution"
+TERMINAL = {"SUCCESS", "FAILED", "ERROR", "CANCELLED", "CANCELED"}
+# A 404 while polling just means the result is not recorded yet; keep waiting.
+POLL_RETRY_STATUSES = {0, 404, 429, 500, 502, 503, 504}
+
+# Each request is short now, so the old 240s worry does not apply per call.
+HTTP_TIMEOUT = 60
+# Poll interval grows so a two minute generation costs ~8 polls, not ~40. maxRpm on these
+# agents is 20, and eight scenarios polling in lockstep would spend that on nothing.
+POLL_START, POLL_MAX, POLL_GROWTH = 5.0, 20.0, 1.5
 ADO_TIMEOUT = (15, 45)
 
 COLUMNS = ["ScenarioId", "AcceptanceCriteriaRef", "Name", "Id", "Attachments", "Status",
@@ -158,7 +170,8 @@ class _Budget:
 
 # ── http ────────────────────────────────────────────────────────────────────
 def _http(method: str, url: str, log: _Log, headers: Dict[str, str] = None,
-          json_body: Any = None, timeout: Any = HTTP_TIMEOUT) -> Tuple[int, Any]:
+          json_body: Any = None, timeout: Any = HTTP_TIMEOUT,
+          form: Dict[str, str] = None) -> Tuple[int, Any]:
     """ONE attempt. Returns (status, parsed_body); status 0 means no response, which is how a
     severed long request shows up.
 
@@ -168,7 +181,10 @@ def _http(method: str, url: str, log: _Log, headers: Dict[str, str] = None,
     budget with it. Retrying is the heal loop's job, under the budget, not this function's.
     """
     try:
-        r = requests.request(method, url, headers=headers or {}, json=json_body, timeout=timeout)
+        # files= with a None filename is how requests encodes plain multipart fields. The
+        # submit endpoint rejects an application/json body outright.
+        kw = {"files": {k: (None, v) for k, v in form.items()}} if form else {"json": json_body}
+        r = requests.request(method, url, headers=headers or {}, timeout=timeout, **kw)
         try:
             return r.status_code, r.json()
         except Exception:
@@ -282,44 +298,104 @@ def _j(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False)
 
 
+def _output_text(payload: Any) -> str:
+    """The agent's answer, always as text.
+
+    The poll endpoint returns `output` either as a raw string or as an already decoded object.
+    Every parser downstream takes text and does its own json.loads, so normalise back to text
+    rather than making each of them handle both.
+    """
+    out = payload.get("output") if isinstance(payload, dict) else None
+    if out is None and isinstance(payload, dict):
+        data = payload.get("data")
+        if isinstance(data, dict):
+            out = data.get("output")
+    if out is None:
+        return ""
+    return out if isinstance(out, str) else json.dumps(out, ensure_ascii=False)
+
+
 def exec_agent(agentid: int, userinputs: Dict[str, Any], cfg: Dict[str, Any],
                token: str, budget: _Budget, log: _Log, label: str) -> Tuple[str, int]:
-    """POST /agents/execute. Synchronous: the answer comes back in the response body, so no
-    polling is involved. To switch to trigger and poll, this is the only function to change.
+    """Run one sub agent and return (output_text, elapsed_ms).
+
+    Two steps, because this deployment is asynchronous:
+
+      1. POST /agents/execute/agent-executions   multipart/form-data
+         {agentId, executionId, user, userInputs}  ->  {"data": {"agentExecutionId": ...}}
+         A "SUCCESS" here means ACCEPTED, not finished.
+      2. GET  /agents/execute/history/execution?execution_id=...
+         polled until `status` is terminal; the answer is the `output` field.
+
+    Only the submit spends budget. Polling is free: counting each poll as an agent call would
+    exhaust maxagentcalls inside a single scenario.
     """
     if not budget.take():
         raise RuntimeError("budget exhausted before call")
-    url = cfg["aavabaseurl"].rstrip("/") + "/agents/execute"
-    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+    base = cfg["aavabaseurl"].rstrip("/")
+    headers = {"Authorization": f"Bearer {token}"}
     if cfg.get("realmid"):
         headers["x-realm-id"] = str(cfg["realmid"])
-    body = {"agentId": int(agentid), "executionId": str(uuid.uuid4()),
-            "user": cfg.get("userprincipal", ""), "userInputs": userinputs}
-
+    eid = str(uuid.uuid4())
     t0 = time.monotonic()
-    status, payload = _http("POST", url, log, headers, body)
-    ms = int((time.monotonic() - t0) * 1000)
+
+    status, payload = _http("POST", base + SUBMIT_PATH, log, headers, form={
+        "agentId": str(int(agentid)),
+        "executionId": eid,
+        "user": cfg.get("userprincipal", ""),
+        "userInputs": json.dumps(userinputs, ensure_ascii=False),
+    })
     if status != 200:
         why = _err_detail(payload)
-        log.line("agenterror", label=label, agentid=agentid, status=status, ms=ms,
-                 realm=cfg.get("realmid") or "none", user=cfg.get("userprincipal") or "none",
-                 why=why[:200] or None)
-        raise RuntimeError(f"{label}: agent {agentid} returned http {status}"
+        log.line("agenterror", label=label, agentid=agentid, phase="submit", status=status,
+                 ms=int((time.monotonic() - t0) * 1000), realm=cfg.get("realmid") or "none",
+                 user=cfg.get("userprincipal") or "none", why=why[:200] or None)
+        raise RuntimeError(f"{label}: agent {agentid} submit returned http {status}"
                            + (f" — {why[:200]}" if why else ""))
+    # Prefer the id the server echoes back; fall back to the one we generated.
+    server_eid = ((payload or {}).get("data") or {}).get("agentExecutionId") \
+        if isinstance(payload, dict) else None
+    execid = str(server_eid or eid)
 
-    out = ""
-    if isinstance(payload, dict):
-        try:
-            out = payload["data"]["agentResponse"]["agent"]["output"]
-        except (KeyError, TypeError):
-            out = payload.get("output") or payload.get("result") or ""
+    url = f"{base}{POLL_PATH}?execution_id={execid}"
+    wait, last = POLL_START, ""
+    while True:
+        left = budget.remaining()
+        if left <= 0:
+            raise RuntimeError(f"{label}: agent {agentid} still {last or 'running'} when the "
+                               f"budget ran out (execution {execid})")
+        time.sleep(min(wait, max(0.5, left)))
+        wait = min(wait * POLL_GROWTH, POLL_MAX)
+        pstatus, ppayload = _http("GET", url, log, headers)
+        if pstatus != 200:
+            if pstatus in POLL_RETRY_STATUSES:
+                continue                       # not recorded yet, or a transient blip
+            why = _err_detail(ppayload)
+            log.line("agenterror", label=label, agentid=agentid, phase="poll", status=pstatus,
+                     execution=execid, why=why[:200] or None)
+            raise RuntimeError(f"{label}: agent {agentid} poll returned http {pstatus}"
+                               + (f" — {why[:200]}" if why else ""))
+        last = str((ppayload or {}).get("status") or "").upper() \
+            if isinstance(ppayload, dict) else ""
+        if last in TERMINAL:
+            break
+
+    ms = int((time.monotonic() - t0) * 1000)
+    if last != "SUCCESS":
+        why = _err_detail(ppayload)
+        log.line("agenterror", label=label, agentid=agentid, phase="poll", status=last,
+                 execution=execid, ms=ms, why=why[:200] or None)
+        raise RuntimeError(f"{label}: agent {agentid} finished {last} (execution {execid})")
+
+    out = _output_text(ppayload)
     if not out:
-        log.line("agenterror", label=label, agentid=agentid, status=200, ms=ms,
-                 why="http 200 but no output field; payload=" + _err_detail(payload, 160))
-        raise RuntimeError(f"{label}: agent {agentid} returned http 200 with an empty output")
-    # No log line here on purpose: the caller logs one line carrying this ms plus the
-    # thing you actually want to see, so a run reads as one line per step, not two.
-    return str(out), ms
+        log.line("agenterror", label=label, agentid=agentid, phase="poll", status=last,
+                 execution=execid, ms=ms,
+                 why="terminal SUCCESS but no output field; payload=" + _err_detail(ppayload, 160))
+        raise RuntimeError(f"{label}: agent {agentid} succeeded with an empty output")
+    # No log line here on purpose: the caller logs one line carrying this ms plus the thing you
+    # actually want to see, so a run reads as one line per step, not two.
+    return out, ms
 
 
 # ── parsers, one per boundary ───────────────────────────────────────────────
@@ -343,27 +419,27 @@ def parse_scenarios(raw: str, maxscenarios: int) -> List[Dict[str, Any]]:
         raise ValueError("scenario array is empty")
 
     seen, out = set(), []
-    for i, s in enumerate(data):
-        if not isinstance(s, dict):
+    for i, sc in enumerate(data):
+        if not isinstance(sc, dict):
             raise ValueError(f"scenario {i} is not an object")
-        missing = [k for k in SCENARIO_KEYS if k not in s]
+        missing = [k for k in SCENARIO_KEYS if k not in sc]
         if missing:
             raise ValueError(f"scenario {i} missing keys: {', '.join(missing)}")
-        sid = str(s["scenarioId"]).strip()
+        sid = str(sc["scenarioId"]).strip()
         if not re.match(r"^TS_\d+$", sid):
             raise ValueError(f"scenario {i} scenarioid '{sid}' is not TS_ followed by digits")
         if sid in seen:
             raise ValueError(f"duplicate scenarioid {sid}")
         seen.add(sid)
-        if str(s["type"]).strip() not in TYPES:
-            raise ValueError(f"{sid} type '{s['type']}' is not Positive, Negative or Edge")
-        if str(s["priority"]).strip() not in PRIORITIES:
-            raise ValueError(f"{sid} priority '{s['priority']}' is not High, Medium or Low")
+        if str(sc["type"]).strip() not in TYPES:
+            raise ValueError(f"{sid} type '{sc['type']}' is not Positive, Negative or Edge")
+        if str(sc["priority"]).strip() not in PRIORITIES:
+            raise ValueError(f"{sid} priority '{sc['priority']}' is not High, Medium or Low")
         # dorRef and dodRef may legitimately be empty; the story has no definition of ready.
-        out.append({k: s[k] for k in SCENARIO_KEYS})
+        out.append({k: sc[k] for k in SCENARIO_KEYS})
 
     order = {"High": 0, "Medium": 1, "Low": 2}
-    out.sort(key=lambda s: order.get(str(s["priority"]).strip(), 3))
+    out.sort(key=lambda x: order.get(str(x["priority"]).strip(), 3))
     return out[:maxscenarios]
 
 
@@ -589,7 +665,7 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                 "scenario": _j(scenario),
                 "storytitle": story["title"],
                 "limits": _j({"testcasesperscenario": cfg["testcasesperscenario"],
-                              "stepsmin": cfg["stepsmin"], "stepsmax": cfg["stepsmax"]}),
+                                          "stepsmin": cfg["stepsmin"], "stepsmax": cfg["stepsmax"]}),
             }
             if regenerate:
                 gen_inputs["regenerate"] = _j(regenerate)   # omitted on the first round
@@ -634,8 +710,8 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                 "scenario": _j(scenario),
                 "testcases": parsed["table"],
                 "limits": _j({"passscore": passscore, "stepsmin": cfg["stepsmin"],
-                              "stepsmax": cfg["stepsmax"],
-                              "testcasesperscenario": cfg["testcasesperscenario"]}),
+                                          "stepsmax": cfg["stepsmax"],
+                                          "testcasesperscenario": cfg["testcasesperscenario"]}),
             }
             try:
                 raw, rev_ms = exec_agent(cfg["reviewagentid"], rev_inputs, cfg, token,
