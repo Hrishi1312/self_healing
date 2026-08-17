@@ -504,7 +504,9 @@ check("the retry constants are gone",
       not hasattr(T, "MAX_HTTP_ATTEMPTS") and not hasattr(T, "RETRY_STATUSES"))
 
 # 2. Bounded concurrency.
-check("default maxworkers is 3, not 5", T.DEF_MAXWORKERS == 3)
+check("every guard sits BELOW the client's 240s ACA cut",
+      T.DEF_DEADLINESECONDS < 240 and T.HTTP_TIMEOUT < 240,
+      f"deadline={T.DEF_DEADLINESECONDS} http={T.HTTP_TIMEOUT}")
 
 # 3/4. The deterministic pre gate.
 import copy as _copy                                      # noqa: E402
@@ -639,7 +641,65 @@ check("a real agent id is still required for the generator",
 T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
 
 
-section("12. AAVA UPLOAD GATE")
+section("12. NESTED JSON OUTPUT  (halves what the generator has to write)")
+
+_p = T.parse_testcases(fixture("testcases_log0814.md") or "", 1, 100)
+_nested = []
+for tid, rws in _p["cases"].items():
+    h = rws[0]
+    _nested.append({
+        "scenarioid": h[0], "acceptancecriteriaref": h[1], "name": h[2], "id": h[3],
+        "attachments": h[4], "status": h[5], "testcasetype": h[6], "description": h[7],
+        "precondition": h[8],
+        "steps": [{"no": r[9], "description": r[10], "expected": r[11],
+                   "attachment": r[12] or "None"} for r in rws]})
+_json = json.dumps(_nested)
+
+expanded = T.expand_testcases(_json)
+back = T.parse_testcases(expanded, 1, 100)
+check("nested JSON expands to a valid 13 column table", back["header"] == T.COLUMNS)
+check("no test case is lost in expansion",
+      set(back["ids"]) == set(_p["ids"]), f"{len(back['ids'])} vs {len(_p['ids'])}")
+check("no step row is lost in expansion",
+      len(back["rows"]) == len(_p["rows"]), f"{len(back['rows'])} vs {len(_p['rows'])}")
+check("the repeated columns are filled down on every step row",
+      all(r[0] and r[1] and r[3] for r in back["rows"]))
+check("Status and Test Case Type survive expansion",
+      {r[5] for r in back["rows"]} <= T.TYPES and {r[6] for r in back["rows"]} <= T.CATEGORIES)
+print("          -> JSON %d chars vs table %d chars  (%.2fx, %d%% less to write)"
+      % (len(_json), len(_p["table"]), len(_json)/len(_p["table"]),
+         100 - 100*len(_json)//len(_p["table"])))
+check("the JSON really is smaller than the table it replaces",
+      len(_json) < len(_p["table"]) * 0.75)
+
+# a value carrying a pipe or a newline must not break the row
+_dirty = json.dumps([{**_nested[0], "precondition": "state is AR | MI\nand data exists",
+                      "steps": _nested[0]["steps"][:2]}])
+_d = T.parse_testcases(T.expand_testcases(_dirty), 1, 100)
+check("a pipe inside a value cannot break the row", len(_d["rows"]) == 2)
+check("a newline inside a value cannot split the row", "\n" not in _d["rows"][0][8])
+
+check("rejects JSON with no steps array",
+      _try(lambda: T.expand_testcases(json.dumps([{**_nested[0], "steps": []}]))))
+check("rejects a test case missing a required key",
+      _try(lambda: T.expand_testcases(json.dumps([{k: v for k, v in _nested[0].items()
+                                                   if k != "status"}]))))
+check("rejects a step with no expected result",
+      _try(lambda: T.expand_testcases(json.dumps(
+          [{**_nested[0], "steps": [{"no": 1, "description": "x"}]}]))))
+check("rejects prose instead of JSON", _try(lambda: T.expand_testcases("here you go")))
+
+# read_testcases accepts either shape, so an older agent is not a hard fail
+check("read_testcases accepts the nested JSON",
+      len(T.read_testcases(_json, 1, 100)["ids"]) == len(_p["ids"]))
+check("read_testcases still accepts a markdown table",
+      len(T.read_testcases(_p["table"], 1, 100)["ids"]) == len(_p["ids"]))
+
+check("the log flushes every line", "flush=True" in open(
+    os.path.join(HERE, "AavaTestGenOrchestrator.py"), encoding="utf-8").read())
+
+
+section("13. AAVA UPLOAD GATE")
 
 src = open(os.path.join(HERE, "AavaTestGenOrchestrator.py"), encoding="utf-8").read()
 import re as _re

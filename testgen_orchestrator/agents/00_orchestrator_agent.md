@@ -89,9 +89,9 @@ You have exactly ONE tool: AavaTestGenOrchestrator.
 ## LLM Configuration
 
 - **AI Engine:** `AiGateway`
-- **Model:** `Claude Sonnet 4.6-GATEWAY`
+- **Model:** `gpt-5.4`
 - **Behavior Preset:** `Balanced`
-- **Max Iterations:** `2` (call tool, return output) — matches the working copy
+- **Max Iterations:** `2`  (call tool, return output)
 - **Output Schema:** none
 
 ## Tool Attachment

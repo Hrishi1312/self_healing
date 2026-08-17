@@ -262,18 +262,51 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
 
 8. Validate all fields against formatting and content rules — including compliance with rule 5a (no meta-references), rule 6b (all applicable states covered), rule 4a (all SQL queries grounded in the schema knowledge base), and OUTPUT VOLUME DISCIPLINE (`limits.testcasesperscenario` test cases, `limits.stepsmin` to `limits.stepsmax` steps each), and rule 7a (Status carries Positive/Negative/Edge, Test Case Type carries Functional/Regression) — if any validation fails, regenerate the test case until full compliance is achieved.
 
-9. Compile all test cases into a **tabular format** suitable for export or integration with test management tools. All 13 fields listed above must be represented as columns in the table.
+9. Emit all test cases as the nested JSON array described in OUTPUT FORMAT below. The orchestrator compiles them into the 13 column tabular format suitable for export or integration with test management tools; every one of the 13 fields is represented, so do not build the table yourself.
 
 10. Provide error handling for missing data, incomplete scenarios, or knowledge base gaps with fallback strategies: if `dorRef`/`dodRef` is missing from a scenario, fall back to AC/description-only precondition/expected-result derivation. If the schema knowledge base is missing a required table/column or cannot be read, flag this as a gap using plain language (e.g., "schema details assumed based on available scenario context") and derive the closest valid query from `kb_edi_834_testcase_analysis_1_embedded`, without naming any KB file in the output. If no state/LOB can be determined from the user story context, flag this as a gap using plain language and derive state-agnostic steps rather than defaulting to any hardcoded state. Any such gap must be communicated using plain, generic language — never by naming "DoR", "DoD", "reference", or any KB file explicitly in the Description or any other field.
 
-### SAMPLE
+### OUTPUT FORMAT — nested JSON, one object per test case
 
-| ScenarioId | AcceptanceCriteriaRef | Name | Id | Attachments | Status | Test Case Type | Description | Precondition | Test Step # | Test Step Description | Test Step Expected Result | Test Step Attachment |
-|------------|-----------------------|------|----|-------------|--------|----------------|-------------|--------------|-------------|-----------------------|---------------------------|---------------------|
-| TS_001 | AC3 - Given an inbound EDI 834 file, if the member's eligibility span has not yet begun, the Eligibility Date (DTP*356/DTP*348) populates as the transaction effective date | Verify AR PASSE inbound 834 populates the transaction effective date from the Eligibility Date | TC_001 | None | Positive | Functional | Verify the system populates the Facets transaction effective date from the Eligibility Date for an AR PASSE inbound 834 enrollment submission | AR PASSE inbound 834 test data is available in the staging environment and a member with the required eligibility condition exists | 1 | Prepare an AR PASSE inbound 834 file containing an Eligibility Date in Loop 2000 DTP*356/DTP*348 and place it at \\daycrtappfs01\EdifecsSTRoot\834\Inbound | File is present in the staging path and is picked up by Edifecs within the polling interval | None |
-| ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+Return a JSON array. Each test case appears ONCE, with its steps as an array. Do NOT repeat the
+test case fields on every step: the orchestrator expands this into the 13 column table itself,
+so `ScenarioId`, `AcceptanceCriteriaRef`, `Name`, `Id`, `Attachments`, `Status`,
+`Test Case Type`, `Description` and `Precondition` are written exactly once per test case and
+are filled down every step row for you. Writing them out per step is roughly two thirds wasted
+output and is the single biggest cause of a run exceeding its time budget.
 
-11. Return ONLY the markdown table. No JSON wrapper, no prose before or after it. The orchestrator already holds the scenario and parses this table directly [MUST].
+Keys are lowercase with no separators, in column order:
+
+```json
+[
+  {
+    "scenarioid": "TS_001",
+    "acceptancecriteriaref": "AC3 - Given an inbound EDI 834 file, if the member's eligibility span has not yet begun, the Eligibility Date (DTP*356/DTP*348) populates as the transaction effective date",
+    "name": "Verify AR PASSE inbound 834 populates the transaction effective date from the Eligibility Date",
+    "id": "TC_001",
+    "attachments": "None",
+    "status": "Positive",
+    "testcasetype": "Functional",
+    "description": "Verify the system populates the Facets transaction effective date from the Eligibility Date for an AR PASSE inbound 834 enrollment submission",
+    "precondition": "AR PASSE inbound 834 test data is available in the staging environment and a member with the required eligibility condition exists",
+    "steps": [
+      {
+        "no": 1,
+        "description": "Prepare an AR PASSE inbound 834 file containing an Eligibility Date in Loop 2000 DTP*356/DTP*348 and place it at \\\\daycrtappfs01\\EdifecsSTRoot\\834\\Inbound",
+        "expected": "File is present in the staging path and is picked up by Edifecs within the polling interval",
+        "attachment": "None"
+      }
+    ]
+  }
+]
+```
+
+`status` carries Positive, Negative or Edge. `testcasetype` carries Functional or Regression.
+`steps` must hold between `limits.stepsmin` and `limits.stepsmax` entries, each with its own
+`description` and `expected`. `attachment` defaults to "None" when omitted.
+
+11. Return ONLY that JSON array. No markdown table, no prose before or after it, no code fence
+    is required. The orchestrator parses this directly and builds the table [MUST].
 ````
 
 ---
@@ -281,9 +314,9 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
 ## LLM Configuration
 
 - **AI Engine:** `AiGateway`
-- **Model:** `Claude Sonnet 4.6-GATEWAY`
+- **Model:** `gpt-5.4`
 - **Behavior Preset:** `Balanced`
-- **Max Iterations:** `8`
+- **Max Iterations:** `3`
 - **Output Schema:** none, the tool parses the table itself
 
 ## Tool Attachment

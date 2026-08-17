@@ -71,10 +71,6 @@ Any JSON input may be wrapped in markdown fences — strip fences before parsing
 
 - `storydata.acceptancecriteria` — the FULL acceptance criteria as plain text, including every Given/When/Then line, the Definition of Ready and the Definition of Done.
 
-- {{maxscenarios}} — the hard cap on how many test scenarios you may emit.
-
-- {{feedback}} — empty on the first attempt. When it is NON-EMPTY the previous response was rejected and every point in it must be resolved.
-
 Do NOT call Azure DevOps directly. The orchestrator has already fetched the story and converted it to plain text. `storydata.description` and `storydata.acceptancecriteria` may arrive wrapped in markdown fences; strip the fences before using them.
 
 - `storydata.description` and `storydata.acceptancecriteria` include, word for word and without summarization:
@@ -229,7 +225,7 @@ STRICT RULES:
 ## LLM Configuration
 
 - **AI Engine:** `AiGateway`
-- **Model:** `Claude Sonnet 4.6-GATEWAY`
+- **Model:** `gpt-5.4`
 - **Behavior Preset:** `Balanced`
 - **Max Iterations:** `8`
 - **Output Schema:** none, the tool validates the array itself

@@ -176,9 +176,9 @@ case passes. Every id in `scores` must be a test case id present in the table.
 ## LLM Configuration
 
 - **AI Engine:** `AiGateway`
-- **Model:** `Claude Opus 4.6-GATEWAY`
+- **Model:** `gpt-5.4`
 - **Behavior Preset:** `Precise`
-- **Max Iterations:** `4`
+- **Max Iterations:** `2`
 - **Output Schema:** none, the tool parses the verdict itself
 
 ## Tool Attachment
@@ -186,11 +186,16 @@ case passes. Every id in `scores` must be a test case id present in the table.
 **No tool.** Pure LLM. No knowledge base attached, so this agent can confirm a table or column
 name is concrete but not that it is correct. Schema accuracy stays a human check.
 
-## Why a different model from the generator
+## Same model as the generator, deliberately
 
-The reviewer runs on Opus while the generator runs on Sonnet. A quality gate scored by the
-same model that produced the work is the same AI grading its own homework. This is the maker
-checker pattern the platform expects.
+Both this agent and the generator run `gpt-5.4`. That is the maker and the checker being the
+same model, which is weaker than a cross model gate: a model tends not to spot the kinds of
+mistake it makes. Accepted knowingly, and mitigated two ways. The tool runs a deterministic
+pre gate first, so empty steps, leaked knowledge base names, meta labels and unresolved design
+values are caught in Python before this agent ever sees the work. What is left for the judge is
+the part that needs reading, not string matching. If a second model becomes available,
+`gpt-4.1-mini` or `gpt-5.4-mini` here would restore genuine independence at some cost in
+judgement.
 
 ## Called by
 

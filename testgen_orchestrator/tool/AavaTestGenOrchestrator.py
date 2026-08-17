@@ -50,15 +50,17 @@ DEF_STEPSMAX = 18
 DEF_MAXHEALROUNDS = 3
 DEF_PASSSCORE = 90
 DEF_HARDSTOPSCORE = 50        # below this, healing does not help; stop and report
-# Three, not five. Five concurrent completions against the same gateway is the load that
-# produced eight RemoteDisconnected errors in the two workflow design.
-DEF_MAXWORKERS = 3
-DEF_DEADLINESECONDS = 3000
+# Set this equal to maxscenarios. Anything lower splits the run into waves and multiplies
+# wall clock by the wave count, which is what breaches the 240s ACA ceiling.
+DEF_MAXWORKERS = 5
+# The client fronts AAVA with Azure Container Apps, which severs a request at 240s. This
+# sits below it on purpose: the tool must stop on its own terms and return what it has,
+# because a connection ACA cuts returns nothing at all.
+DEF_DEADLINESECONDS = 190
 DEF_MAXAGENTCALLS = 60
 
-# Per agent call. Deliberately below the observed platform execution ceiling: one hung sub
-# agent must not consume the whole run's budget before the internal deadline can fire.
-HTTP_TIMEOUT = 300
+# Per agent call, below the client's 240s ACA cut so the timeout is ours, not theirs.
+HTTP_TIMEOUT = 200
 ADO_TIMEOUT = (15, 45)
 
 COLUMNS = ["ScenarioId", "AcceptanceCriteriaRef", "Name", "Id", "Attachments", "Status",
@@ -109,7 +111,11 @@ class _Log:
         entry = self._scrub(" ".join(parts))
         with self._lock:
             self._lines.append(entry)
-        print(entry)
+        # flush on every line. AAVA surfaces no logging output from a tool, only stdout, and
+        # stdout to a pipe is block buffered: a run the platform kills at its timeout never
+        # exits cleanly, so anything still sitting in the buffer is lost. Threads also
+        # interleave mid line without it.
+        print(entry, flush=True)
 
     def dump(self) -> List[str]:
         with self._lock:
@@ -330,6 +336,65 @@ def parse_scenarios(raw: str, maxscenarios: int) -> List[Dict[str, Any]]:
     return out[:maxscenarios]
 
 
+# Field names in the generator's JSON, lowercase with no separators, in column order.
+TC_KEYS = ["scenarioid", "acceptancecriteriaref", "name", "id", "attachments", "status",
+           "testcasetype", "description", "precondition"]
+STEP_KEYS = ["no", "description", "expected", "attachment"]
+
+
+def _cell(v: Any) -> str:
+    """One table cell. A pipe or a newline inside a value would break the row, so both are
+    neutralised here rather than trusted to the model."""
+    return _WS.sub(" ", str(v if v is not None else "")).replace("|", "/").strip()
+
+
+def expand_testcases(raw: str) -> str:
+    """Nested JSON from the generator to the 13 column markdown table.
+
+    The generator emits each test case ONCE with its steps as an array, instead of repeating
+    the nine header columns on every step row. Measured on real output, those repeats were
+    64.6% of all characters, so this halves what the model has to write. The table itself is
+    unchanged: the tool expands it here, so the deliverable still matches the 13 column
+    contract byte for byte.
+    """
+    text = _strip_fences(raw)
+    start, end = text.find("["), text.rfind("]")
+    if start == -1 or end == -1:
+        raise ValueError("response contains no JSON array of test cases")
+    data = json.loads(text[start:end + 1])
+    if not isinstance(data, list) or not data:
+        raise ValueError("test case array is empty")
+
+    out = ["| " + " | ".join(COLUMNS) + " |", "|" + "---|" * len(COLUMNS)]
+    for i, tc in enumerate(data):
+        if not isinstance(tc, dict):
+            raise ValueError(f"test case {i} is not an object")
+        missing = [k for k in TC_KEYS if k not in tc]
+        if missing:
+            raise ValueError(f"test case {i} missing keys: {', '.join(missing)}")
+        steps = tc.get("steps")
+        if not isinstance(steps, list) or not steps:
+            raise ValueError(f"{tc.get('id', 'test case ' + str(i))} has no steps array")
+        head = [_cell(tc[k]) for k in TC_KEYS]
+        for n, st in enumerate(steps, 1):
+            if not isinstance(st, dict):
+                raise ValueError(f"{tc['id']} step {n} is not an object")
+            for k in ("description", "expected"):
+                if k not in st:
+                    raise ValueError(f"{tc['id']} step {n} missing '{k}'")
+            out.append("| " + " | ".join(head + [
+                _cell(st.get("no") or n), _cell(st["description"]), _cell(st["expected"]),
+                _cell(st.get("attachment") or "None")]) + " |")
+    return "\n".join(out)
+
+
+def read_testcases(raw: str, stepsmin: int, stepsmax: int) -> Dict[str, Any]:
+    """Accept either shape. Nested JSON is what the generator emits now; a markdown table is
+    still accepted so an older agent, or a model that ignores the format, is not a hard fail."""
+    head = _strip_fences(raw).lstrip()[:1]
+    return parse_testcases(expand_testcases(raw) if head == "[" else raw, stepsmin, stepsmax)
+
+
 def parse_testcases(raw: str, stepsmin: int, stepsmax: int) -> Dict[str, Any]:
     """Parse the markdown table and check its shape. Returns rows plus a per test case index."""
     text = _strip_fences(raw)
@@ -494,7 +559,7 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             try:
                 raw, gen_ms = exec_agent(cfg["testcaseagentid"], gen_inputs, cfg, token,
                                          budget, log, f"generate:{sid}")
-                parsed = parse_testcases(raw, cfg["stepsmin"], cfg["stepsmax"])
+                parsed = read_testcases(raw, cfg["stepsmin"], cfg["stepsmax"])
             except Exception as e:
                 log.line("generate", scenario=sid, round=rnd, error=str(e)[:120])
                 regenerate = [{"id": "all", "gaps": [f"previous attempt was rejected: {e}"]}]
