@@ -132,10 +132,10 @@ Flat, lowercase, no separators.
   "maxworkers": 3,
   "stoponstagnation": true,
 
-  "deadlineseconds": 3000,
+  "deadlineseconds": 190,
   "maxagentcalls": 60,
 
-  "aavabaseurl": "https://int-ai.aava.ai",
+  "aavabaseurl": "https://aava-core-api-agents-svc.redtree-f4541a84.eastus.azurecontainerapps.io",
   "realmid": "4",
   "userprincipal": "",
 

@@ -455,16 +455,17 @@ for fname, marker, end, label in (
     check(f"{label}: every {{{{placeholder}}}} is a key the tool sends",
           not (declared - keys), f"never sent by the tool: {sorted(declared - keys)}")
     for g, fields in grouped.items():
+        short = g
         documented = set(_re.findall(r"`%s\.(\w+)`" % g, body))
-        check(f"{label}: every field of {g} is documented as `{g}.<field>`",
+        check(f"{label}: every field of {g} is documented as `{short}.<field>`",
               not (fields - documented), f"undocumented: {sorted(fields - documented)}")
-        check(f"{label}: every `{g}.<field>` reference is a real field",
+        check(f"{label}: every `{short}.<field>` reference is a real field",
               not (documented - fields), f"not sent: {sorted(documented - fields)}")
     check(f"{label}: no bare dotted reference outside backticks",
-          not _re.search(r"(?<![`\w])(?:storydata|limits)\.\w+", body))
+          not _re.search(r"(?<![`\w])(?:storydata|limits|scenario)\.\w+", body))
 
 orch, orch_src = prompt_of("00_orchestrator_agent.md")
-check("00 orchestrator: declares {{runinputs}} and nothing else",
+check("00 orchestrator: declares one runinputs placeholder and nothing else",
       set(_re.findall(r"\{\{(\w+)\}\}", orch)) == {"runinputs"},
       f"found: {sorted(set(_re.findall(r'{{(\w+)}}', orch)))}")
 check("00 orchestrator: the tool takes exactly one argument",
@@ -752,7 +753,7 @@ check("an empty body does not crash the extractor", T._err_detail(None) == "")
 _seen = {}
 
 
-def failing_exec(method, url, log, headers=None, json_body=None, timeout=None):
+def failing_exec(method, url, log, headers=None, json_body=None, timeout=None, form=None):
     return 502, {"message": "upstream agent execution failed"}
 
 
@@ -775,7 +776,93 @@ check("the raised error repeats the reason",
       "upstream agent execution failed" in _seen.get("msg", ""), _seen.get("msg", ""))
 
 
-section("15. AAVA UPLOAD GATE")
+section("15. ASYNC SUBMIT + POLL  (this deployment does not answer at submit time)")
+
+_calls2 = []
+
+
+def fake_platform(method, url, log, headers=None, json_body=None, timeout=None, form=None):
+    """Stand in for the real endpoints: submit accepts multipart, poll runs then succeeds."""
+    _calls2.append((method, url, form))
+    if method == "POST":
+        assert form is not None, "submit must be multipart, not json"
+        return 200, {"data": {"agentExecutionId": "exec-abc", "jobId": 1954,
+                              "message": "Agent job submitted successfully"},
+                     "status": "SUCCESS"}
+    n = sum(1 for c in _calls2 if c[0] == "GET")
+    if n < 3:
+        return 200, {"status": "RUNNING"}
+    return 200, {"status": "SUCCESS", "output": '[{"scenarioId": "TS_001"}]'}
+
+
+_orig_http, _orig_sleep = T._http, time.sleep
+T._http, T.time.sleep = fake_platform, lambda s: None
+_log2 = T._Log()
+_budget2 = T._Budget(120, 5)
+out2, ms2 = T.exec_agent(625, {"storydata": "{}"},
+                         {"aavabaseurl": "https://host", "realmid": "4",
+                          "userprincipal": "a@b"}, "tok", _budget2, _log2, "scenarios")
+T._http, T.time.sleep = _orig_http, _orig_sleep
+
+posts = [c for c in _calls2 if c[0] == "POST"]
+gets = [c for c in _calls2 if c[0] == "GET"]
+check("submit posts to /agents/execute/agent-executions",
+      posts[0][1].endswith("/agents/execute/agent-executions"), posts[0][1])
+check("submit is multipart form data, never a JSON body", posts[0][2] is not None)
+check("the form carries agentId, executionId, user and userInputs",
+      {"agentId", "executionId", "user", "userInputs"} == set(posts[0][2]), str(set(posts[0][2])))
+check("userInputs is a JSON string inside one form field",
+      isinstance(posts[0][2]["userInputs"], str)
+      and json.loads(posts[0][2]["userInputs"])["storydata"] == "{}")
+check("poll gets /agents/execute/history/execution with the server's execution id",
+      "/agents/execute/history/execution?execution_id=exec-abc" in gets[0][1], gets[0][1])
+check("it keeps polling while the status is not terminal", len(gets) == 3, f"{len(gets)} polls")
+check("the agent output comes back as text", out2 == '[{"scenarioId": "TS_001"}]', out2)
+check("only the SUBMIT spends budget, not each poll", _budget2.calls == 1, f"{_budget2.calls}")
+check("elapsed is measured across submit and poll", isinstance(ms2, int) and ms2 >= 0)
+
+# a terminal non-success must raise, not return junk
+def failed_platform(method, url, log, headers=None, json_body=None, timeout=None, form=None):
+    if method == "POST":
+        return 200, {"data": {"agentExecutionId": "exec-x"}, "status": "SUCCESS"}
+    return 200, {"status": "FAILED", "output": None}
+
+
+T._http, T.time.sleep = failed_platform, lambda s: None
+check("a terminal FAILED raises rather than returning nothing",
+      _try(lambda: T.exec_agent(1, {}, {"aavabaseurl": "https://h"}, "t",
+                                T._Budget(60, 5), T._Log(), "gen")))
+
+# 404 while polling means "not recorded yet", not a failure
+_n = {"i": 0}
+
+
+def slow_platform(method, url, log, headers=None, json_body=None, timeout=None, form=None):
+    if method == "POST":
+        return 200, {"data": {"agentExecutionId": "exec-y"}, "status": "SUCCESS"}
+    _n["i"] += 1
+    if _n["i"] == 1:
+        return 404, {"message": "not found yet"}
+    return 200, {"status": "SUCCESS", "output": "done"}
+
+
+T._http = slow_platform
+o3, _ = T.exec_agent(1, {}, {"aavabaseurl": "https://h"}, "t", T._Budget(60, 5), T._Log(), "gen")
+check("a 404 mid poll is treated as 'not recorded yet', not an error", o3 == "done", o3)
+
+# output may arrive already decoded; every parser downstream wants text
+T._http = lambda m, u, l, headers=None, json_body=None, timeout=None, form=None: (
+    (200, {"data": {"agentExecutionId": "e"}, "status": "SUCCESS"}) if m == "POST"
+    else (200, {"status": "SUCCESS", "output": [{"scenarioId": "TS_009"}]}))
+o4, _ = T.exec_agent(1, {}, {"aavabaseurl": "https://h"}, "t", T._Budget(60, 5), T._Log(), "gen")
+T._http, T.time.sleep = _orig_http, _orig_sleep
+check("a decoded output object is normalised back to text",
+      isinstance(o4, str) and "TS_009" in o4 and len(T.parse_scenarios(
+          json.dumps([dict({k: "x" for k in T.SCENARIO_KEYS}, scenarioId="TS_009",
+                           type="Edge", priority="Low")]), 5)) == 1)
+
+
+section("16. AAVA UPLOAD GATE")
 
 src = open(os.path.join(HERE, "AavaTestGenOrchestrator.py"), encoding="utf-8").read()
 import re as _re
