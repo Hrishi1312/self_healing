@@ -232,7 +232,16 @@ STRICT RULES:
 
 ## Tool Attachment
 
-**No tool.** Pure LLM. Knowledge bases stay attached as they are today.
+**No tool.** Pure LLM. Five knowledge bases, the same set attached to agent 613 in workflow 161
+and agent 560 in workflow 186 — verified identical by id in both exports:
+
+| id | Collection |
+|---|---|
+| 562 | `kb_edi_834_fit_gap_analysis_1_embedded` |
+| 567 | `kb_edi_834_fit_gap_analysis_2_embedded` |
+| 568 | `kb_edi_834_companion_guide_1_embedded` |
+| 569 | `kb_edi_834_testcase_analysis_1_embedded` |
+| 570 | `kb_edi_834_trading_partner_1_embedded` |
 
 ## Called by
 

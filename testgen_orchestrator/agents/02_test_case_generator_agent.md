@@ -166,7 +166,7 @@ Across the scenario set, all three classifications must appear. This scenario ge
 
 - **Edge**
 
-These three values belong in the **`Status`** column (see rule 7a). They do NOT go in the `Test Case Type` column. `Test Case Type` holds `Functional` or `Regression`, and every test case you generate is `Functional`.
+These three values belong in the **`Status`** column (see rule 7a). They do NOT go in the `Test Case Type` column. `Test Case Type` holds `Functional` or `Regression`, and every test case you generate is `Functional`. Generate only functional test cases.
 
 The scenario supplied must be realized by test cases, maintaining internal traceability to its `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, and `dodRef` — the first two as populated columns, the DoR/DoD content folded into Precondition and Expected Result without ever being named in the text (per 5a). Boundary conditions supplied as their own dedicated scenarios must each be addressed by their own separate, dedicated test case and must not be merged with other test cases. This is strictly mandatory.
 
@@ -196,11 +196,33 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
 
 - **Type balance:** provide a sensible mix of Positive, Negative, and Edge cases across the scenario set.
 
+### CONSISTENCY AND UNIQUENESS GATES [MUST]
+
+- **Semantic deduplication.** Two test cases are duplicates when they validate the same business intent, even if the wording differs. If two candidates verify the same rule, the same member population, the same condition and the same expected outcome, keep ONE canonical test case and drop the rest. Judge intent, not phrasing — "Validate plan assignment for members under 21 with aid categories 198 and 199" and "Validate derived plan ID reflects in Facets eligibility for a below 21 member" are the same test case wearing two names.
+
+- **Uniqueness signature.** Before emitting, check every test case against every other on `Name` + `Test Case Type` + the scenario condition it exercises. Two cases sharing that signature are one case.
+
+- **Step depth consistency.** Every test case in a run MUST carry equivalent atomic step depth and validation detail. No later test case may be shorter, summarised or less strict than an earlier one. Depth that tails off across the output is a defect, not a style choice.
+
+- **Minimum depth.** Generate enough atomic steps to fully validate setup, processing, database checks, archive checks and outcome verification. Each major action decomposes into a single atomic UI, database or file system action, and every atomic step carries a concrete expected outcome.
+
+- **Edge cases carry MORE, not less.** An Edge test case MUST include the negative path validation steps a Positive case does not need: the error path, the rejection path, the no record path, and post condition verification, each with an explicit expected outcome.
+
+- **Baseline process step preservation.** Do NOT remove, skip, renumber or collapse any step from the PROCESS STEPS section, including step 9a. Expand with additional sub steps where a scenario needs them, but every applicable baseline step must survive into the test case.
+
+- **Structural validity.** Reject and regenerate any test case that is missing a Precondition, missing an expected result on any step, carries an unresolved placeholder, carries an unresolved state, has incomplete SQL, or collapses several actions into one step.
+
+- **Discriminating attribute isolation [MUST].** When a scenario turns on a business attribute that takes several distinct values — an aid category, a plan, a coverage tier, a rate cell, a maintenance reason code — each value gets its OWN dedicated test case. Never validate two values of the same attribute in one test case. Aid Category is the clearest example: `198` and `199` must appear in separate test cases and must never share one.
+
+- **State by attribute matrix.** Where a scenario applies to several states AND several values of a discriminating attribute, generate a dedicated test case per unique state and value combination. Do not merge values within a state, and do not merge states for one value, unless the scenario explicitly calls for a single state agnostic execution.
+
 ### TEST STEP REQUIREMENTS
 
 - Refer the output sample template document in the knowledge base as a reference for generating test step descriptions step by step in a detailed way STRICTLY for each test case [MUST].
 
 - Detailed server and database engine details and server name should be provided in each test step description STRICTLY.
+
+- **Which SQL Server [MUST].** For SQL Server launch, connection, and every non FACETS validation, use DB-72 `crt_72.sql.caresource.corp\crt_72`. For FACETS database validation steps ONLY, use `crt_69.sql.caresource.corp\crt_69` instead of `crt_72`. Do NOT replace other server or endpoint values globally: the TM UI URL, the NAS staging and archive locations, Edifecs locations and every other non FACETS system stay scenario specific and knowledge base derived.
 
 - Queries should be provided in the test step description in a detailed way for each generated test case STRICTLY. Every query MUST be constructed from the schema definitions in the `EDI and FACETS Schema 2`, `Facets 834`, and `EDIFECS Full with AUX 834` documents present in knowledge base `kb_edi_schema_details_003_large` — using its exact table names, column names, key relationships, and datatypes — so the SQL is schema-accurate and executable [MUST]. Fetch and read `EDI and FACETS Schema 2` before writing any query; resolve joins and filter predicates using the actual foreign-key/primary-key relationships defined there.
 
@@ -209,6 +231,12 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
 - The first test step(s) must reflect the setup/data conditions derived from `dorRef` (where applicable), and the final test step's Expected Result must reflect the completion criteria derived from `dodRef` (where applicable) — written as plain setup/outcome statements per rule 5a, with no mention of "DoR"/"DoD"/"reference" anywhere in the step text.
 
 - State-specific values in every test step (file name, staging path, archive path, trading-partner filter) MUST be resolved to the concrete state applicable to that test case, drawn from the enumerated state list for the user story (per rule 6b). Never leave a state/trading-partner placeholder unresolved, and never substitute a state that is not part of the user story's applicable state set.
+
+- **Eligibility lookup by Member SSN (NM109) [MUST].** Wherever a step validates eligibility and the Member SSN (NM109) is available, use the SSN based query rather than a Plan ID lookup:
+
+  `SELECT SBEL.* FROM [FACPRDDB].[dbo].[CMC_SBEL_ELIG_ENT] SBEL WITH (NOLOCK) JOIN [FACPRDDB].[dbo].[CMC_MEME_MEMBER] MEME WITH (NOLOCK) ON SBEL.SBSB_CK=MEME.SBSB_CK WHERE MEME_SSN='the member SSN from NM109';`
+
+  Use a Plan ID filter only when a scenario explicitly requires Plan ID validation in addition to the SSN check.
 
 - **Angle-bracket tokens: allowed for runtime test data, forbidden for anything you can resolve [MUST].**
 
@@ -240,7 +268,7 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
 
 4. Ensure the processed file is getting archived in the below location as expected, with `<STATE>` resolved to the current state under test: `\\daycrtappfs01\EdifecsSTArchive\834\Inbound\<STATE>`
 
-5. Access CRT TM UI: `https://edifecstm-crt.caresource.corp:8443/tm/logon/logon.jsp` and enter your credentials.
+5. Access CRT TM UI: `https://edifecstmenr-crt.caresource.corp:8443/tm/logon/logon.jsp` and enter your credentials.
 
 6. Under Transmissions, select Last 24 Hours (Batch).
 
@@ -250,7 +278,7 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
 
 9. Verify by opening the transaction if policy unit delivery is completed/successful to ensure the data is available/reflecting in Facets.
 
-9a. STRICTLY verify the member data is loaded correctly in the FACETS member, subscriber, and eligibility/entitlement tables. Do NOT hardcode the table or column names — fetch and open the `EDI and FACETS Schema 2` schema document within `kb_edi_schema_details_003_large`, locate the FACETS member table, subscriber table, and eligibility/entitlement table (the member-data tables that store the loaded 834 enrollment), and resolve their exact literal table names, column names, and key relationships from that document. Build the validation query using those resolved names to confirm the member, subscriber, and eligibility/entitlement records exist and reflect the submitted 834 data for the current state under test. Embed the fully resolved, executable SQL directly in the Test Step Description — never leave a table/column name as a placeholder or citation.
+9a. STRICTLY verify the member data is loaded correctly in the FACETS member, subscriber, and eligibility/entitlement tables. For this FACETS validation connect to SQL Server `crt_69.sql.caresource.corp\crt_69`, not `crt_72`. Do NOT hardcode the table or column names — fetch and open the `EDI and FACETS Schema 2` schema document within `kb_edi_schema_details_003_large`, locate the FACETS member table, subscriber table, and eligibility/entitlement table (the member-data tables that store the loaded 834 enrollment), and resolve their exact literal table names, column names, and key relationships from that document. Build the validation query using those resolved names to confirm the member, subscriber, and eligibility/entitlement records exist and reflect the submitted 834 data for the current state under test. Embed the fully resolved, executable SQL directly in the Test Step Description — never leave a table/column name as a placeholder or citation.
 
 10. Login DB-72 Servername: `crt_72.sql.caresource.corp\crt_72`
 

@@ -106,6 +106,12 @@ The generator deliberately folds `descriptionRef`, `dorRef` and `dodRef` into th
 
 8.Volume within limits — COUNT before you judge. Count the distinct test case Ids per ScenarioId, count the steps in each test case, and count the total number of test cases. This check fails ONLY if there are MORE than `limits.testcasesperscenario` test cases, OR a test case has fewer than `limits.stepsmin` or more than `limits.stepsmax` steps. Exactly `limits.testcasesperscenario` is the TARGET and PASSES; fewer also PASSES, since a scenario that cannot support one of the required types is allowed to produce fewer. When this check fails, state the counts you actually measured.
 
+10.Semantic duplicates — two test cases that validate the SAME business intent are duplicates even when worded differently. This check fails ONLY if you can name two ids and state the shared intent in one sentence. Different data, different condition or different expected outcome means NOT a duplicate. Do not guess at intent you cannot state plainly.
+
+11.Step depth consistency — COUNT the steps in each test case. This check fails ONLY if one test case has fewer than half the steps of the largest test case in the same batch. Report the counts you measured. Normal variation within `limits.stepsmin` to `limits.stepsmax` is not a failure.
+
+12.Edge cases carry negative path steps — an Edge test case must contain at least one step whose Expected Result describes an error, a rejection, or an absent record. This check fails ONLY if a test case whose `Status` is `Edge` has no such step. Quote the Status cell and say which id.
+
 9.Column values in the right columns — `Status` must contain `Positive`, `Negative` or `Edge`, and `Test Case Type` must contain `Functional` or `Regression`. This check fails if `Status` contains a workflow state such as `Draft`, `New` or `Approved`, or if `Test Case Type` contains Positive/Negative/Edge. These two are commonly swapped; the values above are the ones the existing manual test cases for this programme use.
 
 # Scoring
@@ -121,7 +127,7 @@ No deductions for bundling, copied preconditions, missing Positive/Negative/Edge
 
 0-49 — the test case is empty, unparseable, or clearly unrelated to the scenario.
 
-Checks 5-9 are HARD GATES, not deductions. Each one is a literal string test or a numeric count
+Checks 5-12 are HARD GATES, not deductions. Each one is a literal string test or a numeric count
 — never a judgement about phrasing, tone, or style.
 
 EVIDENCE RULE [MUST]: a gate fails ONLY if you can quote the exact offending substring verbatim
@@ -134,9 +140,9 @@ well its basics score, set its `pass` to false, and put the quoted evidence in i
 
 `pass` is true when a test case scores at or above `limits.passscore`.
 
-If all of checks 5-9 pass for a test case, score it on the basics alone. 90-100 when the four
+If all of checks 5-12 pass for a test case, score it on the basics alone. 90-100 when the four
 basics are met is the EXPECTED outcome for sound output. Do NOT manufacture a reason to withhold
-a pass, and do NOT reduce a score for issues outside checks 1-9.
+a pass, and do NOT reduce a score for issues outside checks 1-12.
 
 Do NOT deduct for the naming style of test case Ids, and do NOT deduct for the presence of the
 ScenarioId or AcceptanceCriteriaRef columns. Both are expected and correct.
