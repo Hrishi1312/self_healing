@@ -334,8 +334,10 @@ def exec_agent(agentid: int, userinputs: Dict[str, Any], cfg: Dict[str, Any],
         raise RuntimeError("budget exhausted before call")
     base = cfg["aavabaseurl"].rstrip("/")
     headers = {"Authorization": f"Bearer {token}"}
-    if cfg.get("realmid"):
-        headers["x-realm-id"] = str(cfg["realmid"])
+    # x-realm-id disabled: the platform rejected realmid 4 for this user ("Realm ID 4 is
+    # invalid for user"). Re-enable once the correct realm is confirmed.
+    # if cfg.get("realmid"):
+    #     headers["x-realm-id"] = str(cfg["realmid"])
     eid = str(uuid.uuid4())
     t0 = time.monotonic()
 
@@ -412,9 +414,15 @@ def parse_scenarios(raw: str, maxscenarios: int) -> List[Dict[str, Any]]:
     regenerated, not passed on."""
     text = _strip_fences(raw)
     start, end = text.find("["), text.rfind("]")
-    if start == -1 or end == -1:
-        raise ValueError("response contains no JSON array")
-    data = json.loads(text[start:end + 1])
+    if start != -1 and end != -1:
+        data = json.loads(text[start:end + 1])
+    else:
+        # Seen with maxscenarios=1: the generator drops the array wrapper and emits a
+        # single scenario object instead of a one-element array.
+        ostart, oend = text.find("{"), text.rfind("}")
+        if ostart == -1 or oend == -1:
+            raise ValueError("response contains no JSON array")
+        data = [json.loads(text[ostart:oend + 1])]
     if not isinstance(data, list) or not data:
         raise ValueError("scenario array is empty")
 
