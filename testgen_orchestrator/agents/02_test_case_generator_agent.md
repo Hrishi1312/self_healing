@@ -166,6 +166,29 @@ Across the scenario set, all three classifications must appear. This scenario ge
 
 - **Edge**
 
+**What each classification MUST contain [MUST].** The classification is not just a label on the
+`Status` column, it changes what the steps have to assert:
+
+- **Positive** — the happy path. Every Expected Result asserts the intended outcome: the record
+  loads, the date populates, the file archives.
+
+- **Negative** — an invalid or rejected input. At least one step's Expected Result MUST describe
+  the rejection: an error message, a failed validation, a transaction that does not process.
+
+- **Edge** — a boundary or unusual condition. At least one step's Expected Result MUST describe
+  an error, a rejection, or an ABSENT record — for example "no row is returned", "no MELC record
+  is created", "the transaction is not processed", "the date is not populated". An Edge test case
+  whose steps all assert successful outcomes is NOT an Edge case and will be rejected.
+
+Two further rules the reviewer enforces, so satisfy them before you output:
+
+- **No semantic duplicates.** Two test cases that validate the same business intent are duplicates
+  even when the wording differs. Different data, a different condition or a different expected
+  outcome makes them distinct; a reworded version of the same check does not.
+
+- **Consistent step depth.** No test case may have fewer than half the steps of the largest test
+  case in the same batch. Keep them comparable within `limits.stepsmin` to `limits.stepsmax`.
+
 These three values belong in the **`Status`** column (see rule 7a). They do NOT go in the `Test Case Type` column. `Test Case Type` holds `Functional` or `Regression`, and every test case you generate is `Functional`. Generate only functional test cases.
 
 The scenario supplied must be realized by test cases, maintaining internal traceability to its `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, and `dodRef` — the first two as populated columns, the DoR/DoD content folded into Precondition and Expected Result without ever being named in the text (per 5a). Boundary conditions supplied as their own dedicated scenarios must each be addressed by their own separate, dedicated test case and must not be merged with other test cases. This is strictly mandatory.
