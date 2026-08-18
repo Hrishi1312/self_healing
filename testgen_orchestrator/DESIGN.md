@@ -293,18 +293,18 @@ review; throwing it away is worse than shipping it marked.
 
 ## 8. Failure isolation
 
-Two gates per round, cheap one first — the shape `CGSelfhealingV3Tool` uses.
+**Disabled 2026-08-18: the deterministic pre gate.** `pregate()` and the step count and
+column value checks in `parse_testcases` are commented out, not deleted. Every rule they
+enforced is stated in agent 02 and enforced by agent 03 (checks 3, 6, 7, 8, 9), so the tool
+was holding a second copy of rules that live in the prompts, with nothing keeping the two in
+step. Verified before disabling: all 8 rules appear on both the generator and the reviewer
+side.
 
-**1. The deterministic pre gate (`pregate`, no LLM).** Reviewer checks 3, 6 and 7 are literal
-string tests, so they run here for free: every step has a non-empty Description and Expected
-Result; no knowledge base or schema name (`kb_`, `Facets 834`, …) leaked into the table; no
-meta label (`DoR`, `dorRef`, `per the AC`, …) in Name, Description, Precondition or either step
-column; no unresolved design value (`<STATE>`, `<table_name>`, …). Runtime data tokens such as
-`<ISA13>` pass, as they must. `ScenarioId` and `AcceptanceCriteriaRef` are exempt.
-
-A table that fails the pre gate is regenerated with the proven problems as feedback and **never
-reaches the reviewer**. Paying an Opus call to discover a missing expected result is waste, and
-it was that same judgement call that had the reviewer inventing violations.
+What this trades away is observability, not coverage. A slip now costs a reviewer call to
+detect rather than being caught for free, and if the reviewer misses it the output ships. The
+one worth watching is `Status` / `Test Case Type`: that failure is silent and breaks the Excel
+import. Re-enabling is a nine line uncomment in `process_scenario` plus the block in
+`parse_testcases`; both carry a note saying so.
 
 **2. The reviewer**, only on work that survived the pre gate. Its verdict then meets three
 exits:

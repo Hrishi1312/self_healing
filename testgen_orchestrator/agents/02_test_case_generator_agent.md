@@ -23,7 +23,7 @@ across unchanged.
 | No meta referencing, rule 5a | INSTRUCTIONS |
 | Related criteria consolidation, rule 6a | INSTRUCTIONS |
 | Multi state coverage, rule 6b | INSTRUCTIONS |
-| Angle bracket policy | TEST STEP REQUIREMENTS |
+| Angle brackets banned, runtime data as [TEST DATA: ...] | TEST STEP REQUIREMENTS |
 | All 13 process steps including 9a and the placeholder resolution rule | PROCESS STEPS |
 | Output volume discipline, quality rules, test step requirements | own sections |
 | Column semantics, rule 7a | INSTRUCTIONS |
@@ -238,13 +238,11 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
 
   Use a Plan ID filter only when a scenario explicitly requires Plan ID validation in addition to the SSN check.
 
-- **Angle-bracket tokens: allowed for runtime test data, forbidden for anything you can resolve [MUST].**
+- **Angle brackets are forbidden in the output [MUST].** No angle-bracket token of any kind may remain anywhere in Precondition, Test Step Description, or Test Step Expected Result — not for states, trading partners, table names, column names, file names, paths, member data, or anything else. This applies to every form, including ones not named elsewhere in these instructions (for example `applicable state`, `executed_state`, `member_ssn`, `sbsb_ck`, `ISA13`, `YYYYMMDD` wrapped in angle brackets). Anything you can resolve from the user story, the knowledge bases or the schema documents MUST be resolved to its concrete value before you output.
 
-  ALLOWED — a value the tester supplies at execution time, which cannot be known when the test case is written. Write these in angle brackets inside the query or file name, exactly as a manual test author would: `<ISA13>`, `<InterchangeID>`, `<member_ssn>`, `<sbsb_ck>`, `<YYYYMMDD>`. Do NOT invent or fabricate a value in their place.
+- **Runtime test data uses square brackets instead [MUST].** Some values genuinely cannot be resolved at authoring time because the tester supplies them at execution — a specific subscriber key, member id, SSN, or interchange control number. Do NOT invent or fabricate these, and do NOT wrap them in angle brackets. Write them as `[TEST DATA: plain description]`, for example `[TEST DATA: subscriber SBSB_CK for the test member]` or `[TEST DATA: member SSN used in the mocked 834 file]`. Square brackets in this exact form are expected and correct, and will not be flagged.
 
-  FORBIDDEN — anything you can and must resolve from the user story, the knowledge bases or the schema documents. Never leave a state, trading partner, database, server, table name, column name, archive path segment or knowledge base name in angle brackets. Tokens such as `<STATE>`, `<STATE_TRADING_PARTNER>`, `<applicable state>`, `<executed_state>`, `<table_name>`, `<column_name>` must be replaced with the concrete value before you output.
-
-  The test is simple: if the answer exists in your inputs, resolve it. If it only exists in the tester's environment at run time, leave it in angle brackets.
+  The test is simple: if the answer exists in your inputs, resolve it to a literal value. If it only exists in the tester's environment at run time, write it as `[TEST DATA: ...]`. Never angle brackets, either way.
 
 7. For each test case, populate these 13 fields: **ScenarioId, AcceptanceCriteriaRef, Name, Id, Attachments, Status, Test Case Type, Description, Precondition, Test Step #, Test Step Description (detailed steps), Test Step Expected Result, Test Step Attachment** [MUST]. `ScenarioId` and `AcceptanceCriteriaRef` MUST tie every test case to exactly one input scenario/AC for traceability [MUST]. Do NOT add Description Reference, DoR Reference, or DoD Reference as separate output columns — those are used only internally to derive Precondition and Expected Result content, and per rule 5a must never appear as named citations within any field's text.
 

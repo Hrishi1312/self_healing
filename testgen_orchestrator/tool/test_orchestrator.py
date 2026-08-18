@@ -65,6 +65,15 @@ def fixture(name):
     return open(p, encoding="utf-8").read() if os.path.exists(p) else None
 
 
+def as_current(table):
+    """The captured fixtures predate the angle-bracket rule: they carry <member_ssn> style
+    tokens that are now a violation. Convert them to the [TEST DATA: ...] form so the fixture
+    represents output a CURRENT generator would produce. The raw fixture is kept for the
+    checks that prove the rule catches the old shape."""
+    import re as _r
+    return _r.sub(r"<([A-Za-z][\w ]{0,30})>", r"[TEST DATA: \1]", table or "")
+
+
 # ────────────────────────────────────────────────────────────────────────────
 section("1. REAL AGENT OUTPUT THROUGH THE PARSERS  (the upload risk)")
 
@@ -89,13 +98,20 @@ check("rows split across physical lines are rejoined, not dropped",
       f"got {len(T.parse_testcases(raw0814, 1, 100)['rows'])} rows, expected 190")
 
 # log15 and log18 were captured BEFORE the Status / Test Case Type columns were corrected.
-# They must be rejected: that is invariant 6 in CLAUDE.md doing its job.
+# The tool used to reject them. That check is DISABLED (2026-08-18) — the rule now lives in
+# agent 02 rule 7a and agent 03 check 9. These assert the new reality, so that re-enabling
+# the check makes them fail loudly rather than passing by accident.
 for tag in ("log15", "log18"):
     raw = fixture(f"testcases_{tag}.md")
     if raw is None:
         continue
-    check(f"rejects the pre fix table from {tag} with swapped columns",
-          _try(lambda: T.parse_testcases(raw, 1, 100)))
+    check(f"the tool no longer rejects the swapped columns in {tag}",
+          not _try(lambda: T.parse_testcases(raw, 1, 100)))
+_rv = open(os.path.join(HERE, "..", "agents", "03_reviewer_agent.md"), encoding="utf-8").read()
+check("Status / Test Case Type is still enforced, by agent 03 check 9",
+      "must contain `Positive`" in _rv and "`Functional` or `Regression`" in _rv)
+check("step count is still enforced, by agent 03 check 8",
+      "stepsmin" in _rv and "stepsmax" in _rv)
 
 for tag in ("log15", "log18", "log0814"):
     raw = fixture(f"scenarios_{tag}.json")
@@ -138,15 +154,15 @@ check("parse_verdict rejects a score for an unknown test case id",
 section("2. PARSER GUARDS  (bad output must be caught, not passed on)")
 
 
-good_table = fixture("testcases_log0814.md") or ""
+good_table = as_current(fixture("testcases_log0814.md")) or ""
 check("rejects a table with the wrong header",
       _try(lambda: T.parse_testcases(good_table.replace("ScenarioId", "Scenario Id"), 1, 100)))
 check("rejects an empty response",
       _try(lambda: T.parse_testcases("", 1, 100)))
 check("rejects prose with no table",
       _try(lambda: T.parse_testcases("Here are your test cases:", 1, 100)))
-check("rejects step counts outside the range",
-      _try(lambda: T.parse_testcases(good_table, 500, 600)))
+check("the tool no longer rejects step counts outside the range",
+      not _try(lambda: T.parse_testcases(good_table, 500, 600)))
 check("rejects a scenario array missing a required key",
       _try(lambda: T.parse_scenarios('[{"scenarioId":"TS_001","title":"x"}]', 5)))
 check("rejects a malformed scenarioId",
@@ -268,7 +284,7 @@ check("log is thread safe under 6 threads", not lerr and len(log.dump()) >= 600)
 # ────────────────────────────────────────────────────────────────────────────
 section("7. FULL PIPELINE, MOCKED  (real recorded output, no network)")
 
-real_table = fixture("testcases_log0814.md")     # the post column fix capture
+real_table = as_current(fixture("testcases_log0814.md"))   # post column fix, post angle bracket rule
 real_scen = fixture("scenarios_log0814.json")
 
 calls = {"n": 0, "ids": [], "threads": set()}
@@ -514,15 +530,18 @@ import copy as _copy                                      # noqa: E402
 
 _RAW = fixture("testcases_log0814.md") or ""
 _ANCHOR = "The file is automatically picked up by Edifecs within the normal polling interval."
+_RAW_CUR = None  # set after as_current below
 check("the pre gate fixture anchor still exists", _RAW.count(_ANCHOR) > 0)
 
-_good = T.parse_testcases(_RAW, 1, 100)
-check("pre gate passes REAL good output", T.pregate(_good) == [], str(T.pregate(_good)[:2]))
+_good = T.parse_testcases(as_current(_RAW), 1, 100)
+check("pre gate passes REAL output once angle brackets are converted",
+      T.pregate(_good) == [], str(T.pregate(_good)[:2]))
+
 
 
 def _mutated(fn):
     """Parse once, mutate the structure in memory, gate it. rows and cases share row objects."""
-    p2 = _copy.deepcopy(T.parse_testcases(_RAW, 1, 100))
+    p2 = _copy.deepcopy(T.parse_testcases(as_current(_RAW), 1, 100))
     fn(p2)
     return T.pregate(p2)
 
@@ -545,19 +564,17 @@ check("pre gate catches a knowledge base name in the output",
 check("pre gate catches a meta label in a Precondition",
       any("DoR" in x for x in _mutated(
           lambda p2: p2["rows"][0].__setitem__(8, "Per the DoR this must hold."))))
-check("pre gate catches an unresolved design value",
-      any("<STATE>" in x for x in _mutated(
-          lambda p2: p2.__setitem__("table", p2["table"].replace(
-              _ANCHOR, "Applicable state is <STATE>.", 1)))))
-check("pre gate ignores runtime data tokens like <ISA13>",
+
+check("the pre gate leaves angle brackets to the agents, by design",
       _mutated(lambda p2: p2.__setitem__("table", p2["table"].replace(
           _ANCHOR, "Capture <ISA13> and <member_ssn> at run time.", 1))) == [])
+check("ANGLE_TOKEN is gone from the tool", not hasattr(T, "ANGLE_TOKEN"))
 check("a meta label in AcceptanceCriteriaRef is NOT a violation",
       _mutated(lambda p2: p2["rows"][0].__setitem__(1, "DoD - file archived")) == [])
 
 # A pre gate failure must NOT spend a reviewer call.
 seen = {"gen": 0, "rev": 0}
-bad_table = _RAW.replace(_ANCHOR, "Applicable state is <STATE>.", 1)
+bad_table = as_current(_RAW).replace(_ANCHOR, "Per the DoR this must hold.", 1)
 check("the mutated raw table really does fail the gate",
       T.pregate(T.parse_testcases(bad_table, 1, 100)) != [])
 
@@ -578,11 +595,15 @@ T.exec_agent, T.fetch_story, T._secret = pregate_exec, fake_story, lambda k, f="
 res5 = json.loads(tool._run(runinputs=json.dumps(dict(
     base, maxscenarios=1, stepsmin=1, stepsmax=100, maxworkers=1, maxhealrounds=2,
     deadlineseconds=120))))
-check("a pre gate failure never calls the reviewer", seen["rev"] == 0, f"reviewer calls={seen['rev']}")
-check("it regenerates instead", seen["gen"] == 2, f"generator calls={seen['gen']}")
-check("the proven problems are reported as gaps",
-      any("<STATE>" in g for g in res5["scenarios"][0]["gaps"]),
-      str(res5["scenarios"][0]["gaps"])[:150])
+check("with the pre gate disabled, the reviewer sees the work instead",
+      seen["rev"] == 1, f"reviewer calls={seen['rev']}")
+check("and the round is not regenerated by the tool",
+      seen["gen"] == 1, f"generator calls={seen['gen']}")
+_src = open(os.path.join(HERE, "AavaTestGenOrchestrator.py"), encoding="utf-8").read()
+check("pregate() is still defined, ready to re-enable",
+      "def pregate(" in _src and callable(getattr(T, "pregate", None)))
+check("but nothing calls it", "\n            problems = pregate(parsed)" not in _src)
+check("and the reason is written next to it", "DISABLED 2026-08-18" in _src)
 
 # 3. Hard stop below the floor.
 def lowscore_exec(agentid, userinputs, cfg, token, budget, log, label):

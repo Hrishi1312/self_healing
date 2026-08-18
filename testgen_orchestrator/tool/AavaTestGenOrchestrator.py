@@ -547,19 +547,27 @@ def parse_testcases(raw: str, stepsmin: int, stepsmax: int) -> Dict[str, Any]:
         if not re.match(r"^TC[_-]?\w*\d+$", tid):
             raise ValueError(f"test case id '{tid}' does not look like TC followed by digits")
 
-    problems = []
-    for tid, tcrows in cases.items():
-        n = len(tcrows)
-        if n < stepsmin or n > stepsmax:
-            problems.append(f"{tid} has {n} steps, expected {stepsmin} to {stepsmax}")
-        st = {r[5] for r in tcrows if r[5]}
-        if st - TYPES:
-            problems.append(f"{tid} Status holds {sorted(st - TYPES)}, expected Positive, Negative or Edge")
-        cat = {r[6] for r in tcrows if r[6]}
-        if cat - CATEGORIES:
-            problems.append(f"{tid} Test Case Type holds {sorted(cat - CATEGORIES)}, expected Functional or Regression")
-    if problems:
-        raise ValueError("; ".join(problems))
+    # ── DISABLED 2026-08-18 — moved to the agent instructions ──────────────
+    # Step count, Status and Test Case Type are stated in agent 02 (OUTPUT VOLUME
+    # DISCIPLINE, rule 7a) and enforced by agent 03 (checks 8 and 9). Keeping them here
+    # too put the same rule in two places that could drift. Re-enable if a run ships a
+    # swapped Status column or a short test case: the failure is silent, and this is the
+    # only thing that would have caught it before the workbook.
+    #
+    # problems = []
+    # for tid, tcrows in cases.items():
+    #     n = len(tcrows)
+    #     if n < stepsmin or n > stepsmax:
+    #         problems.append(f"{tid} has {n} steps, expected {stepsmin} to {stepsmax}")
+    #     st = {r[5] for r in tcrows if r[5]}
+    #     if st - TYPES:
+    #         problems.append(f"{tid} Status holds {sorted(st - TYPES)}, expected Positive, Negative or Edge")
+    #     cat = {r[6] for r in tcrows if r[6]}
+    #     if cat - CATEGORIES:
+    #         problems.append(f"{tid} Test Case Type holds {sorted(cat - CATEGORIES)}, expected Functional or Regression")
+    # if problems:
+    #     raise ValueError("; ".join(problems))
+    # ── end disabled ───────────────────────────────────────────────────────
 
     # Rebuild the table from the parsed rows rather than handing back the raw text. The raw
     # text still contains any physically split rows this function just rejoined, so returning
@@ -590,7 +598,11 @@ def parse_verdict(raw: str, known_ids: List[str]) -> Dict[str, Any]:
     return v
 
 
-# ── cheap deterministic gate, no llm ────────────────────────────────────────
+# ── cheap deterministic gate, no llm — NOT CURRENTLY CALLED ─────────────────
+# Disabled 2026-08-18. Every rule below is also stated in agent 02 and enforced by agent
+# 03 (checks 3, 6, 7), so this was the same rule in two places. Kept, not deleted: if the
+# agents start slipping, re-enabling the call in process_scenario is a nine line uncomment
+# and costs nothing at run time. See DESIGN.md section 8.
 # Checks 3, 6 and 7 of the reviewer's checklist are literal string tests. Doing them here is
 # strictly better than paying an Opus call to do them: free, deterministic, and immune to the
 # evidence-rule ambiguity that had the reviewer inventing violations. Only work that survives
@@ -598,15 +610,20 @@ def parse_verdict(raw: str, known_ids: List[str]) -> Dict[str, Any]:
 SOURCE_NAMES = ["kb_", "EDI and FACETS Schema 2", "Facets 834", "EDIFECS Full with AUX 834"]
 META_LABELS = ["DoR", "DoD", "Definition of Ready", "Definition of Done",
                "descriptionRef", "dorRef", "dodRef", "per the AC", "as referenced in"]
-DESIGN_TOKENS = ["<STATE>", "<STATE_TRADING_PARTNER>", "<applicable state>",
-                 "<executed_state>", "<table_name>", "<column_name>"]
 # Name, Description, Precondition, Test Step Description, Test Step Expected Result.
 # ScenarioId and AcceptanceCriteriaRef are exempt, as they are in the reviewer's own rules.
 _META_COLS = [2, 7, 8, 10, 11]
 
 
 def pregate(parsed: Dict[str, Any]) -> List[str]:
-    """Return the problems a machine can prove. Empty means it is worth reviewing."""
+    """Return the problems a machine can prove. Empty means it is worth reviewing.
+
+    Deliberately NOT here: the angle-bracket rule. It lives in agent 02 (write
+    `[TEST DATA: ...]`, never angle brackets) and agent 03 check 5. Duplicating it in Python
+    put the same rule in two places that could drift, and the instruction is now unambiguous.
+    If the generator does slip, the reviewer catches it. Keep this function to things a
+    machine can prove cheaply and the reviewer would otherwise be paid to eyeball.
+    """
     problems: List[str] = []
 
     for tid, rows in parsed["cases"].items():
@@ -622,9 +639,6 @@ def pregate(parsed: Dict[str, Any]) -> List[str]:
     for name in SOURCE_NAMES:
         if name in table:
             problems.append(f"the knowledge base or schema name '{name}' appears in the output")
-    for tok in DESIGN_TOKENS:
-        if tok in table:
-            problems.append(f"unresolved design value '{tok}' was left in the output")
     for row in parsed["rows"]:
         for c in _META_COLS:
             for label in META_LABELS:
@@ -694,18 +708,23 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                      ids=",".join(parsed["ids"]), chars=parsed["chars"], ms=gen_ms,
                      regen=len(regenerate) or None)
 
-            # Deterministic gate first. A structurally broken table is regenerated without
-            # spending a reviewer call on it, exactly as the working copy does with _score.
-            problems = pregate(parsed)
-            if problems:
-                log.line("pregate", scenario=sid, round=rnd, failed=len(problems),
-                         first=problems[0][:90])
-                rec["gaps"] = problems
-                rec["status"] = "unhealed"
-                if rnd >= passes:
-                    break
-                regenerate = [{"id": "all", "gaps": problems}]
-                continue
+            # ── DISABLED 2026-08-18 — the reviewer owns these checks now ───────
+            # pregate() duplicated reviewer checks 3, 6 and 7 in Python. It was cheap and
+            # deterministic, but it meant the same rule lived in the tool AND the prompts.
+            # The function is still defined below; uncomment these nine lines to put the
+            # gate back in front of the reviewer.
+            #
+            # problems = pregate(parsed)
+            # if problems:
+            #     log.line("pregate", scenario=sid, round=rnd, failed=len(problems),
+            #              first=problems[0][:90])
+            #     rec["gaps"] = problems
+            #     rec["status"] = "unhealed"
+            #     if rnd >= passes:
+            #         break
+            #     regenerate = [{"id": "all", "gaps": problems}]
+            #     continue
+            # ── end disabled ───────────────────────────────────────────────────
 
             if not reviewing:
                 # Degraded mode: no judge configured. The pre gate is the whole gate.

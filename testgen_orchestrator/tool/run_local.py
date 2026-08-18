@@ -42,6 +42,87 @@ if "crewai" not in sys.modules:
 import AavaTestGenOrchestrator as T      # noqa: E402
 
 
+def load_env(path):
+    """Read a .env into a dict. Ten lines beats a dependency.
+
+    Keys are the runinputs names verbatim, so what is in the file is what the tool receives
+    and there is no translation layer to get wrong. Blank values are dropped so they fall
+    through to the built in defaults rather than sending an empty string.
+    """
+    env = {}
+    if not os.path.exists(path):
+        return env
+    for raw in open(path, encoding="utf-8"):
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        v = v.strip().strip('"').strip("'")
+        if v:
+            env[k.strip()] = v
+    return env
+
+
+class _Tee:
+    """Three files per run, one timestamp, plus the terminal.
+
+    The tool prints BOTH the [ORCH] log and the assembled table to stdout, because stdout is
+    the only stream AAVA captures. Locally that means 84 KB per scenario scrolls the log out
+    of the terminal buffer, so this splits them apart again:
+
+        tool_logs/<story>_<ts>/run.log        every [ORCH] line and this runner's output
+        tool_logs/<story>_<ts>/testcases.md   the assembled table
+        tool_logs/<story>_<ts>/envelope.json  the envelope, where per scenario gaps live
+        tool_logs/<story>_<ts>/runinputs.json the settings used, credentials blanked
+
+    Log lines still appear on the terminal as they happen.
+    """
+
+    def __init__(self, rundir):
+        os.makedirs(rundir, exist_ok=True)
+        self.dir = os.path.abspath(rundir)
+        self.term = sys.__stdout__
+        self.log = open(os.path.join(rundir, "run.log"), "w", encoding="utf-8")
+        self.tbl = open(os.path.join(rundir, "testcases.md"), "w", encoding="utf-8")
+        self.logpath, self.tblpath = self.log.name, self.tbl.name
+        self.in_table = False
+        self.buf = ""
+        self.rows = 0
+
+    def write(self, chunk):
+        self.buf += chunk
+        while "\n" in self.buf:
+            line, self.buf = self.buf.split("\n", 1)
+            self._line(line + "\n")
+
+    def _line(self, line):
+        if line.startswith("[ORCH-TABLE-BEGIN]"):
+            self.in_table = True
+        elif line.startswith("[ORCH-TABLE-END]"):
+            self.in_table = False
+            self._out(line)
+            self._out("           %d rows -> %s\n"
+                      % (self.rows, os.path.relpath(self.tblpath)))
+            return
+        if self.in_table and not line.startswith("[ORCH-TABLE-BEGIN]"):
+            self.tbl.write(line)
+            self.rows += 1
+        else:
+            self._out(line)
+
+    def _out(self, line):
+        self.term.write(line); self.term.flush()
+        self.log.write(line); self.log.flush()
+
+    def flush(self):
+        self.term.flush(); self.log.flush(); self.tbl.flush()
+
+    def close(self):
+        if self.buf:
+            self._line(self.buf)
+        self.log.close(); self.tbl.close()
+
+
 def probe(cfg):
     """One call to the scenario generator with a recognisable marker in the story text.
 
@@ -77,33 +158,69 @@ def probe(cfg):
     return 0 if hit else 1
 
 
+def _files(tee, rundir):
+    """Name what was written and put stdout back. Called on every exit path, so a failed run
+    still leaves a complete folder."""
+    print("\n%s" % tee.dir)
+    for n, what in (("run.log", "every [ORCH] line and this summary"),
+                    ("testcases.md", "the assembled table"),
+                    ("envelope.json", "per scenario scores and the reviewer's gaps"),
+                    ("runinputs.json", "the exact settings used, credentials blanked")):
+        if os.path.exists(os.path.join(rundir, n)):
+            print("   %-15s %s" % (n, what))
+    sys.stdout = sys.__stdout__
+    tee.close()
+
+
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("storyid")
-    ap.add_argument("--org", default=os.environ.get("ADO_ORG", "CSGRP"))
-    ap.add_argument("--project", default=os.environ.get("ADO_PROJECT", "ADO"))
-    ap.add_argument("--scenarios", type=int, default=4)
-    ap.add_argument("--cases", type=int, default=3)
-    ap.add_argument("--stepsmin", type=int, default=15)
-    ap.add_argument("--stepsmax", type=int, default=18)
-    ap.add_argument("--rounds", type=int, default=1)
+    ap = argparse.ArgumentParser(
+        description="Run AavaTestGenOrchestrator locally. Settings come from .env next to "
+                    "this file; any flag below overrides it.")
+    # --env has to be resolved before the other defaults exist, so read it with a throwaway
+    # parser. Doing it on `ap` would make -h exit here, printing only this one flag.
+    pre = argparse.ArgumentParser(add_help=False)
+    pre.add_argument("--env", default=os.path.join(HERE, ".env"))
+    known, _ = pre.parse_known_args()
+    E = load_env(known.env)
+    ap.add_argument("--env", default=known.env,
+                    help="path to the .env (default: alongside run_local.py)")
+
+    def d(key, fallback, cast=str):
+        v = E.get(key)
+        if v is None:
+            return fallback
+        if cast is bool:
+            return v.strip().lower() not in ("false", "0", "no")
+        return cast(v)
+
+    ap.add_argument("storyid", nargs="?", default=d("adostoryid", None))
+    ap.add_argument("--org", default=d("adoorg", "CSGRP"))
+    ap.add_argument("--project", default=d("adoproject", "ADO"))
+    ap.add_argument("--scenarios", type=int, default=d("maxscenarios", 4, int))
+    ap.add_argument("--cases", type=int, default=d("testcasesperscenario", 3, int))
+    ap.add_argument("--stepsmin", type=int, default=d("stepsmin", 15, int))
+    ap.add_argument("--stepsmax", type=int, default=d("stepsmax", 18, int))
+    ap.add_argument("--rounds", type=int, default=d("maxhealrounds", 2, int))
     ap.add_argument("--no-heal", action="store_true", help="single pass, no regeneration")
     ap.add_argument("--no-judge", action="store_true", help="pre gate only, no reviewer")
-    ap.add_argument("--deadline", type=int, default=190)
-    ap.add_argument("--scenarioagent", type=int, default=613)
-    ap.add_argument("--testcaseagent", type=int, default=564)
-    ap.add_argument("--reviewagent", type=int, default=559)
-    ap.add_argument("--base", default=T.DEF_AAVA_BASE)
-    ap.add_argument("--realm", default=os.environ.get("AAVA_REALM", "4"))
-    ap.add_argument("--user", default=os.environ.get("AAVA_USER", T.DEF_USERPRINCIPAL))
+    ap.add_argument("--deadline", type=int, default=d("deadlineseconds", 190, int))
+    ap.add_argument("--scenarioagent", type=int, default=d("scenarioagentid", 625, int))
+    ap.add_argument("--testcaseagent", type=int, default=d("testcaseagentid", 626, int))
+    ap.add_argument("--reviewagent", type=int, default=d("reviewagentid", 627, int))
+    ap.add_argument("--base", default=d("aavabaseurl", T.DEF_AAVA_BASE))
+    ap.add_argument("--realm", default=d("realmid", ""))
+    ap.add_argument("--user", default=d("userprincipal", T.DEF_USERPRINCIPAL))
     ap.add_argument("--probe", action="store_true", help="check {{variable}} binding and exit")
     a = ap.parse_args()
 
-    token, pat = os.environ.get("AAVA_TOKEN", ""), os.environ.get("ADO_PAT", "")
+    token = E.get("aavatoken") or os.environ.get("AAVA_TOKEN", "")
+    pat = E.get("adopat") or os.environ.get("ADO_PAT", "")
+    if not a.storyid:
+        sys.exit("no story id: pass one as an argument or set adostoryid in %s" % known.env)
     if not token:
-        sys.exit("AAVA_TOKEN is not set")
+        sys.exit("no aavatoken in %s and no AAVA_TOKEN in the environment" % known.env)
     if not pat and not a.probe:
-        sys.exit("ADO_PAT is not set")
+        sys.exit("no adopat in %s and no ADO_PAT in the environment" % known.env)
 
     runinputs = {
         "adoorg": a.org, "adoproject": a.project, "adostoryid": a.storyid,
@@ -112,7 +229,11 @@ def main():
         "maxscenarios": a.scenarios, "testcasesperscenario": a.cases,
         "stepsmin": a.stepsmin, "stepsmax": a.stepsmax,
         "maxhealrounds": 0 if a.no_heal else a.rounds,
-        "maxworkers": a.scenarios,          # one wave, or the wall clock multiplies
+        "maxworkers": d("maxworkers", a.scenarios, int),   # one wave, or wall clock multiplies
+        "passscore": d("passscore", 80, int),
+        "hardstopscore": d("hardstopscore", 50, int),
+        "stoponstagnation": d("stoponstagnation", True, bool),
+        "maxagentcalls": d("maxagentcalls", 20, int),
         "deadlineseconds": a.deadline,
         "aavabaseurl": a.base, "realmid": a.realm, "userprincipal": a.user,
         "adopat": pat, "aavatoken": token,
@@ -122,19 +243,34 @@ def main():
         tool = T.AavaTestGenOrchestrator()
         sys.exit(probe(tool._config(json.dumps(runinputs))))
 
-    print(f"story {a.storyid}: {a.scenarios} scenarios x {a.cases} cases x "
-          f"{a.stepsmin}-{a.stepsmax} steps, "
-          f"{'no heal' if a.no_heal else str(a.rounds) + ' heal round(s)'}, "
-          f"{'no judge' if a.no_judge else 'judged'}, deadline {a.deadline}s\n")
+    hdr = (f"story {a.storyid}: {a.scenarios} scenarios x {a.cases} cases x "
+           f"{a.stepsmin}-{a.stepsmax} steps, "
+           f"{'no heal' if a.no_heal else str(a.rounds) + ' heal round(s)'}, "
+           f"{'no judge' if a.no_judge else 'judged'}, deadline {a.deadline}s")
 
+    rundir = os.path.join("tool_logs", "%s_%s" % (a.storyid, time.strftime("%Y%m%d_%H%M%S")))
+    tee = _Tee(rundir)
+    # Written up front, not at the end: on a failed run this is the file that says what was
+    # attempted, and the failure paths below exit before any closing block would run.
+    open(os.path.join(rundir, "runinputs.json"), "w", encoding="utf-8").write(
+        json.dumps(dict(runinputs, adopat="", aavatoken=""), indent=2))
+    sys.stdout = tee                      # everything below is captured as well as shown
+    print(hdr)
+    print("config: %s\n" % (known.env if os.path.exists(known.env)
+                                     else "built in defaults, no .env found"))
     t0 = time.monotonic()
-    envelope = T.AavaTestGenOrchestrator()._run(runinputs=json.dumps(runinputs))
+    try:
+        envelope = T.AavaTestGenOrchestrator()._run(runinputs=json.dumps(runinputs))
+    except Exception:
+        sys.stdout = sys.__stdout__; tee.close(); raise
     wall = time.monotonic() - t0
     res = json.loads(envelope)
 
+    open(os.path.join(rundir, "envelope.json"), "w", encoding="utf-8").write(envelope)
     print(f"\n=== {res.get('status')} in {wall:.0f}s ===")
     if res.get("status") != "completed":
         print(f"stage {res.get('stage')}: {res.get('error')}")
+        _files(tee, rundir)
         sys.exit(1)
 
     for r in res["scenarios"]:
@@ -148,8 +284,7 @@ def main():
     s = res["summary"]
     print(f"\n{s['approved']}/{s['scenarios']} approved, {s['testcases']} test cases, "
           f"{s['agentcalls']} agent calls, {res['testcases']['rows']} table rows")
-    print(f"envelope {len(envelope):,} chars — the table is on stdout above, between "
-          f"[ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]")
+    _files(tee, rundir)
 
     if wall > 240:
         print(f"\nWARNING: {wall:.0f}s exceeds the 240s ACA ceiling. On the platform this run "

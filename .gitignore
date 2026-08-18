@@ -9,3 +9,6 @@ logs/
 __pycache__/
 *.pyc
 testgen_orchestrator/agents/runinputs.sample.json
+# local run config and output
+testgen_orchestrator/tool/.env
+tool_logs/

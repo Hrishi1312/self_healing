@@ -94,11 +94,9 @@ The generator deliberately folds `descriptionRef`, `dorRef` and `dodRef` into th
 
 4.On-topic — the test case is about the same subject as the scenario, not random or placeholder text.
 
-5.No unresolved design values — an angle-bracket token is a violation ONLY when it names something the generator could and should have resolved: a state, trading partner, database, server, table name, column name, archive path segment, or knowledge base. Examples that FAIL: `<STATE>`, `<STATE_TRADING_PARTNER>`, `<applicable state>`, `<executed_state>`, `<table_name>`, `<column_name>`.
+5.No unresolved placeholders — no angle-bracket token of any kind remains anywhere in Precondition, Test Step Description, or Test Step Expected Result. This covers every form, named or not: state, trading partner, table name, column name, file name, path, or data value wrapped in angle brackets. Each must have been resolved to a concrete value. Examples that FAIL: `<STATE>`, `<STATE_TRADING_PARTNER>`, `<applicable state>`, `<table_name>`, `<column_name>`, `<member_ssn>`, `<sbsb_ck>`, `<ISA13>`, `<YYYYMMDD>`.
 
-  Angle-bracket tokens that stand for RUNTIME TEST DATA are EXPECTED and CORRECT — values the tester supplies at execution time, which cannot be known when the test case is written. Examples that PASS: `<ISA13>`, `<InterchangeID>`, `<member_ssn>`, `<sbsb_ck>`, `<YYYYMMDD>`. These are standard manual-test-authoring practice for this programme. Do NOT flag them.
-
-  The test is simple: if the token names something knowable from the story, the knowledge bases or the schema, it FAILS. If it names a value that only exists in the tester's environment at run time, it PASSES.
+  Square-bracket test-data markers of the form `[TEST DATA: ...]` are EXPECTED and CORRECT — they mark values the tester supplies at execution time, such as a subscriber key or member SSN, which cannot be known at authoring time. Do NOT flag these and do NOT treat them as unresolved. Only angle brackets are a violation of this check.
 
 6.No source names in the output — this check fails ONLY if one of these EXACT strings appears in the table text: `kb_`, `EDI and FACETS Schema 2`, `Facets 834`, `EDIFECS Full with AUX 834`. Nothing else counts. Server names, database names, UNC file paths, URLs, table names, column names and SQL are all EXPECTED content and are NEVER a violation of this check.
 
