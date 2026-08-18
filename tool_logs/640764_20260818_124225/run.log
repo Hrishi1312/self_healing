@@ -1,0 +1,69 @@
+story 640764: 7 scenarios x 3 cases x 12-15 steps, 2 heal round(s), judged, deadline 460s
+config: C:\Users\cs218321\OneDrive - Caresource Management Group\AAVA\AAVA_Agents\Self healing\testgen_orchestrator\tool\.env
+
+[ORCH] ts=2026-08-18T07:12:25Z step=start story=640764 maxscenarios=7 tcper=3 steps=12-15 rounds=2 workers=7 pass_=80/50 judge=627 deadline=460s
+[ORCH] ts=2026-08-18T07:12:25Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=278
+[ORCH] ts=2026-08-18T07:13:09Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=43711
+[ORCH] ts=2026-08-18T07:14:13Z step=generate scenario=TS_004 round=1 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=61553 ms=64266
+[ORCH] ts=2026-08-18T07:14:28Z step=review scenario=TS_004 round=1 score=85 passed=2/3 failing=TC_TS004_003 ms=14768
+[ORCH] ts=2026-08-18T07:14:33Z step=generate scenario=TS_001 round=1 tc=3 ids=TC_001,TC_002,TC_003 chars=76752 ms=84545
+[ORCH] ts=2026-08-18T07:14:33Z step=generate scenario=TS_003 round=1 tc=3 ids=TC_TS003_001,TC_TS003_002,TC_TS003_003 chars=67163 ms=84766
+[ORCH] ts=2026-08-18T07:14:34Z step=generate scenario=TS_006 round=1 tc=3 ids=TC_TS006_001,TC_TS006_002,TC_TS006_003 chars=62711 ms=84840
+[ORCH] ts=2026-08-18T07:14:34Z step=generate scenario=TS_007 round=1 tc=3 ids=TC_TS007_001,TC_TS007_002,TC_TS007_003 chars=65799 ms=84826
+[ORCH] ts=2026-08-18T07:14:48Z step=review scenario=TS_001 round=1 score=85 passed=2/3 failing=TC_003 ms=14779
+[ORCH] ts=2026-08-18T07:14:48Z step=review scenario=TS_007 round=1 score=85 passed=2/3 failing=TC_TS007_003 ms=14606
+[ORCH] ts=2026-08-18T07:14:48Z step=review scenario=TS_003 round=1 score=85 passed=2/3 failing=TC_TS003_003 ms=14871
+[ORCH] ts=2026-08-18T07:14:48Z step=review scenario=TS_006 round=1 score=85 passed=2/3 failing=TC_TS006_003 ms=14776
+[ORCH] ts=2026-08-18T07:15:14Z step=generate scenario=TS_002 round=1 tc=3 ids=TC_TS002_001,TC_TS002_002,TC_TS002_003 chars=67515 ms=125665
+[ORCH] ts=2026-08-18T07:15:29Z step=review scenario=TS_002 round=1 score=85 passed=3/3 ms=14532
+[ORCH] ts=2026-08-18T07:15:29Z step=result scenario=TS_002 status=approved scores=[85] rounds=1 tc=3 ms=140216
+[ORCH] ts=2026-08-18T07:16:13Z step=generate scenario=TS_004 round=2 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=63129 ms=104774 regen=1
+[ORCH] ts=2026-08-18T07:16:13Z step=generate scenario=TS_006 round=2 tc=3 ids=TC_TS006_001,TC_TS006_002,TC_TS006_003 chars=64551 ms=84173 regen=1
+[ORCH] ts=2026-08-18T07:16:15Z step=generate scenario=TS_005 round=1 tc=3 ids=TC_TS005_001,TC_TS005_002,TC_TS005_003 chars=65560 ms=186057
+[ORCH] ts=2026-08-18T07:16:27Z step=review scenario=TS_006 round=2 score=85 passed=2/3 failing=TC_TS006_003 ms=14753
+[ORCH] ts=2026-08-18T07:16:28Z step=stagnant scenario=TS_006 round=2 scores=[85, 85]
+[ORCH] ts=2026-08-18T07:16:28Z step=result scenario=TS_006 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=199067
+[ORCH] ts=2026-08-18T07:16:28Z step=review scenario=TS_004 round=2 score=85 passed=2/3 failing=TC_TS004_003 ms=14957
+[ORCH] ts=2026-08-18T07:16:28Z step=stagnant scenario=TS_004 round=2 scores=[85, 85]
+[ORCH] ts=2026-08-18T07:16:28Z step=result scenario=TS_004 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=199106
+[ORCH] ts=2026-08-18T07:16:30Z step=review scenario=TS_005 round=1 score=85 passed=1/3 failing=TC_TS005_002,TC_TS005_003 ms=14697
+[ORCH] ts=2026-08-18T07:16:33Z step=generate scenario=TS_001 round=2 tc=3 ids=TC_001,TC_002,TC_003 chars=68749 ms=104826 regen=1
+[ORCH] ts=2026-08-18T07:16:50Z step=review scenario=TS_001 round=2 score=85 passed=3/3 ms=17433
+[ORCH] ts=2026-08-18T07:16:53Z step=result scenario=TS_001 status=approved scores=[85, 85] rounds=2 tc=3 ms=224456
+[ORCH] ts=2026-08-18T07:16:53Z step=generate scenario=TS_003 round=2 tc=3 ids=TC_TS003_001,TC_TS003_002,TC_TS003_003 chars=60740 ms=125091 regen=1
+[ORCH] ts=2026-08-18T07:17:10Z step=review scenario=TS_003 round=2 score=95 passed=3/3 ms=16188
+[ORCH] ts=2026-08-18T07:17:10Z step=result scenario=TS_003 status=approved scores=[85, 95] rounds=2 tc=3 ms=241411
+[ORCH] ts=2026-08-18T07:17:48Z step=generate scenario=TS_005 round=2 tc=3 ids=TC_TS005_001,TC_TS005_002,TC_TS005_003 chars=59829 ms=78227 regen=2
+[ORCH] ts=2026-08-18T07:17:48Z step=review scenario=TS_005 round=2 error=budget exhausted before call
+[ORCH] ts=2026-08-18T07:17:48Z step=result scenario=TS_005 status=failed scores=[85] rounds=2 tc=3 ms=278987
+[ORCH] ts=2026-08-18T07:18:35Z step=generate scenario=TS_007 round=2 tc=3 ids=TC_TS007_001,TC_TS007_002,TC_TS007_003 chars=72193 ms=226919 regen=1
+[ORCH] ts=2026-08-18T07:18:35Z step=review scenario=TS_007 round=2 error=budget exhausted before call
+[ORCH] ts=2026-08-18T07:18:35Z step=result scenario=TS_007 status=failed scores=[85] rounds=2 tc=3 ms=326391
+[ORCH] ts=2026-08-18T07:18:35Z step=done approved=3 unreviewed=0 unhealed=0 stagnant=2 hardstop=0 failed=2 skipped=0 testcases=21 agentcalls=25 ms=370563
+[ORCH] ts=2026-08-18T07:18:35Z step=summary story=640764 verdict=3/7 passed testcases=21 elapsed=370s calls=25 warnings=6 scoreboard=TS_001:approved(85>85)  TS_002:approved(85)  TS_003:approved(85>95)  TS_004:stagnant(85>85)  TS_005:failed(85)  TS_006:stagnant(85>85)  TS_007:failed(85)
+[ORCH-TABLE-BEGIN] story=640764 scenarios=7 rows=267
+[ORCH-TABLE-END] chars=455134
+           269 rows -> tool_logs\640764_20260818_124225\testcases.md
+
+=== completed in 371s ===
+  TS_001   approved    score [85, 85]         rounds 2  tc 3    224s
+  TS_002   approved    score [85]             rounds 1  tc 3    140s
+  TS_003   approved    score [85, 95]         rounds 2  tc 3    241s
+  TS_004   stagnant    score [85, 85]         rounds 2  tc 3    199s
+  TS_005   failed      score [85]             rounds 2  tc 3    279s  budget exhausted before call
+  TS_006   stagnant    score [85, 85]         rounds 2  tc 3    199s
+  TS_007   failed      score [85]             rounds 2  tc 3    326s  budget exhausted before call
+  warning: --- looks like a duplicate of a test case in TS_001
+  warning: --- looks like a duplicate of a test case in TS_001
+  warning: --- looks like a duplicate of a test case in TS_001
+  warning: --- looks like a duplicate of a test case in TS_001
+  warning: --- looks like a duplicate of a test case in TS_001
+  warning: --- looks like a duplicate of a test case in TS_001
+
+3/7 approved, 21 test cases, 25 agent calls, 267 table rows
+
+C:\Users\cs218321\OneDrive - Caresource Management Group\AAVA\AAVA_Agents\Self healing\tool_logs\640764_20260818_124225
+   run.log         every [ORCH] line and this summary
+   testcases.md    the assembled table
+   envelope.json   per scenario scores and the reviewer's gaps
+   runinputs.json  the exact settings used, credentials blanked

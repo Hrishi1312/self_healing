@@ -1,0 +1,63 @@
+story 640764: 7 scenarios x 3 cases x 12-15 steps, 2 heal round(s), judged, deadline 240s
+config: C:\Users\cs218321\OneDrive - Caresource Management Group\AAVA\AAVA_Agents\Self healing\testgen_orchestrator\tool\.env
+
+[ORCH] ts=2026-08-18T07:05:51Z step=start story=640764 maxscenarios=7 tcper=3 steps=12-15 rounds=2 workers=7 pass_=80/50 judge=627 deadline=240s
+[ORCH] ts=2026-08-18T07:05:51Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=263
+[ORCH] ts=2026-08-18T07:06:36Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_007,TS_006 ms=44351
+[ORCH] ts=2026-08-18T07:08:00Z step=generate scenario=TS_002 round=1 tc=3 ids=TC_TS002_001,TC_TS002_002,TC_TS002_003 chars=64300 ms=84415
+[ORCH] ts=2026-08-18T07:08:15Z step=review scenario=TS_002 round=1 score=85 passed=2/3 failing=TC_TS002_003 ms=14487
+[ORCH] ts=2026-08-18T07:08:20Z step=generate scenario=TS_001 round=1 tc=3 ids=TC_TS001_001,TC_TS001_002,TC_TS001_003 chars=68239 ms=104307
+[ORCH] ts=2026-08-18T07:08:20Z step=generate scenario=TS_005 round=1 tc=3 ids=TC_TS005_001,TC_TS005_002,TC_TS005_003 chars=63644 ms=104490
+[ORCH] ts=2026-08-18T07:08:21Z step=generate scenario=TS_006 round=1 tc=3 ids=TC_TS006_001,TC_TS006_002,TC_TS006_003 chars=66749 ms=104939
+[ORCH] ts=2026-08-18T07:08:21Z step=generate scenario=TS_007 round=1 tc=3 ids=TC_TS007_001,TC_TS007_002,TC_TS007_003 chars=70173 ms=105012
+[ORCH] ts=2026-08-18T07:08:21Z step=generate scenario=TS_004 round=1 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=72971 ms=105060
+[ORCH] ts=2026-08-18T07:08:34Z step=review scenario=TS_001 round=1 score=85 passed=2/3 failing=TC_TS001_003 ms=14335
+[ORCH] ts=2026-08-18T07:08:35Z step=review scenario=TS_005 round=1 score=85 passed=2/3 failing=TC_TS005_003 ms=14458
+[ORCH] ts=2026-08-18T07:08:35Z step=review scenario=TS_007 round=1 score=85 passed=2/3 failing=TC_TS007_003 ms=14284
+[ORCH] ts=2026-08-18T07:08:35Z step=review scenario=TS_004 round=1 score=85 passed=3/3 ms=14479
+[ORCH] ts=2026-08-18T07:08:35Z step=result scenario=TS_004 status=approved scores=[85] rounds=1 tc=3 ms=119576
+[ORCH] ts=2026-08-18T07:08:41Z step=generate scenario=TS_003 round=1 tc=3 ids=TC_TS003_001,TC_TS003_002,TC_TS003_003 chars=76597 ms=125196
+[ORCH] ts=2026-08-18T07:08:47Z step=review scenario=TS_006 round=1 score=85 passed=2/3 failing=TC_TS006_003 ms=25997
+[ORCH] ts=2026-08-18T07:08:56Z step=review scenario=TS_003 round=1 score=85 passed=1/3 failing=TC_TS003_002,TC_TS003_003 ms=14607
+[ORCH] ts=2026-08-18T07:08:56Z step=budget scenario=TS_003 round=2 note=stopped, budget low
+[ORCH] ts=2026-08-18T07:08:56Z step=result scenario=TS_003 status=failed scores=[85] rounds=1 tc=3 ms=139812
+[ORCH] ts=2026-08-18T07:09:39Z step=generate scenario=TS_002 round=2 tc=3 ids=TC_TS002_001,TC_TS002_002,TC_TS002_003 chars=63523 ms=83944 regen=1
+[ORCH] ts=2026-08-18T07:09:51Z step=generate scenario=TS_001 round=2 error=generate:TS_001: agent 626 still IN_PROGRESS when the budget ran out (execution 45abdfa7-40df-4fd8-b735-7ccc7a78151f)
+[ORCH] ts=2026-08-18T07:09:51Z step=result scenario=TS_001 status=failed scores=[85] rounds=2 tc=3 ms=195596
+[ORCH] ts=2026-08-18T07:09:51Z step=generate scenario=TS_005 round=2 error=generate:TS_005: agent 626 still IN_PROGRESS when the budget ran out (execution e9617fdc-b352-4ef2-afcf-5fb6fbbc891a)
+[ORCH] ts=2026-08-18T07:09:51Z step=result scenario=TS_005 status=failed scores=[85] rounds=2 tc=3 ms=195590
+[ORCH] ts=2026-08-18T07:09:51Z step=generate scenario=TS_006 round=2 error=generate:TS_006: agent 626 still IN_PROGRESS when the budget ran out (execution 78bdab65-f120-48eb-b84f-c0cbc54093d2)
+[ORCH] ts=2026-08-18T07:09:51Z step=result scenario=TS_006 status=failed scores=[85] rounds=2 tc=3 ms=195596
+[ORCH] ts=2026-08-18T07:09:51Z step=review scenario=TS_002 round=2 score=95 passed=3/3 ms=12832
+[ORCH] ts=2026-08-18T07:09:51Z step=result scenario=TS_002 status=approved scores=[85, 95] rounds=2 tc=3 ms=195697
+[ORCH] ts=2026-08-18T07:09:52Z step=generate scenario=TS_007 round=2 tc=3 ids=TC_TS007_001,TC_TS007_002,TC_TS007_003 chars=66376 ms=76570 regen=1
+[ORCH] ts=2026-08-18T07:09:52Z step=review scenario=TS_007 round=2 error=budget exhausted before call
+[ORCH] ts=2026-08-18T07:09:52Z step=result scenario=TS_007 status=failed scores=[85] rounds=2 tc=3 ms=195878
+[ORCH] ts=2026-08-18T07:09:52Z step=done approved=2 unreviewed=0 unhealed=0 stagnant=0 hardstop=0 failed=5 skipped=0 testcases=21 agentcalls=21 ms=240626
+[ORCH] ts=2026-08-18T07:09:52Z step=summary story=640764 verdict=2/7 passed testcases=21 elapsed=240s calls=21 warnings=6 scoreboard=TS_001:failed(85)  TS_002:approved(85>95)  TS_003:failed(85)  TS_004:approved(85)  TS_005:failed(85)  TS_007:failed(85)  TS_006:failed(85)
+[ORCH-TABLE-BEGIN] story=640764 scenarios=7 rows=274
+[ORCH-TABLE-END] chars=476527
+           276 rows -> tool_logs\640764_20260818_123551\testcases.md
+
+=== completed in 241s ===
+  TS_001   failed      score [85]             rounds 2  tc 3    196s  generate:TS_001: agent 626 still IN_PROGRESS when the budget ran out (execution 45abdfa7-40df-4fd8-b735-7ccc7a78151f)
+  TS_002   approved    score [85, 95]         rounds 2  tc 3    196s
+  TS_003   failed      score [85]             rounds 1  tc 3    140s  budget exhausted
+  TS_004   approved    score [85]             rounds 1  tc 3    120s
+  TS_005   failed      score [85]             rounds 2  tc 3    196s  generate:TS_005: agent 626 still IN_PROGRESS when the budget ran out (execution e9617fdc-b352-4ef2-afcf-5fb6fbbc891a)
+  TS_007   failed      score [85]             rounds 2  tc 3    196s  budget exhausted before call
+  TS_006   failed      score [85]             rounds 2  tc 3    196s  generate:TS_006: agent 626 still IN_PROGRESS when the budget ran out (execution 78bdab65-f120-48eb-b84f-c0cbc54093d2)
+  warning: --- looks like a duplicate of a test case in TS_001
+  warning: --- looks like a duplicate of a test case in TS_001
+  warning: --- looks like a duplicate of a test case in TS_001
+  warning: --- looks like a duplicate of a test case in TS_001
+  warning: --- looks like a duplicate of a test case in TS_001
+  warning: --- looks like a duplicate of a test case in TS_001
+
+2/7 approved, 21 test cases, 21 agent calls, 274 table rows
+
+C:\Users\cs218321\OneDrive - Caresource Management Group\AAVA\AAVA_Agents\Self healing\tool_logs\640764_20260818_123551
+   run.log         every [ORCH] line and this summary
+   testcases.md    the assembled table
+   envelope.json   per scenario scores and the reviewer's gaps
+   runinputs.json  the exact settings used, credentials blanked
