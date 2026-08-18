@@ -1,0 +1,82 @@
+story 640764: 7 scenarios x 3 cases x 12-15 steps, 2 heal round(s), judged, deadline 630s
+config: C:\Users\cs218321\OneDrive - Caresource Management Group\AAVA\AAVA_Agents\Self healing\testgen_orchestrator\tool\.env
+
+[ORCH] ts=2026-08-18T10:15:26Z step=start story=640764 maxscenarios=7 tcper=3 steps=12-15 rounds=2 workers=7 pass_=80/50 judge=627 deadline=630s
+[ORCH] ts=2026-08-18T10:15:26Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=254
+[ORCH] ts=2026-08-18T10:16:11Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=45213
+[ORCH] ts=2026-08-18T10:17:39Z step=generate scenario=TS_002 round=1 tc=3 ids=TC_TS002_001,TC_TS002_002,TC_TS002_003 chars=56229 ms=87387
+[ORCH] ts=2026-08-18T10:17:40Z step=generate scenario=TS_001 round=1 tc=3 ids=TC_TS001_001,TC_TS001_002,TC_TS001_003 chars=71619 ms=87837
+[ORCH] ts=2026-08-18T10:17:40Z step=generate scenario=TS_004 round=1 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=74583 ms=87502
+[ORCH] ts=2026-08-18T10:17:40Z step=generate scenario=TS_006 round=1 tc=3 ids=TC_TS006_001,TC_TS006_002,TC_TS006_003 chars=63270 ms=87438
+[ORCH] ts=2026-08-18T10:17:40Z step=generate scenario=TS_007 round=1 tc=3 ids=TC_TS007_001,TC_TS007_002,TC_TS007_003 chars=68262 ms=87201
+[ORCH] ts=2026-08-18T10:17:40Z step=generate scenario=TS_005 round=1 tc=3 ids=TC_TS005_001,TC_TS005_002,TC_TS005_003 chars=63518 ms=87632
+[ORCH] ts=2026-08-18T10:17:56Z step=review scenario=TS_004 round=1 score=85 passed=1/3 failing=TC_TS004_002,TC_TS004_003 ms=16200
+[ORCH] ts=2026-08-18T10:18:07Z step=review scenario=TS_002 round=1 score=85 passed=2/3 failing=TC_TS002_002 ms=28006
+[ORCH] ts=2026-08-18T10:18:08Z step=review scenario=TS_001 round=1 score=85 passed=2/3 failing=TC_TS001_003 ms=28057
+[ORCH] ts=2026-08-18T10:18:08Z step=review scenario=TS_006 round=1 score=85 passed=2/3 failing=TC_TS006_003 ms=27363
+[ORCH] ts=2026-08-18T10:18:08Z step=review scenario=TS_005 round=1 score=85 passed=1/3 failing=TC_TS005_002,TC_TS005_003 ms=27653
+[ORCH] ts=2026-08-18T10:18:08Z step=review scenario=TS_007 round=1 score=95 passed=3/3 ms=27863
+[ORCH] ts=2026-08-18T10:18:08Z step=result scenario=TS_007 status=approved scores=[95] rounds=1 tc=3 ms=115624
+[ORCH] ts=2026-08-18T10:18:20Z step=generate scenario=TS_003 round=1 tc=3 ids=TC_TS003_001,TC_TS003_002,TC_TS003_003 chars=56498 ms=128329
+[ORCH] ts=2026-08-18T10:18:35Z step=review scenario=TS_003 round=1 score=100 passed=3/3 ms=14627
+[ORCH] ts=2026-08-18T10:18:35Z step=result scenario=TS_003 status=approved scores=[100] rounds=1 tc=3 ms=142978
+[ORCH] ts=2026-08-18T10:19:21Z step=generate scenario=TS_004 round=2 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=64411 ms=84385 regen=2
+[ORCH] ts=2026-08-18T10:19:32Z step=generate scenario=TS_001 round=2 tc=3 ids=TC_TS001_001,TC_TS001_002,TC_TS001_003 chars=68485 ms=84144 regen=1
+[ORCH] ts=2026-08-18T10:19:32Z step=generate scenario=TS_006 round=2 tc=3 ids=TC_TS006_001,TC_TS006_002,TC_TS006_003 chars=58396 ms=84024 regen=1
+[ORCH] ts=2026-08-18T10:19:32Z step=generate scenario=TS_005 round=2 tc=3 ids=TC_TS005_001,TC_TS005_002,TC_TS005_003 chars=59885 ms=83914 regen=2
+[ORCH] ts=2026-08-18T10:19:35Z step=review scenario=TS_004 round=2 score=85 passed=1/3 failing=TC_TS004_002,TC_TS004_003 ms=14376
+[ORCH] ts=2026-08-18T10:19:35Z step=stagnant scenario=TS_004 round=2 scores=[85, 85]
+[ORCH] ts=2026-08-18T10:19:35Z step=result scenario=TS_004 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=202724
+[ORCH] ts=2026-08-18T10:19:46Z step=review scenario=TS_006 round=2 score=85 passed=2/3 failing=TC_TS006_002 ms=14320
+[ORCH] ts=2026-08-18T10:19:46Z step=stagnant scenario=TS_006 round=2 scores=[85, 85]
+[ORCH] ts=2026-08-18T10:19:46Z step=result scenario=TS_006 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=213763
+[ORCH] ts=2026-08-18T10:19:47Z step=review scenario=TS_001 round=2 score=85 passed=2/3 failing=TC_TS001_003 ms=14735
+[ORCH] ts=2026-08-18T10:19:47Z step=review scenario=TS_005 round=2 score=85 passed=2/3 failing=TC_TS005_002 ms=14488
+[ORCH] ts=2026-08-18T10:19:47Z step=stagnant scenario=TS_001 round=2 scores=[85, 85]
+[ORCH] ts=2026-08-18T10:19:47Z step=stagnant scenario=TS_005 round=2 scores=[85, 85]
+[ORCH] ts=2026-08-18T10:19:47Z step=result scenario=TS_001 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=215059
+[ORCH] ts=2026-08-18T10:19:47Z step=result scenario=TS_005 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=214311
+[ORCH] ts=2026-08-18T10:19:52Z step=generate scenario=TS_002 round=2 tc=3 ids=TC_TS002_001,TC_TS002_002,TC_TS002_003 chars=54214 ms=104586 regen=1
+[ORCH] ts=2026-08-18T10:20:07Z step=review scenario=TS_002 round=2 score=95 passed=3/3 ms=14693
+[ORCH] ts=2026-08-18T10:20:07Z step=result scenario=TS_002 status=approved scores=[85, 95] rounds=2 tc=3 ms=234887
+[ORCH] ts=2026-08-18T10:20:07Z step=done approved=3 unreviewed=0 unhealed=0 stagnant=4 hardstop=0 failed=0 skipped=0 testcases=21 agentcalls=25 ms=281046
+[ORCH] ts=2026-08-18T10:20:07Z step=outcome story=640764 ready=16/21 testcases flagged=5 scenarios=7 elapsed=4m41s
+[ORCH] ts=2026-08-18T10:20:07Z step=flagged tc=TC_TS001_003 scenario=TS_001 why=the edge case never tests an edge condition
+[ORCH] ts=2026-08-18T10:20:07Z step=flagged tc=TC_TS004_002 scenario=TS_004 why=the negative case is outside this scenario
+[ORCH] ts=2026-08-18T10:20:07Z step=flagged tc=TC_TS004_003 scenario=TS_004 why=the Edge case never tests an edge condition
+[ORCH] ts=2026-08-18T10:20:07Z step=flagged tc=TC_TS005_002 scenario=TS_005 why=query step omits one field it claims to verify
+[ORCH] ts=2026-08-18T10:20:07Z step=flagged tc=TC_TS006_002 scenario=TS_006 why=too many test cases in the batch
+[ORCH] ts=2026-08-18T10:20:07Z step=detail calls=25 rounds=12 scoreboard=TS_001:stagnant(85>85)  TS_002:approved(85>95)  TS_003:approved(100)  TS_004:stagnant(85>85)  TS_005:stagnant(85>85)  TS_006:stagnant(85>85)  TS_007:approved(95)
+[ORCH-TABLE-BEGIN] story=640764 scenarios=7 rows=261
+[ORCH-TABLE-END] chars=428579
+           263 rows -> tool_logs\640764_20260818_154526\testcases.md
+
+=== completed in 282s ===
+
+Story 640764 — 21 test cases in 4m 41s
+
+  READY TO USE   16 of 21 test cases
+  NEEDS A LOOK   5 of 21 test cases
+
+  TS_001   2 of 3 ready   TC_TS001_003
+  TS_002   3 of 3 ready
+  TS_003   3 of 3 ready
+  TS_004   1 of 3 ready   TC_TS004_002, TC_TS004_003
+  TS_005   2 of 3 ready   TC_TS005_002
+  TS_006   2 of 3 ready   TC_TS006_002
+  TS_007   3 of 3 ready
+
+  why each was flagged:
+     TC_TS001_003     the edge case never tests an edge condition
+     TC_TS004_002     the negative case is outside this scenario
+     TC_TS004_003     the Edge case never tests an edge condition
+     TC_TS005_002     query step omits one field it claims to verify
+     TC_TS006_002     too many test cases in the batch
+
+  All 21 test cases are in testcases.md. envelope.json carries the reviewer's full reasoning.
+
+C:\Users\cs218321\OneDrive - Caresource Management Group\AAVA\AAVA_Agents\Self healing\tool_logs\640764_20260818_154526
+   run.log         every [ORCH] line and this summary
+   testcases.md    the assembled table
+   envelope.json   per scenario scores and the reviewer's gaps
+   runinputs.json  the exact settings used, credentials blanked
