@@ -19,13 +19,64 @@ every log line.
 import argparse
 import json
 import os
+import ssl
 import sys
+import tempfile
 import time
 import types
 import uuid
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+
+
+def _ensure_ca_bundle() -> None:
+    """Merge certifi's roots with the Windows trust store and point requests at the result.
+
+    Corporate TLS-inspection proxies (Zscaler/Forcepoint/Umbrella style) re-sign outbound
+    HTTPS with a locally-issued root that certifi does not know about, so plain requests
+    calls fail with "self-signed certificate in certificate chain". The Windows store does
+    trust that root; this borrows it for the one process.
+    """
+    if os.environ.get("REQUESTS_CA_BUNDLE"):
+        return
+    import certifi
+    bundle_path = os.path.join(tempfile.gettempdir(), "aava_ca_bundle.pem")
+    with open(certifi.where(), "r", encoding="utf-8") as fh:
+        merged = fh.read()
+    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    ctx.load_default_certs(ssl.Purpose.SERVER_AUTH)
+    for der in ctx.get_ca_certs(binary_form=True):
+        merged += "\n" + ssl.DER_cert_to_PEM_cert(der)
+    with open(bundle_path, "w", encoding="utf-8") as fh:
+        fh.write(merged)
+    os.environ["REQUESTS_CA_BUNDLE"] = bundle_path
+
+
+def _relax_strict_x509() -> None:
+    """Corporate TLS-inspection proxies re-sign traffic with certs that omit the Authority
+    Key Identifier extension. urllib3 enables OpenSSL's strict X.509 checking by default,
+    which rejects that as malformed even once the issuing root itself is trusted. Chain
+    trust (the CA bundle above) still applies; this only tolerates that one non-conformant
+    extension.
+    """
+    import urllib3.connection as urllib3_conn
+    import urllib3.util.ssl_ as urllib3_ssl
+    _orig = urllib3_ssl.create_urllib3_context
+
+    def _patched(*a, **kw):
+        ctx = _orig(*a, **kw)
+        ctx.verify_flags &= ~ssl.VERIFY_X509_STRICT
+        return ctx
+
+    # urllib3.connection imported the name with `from .util.ssl_ import ...`, which binds
+    # its own reference at import time, so patching util.ssl_ alone does not reach it.
+    urllib3_ssl.create_urllib3_context = _patched
+    urllib3_conn.create_urllib3_context = _patched
+
+
+_ensure_ca_bundle()
+_relax_strict_x509()
 
 # The platform packages do not exist locally. Stub the one class the tool inherits from.
 if "crewai" not in sys.modules:
