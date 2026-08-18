@@ -330,8 +330,13 @@ check("the envelope carries a pointer, not the table",
       isinstance(res["testcases"], dict) and "where" in res["testcases"])
 check("score history recorded per scenario",
       all(r["scorehistory"] for r in res["scenarios"]))
-check("summary line present in the log",
-      any("step=summary" in l for l in res["log"]))
+check("the outcome line leads with usable test cases, not machine states",
+      any("step=outcome" in l and "ready=" in l for l in res["log"]),
+      next((l for l in res["log"] if "step=outcome" in l), "no outcome line"))
+check("machine detail is still logged, just demoted",
+      any("step=detail" in l and "scoreboard=" in l for l in res["log"]))
+check("every scenario record carries the flagged test case ids",
+      all("flagged" in r for r in res["scenarios"]))
 check("scoreboard names every scenario",
       all(r["scenarioid"] in "\n".join(res["log"]) for r in res["scenarios"]))
 
@@ -795,6 +800,86 @@ check("it also records realm and user, the two usual suspects",
       "realm=4" in line and "user=a@b" in line, line[-160:])
 check("the raised error repeats the reason",
       "upstream agent execution failed" in _seen.get("msg", ""), _seen.get("msg", ""))
+
+
+section("14b. THE OUTCOME LINE  (what a reader needs, not what a debugger needs)")
+
+# one scenario passes cleanly, one has a single flagged test case
+_ids = T.parse_testcases(real_table, 1, 100)["ids"]
+
+
+def mixed_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        return real_table, 10
+    bad = '"scenarioId": "TS_002"' in userinputs["scenario"]
+    scores = [{"id": i, "score": 95, "pass": True, "gaps": []} for i in _ids]
+    if bad:
+        scores[0] = {"id": _ids[0], "score": 85, "pass": False,
+                     "gaps": ["Status field is \"Edge\" but no Test Step Expected Result "
+                              "describes an error, a rejection, or an absent record"]}
+    return json.dumps({"scenarioid": "x", "scores": scores,
+                       "batchscore": 85 if bad else 95, "batchpass": not bad}), 10
+
+
+T.exec_agent, T.fetch_story, T._secret = mixed_exec, fake_story, lambda k, f="": "t"
+res10 = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=2, stepsmin=1, stepsmax=100, maxworkers=2, maxhealrounds=1,
+    deadlineseconds=120))))
+T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
+
+_out = next(l for l in res10["log"] if "step=outcome" in l)
+_flag = [l for l in res10["log"] if "step=flagged" in l]
+total = res10["summary"]["testcases"]
+bad = sum(len(r["flagged"]) for r in res10["scenarios"])
+check("outcome counts READY test cases, not scenarios",
+      f"ready={total - bad}/{total} testcases" in _out, _out)
+check("it reports the flagged count", "flagged=%d" % bad in _out, _out)
+check("elapsed reads as minutes and seconds", "elapsed=0m" in _out, _out)
+check("one flagged line per flagged test case", len(_flag) == bad, f"{len(_flag)} vs {bad}")
+check("each names the test case, its scenario and the reason",
+      all("tc=" in l and "scenario=" in l and "why=" in l for l in _flag))
+check("the reason is the reviewer's own words, not a translation",
+      any("absent record" in l for l in _flag), _flag[:1])
+check("agent 03 is asked for a plain English reason, capped at 60 characters",
+      "under 60 characters" in _rv and '"reason"' in _rv)
+check("reason is for a person, gaps stay for the generator",
+      "`reason` is for a human, `gaps` is for the generator" in _rv)
+
+# when the reviewer supplies `reason`, that is what the reader sees
+_v = json.dumps({"scenarioid": "TS_001",
+                 "scores": [{"id": "TC_001", "score": 85, "pass": False,
+                             "reason": "the Edge case never tests an edge condition",
+                             "gaps": ["Status field is \"Edge\" but no Test Step Expected "
+                                      "Result describes an error, a rejection, or an absent record"]}],
+                 "batchscore": 85, "batchpass": False})
+_p = T.parse_verdict(_v, ["TC_001"])
+_f = [{"id": x["id"], "why": (str(x.get("reason") or "").strip() or (x.get("gaps") or [""])[0])[:120]}
+      for x in _p["scores"] if not x.get("pass")]
+check("the plain English reason wins over the technical gap",
+      _f[0]["why"] == "the Edge case never tests an edge condition", _f[0]["why"])
+_v2 = json.loads(_v); _v2["scores"][0].pop("reason")
+_f2 = [{"id": x["id"], "why": (str(x.get("reason") or "").strip() or (x.get("gaps") or [""])[0])[:120]}
+       for x in json.loads(json.dumps(_v2))["scores"] if not x.get("pass")]
+check("an older reviewer with no reason field still says something useful",
+      "absent record" in _f2[0]["why"], _f2[0]["why"])
+
+# the separator row must never be reported as a duplicate again
+_sep = "| " + " | ".join(T.COLUMNS) + " |\n|" + "---|" * 13 + "\n"
+_row = "| %s | AC1 | Verify thing | TC_001 | None | Positive | Functional | Desc | Pre | 1 | Do | Then | None |"
+_recs = [{"scenarioid": "TS_00%d" % i, "testcasecount": 1,
+          "table": _sep + (_row % ("TS_00%d" % i))} for i in (1, 2, 3)]
+check("the markdown separator row is never a duplicate",
+      T.cross_batch_check(_recs, [{"scenarioId": "TS_00%d" % i} for i in (1, 2, 3)]) == []
+      or all("---" not in w for w in T.cross_batch_check(
+          _recs, [{"scenarioId": "TS_00%d" % i} for i in (1, 2, 3)])),
+      str(T.cross_batch_check(_recs, [{"scenarioId": "TS_00%d" % i} for i in (1, 2, 3)])[:2]))
+check("a clean scenario has an empty flagged list",
+      any(r["flagged"] == [] for r in res10["scenarios"]))
+check("a flagged scenario names the id and keeps its other test cases",
+      any(len(r["flagged"]) == 1 and r["testcasecount"] > 1 for r in res10["scenarios"]))
+print("          -> " + _out.split("step=outcome ")[1][:100])
 
 
 section("15. ASYNC SUBMIT + POLL  (this deployment does not answer at submit time)")

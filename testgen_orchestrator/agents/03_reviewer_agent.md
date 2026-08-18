@@ -153,8 +153,10 @@ Return exactly this JSON object and nothing else. No prose, no markdown, no code
 {
   "scenarioid": "TS_001",
   "scores": [
-    { "id": "TC_001", "score": 92, "pass": true,  "gaps": [] },
-    { "id": "TC_002", "score": 78, "pass": false, "gaps": ["step 7 Test Step Expected Result is empty"] }
+    { "id": "TC_001", "score": 92, "pass": true,  "reason": "", "gaps": [] },
+    { "id": "TC_002", "score": 78, "pass": false,
+      "reason": "step 7 has no expected result",
+      "gaps": ["step 7 Test Step Expected Result is empty"] }
   ],
   "batchscore": 78,
   "batchpass": false
@@ -165,6 +167,15 @@ Return exactly this JSON object and nothing else. No prose, no markdown, no code
 case passes. Every id in `scores` must be a test case id present in the table.
 
 # Rules
+
+- `reason` is ONE short plain English phrase, under 60 characters, saying what is wrong with
+  this test case as a person would say it out loud. It is read by a test lead deciding whether
+  to use the test case, not by a machine. Write "the Edge case never tests an edge condition",
+  not "Status field is Edge but no Test Step Expected Result describes an error". No field
+  names, no check numbers, no quoted cell values. Use `""` when the test case passes.
+
+- `gaps` stays as it is: the precise, quoted evidence a generator needs to repair the test
+  case. `reason` is for a human, `gaps` is for the generator. Both are required on a failure.
 
 - `gaps` must be `[]` (empty array) when a test case has none — never null.
 

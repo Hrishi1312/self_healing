@@ -324,17 +324,30 @@ def main():
         _files(tee, rundir)
         sys.exit(1)
 
+    # The readable half: what can go to a tester, and what wants a look. Machine states are
+    # still in envelope.json; they answer "why did the tool stop", not "can I use this".
+    total = res["summary"]["testcases"]
+    flagged = sum(len(r["flagged"]) for r in res["scenarios"])
+    mins, secs = divmod(int(wall), 60)
+    print(f"\nStory {a.storyid} — {total} test cases in {mins}m {secs:02d}s\n")
+    print(f"  READY TO USE   {total - flagged} of {total} test cases")
+    if flagged:
+        print(f"  NEEDS A LOOK   {flagged} of {total} test cases")
+    print()
     for r in res["scenarios"]:
-        print("  %-8s %-11s score %-16s rounds %d  tc %d  %5.0fs%s"
-              % (r["scenarioid"], r["status"], r["scorehistory"] or "-", r["rounds"],
-                 r["testcasecount"], r["elapsedms"] / 1000,
-                 "  " + (r["error"] or "") if r["error"] else ""))
+        n, bad = r["testcasecount"], len(r["flagged"])
+        ids = "   " + ", ".join(f["id"] for f in r["flagged"]) if bad else ""
+        note = "  " + (r["error"] or "")[:60] if r["error"] and not n else ""
+        print("  %-8s %d of %d ready%s%s" % (r["scenarioid"], n - bad, n, ids, note))
+    if flagged:
+        print("\n  why each was flagged:")
+        for r in res["scenarios"]:
+            for f in r["flagged"]:
+                print("     %-16s %s" % (f["id"], f["why"]))
     for w in res["warnings"]:
         print("  warning:", w)
-
-    s = res["summary"]
-    print(f"\n{s['approved']}/{s['scenarios']} approved, {s['testcases']} test cases, "
-          f"{s['agentcalls']} agent calls, {res['testcases']['rows']} table rows")
+    print(f"\n  All {total} test cases are in testcases.md. envelope.json carries the "
+          f"reviewer's full reasoning.")
     _files(tee, rundir)
 
     if wall > 240:

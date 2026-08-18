@@ -662,6 +662,9 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
     sid = scenario["scenarioId"]
     rec: Dict[str, Any] = {
         "scenarioid": sid, "title": scenario.get("title", ""), "status": "failed",
+        # which test cases the reviewer flagged, and why. Without this the envelope can say
+        # "this scenario has a problem" but not "2 of its 3 test cases are fine".
+        "flagged": [],
         "scorehistory": [], "finalscore": None, "rounds": 0,
         "testcasecount": 0, "chars": 0, "elapsedms": 0, "gaps": [], "error": None,
         "table": "",
@@ -730,6 +733,7 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                 # Degraded mode: no judge configured. The pre gate is the whole gate.
                 rec["status"] = "unreviewed"
                 rec["gaps"] = []
+                rec["flagged"] = []
                 log.line("review", scenario=sid, round=rnd, note="skipped, reviewagentid=0")
                 break
 
@@ -755,6 +759,13 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             rec["scorehistory"].append(batchscore)
             rec["finalscore"] = batchscore
             rec["gaps"] = [g for s in failing for g in (s.get("gaps") or [])]
+            # `reason` is the reviewer's own plain English line for a person; `gaps` is the
+            # precise evidence for the generator. Prefer the first, fall back to the second so
+            # a reviewer that has not been updated still says something useful.
+            rec["flagged"] = [{"id": s["id"],
+                               "why": (str(s.get("reason") or "").strip()
+                                       or (s.get("gaps") or [""])[0])[:120]}
+                              for s in failing]
             log.line("review", scenario=sid, round=rnd, score=batchscore,
                      passed=f"{len(scores) - len(failing)}/{len(scores)}",
                      failing=",".join(s["id"] for s in failing) or None, ms=rev_ms)
@@ -809,7 +820,10 @@ def cross_batch_check(records: List[Dict[str, Any]], scenarios: List[Dict[str, A
     for r in records:
         for row in (r.get("table") or "").split("\n"):
             cells = [c.strip() for c in row.strip().strip("|").split("|")]
-            if len(cells) != len(COLUMNS) or cells[3] in ("Id", ""):
+            # "---" is the markdown separator row: 13 cells of dashes, which otherwise
+            # collides with every other scenario's separator and reports itself as a
+            # duplicate. Every warning in every run so far was this row.
+            if len(cells) != len(COLUMNS) or cells[3] in ("Id", "") or set(cells[3]) <= {"-", ":"}:
                 continue
             statuses[cells[5]] = statuses.get(cells[5], 0) + 1
             key = _WS.sub(" ", (cells[2] + "|" + cells[7]).lower()).strip()
@@ -1032,17 +1046,28 @@ class AavaTestGenOrchestrator(BaseTool):
 
         # One human readable line to close the log. Everything above is for grepping;
         # this is the line you read first when someone asks how the run went.
+        # The line you read first, in the terms the output is used in: how many test cases can
+        # go to a tester as they are, and how many want a second look. The machine states
+        # (approved, stagnant, unhealed, failed) stay in the envelope for debugging — every
+        # scenario so far produced test cases and was reviewed, so the difference between them
+        # is how the tool stopped trying, not how much output you got.
+        flagged = [(r["scenarioid"], f) for r in records for f in r["flagged"]]
+        total_tc = summary["testcases"]
+        secs = budget.elapsed_ms() // 1000
+        log.line("outcome", story=cfg["adostoryid"],
+                 ready=f"{total_tc - len(flagged)}/{total_tc} testcases",
+                 flagged=len(flagged) or None,
+                 scenarios=len(records),
+                 elapsed=f"{secs // 60}m{secs % 60:02d}s",
+                 warnings=len(warnings) or None)
+        for sid, f in flagged:
+            log.line("flagged", tc=f["id"], scenario=sid, why=f["why"])
+
         board = "  ".join(
             f"{r['scenarioid']}:{r['status']}"
             + (f"({'>'.join(str(s) for s in r['scorehistory'])})" if r["scorehistory"] else "")
             for r in records)
-        log.line("summary", story=cfg["adostoryid"],
-                 verdict=f"{counts['approved'] + counts['unreviewed']}/{len(records)} passed",
-                 testcases=summary["testcases"],
-                 elapsed=f"{budget.elapsed_ms() // 1000}s",
-                 calls=budget.calls,
-                 warnings=len(warnings) or None,
-                 scoreboard=board)
+        log.line("detail", calls=budget.calls, rounds=summary["totalrounds"], scoreboard=board)
 
         # The table goes to stdout, NOT into the envelope. Returning it would make the calling
         # agent regenerate every one of its tokens to relay them: measured at 8 scenarios that
