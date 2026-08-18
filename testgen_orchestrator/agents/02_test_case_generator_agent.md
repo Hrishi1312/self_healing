@@ -279,6 +279,23 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
 
 ### PROCESS STEPS
 
+> **These steps describe the POSITIVE path [MUST].** They are written as a successful
+> end to end run, so following them literally for all three test cases produces three
+> near identical happy path cases that differ only in the `Status` label. That is the single
+> most common defect in this output and it is rejected. What changes per classification:
+>
+> - **Positive** — follow the steps as written. Every Expected Result asserts success.
+> - **Negative** — the INPUT is invalid or rejected. Steps 1 and 2 place a file that violates
+>   the rule under test. From step 8 onward the Expected Results assert the rejection: the
+>   transaction errors, validation fails, the record is not loaded.
+> - **Edge** — the INPUT sits at a boundary or in an unusual state. From step 9 onward the
+>   Expected Results assert an ABSENCE: no eligibility row is returned, no MELC record is
+>   created, the transaction effective date is not populated, no crosswalk row matches.
+>
+> The three test cases for one scenario MUST differ in their INPUT CONDITION, not only in the
+> `Status` column. If two of them use the same input file and assert the same outcomes, they
+> are one test case wearing two labels, and the reviewer will report them as duplicates.
+
 > **State-generic requirement:** These steps apply to any user story and all states/LOBs it references. Before executing, enumerate the complete set of applicable states for the user story from its title, description, acceptance criteria, `dorRef`, and `dodRef` (per rule 6b). Then resolve every `<STATE>` and `<STATE_TRADING_PARTNER>` placeholder to the concrete state/trading-partner value. Where the behaviour is identical across states, parameterize a single test case across the applicable-state set rather than repeating these steps per state (per rule 6b).
 
 1. For each applicable state derived from the user story context, mock up an 834 `<STATE>` file as per the applicable acceptance criteria requirement, where `<STATE>` is a state/LOB identified from the user story title, description, acceptance criteria, `dorRef`, or `dodRef` (e.g., `MI`, `AR`, or any other state present in the story).
@@ -346,9 +363,39 @@ Keys are lowercase with no separators, in column order:
         "attachment": "None"
       }
     ]
+  },
+  {
+    "scenarioid": "TS_001",
+    "acceptancecriteriaref": "AC3 - Given an inbound EDI 834 file, if the member's eligibility span has not yet begun, the Eligibility Date (DTP*356/DTP*348) populates as the transaction effective date",
+    "name": "Verify AR PASSE inbound 834 with no Eligibility Date leaves the transaction effective date unpopulated",
+    "id": "TC_003",
+    "attachments": "None",
+    "status": "Edge",
+    "testcasetype": "Functional",
+    "description": "Verify that when the inbound 834 carries no Eligibility Date segment at the boundary of an unstarted eligibility span, no transaction effective date is loaded and no eligibility row is created",
+    "precondition": "AR PASSE inbound 834 test data is available in the staging environment for a member whose eligibility span has not begun and whose file omits the Loop 2000 DTP*356/DTP*348 segment entirely",
+    "steps": [
+      {
+        "no": 1,
+        "description": "Prepare an AR PASSE inbound 834 file for the member with the Loop 2000 DTP*356/DTP*348 Eligibility Date segment OMITTED, and place it at \\\\daycrtappfs01\\EdifecsSTRoot\\834\\Inbound",
+        "expected": "File is present in the staging path and is picked up by Edifecs within the polling interval",
+        "attachment": "None"
+      },
+      {
+        "no": 12,
+        "description": "Run SELECT MEME.MEME_CK, SBEL.SBEL_EFF_DT FROM FACPRDDB.dbo.CMC_MEME_MEMBER MEME WITH (NOLOCK) LEFT JOIN FACPRDDB.dbo.CMC_SBEL_ELIG_ENT SBEL WITH (NOLOCK) ON MEME.SBSB_CK = SBEL.SBSB_CK WHERE MEME.MEME_SSN = [TEST DATA: member SSN used in the mocked 834 file]; on crt_72.sql.caresource.corp\\crt_72",
+        "expected": "No eligibility row is returned for the member and SBEL_EFF_DT is not populated, confirming the transaction effective date was not loaded",
+        "attachment": "None"
+      }
+    ]
   }
 ]
 ```
+
+The second object above is what an **Edge** case looks like: a different input condition (the
+segment is omitted, not merely different) and Expected Results that assert an ABSENCE. Note the
+final step proves the negative. A `Status` of `Edge` on steps that all assert success is not an
+Edge case.
 
 `status` carries Positive, Negative or Edge. `testcasetype` carries Functional or Regression.
 `steps` must hold between `limits.stepsmin` and `limits.stepsmax` entries, each with its own
