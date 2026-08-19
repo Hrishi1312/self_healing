@@ -44,21 +44,22 @@ DEF_AAVA_BASE = ("https://aava-core-api-agents-svc"
                  ".redtree-f4541a84.eastus.azurecontainerapps.io")
 DEF_ADO_BASE = "https://dev.azure.com"
 
-DEF_MAXSCENARIOS = 5
+# maxscenarios has no default: it sizes the whole run, so the caller must pass it.
 DEF_TESTCASESPERSCENARIO = 3
 DEF_STEPSMIN = 15
 DEF_STEPSMAX = 18
 DEF_MAXHEALROUNDS = 3
 DEF_PASSSCORE = 90
 DEF_HARDSTOPSCORE = 50        # below this, healing does not help; stop and report
-# Set this equal to maxscenarios. Anything lower splits the run into waves and multiplies
-# wall clock by the wave count, which is what breaches the 240s ACA ceiling.
-DEF_MAXWORKERS = 5
+# maxworkers is not an input: it always equals maxscenarios. Anything lower splits the run
+# into waves and multiplies wall clock by the wave count, which is what breaches the 240s
+# ACA ceiling.
 # The client fronts AAVA with Azure Container Apps, which severs a request at 240s. This
 # sits below it on purpose: the tool must stop on its own terms and return what it has,
 # because a connection ACA cuts returns nothing at all.
 DEF_DEADLINESECONDS = 190
-DEF_MAXAGENTCALLS = 60
+# maxagentcalls has no constant: it sizes itself from the run shape in _config, so the
+# caller never has to calculate it. See the formula there.
 DEF_USERPRINCIPAL = "aava@testgen"   # audit identity when the caller supplies none
 
 # Where publish=true pushes the run's files. Same folder layout run_local.py writes
@@ -604,11 +605,10 @@ def parse_verdict(raw: str, known_ids: List[str]) -> Dict[str, Any]:
     return v
 
 
-# ── cheap deterministic gate, no llm — NOT CURRENTLY CALLED ─────────────────
-# Disabled 2026-08-18. Every rule below is also stated in agent 02 and enforced by agent
-# 03 (checks 3, 6, 7), so this was the same rule in two places. Kept, not deleted: if the
-# agents start slipping, re-enabling the call in process_scenario is a nine line uncomment
-# and costs nothing at run time. See DESIGN.md section 8.
+# ── cheap deterministic gate, no llm ────────────────────────────────────────
+# Disabled 2026-08-18 as duplication of agent 02 / agent 03 checks 3, 6, 7; re-enabled
+# 2026-08-19 after the 640764 comparison run shipped "DoD" meta labels in 5 preconditions —
+# exactly the silent slip the disable note warned about. See DESIGN.md section 8.
 # Checks 3, 6 and 7 of the reviewer's checklist are literal string tests. Doing them here is
 # strictly better than paying an Opus call to do them: free, deterministic, and immune to the
 # evidence-rule ambiguity that had the reviewer inventing violations. Only work that survives
@@ -717,23 +717,20 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                      ids=",".join(parsed["ids"]), chars=parsed["chars"], ms=gen_ms,
                      regen=len(regenerate) or None)
 
-            # ── DISABLED 2026-08-18 — the reviewer owns these checks now ───────
-            # pregate() duplicated reviewer checks 3, 6 and 7 in Python. It was cheap and
-            # deterministic, but it meant the same rule lived in the tool AND the prompts.
-            # The function is still defined below; uncomment these nine lines to put the
-            # gate back in front of the reviewer.
-            #
-            # problems = pregate(parsed)
-            # if problems:
-            #     log.line("pregate", scenario=sid, round=rnd, failed=len(problems),
-            #              first=problems[0][:90])
-            #     rec["gaps"] = problems
-            #     rec["status"] = "unhealed"
-            #     if rnd >= passes:
-            #         break
-            #     regenerate = [{"id": "all", "gaps": problems}]
-            #     continue
-            # ── end disabled ───────────────────────────────────────────────────
+            # Re-enabled 2026-08-19: the 640764 comparison run shipped meta labels ("DoD"
+            # in 5 preconditions) that this gate catches for free. Disabling it (2026-08-18)
+            # was the drift the code comment warned about. Only work that survives this gate
+            # is worth a reviewer call; its problems feed the regenerate round verbatim.
+            problems = pregate(parsed)
+            if problems:
+                log.line("pregate", scenario=sid, round=rnd, failed=len(problems),
+                         first=problems[0][:90])
+                rec["gaps"] = problems
+                rec["status"] = "unhealed"
+                if rnd >= passes:
+                    break
+                regenerate = [{"id": "all", "gaps": problems}]
+                continue
 
             if not reviewing:
                 # Degraded mode: no judge configured. The pre gate is the whole gate.
@@ -895,7 +892,7 @@ class AavaTestGenOrchestratorSchema(BaseModel):
             "One JSON object carrying every run setting. Keys are lowercase with no "
             "separators: adoorg, adoproject, adostoryid, scenarioagentid, testcaseagentid, "
             "reviewagentid, maxscenarios, testcasesperscenario, stepsmin, stepsmax, "
-            "maxhealrounds, passscore, hardstopscore, maxworkers, stoponstagnation, "
+            "maxhealrounds, passscore, hardstopscore, stoponstagnation, "
             "deadlineseconds, maxagentcalls, aavabaseurl, realmid, userprincipal, publish, "
             "githubtoken, githubrepo, githubbranch, and for "
             "local testing only adopat and aavatoken. Set maxhealrounds to 0 for a single "
@@ -956,16 +953,27 @@ class AavaTestGenOrchestrator(BaseTool):
                 v = default
             cfg[key] = max(lo, min(v, hi))
 
-        num("maxscenarios", DEF_MAXSCENARIOS, 1, 20)
+        # maxscenarios is mandatory: it sizes the whole run, so the caller must say it.
+        try:
+            int(cfg["maxscenarios"])
+        except (KeyError, TypeError, ValueError):
+            raise ValueError("runinputs is missing maxscenarios")
+        num("maxscenarios", 0, 1, 20)
         num("testcasesperscenario", DEF_TESTCASESPERSCENARIO, 1, 5)
         num("stepsmin", DEF_STEPSMIN, 1, 40)
         num("stepsmax", DEF_STEPSMAX, cfg.get("stepsmin", DEF_STEPSMIN), 40)
         num("maxhealrounds", DEF_MAXHEALROUNDS, 0, 5)
         num("passscore", DEF_PASSSCORE, 1, 100)
         num("hardstopscore", DEF_HARDSTOPSCORE, 0, cfg.get("passscore", DEF_PASSSCORE))
-        num("maxworkers", DEF_MAXWORKERS, 1, 10)
+        # Not an input. One thread per scenario, always: anything lower splits the run into
+        # waves and multiplies wall clock by the wave count, which breaches the 240s ceiling.
+        cfg["maxworkers"] = cfg["maxscenarios"]
         num("deadlineseconds", DEF_DEADLINESECONDS, 60, 3600)
-        num("maxagentcalls", DEF_MAXAGENTCALLS, 1, 500)
+        # The exact worst case: 3 scenario-gen attempts, then one generate and one review
+        # per scenario per pass. Cases and steps never add calls, only time and characters,
+        # so the caller never has to size this. An explicit value still overrides.
+        num("maxagentcalls",
+            3 + cfg["maxscenarios"] * 2 * max(1, cfg["maxhealrounds"]), 1, 500)
 
         stag = cfg.get("stoponstagnation", True)
         if isinstance(stag, str):

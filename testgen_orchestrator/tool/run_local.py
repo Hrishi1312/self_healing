@@ -283,11 +283,13 @@ def main():
         "maxscenarios": a.scenarios, "testcasesperscenario": a.cases,
         "stepsmin": a.stepsmin, "stepsmax": a.stepsmax,
         "maxhealrounds": 0 if a.no_heal else a.rounds,
-        "maxworkers": d("maxworkers", a.scenarios, int),   # one wave, or wall clock multiplies
+        # maxworkers is no longer an input: the tool always uses one thread per scenario.
         "passscore": d("passscore", 80, int),
         "hardstopscore": d("hardstopscore", 50, int),
         "stoponstagnation": d("stoponstagnation", True, bool),
-        "maxagentcalls": d("maxagentcalls", 20, int),
+        # None is dropped by the tool, which then sizes maxagentcalls from the run shape;
+        # a value in .env still overrides.
+        "maxagentcalls": d("maxagentcalls", None, int),
         "deadlineseconds": a.deadline,
         "aavabaseurl": a.base, "realmid": a.realm, "userprincipal": a.user,
         "adopat": pat, "aavatoken": token,

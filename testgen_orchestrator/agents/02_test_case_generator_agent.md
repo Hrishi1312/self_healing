@@ -189,7 +189,7 @@ Two further rules the reviewer enforces, so satisfy them before you output:
 - **Consistent step depth.** No test case may have fewer than half the steps of the largest test
   case in the same batch. Keep them comparable within `limits.stepsmin` to `limits.stepsmax`.
 
-These three values belong in the **`Status`** column (see rule 7a). They do NOT go in the `Test Case Type` column. `Test Case Type` holds `Functional` or `Regression`, and every test case you generate is `Functional`. Generate only functional test cases.
+These three values belong in the **`Status`** column (see rule 7a). They do NOT go in the `Test Case Type` column. `Test Case Type` holds `Functional` or `Regression`, decided by ONE literal test: set it to `Regression` only when the acceptance criterion text this test case traces to (its `AcceptanceCriteriaRef` content) explicitly calls for regression verification — wording such as "QA Regression Testing", "regression", "confirm no change", "verify no change", or "remains unchanged". In every other case set it to `Functional`. This is a per-test-case decision read from the AC text, never from your own judgement of what "feels like" regression, and it never moves Positive/Negative/Edge out of the `Status` column.
 
 The scenario supplied must be realized by test cases, maintaining internal traceability to its `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, and `dodRef` — the first two as populated columns, the DoR/DoD content folded into Precondition and Expected Result without ever being named in the text (per 5a). Boundary conditions supplied as their own dedicated scenarios must each be addressed by their own separate, dedicated test case and must not be merged with other test cases. This is strictly mandatory.
 
