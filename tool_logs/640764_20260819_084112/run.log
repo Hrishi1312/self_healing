@@ -1,0 +1,27 @@
+[ORCH] ts=2026-08-19T08:33:56Z step=start story=640764 maxscenarios=7 tcper=3 steps=18-25 rounds=2 workers=7 pass_=80/50 judge=627 deadline=450s
+[ORCH] ts=2026-08-19T08:33:57Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=310
+[ORCH] ts=2026-08-19T08:37:45Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=227999
+[ORCH] ts=2026-08-19T08:41:12Z step=generate scenario=TS_004 round=1 error=test case array is empty
+[ORCH] ts=2026-08-19T08:41:12Z step=budget scenario=TS_004 round=2 note=stopped, budget low
+[ORCH] ts=2026-08-19T08:41:12Z step=result scenario=TS_004 status=failed scores=[] rounds=1 tc=0 ms=206875
+[ORCH] ts=2026-08-19T08:41:12Z step=generate scenario=TS_007 round=1 error=test case array is empty
+[ORCH] ts=2026-08-19T08:41:12Z step=budget scenario=TS_007 round=2 note=stopped, budget low
+[ORCH] ts=2026-08-19T08:41:12Z step=result scenario=TS_007 status=failed scores=[] rounds=1 tc=0 ms=206995
+[ORCH] ts=2026-08-19T08:41:12Z step=generate scenario=TS_001 round=1 error=test case array is empty
+[ORCH] ts=2026-08-19T08:41:12Z step=budget scenario=TS_001 round=2 note=stopped, budget low
+[ORCH] ts=2026-08-19T08:41:12Z step=result scenario=TS_001 status=failed scores=[] rounds=1 tc=0 ms=207152
+[ORCH] ts=2026-08-19T08:41:12Z step=generate scenario=TS_006 round=1 error=test case array is empty
+[ORCH] ts=2026-08-19T08:41:12Z step=budget scenario=TS_006 round=2 note=stopped, budget low
+[ORCH] ts=2026-08-19T08:41:12Z step=result scenario=TS_006 status=failed scores=[] rounds=1 tc=0 ms=207197
+[ORCH] ts=2026-08-19T08:41:12Z step=generate scenario=TS_003 round=1 error=test case array is empty
+[ORCH] ts=2026-08-19T08:41:12Z step=budget scenario=TS_003 round=2 note=stopped, budget low
+[ORCH] ts=2026-08-19T08:41:12Z step=result scenario=TS_003 status=failed scores=[] rounds=1 tc=0 ms=207253
+[ORCH] ts=2026-08-19T08:41:12Z step=generate scenario=TS_002 round=1 error=test case array is empty
+[ORCH] ts=2026-08-19T08:41:12Z step=budget scenario=TS_002 round=2 note=stopped, budget low
+[ORCH] ts=2026-08-19T08:41:12Z step=result scenario=TS_002 status=failed scores=[] rounds=1 tc=0 ms=207421
+[ORCH] ts=2026-08-19T08:41:12Z step=generate scenario=TS_005 round=1 error=test case array is empty
+[ORCH] ts=2026-08-19T08:41:12Z step=budget scenario=TS_005 round=2 note=stopped, budget low
+[ORCH] ts=2026-08-19T08:41:12Z step=result scenario=TS_005 status=failed scores=[] rounds=1 tc=0 ms=207440
+[ORCH] ts=2026-08-19T08:41:12Z step=done approved=0 unreviewed=0 unhealed=0 stagnant=0 hardstop=0 failed=7 skipped=0 testcases=0 agentcalls=8 ms=435786
+[ORCH] ts=2026-08-19T08:41:12Z step=outcome story=640764 ready=0/0 testcases scenarios=7 elapsed=7m15s warnings=10
+[ORCH] ts=2026-08-19T08:41:12Z step=detail calls=8 rounds=7 scoreboard=TS_001:failed  TS_002:failed  TS_003:failed  TS_004:failed  TS_005:failed  TS_006:failed  TS_007:failed
