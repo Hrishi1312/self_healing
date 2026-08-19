@@ -1,0 +1,242 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "640764",
+    "title": "(ENR SUCC) DEV & TEST - 834E/U AR PASSE Transaction Effective Date Logic Update - EDI"
+  },
+  "summary": {
+    "scenarios": 7,
+    "approved": 1,
+    "unreviewed": 0,
+    "unhealed": 2,
+    "stagnant": 4,
+    "hardstop": 0,
+    "failed": 0,
+    "skipped": 0,
+    "testcases": 21,
+    "totalrounds": 14,
+    "agentcalls": 26,
+    "elapsedms": 315422
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "Use Eligibility Date as transaction effective date for new enrollment before eligibility begins",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_TS001_003",
+          "why": "edge case lacks a negative outcome"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 57503,
+      "elapsedms": 229799,
+      "gaps": [
+        "Status field for id TC_TS001_003 is \"Edge\", but Test Step Expected Result text contains no error, rejection, or absent record outcome; for example Step 7 Expected Result: \"The transmission shows completed processing with accepted validation and successful policy unit delivery for the boundary-condition file.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "Use Assessment Date as transaction effective date for current eligibility when Assessment Date changes",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_TS002_002",
+          "why": "negative case assumes a rejection rule"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 62231,
+      "elapsedms": 136588,
+      "gaps": [
+        "Description field contains \"Verify the system does not load the changed-assessment-date transaction effective date logic when an AR PASSE inbound 834 update for current eligibility is submitted without a valid changed Assessment Date.\" which is not supported by the scenario acceptance criteria \"Given an inbound EDI 834 file, if the member\u2019s eligibility span has already begun and the Assessment Date has changed, the Assessment Date populates as the transaction effective date.\"",
+        "Test Step Expected Result field contains \"The transmission shows a failed, errored, rejected, or otherwise non-success status for the member update because no valid changed Assessment Date was supplied for the current eligibility scenario.\" which asserts a rejection outcome not stated in the scenario acceptance criteria"
+      ],
+      "error": "generate:TS_002: agent 626 finished FAILED (execution 24100a01-7491-4f0c-883c-f686e2d8e5ac)"
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "Use changed Assessment Date and preserve relevant field values when only Assessment Date changes",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_TS003_002",
+          "why": "the negative case expects the wrong outcome"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 86125,
+      "elapsedms": 241387,
+      "gaps": [
+        "Id 'TC_TS003_002' with Status field 'Negative' is not aligned to scenario type '\"type\": \"Positive\"' from the source scenario; this batch was built from a Positive scenario only."
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Use Eligibility Date for future eligibility field changes when Assessment Date is unchanged",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_TS004_003",
+          "why": "the Edge case never tests an edge condition"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 64655,
+      "elapsedms": 250886,
+      "gaps": [
+        "Status field for id TC_TS004_003 is \"Edge\"",
+        "For id TC_TS004_003, no Test Step Expected Result describes an error, rejection, or absent record; examples include \"The edge-condition file is created successfully and represents a no-change future-span transaction.\", \"The file is present in the inbound location and ready for pickup.\", \"The file is listed in TM search results.\", \"The baseline counts for existing eligibility and processed eligibility rows are returned for the member.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "Use Maintenance Date for current eligibility field changes when Assessment Date is unchanged",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_TS005_003",
+          "why": "the edge case has no rejection outcome"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 64097,
+      "elapsedms": 224763,
+      "gaps": [
+        "Status field for id TC_TS005_003 is \"Edge\", but Test Step Expected Result text only says \"The member rows are returned, but the boundary-condition transaction does not show DTP*303 being used as the transaction effective date because the member was not in an already-started current eligibility state when the file was processed.\" and contains no error, rejection, or absent record result."
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_007",
+      "title": "Regression verification that Maintenance Date is not overused and downstream financial impact is unchanged",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_TS007_003",
+          "why": "the Edge case never tests an error path"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 61934,
+      "elapsedms": 143482,
+      "gaps": [
+        "Status field for id TC_TS007_003 is \"Edge\" but its Test Step Expected Result text only states absent records, e.g. \"No new SBEL row is returned with a newly populated effective date caused by this boundary-condition file.\" and never describes an error or rejection."
+      ],
+      "error": "test case array is empty"
+    },
+    {
+      "scenarioid": "TS_006",
+      "title": "Use first date occurrence when multiple candidate dates are present in inbound 834",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        95
+      ],
+      "finalscore": 95,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 67809,
+      "elapsedms": 136521,
+      "gaps": [],
+      "error": "generate:TS_006: agent 626 finished FAILED (execution 65313016-89e9-44e7-bcc6-9ea3a3f5398e)"
+    }
+  ],
+  "warnings": [],
+  "testcases": {
+    "rows": 264,
+    "chars": 462782,
+    "scenarios": 7,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-08-19T14:01:49Z step=start story=640764 maxscenarios=7 tcper=3 steps=12-15 rounds=2 workers=7 pass_=80/50 judge=627 deadline=450s",
+    "[ORCH] ts=2026-08-19T14:01:49Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=269",
+    "[ORCH] ts=2026-08-19T14:02:54Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_007,TS_006 ms=64234",
+    "[ORCH] ts=2026-08-19T14:03:31Z step=agenterror label=generate:TS_006 agentid=626 phase=poll status=FAILED execution=65313016-89e9-44e7-bcc6-9ea3a3f5398e ms=37385 why={\"executionId\": \"65313016-89e9-44e7-bcc6-9ea3a3f5398e\", \"agentId\": 626, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-08-19T14:03:31Z step=generate scenario=TS_006 round=1 error=generate:TS_006: agent 626 finished FAILED (execution 65313016-89e9-44e7-bcc6-9ea3a3f5398e)",
+    "[ORCH] ts=2026-08-19T14:03:31Z step=agenterror label=generate:TS_002 agentid=626 phase=poll status=FAILED execution=24100a01-7491-4f0c-883c-f686e2d8e5ac ms=37560 why={\"executionId\": \"24100a01-7491-4f0c-883c-f686e2d8e5ac\", \"agentId\": 626, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-08-19T14:03:31Z step=generate scenario=TS_002 round=1 error=generate:TS_002: agent 626 finished FAILED (execution 24100a01-7491-4f0c-883c-f686e2d8e5ac)",
+    "[ORCH] ts=2026-08-19T14:03:38Z step=generate scenario=TS_007 round=1 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-08-19T14:04:45Z step=generate scenario=TS_005 round=1 tc=3 ids=TC_TS005_001,TC_TS005_002,TC_TS005_003 chars=60674 ms=110879",
+    "[ORCH] ts=2026-08-19T14:04:50Z step=generate scenario=TS_003 round=1 tc=3 ids=TC_TS003_001,TC_TS003_002,TC_TS003_003 chars=68296 ms=115839",
+    "[ORCH] ts=2026-08-19T14:04:50Z step=generate scenario=TS_001 round=1 tc=3 ids=TC_TS001_001,TC_TS001_002,TC_TS001_003 chars=56427 ms=116149",
+    "[ORCH] ts=2026-08-19T14:04:55Z step=generate scenario=TS_006 round=2 tc=3 ids=TC_TS006_001,TC_TS006_002,TC_TS006_003 chars=67809 ms=84395 regen=1",
+    "[ORCH] ts=2026-08-19T14:04:56Z step=generate scenario=TS_002 round=2 tc=3 ids=TC_TS002_001,TC_TS002_002,TC_TS002_003 chars=62231 ms=84325 regen=1",
+    "[ORCH] ts=2026-08-19T14:04:59Z step=review scenario=TS_005 round=1 score=85 passed=2/3 failing=TC_TS005_002 ms=14791",
+    "[ORCH] ts=2026-08-19T14:05:02Z step=generate scenario=TS_007 round=2 tc=3 ids=TC_TS007_001,TC_TS007_002,TC_TS007_003 chars=61934 ms=84544 regen=1",
+    "[ORCH] ts=2026-08-19T14:05:05Z step=review scenario=TS_001 round=1 score=85 passed=1/3 failing=TC_TS001_002,TC_TS001_003 ms=14831",
+    "[ORCH] ts=2026-08-19T14:05:10Z step=review scenario=TS_006 round=2 score=95 passed=3/3 ms=14733",
+    "[ORCH] ts=2026-08-19T14:05:10Z step=result scenario=TS_006 status=approved scores=[95] rounds=2 tc=3 ms=136521",
+    "[ORCH] ts=2026-08-19T14:05:10Z step=review scenario=TS_002 round=2 score=85 passed=2/3 failing=TC_TS002_002 ms=14697",
+    "[ORCH] ts=2026-08-19T14:05:10Z step=result scenario=TS_002 status=unhealed scores=[85] rounds=2 tc=3 ms=136588",
+    "[ORCH] ts=2026-08-19T14:05:10Z step=generate scenario=TS_004 round=1 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=66847 ms=136646",
+    "[ORCH] ts=2026-08-19T14:05:16Z step=review scenario=TS_003 round=1 score=85 passed=2/3 failing=TC_TS003_003 ms=26208",
+    "[ORCH] ts=2026-08-19T14:05:17Z step=review scenario=TS_007 round=2 score=85 passed=2/3 failing=TC_TS007_003 ms=14802",
+    "[ORCH] ts=2026-08-19T14:05:17Z step=result scenario=TS_007 status=unhealed scores=[85] rounds=2 tc=3 ms=143482",
+    "[ORCH] ts=2026-08-19T14:05:25Z step=review scenario=TS_004 round=1 score=85 passed=2/3 failing=TC_TS004_002 ms=14757",
+    "[ORCH] ts=2026-08-19T14:06:24Z step=generate scenario=TS_005 round=2 tc=3 ids=TC_TS005_001,TC_TS005_002,TC_TS005_003 chars=64097 ms=84445 regen=1",
+    "[ORCH] ts=2026-08-19T14:06:29Z step=generate scenario=TS_001 round=2 tc=3 ids=TC_TS001_001,TC_TS001_002,TC_TS001_003 chars=57503 ms=84303 regen=2",
+    "[ORCH] ts=2026-08-19T14:06:38Z step=review scenario=TS_005 round=2 score=85 passed=2/3 failing=TC_TS005_003 ms=14640",
+    "[ORCH] ts=2026-08-19T14:06:38Z step=stagnant scenario=TS_005 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-08-19T14:06:38Z step=result scenario=TS_005 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=224763",
+    "[ORCH] ts=2026-08-19T14:06:40Z step=generate scenario=TS_003 round=2 tc=3 ids=TC_TS003_001,TC_TS003_002,TC_TS003_003 chars=86125 ms=84605 regen=1",
+    "[ORCH] ts=2026-08-19T14:06:43Z step=review scenario=TS_001 round=2 score=85 passed=2/3 failing=TC_TS001_003 ms=14508",
+    "[ORCH] ts=2026-08-19T14:06:43Z step=stagnant scenario=TS_001 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-08-19T14:06:43Z step=result scenario=TS_001 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=229799",
+    "[ORCH] ts=2026-08-19T14:06:50Z step=generate scenario=TS_004 round=2 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=64655 ms=84603 regen=1",
+    "[ORCH] ts=2026-08-19T14:06:55Z step=review scenario=TS_003 round=2 score=85 passed=2/3 failing=TC_TS003_002 ms=14726",
+    "[ORCH] ts=2026-08-19T14:06:55Z step=stagnant scenario=TS_003 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-08-19T14:06:55Z step=result scenario=TS_003 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=241387",
+    "[ORCH] ts=2026-08-19T14:07:05Z step=review scenario=TS_004 round=2 score=85 passed=2/3 failing=TC_TS004_003 ms=14872",
+    "[ORCH] ts=2026-08-19T14:07:05Z step=stagnant scenario=TS_004 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-08-19T14:07:05Z step=result scenario=TS_004 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=250886",
+    "[ORCH] ts=2026-08-19T14:07:05Z step=done approved=1 unreviewed=0 unhealed=2 stagnant=4 hardstop=0 failed=0 skipped=0 testcases=21 agentcalls=26 ms=315422",
+    "[ORCH] ts=2026-08-19T14:07:05Z step=outcome story=640764 ready=15/21 testcases flagged=6 scenarios=7 elapsed=5m15s",
+    "[ORCH] ts=2026-08-19T14:07:05Z step=flagged tc=TC_TS001_003 scenario=TS_001 why=edge case lacks a negative outcome",
+    "[ORCH] ts=2026-08-19T14:07:05Z step=flagged tc=TC_TS002_002 scenario=TS_002 why=negative case assumes a rejection rule",
+    "[ORCH] ts=2026-08-19T14:07:05Z step=flagged tc=TC_TS003_002 scenario=TS_003 why=the negative case expects the wrong outcome",
+    "[ORCH] ts=2026-08-19T14:07:05Z step=flagged tc=TC_TS004_003 scenario=TS_004 why=the Edge case never tests an edge condition",
+    "[ORCH] ts=2026-08-19T14:07:05Z step=flagged tc=TC_TS005_003 scenario=TS_005 why=the edge case has no rejection outcome",
+    "[ORCH] ts=2026-08-19T14:07:05Z step=flagged tc=TC_TS007_003 scenario=TS_007 why=the Edge case never tests an error path",
+    "[ORCH] ts=2026-08-19T14:07:05Z step=detail calls=26 rounds=14 scoreboard=TS_001:stagnant(85>85)  TS_002:unhealed(85)  TS_003:stagnant(85>85)  TS_004:stagnant(85>85)  TS_005:stagnant(85>85)  TS_007:unhealed(85)  TS_006:approved(95)"
+  ]
+}
