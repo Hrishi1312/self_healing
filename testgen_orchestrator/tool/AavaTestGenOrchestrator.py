@@ -700,12 +700,18 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             }
             if regenerate:
                 gen_inputs["regenerate"] = _j(regenerate)   # omitted on the first round
+            raw = ""
             try:
                 raw, gen_ms = exec_agent(cfg["testcaseagentid"], gen_inputs, cfg, token,
                                          budget, log, f"generate:{sid}")
                 parsed = read_testcases(raw, cfg["stepsmin"], cfg["stepsmax"])
             except Exception as e:
-                log.line("generate", scenario=sid, round=rnd, error=str(e)[:120])
+                # Log the head of what the agent actually sent. Run 640764_084112 failed
+                # 7/7 with "test case array is empty" and the log carried no way to tell
+                # whether the model wrote [], the prompt was broken, or the platform
+                # truncated the output. Empty when exec_agent itself raised.
+                log.line("generate", scenario=sid, round=rnd, error=str(e)[:120],
+                         raw=_WS.sub(" ", raw)[:200] or None)
                 regenerate = [{"id": "all", "gaps": [f"previous attempt was rejected: {e}"]}]
                 rec["error"] = str(e)[:300]
                 continue
@@ -747,12 +753,14 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                                           "stepsmax": cfg["stepsmax"],
                                           "testcasesperscenario": cfg["testcasesperscenario"]}),
             }
+            raw = ""
             try:
                 raw, rev_ms = exec_agent(cfg["reviewagentid"], rev_inputs, cfg, token,
                                          budget, log, f"review:{sid}")
                 verdict = parse_verdict(raw, parsed["ids"])
             except Exception as e:
-                log.line("review", scenario=sid, round=rnd, error=str(e)[:120])
+                log.line("review", scenario=sid, round=rnd, error=str(e)[:120],
+                         raw=_WS.sub(" ", raw)[:200] or None)
                 rec["error"] = str(e)[:300]
                 continue
 
@@ -1035,6 +1043,7 @@ class AavaTestGenOrchestrator(BaseTool):
         scenarios: List[Dict[str, Any]] = []
         feedback = ""
         for attempt in range(1, 4):
+            raw = ""
             try:
                 scen_inputs = {
                     "storydata": _j({"storyid": story["storyid"], "title": story["title"],
@@ -1049,7 +1058,8 @@ class AavaTestGenOrchestrator(BaseTool):
                 scenarios = parse_scenarios(raw, cfg["maxscenarios"])
                 break
             except Exception as e:
-                log.line("scenarios", attempt=f"{attempt}/3", error=str(e)[:140])
+                log.line("scenarios", attempt=f"{attempt}/3", error=str(e)[:140],
+                         raw=_WS.sub(" ", raw)[:200] or None)
                 feedback = f"the previous response was rejected: {e}. Return a valid JSON array."
         if not scenarios:
             return json.dumps({"status": "failed", "stage": "scenarios",

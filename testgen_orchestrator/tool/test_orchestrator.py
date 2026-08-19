@@ -1084,6 +1084,29 @@ T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
 T._http = _orig_http2
 
 
+section("18. RAW OUTPUT ON PARSE FAILURE  (run 084112 failed 7/7 and the log said nothing)")
+
+
+def empty_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        return "```json\n[]\n```", 10          # what the 084112 run appears to have received
+    return "{}", 10
+
+
+T.exec_agent, T.fetch_story, T._secret = empty_exec, fake_story, lambda k, f="": "t"
+res21 = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, maxhealrounds=0, deadlineseconds=120))))
+check("a generate parse failure logs the head of the raw answer",
+      any("step=generate" in l and "raw=" in l and "[]" in l for l in res21["log"]),
+      next((l for l in res21["log"] if "step=generate" in l), "no generate line"))
+check("the run still completes and reports the scenario failed",
+      res21.get("status") == "completed"
+      and res21["scenarios"][0]["status"] == "failed")
+T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
+
+
 print(f"\n{'=' * 70}\n{len(PASS)} passed, {len(FAIL)} failed")
 if FAIL:
     for f in FAIL:
