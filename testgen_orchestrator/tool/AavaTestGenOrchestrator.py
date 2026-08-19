@@ -61,6 +61,12 @@ DEF_DEADLINESECONDS = 190
 DEF_MAXAGENTCALLS = 60
 DEF_USERPRINCIPAL = "aava@testgen"   # audit identity when the caller supplies none
 
+# Where publish=true pushes the run's files. Same folder layout run_local.py writes
+# locally, so platform runs and local runs leave the same trail.
+GITHUB_API = "https://api.github.com"
+DEF_GITHUBREPO = "Hrishi1312/self_healing"
+DEF_GITHUBBRANCH = "main"
+
 # This deployment executes agents ASYNCHRONOUSLY: the submit returns a job id, and the answer
 # is fetched separately. Submit accepts multipart/form-data ONLY (JSON gets HTTP 415).
 SUBMIT_PATH = "/agents/execute/agent-executions"
@@ -838,6 +844,42 @@ def cross_batch_check(records: List[Dict[str, Any]], scenarios: List[Dict[str, A
     return warnings
 
 
+# ── github publish, opt in ──────────────────────────────────────────────────
+def publish_run(cfg: Dict[str, Any], log: _Log,
+                files: List[Tuple[str, str]]) -> Dict[str, Any]:
+    """Push the run's files to GitHub via the contents API, one PUT per file.
+
+    A failure is logged and reported in the returned dict, never raised: publishing is a
+    convenience and can never fail the run that produced the thing being published.
+    """
+    import base64
+    token = cfg.get("githubtoken") or ""
+    if not token:
+        log.line("publish", error="publish=true but no githubtoken in runinputs")
+        return {"error": "publish=true but no githubtoken in runinputs"}
+    repo, branch = cfg["githubrepo"], cfg["githubbranch"]
+    folder = "tool_logs/{}_{}".format(
+        cfg["adostoryid"], datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S"))
+    headers = {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"}
+    ok, err = 0, None
+    for name, content in files:
+        status, body = _http(
+            "PUT", f"{GITHUB_API}/repos/{repo}/contents/{folder}/{name}", log, headers,
+            json_body={"message": f"run log {cfg['adostoryid']}: {name}",
+                       "content": base64.b64encode(content.encode("utf-8")).decode(),
+                       "branch": branch})
+        if status in (200, 201):
+            ok += 1
+            log.line("publish", file=name, chars=len(content))
+        else:
+            err = f"{name}: http {status} {_err_detail(body, 120)}".strip()
+            log.line("publish", file=name, status=status, error=_err_detail(body, 120))
+    out = {"repo": repo, "branch": branch, "path": folder, "files": ok}
+    if err:
+        out["error"] = err
+    return out
+
+
 # ── crewai surface ──────────────────────────────────────────────────────────
 class AavaTestGenOrchestratorSchema(BaseModel):
     """Input schema for AavaTestGenOrchestrator.
@@ -854,7 +896,8 @@ class AavaTestGenOrchestratorSchema(BaseModel):
             "separators: adoorg, adoproject, adostoryid, scenarioagentid, testcaseagentid, "
             "reviewagentid, maxscenarios, testcasesperscenario, stepsmin, stepsmax, "
             "maxhealrounds, passscore, hardstopscore, maxworkers, stoponstagnation, "
-            "deadlineseconds, maxagentcalls, aavabaseurl, realmid, userprincipal, and for "
+            "deadlineseconds, maxagentcalls, aavabaseurl, realmid, userprincipal, publish, "
+            "githubtoken, githubrepo, githubbranch, and for "
             "local testing only adopat and aavatoken. Set maxhealrounds to 0 for a single "
             "pass with no regeneration, or reviewagentid to 0 to run without the judge. Pass "
             "the value through EXACTLY as received, as one opaque string. Do not parse it, "
@@ -928,6 +971,13 @@ class AavaTestGenOrchestrator(BaseTool):
         if isinstance(stag, str):
             stag = stag.strip().lower() not in ("false", "0", "no", "")
         cfg["stoponstagnation"] = bool(stag)
+        pub = cfg.get("publish", False)
+        if isinstance(pub, str):
+            pub = pub.strip().lower() in ("true", "1", "yes")
+        cfg["publish"] = bool(pub)
+        cfg["githubrepo"] = str(cfg.get("githubrepo") or DEF_GITHUBREPO)
+        cfg["githubbranch"] = str(cfg.get("githubbranch") or DEF_GITHUBBRANCH)
+        cfg["githubtoken"] = str(cfg.get("githubtoken") or "")
         cfg["aavabaseurl"] = str(cfg.get("aavabaseurl") or DEF_AAVA_BASE)
         cfg["realmid"] = str(cfg.get("realmid") or "")
         # Attribution on every /agents/execute call. Never blank: an unattributed
@@ -948,7 +998,7 @@ class AavaTestGenOrchestrator(BaseTool):
 
         adopat = _secret("HPIP_prod_ado_read_access", str(cfg.get("adopat") or ""))
         aavatoken = _secret("AAVA_TOKEN_BEARER_INT", str(cfg.get("aavatoken") or ""))
-        log.guard(adopat, aavatoken)
+        log.guard(adopat, aavatoken, cfg["githubtoken"])
         if not adopat:
             return json.dumps({"status": "failed", "stage": "validation",
                                "error": "no azure devops credential available",
@@ -1080,7 +1130,7 @@ class AavaTestGenOrchestrator(BaseTool):
             print(table, flush=True)
             print(f"[ORCH-TABLE-END] chars={len(table)}", flush=True)
 
-        return json.dumps({
+        envelope = {
             "status": "completed",
             "story": {"id": story["storyid"], "title": story["title"]},
             "summary": summary,
@@ -1091,4 +1141,16 @@ class AavaTestGenOrchestrator(BaseTool):
                 "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]",
             },
             "log": log.dump(),
-        })
+        }
+
+        if cfg["publish"]:
+            blanked = dict(cfg, adopat="", aavatoken="", githubtoken="")
+            envelope["published"] = publish_run(cfg, log, [
+                ("run.log", "\n".join(log.dump()) + "\n"),
+                ("testcases.md", table),
+                ("envelope.json", json.dumps(envelope, indent=2)),
+                ("runinputs.json", json.dumps(blanked, indent=2)),
+            ])
+            envelope["log"] = log.dump()      # pick up the publish lines themselves
+
+        return json.dumps(envelope)

@@ -262,6 +262,9 @@ def main():
     ap.add_argument("--realm", default=d("realmid", ""))
     ap.add_argument("--user", default=d("userprincipal", T.DEF_USERPRINCIPAL))
     ap.add_argument("--probe", action="store_true", help="check {{variable}} binding and exit")
+    ap.add_argument("--publish", action="store_true", default=d("publish", False, bool),
+                    help="push run.log, testcases.md, envelope.json and runinputs.json to "
+                         "GitHub (githubtoken from .env or GITHUB_TOKEN)")
     a = ap.parse_args()
 
     token = E.get("aavatoken") or os.environ.get("AAVA_TOKEN", "")
@@ -288,6 +291,10 @@ def main():
         "deadlineseconds": a.deadline,
         "aavabaseurl": a.base, "realmid": a.realm, "userprincipal": a.user,
         "adopat": pat, "aavatoken": token,
+        "publish": a.publish,
+        "githubtoken": E.get("githubtoken") or os.environ.get("GITHUB_TOKEN", ""),
+        "githubrepo": d("githubrepo", ""),        # blank falls to the tool's default
+        "githubbranch": d("githubbranch", ""),
     }
 
     if a.probe:
@@ -304,7 +311,7 @@ def main():
     # Written up front, not at the end: on a failed run this is the file that says what was
     # attempted, and the failure paths below exit before any closing block would run.
     open(os.path.join(rundir, "runinputs.json"), "w", encoding="utf-8").write(
-        json.dumps(dict(runinputs, adopat="", aavatoken=""), indent=2))
+        json.dumps(dict(runinputs, adopat="", aavatoken="", githubtoken=""), indent=2))
     sys.stdout = tee                      # everything below is captured as well as shown
     print(hdr)
     print("config: %s\n" % (known.env if os.path.exists(known.env)
@@ -348,6 +355,10 @@ def main():
         print("  warning:", w)
     print(f"\n  All {total} test cases are in testcases.md. envelope.json carries the "
           f"reviewer's full reasoning.")
+    pub = res.get("published")
+    if pub:
+        print("  published: %s" % (pub.get("error")
+              or "https://github.com/%s/tree/%s/%s" % (pub["repo"], pub["branch"], pub["path"])))
     _files(tee, rundir)
 
     if wall > 240:

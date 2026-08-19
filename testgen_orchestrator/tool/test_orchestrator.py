@@ -983,6 +983,87 @@ check("AVASecret import is guarded", "except ImportError" in src)
 check("no hardcoded secret literals",
       not _re.search(r'(token|pat|secret)\s*=\s*"[A-Za-z0-9_\-\.]{20,}"', src, _re.I))
 
+section("17. GITHUB PUBLISH  (opt in, and a failure can never fail the run)")
+
+_ghtoken = "ghp_FAKETOKENVALUE1234567890"
+_gh_base = dict(base, maxscenarios=2, testcasesperscenario=3, stepsmin=1, stepsmax=100,
+                maxworkers=2, deadlineseconds=120)
+
+cfgp = tool._config(json.dumps(_gh_base))
+check("publish defaults to false", cfgp["publish"] is False)
+check("github repo and branch have defaults",
+      cfgp["githubrepo"] == "Hrishi1312/self_healing" and cfgp["githubbranch"] == "main")
+check("publish coerced from a string, as form data arrives",
+      tool._config(json.dumps(dict(_gh_base, publish="true")))["publish"] is True)
+
+_puts = []
+
+
+def gh_http(method, url, log, headers=None, json_body=None, timeout=None, form=None):
+    _puts.append((method, url, headers, json_body))
+    return 201, {"content": {"path": url.split("/contents/")[-1]}}
+
+
+T.exec_agent, T.fetch_story = fake_exec, fake_story
+T._secret = lambda k, f="": f or "test-token"
+_orig_http2 = T._http
+T._http = gh_http
+
+# publish off: not one github call
+res17 = json.loads(tool._run(runinputs=json.dumps(_gh_base)))
+check("publish off makes no github call and adds no envelope field",
+      _puts == [] and "published" not in res17)
+
+# publish on: four files into one run folder
+res18 = json.loads(tool._run(runinputs=json.dumps(dict(
+    _gh_base, publish=True, githubtoken=_ghtoken))))
+names = [u.split("/")[-1] for _, u, _, _ in _puts]
+check("publish on PUTs exactly the four run files",
+      len(_puts) == 4 and set(names) == {"run.log", "testcases.md", "envelope.json",
+                                         "runinputs.json"}, str(names))
+check("files go to the contents api of the configured repo",
+      all(u.startswith("https://api.github.com/repos/Hrishi1312/self_healing/contents/"
+                       "tool_logs/640764_") for _, u, _, _ in _puts),
+      _puts[0][1] if _puts else "no calls")
+check("all four files share one run folder",
+      len({u.rsplit("/", 1)[0] for _, u, _, _ in _puts}) == 1)
+check("the body carries branch and base64 content",
+      all(b.get("branch") == "main" and b.get("content") for _, _, _, b in _puts))
+import base64 as _b64                                     # noqa: E402
+_published_inputs = json.loads(_b64.b64decode(
+    next(b["content"] for _, u, _, b in _puts if u.endswith("runinputs.json"))).decode())
+check("published runinputs.json blanks all three credentials",
+      _published_inputs.get("githubtoken") == "" and _published_inputs.get("adopat") == ""
+      and _published_inputs.get("aavatoken") == "")
+check("the github token never reaches a log line",
+      _ghtoken not in "\n".join(res18["log"]))
+check("the envelope reports what was published",
+      res18.get("published", {}).get("files") == 4
+      and res18["published"]["repo"] == "Hrishi1312/self_healing")
+check("the run is still completed", res18.get("status") == "completed")
+
+# publish rejected by github: the run must not fail
+T._http = lambda m, u, l, headers=None, json_body=None, timeout=None, form=None: (
+    401, {"message": "Bad credentials"})
+res19 = json.loads(tool._run(runinputs=json.dumps(dict(
+    _gh_base, publish=True, githubtoken=_ghtoken))))
+check("a github failure never fails the run",
+      res19.get("status") == "completed"
+      and "Bad credentials" in res19.get("published", {}).get("error", ""),
+      str(res19.get("published")))
+
+# publish asked for but no token: reported, not raised
+T._http = gh_http
+_puts.clear()
+res20 = json.loads(tool._run(runinputs=json.dumps(dict(_gh_base, publish=True))))
+check("publish with no token is reported in the envelope, with no github call",
+      _puts == [] and "githubtoken" in res20.get("published", {}).get("error", ""),
+      str(res20.get("published")))
+
+T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
+T._http = _orig_http2
+
+
 print(f"\n{'=' * 70}\n{len(PASS)} passed, {len(FAIL)} failed")
 if FAIL:
     for f in FAIL:
