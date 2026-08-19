@@ -1,0 +1,48 @@
+[ORCH] ts=2026-08-19T14:39:12Z step=start story=640764 maxscenarios=7 tcper=3 steps=18-25 rounds=2 workers=7 pass_=80/50 judge=627 deadline=450s
+[ORCH] ts=2026-08-19T14:39:12Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=283
+[ORCH] ts=2026-08-19T14:40:16Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=63812
+[ORCH] ts=2026-08-19T14:40:53Z step=agenterror label=generate:TS_005 agentid=626 phase=poll status=FAILED execution=2211787d-9a14-40d3-baab-efd0cb6e425d ms=36941 why={"executionId": "2211787d-9a14-40d3-baab-efd0cb6e425d", "agentId": 626, "output": null, "agentName": "EDI 834 Inbound Test Case Generation", "executedBy": "Hrishikesh.Rode@caresource.com", "createdAt"
+[ORCH] ts=2026-08-19T14:40:53Z step=generate scenario=TS_005 round=1 error=generate:TS_005: agent 626 finished FAILED (execution 2211787d-9a14-40d3-baab-efd0cb6e425d)
+[ORCH] ts=2026-08-19T14:40:53Z step=agenterror label=generate:TS_002 agentid=626 phase=poll status=FAILED execution=ecc3574a-8e04-4027-92ee-47841f9d77bb ms=37196 why={"executionId": "ecc3574a-8e04-4027-92ee-47841f9d77bb", "agentId": 626, "output": null, "agentName": "EDI 834 Inbound Test Case Generation", "executedBy": "Hrishikesh.Rode@caresource.com", "createdAt"
+[ORCH] ts=2026-08-19T14:40:53Z step=generate scenario=TS_002 round=1 error=generate:TS_002: agent 626 finished FAILED (execution ecc3574a-8e04-4027-92ee-47841f9d77bb)
+[ORCH] ts=2026-08-19T14:41:30Z step=generate scenario=TS_003 round=1 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-19T14:41:58Z step=generate scenario=TS_001 round=1 tc=3 ids=TC_TS_001_001,TC_TS_001_002,TC_TS_001_003 chars=91791 ms=101604
+[ORCH] ts=2026-08-19T14:42:06Z step=generate scenario=TS_007 round=1 tc=3 ids=TC_TS007_001,TC_TS007_002,TC_TS007_003 chars=108355 ms=110288
+[ORCH] ts=2026-08-19T14:42:18Z step=generate scenario=TS_002 round=2 tc=3 ids=TC_TS002_001,TC_TS002_002,TC_TS002_003 chars=83648 ms=84355 regen=1
+[ORCH] ts=2026-08-19T14:42:21Z step=review scenario=TS_007 round=1 score=85 passed=2/3 failing=TC_TS007_003 ms=14997
+[ORCH] ts=2026-08-19T14:42:24Z step=review scenario=TS_001 round=1 score=85 passed=2/3 failing=TC_TS_001_003 ms=26530
+[ORCH] ts=2026-08-19T14:42:32Z step=generate scenario=TS_004 round=1 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=103204 ms=135630
+[ORCH] ts=2026-08-19T14:42:32Z step=generate scenario=TS_006 round=1 tc=3 ids=TC_TS006_001,TC_TS006_002,TC_TS006_003 chars=91149 ms=136175
+[ORCH] ts=2026-08-19T14:42:32Z step=review scenario=TS_002 round=2 score=85 passed=2/3 failing=TC_TS002_003 ms=14799
+[ORCH] ts=2026-08-19T14:42:32Z step=result scenario=TS_002 status=unhealed scores=[85] rounds=2 tc=3 ms=136354
+[ORCH] ts=2026-08-19T14:42:38Z step=generate scenario=TS_005 round=2 tc=3 ids=TC_TS005_001,TC_TS005_002,TC_TS005_003 chars=99052 ms=104551 regen=1
+[ORCH] ts=2026-08-19T14:42:46Z step=review scenario=TS_004 round=1 score=85 passed=2/3 failing=TC_TS004_003 ms=14693
+[ORCH] ts=2026-08-19T14:42:47Z step=review scenario=TS_006 round=1 score=85 passed=2/3 failing=TC_TS006_002 ms=14524
+[ORCH] ts=2026-08-19T14:42:52Z step=review scenario=TS_005 round=2 score=85 passed=1/3 failing=TC_TS005_002,TC_TS005_003 ms=14947
+[ORCH] ts=2026-08-19T14:42:52Z step=result scenario=TS_005 status=unhealed scores=[85] rounds=2 tc=3 ms=156447
+[ORCH] ts=2026-08-19T14:43:15Z step=generate scenario=TS_003 round=2 tc=3 ids=TC_TS003_001,TC_TS003_002,TC_TS003_003 chars=100511 ms=104683 regen=1
+[ORCH] ts=2026-08-19T14:43:30Z step=review scenario=TS_003 round=2 score=85 passed=2/3 failing=TC_TS003_002 ms=14858
+[ORCH] ts=2026-08-19T14:43:30Z step=result scenario=TS_003 status=unhealed scores=[85] rounds=2 tc=3 ms=194049
+[ORCH] ts=2026-08-19T14:44:06Z step=generate scenario=TS_007 round=2 tc=3 ids=TC_TS007_001,TC_TS007_002,TC_TS007_003 chars=88515 ms=104852 regen=1
+[ORCH] ts=2026-08-19T14:44:09Z step=generate scenario=TS_001 round=2 tc=3 ids=TC_TS_001_001,TC_TS_001_002,TC_TS_001_003 chars=87500 ms=104694 regen=1
+[ORCH] ts=2026-08-19T14:44:21Z step=review scenario=TS_007 round=2 score=95 passed=3/3 ms=14625
+[ORCH] ts=2026-08-19T14:44:21Z step=result scenario=TS_007 status=approved scores=[85, 95] rounds=2 tc=3 ms=244772
+[ORCH] ts=2026-08-19T14:44:23Z step=review scenario=TS_001 round=2 score=95 passed=3/3 ms=14606
+[ORCH] ts=2026-08-19T14:44:23Z step=result scenario=TS_001 status=approved scores=[85, 95] rounds=2 tc=3 ms=247442
+[ORCH] ts=2026-08-19T14:44:31Z step=generate scenario=TS_004 round=2 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=110981 ms=104950 regen=1
+[ORCH] ts=2026-08-19T14:44:31Z step=generate scenario=TS_006 round=2 tc=3 ids=TC_TS006_001,TC_TS006_002,TC_TS006_003 chars=110699 ms=104603 regen=1
+[ORCH] ts=2026-08-19T14:44:46Z step=review scenario=TS_006 round=2 score=85 passed=2/3 failing=TC_TS006_002 ms=14421
+[ORCH] ts=2026-08-19T14:44:46Z step=stagnant scenario=TS_006 round=2 scores=[85, 85]
+[ORCH] ts=2026-08-19T14:44:46Z step=result scenario=TS_006 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=269730
+[ORCH] ts=2026-08-19T14:44:58Z step=review scenario=TS_004 round=2 score=85 passed=2/3 failing=TC_TS004_002 ms=26346
+[ORCH] ts=2026-08-19T14:44:58Z step=stagnant scenario=TS_004 round=2 scores=[85, 85]
+[ORCH] ts=2026-08-19T14:44:58Z step=result scenario=TS_004 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=281628
+[ORCH] ts=2026-08-19T14:44:58Z step=done approved=2 unreviewed=0 unhealed=3 stagnant=2 hardstop=0 failed=0 skipped=0 testcases=21 agentcalls=26 ms=345790
+[ORCH] ts=2026-08-19T14:44:58Z step=outcome story=640764 ready=15/21 testcases flagged=6 scenarios=7 elapsed=5m45s
+[ORCH] ts=2026-08-19T14:44:58Z step=flagged tc=TC_TS002_003 scenario=TS_002 why=the Edge case never tests an edge condition
+[ORCH] ts=2026-08-19T14:44:58Z step=flagged tc=TC_TS003_002 scenario=TS_003 why=negative case expects rejection not in story
+[ORCH] ts=2026-08-19T14:44:58Z step=flagged tc=TC_TS004_002 scenario=TS_004 why=negative result is too ambiguous
+[ORCH] ts=2026-08-19T14:44:58Z step=flagged tc=TC_TS005_002 scenario=TS_005 why=wrong negative outcome for this scenario
+[ORCH] ts=2026-08-19T14:44:58Z step=flagged tc=TC_TS005_003 scenario=TS_005 why=edge case never tests an edge outcome
+[ORCH] ts=2026-08-19T14:44:58Z step=flagged tc=TC_TS006_002 scenario=TS_006 why=one step is conditional and not executable
+[ORCH] ts=2026-08-19T14:44:58Z step=detail calls=26 rounds=14 scoreboard=TS_001:approved(85>95)  TS_002:unhealed(85)  TS_003:unhealed(85)  TS_004:stagnant(85>85)  TS_005:unhealed(85)  TS_006:stagnant(85>85)  TS_007:approved(85>95)
