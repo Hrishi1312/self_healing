@@ -1,0 +1,687 @@
+<title>Seven Threads, One Budget</title>
+<style>
+:root{
+  --ground:#f3f4f6; --panel:#ffffff; --ink:#14171b; --faint:#868d99; --border:#e3e6ea;
+  --accent:#0b6a62; --accent-bg:#e3f2f0; --accent-br:#b7ddd8;
+  --data:#0f6cbd;   --data-bg:#e6f0fa;   --data-br:#bcd7f0;
+  --heal:#8a5300;   --heal-bg:#fbeedb;   --heal-br:#eed4a6;
+  --block:#a4262c;  --block-bg:#fae7e8;  --block-br:#eec2c4;
+  --grid:#e8ebef;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --ground:#14171b; --panel:#1a1e24; --ink:#e6e9ee; --faint:#78808d; --border:#2e343d;
+  --accent:#4fc7b8; --accent-bg:#0f2f2c; --accent-br:#1e4f49;
+  --data:#5aa9f0;   --data-bg:#132738;   --data-br:#22496b;
+  --heal:#dda54f;   --heal-bg:#33260f;   --heal-br:#5a441c;
+  --block:#e57b80;  --block-bg:#341c1e;  --block-br:#5c2f32;
+  --grid:#232830;
+}}
+:root[data-theme="dark"]{
+  --ground:#14171b; --panel:#1a1e24; --ink:#e6e9ee; --faint:#78808d; --border:#2e343d;
+  --accent:#4fc7b8; --accent-bg:#0f2f2c; --accent-br:#1e4f49;
+  --data:#5aa9f0;   --data-bg:#132738;   --data-br:#22496b;
+  --heal:#dda54f;   --heal-bg:#33260f;   --heal-br:#5a441c;
+  --block:#e57b80;  --block-bg:#341c1e;  --block-br:#5c2f32;
+  --grid:#232830;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-variant-numeric:tabular-nums;
+}
+.mono{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+header{padding:56px 0 28px;border-bottom:1px solid var(--border)}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  display:flex;flex-wrap:wrap;gap:10px;align-items:baseline}
+.eyebrow .by{margin-left:auto;text-transform:none;letter-spacing:.04em}
+.eyebrow .by b{color:var(--ink);font-weight:600}
+h1{font-size:clamp(30px,4.4vw,46px);line-height:1.08;margin:14px 0 12px;letter-spacing:-.02em;text-wrap:balance}
+.lede{max-width:64ch;color:var(--faint);font-size:17px;margin:0}
+.lede strong{color:var(--ink);font-weight:600}
+h2{font-size:22px;margin:0 0 6px;letter-spacing:-.01em;text-wrap:balance}
+h2 .n{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--accent);
+  letter-spacing:.1em;display:block;margin-bottom:6px}
+section{padding:44px 0;border-bottom:1px solid var(--border)}
+.sub{color:var(--faint);max-width:66ch;margin:0 0 22px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:10px}
+
+/* ── timeline ─────────────────────────────────────────── */
+.stage{padding:20px 20px 8px;overflow-x:auto}
+.axis{position:relative;height:22px;margin-left:118px;min-width:520px}
+.axis span{position:absolute;transform:translateX(-50%);font-size:11px;color:var(--faint)}
+.lanes{min-width:638px}
+.lane{display:flex;align-items:center;gap:10px;height:38px}
+.lname{width:108px;flex:0 0 108px;font-size:12.5px;color:var(--faint);display:flex;
+  justify-content:space-between;align-items:center;gap:6px}
+.lname b{color:var(--ink);font-weight:600}
+.track{position:relative;flex:1;height:22px;border-radius:4px;
+  background:linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/ calc(100%/6) 100%;}
+.bar{position:absolute;top:0;height:22px;border-radius:3px;border:1px solid;
+  display:flex;align-items:center;padding:0 7px;font-size:11px;white-space:nowrap;
+  overflow:hidden;opacity:0;transition:opacity .18s}
+.bar.on{opacity:1}
+.b-gen{background:var(--data-bg);border-color:var(--data-br);color:var(--data)}
+.b-rev{background:var(--accent-bg);border-color:var(--accent-br);color:var(--accent)}
+.b-heal{background:var(--heal-bg);border-color:var(--heal-br);color:var(--heal)}
+.b-revx{background:var(--block-bg);border-color:var(--block-br);color:var(--block)}
+.cap{position:absolute;top:2px;font-size:11px;font-weight:600;white-space:nowrap;opacity:0;
+  transition:opacity .2s}
+.cap.on{opacity:1}
+.cap.ok{color:var(--accent)} .cap.bad{color:var(--block)}
+.head{position:absolute;top:0;bottom:0;width:2px;background:var(--ink);opacity:.5;z-index:3;
+  pointer-events:none}
+.headwrap{position:relative}
+.shared{margin-left:118px;min-width:520px;position:relative;height:38px}
+/* ── controls ─────────────────────────────────────────── */
+.ctl{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:14px 20px;border-top:1px solid var(--border)}
+button{font:inherit;font-size:13px;padding:7px 15px;border-radius:6px;cursor:pointer;
+  background:var(--accent);color:var(--panel);border:1px solid var(--accent);font-weight:600}
+button.ghost{background:transparent;color:var(--ink);border-color:var(--border)}
+button:focus-visible{outline:2px solid var(--data);outline-offset:2px}
+input[type=range]{flex:1;min-width:150px;accent-color:var(--accent)}
+.clock{font-family:ui-monospace,Menlo,monospace;font-size:20px;font-weight:600;min-width:74px}
+.readout{display:flex;gap:22px;margin-left:auto;font-size:12px;color:var(--faint)}
+.readout b{display:block;font-family:ui-monospace,Menlo,monospace;font-size:19px;color:var(--ink);
+  font-weight:600;line-height:1.2}
+.readout .g b{color:var(--accent)} .readout .h b{color:var(--heal)}
+.cfg{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:16px 20px 4px;
+  font-size:13px;color:var(--faint)}
+.cfg label{display:inline-flex;align-items:center;gap:7px}
+.cfg input{width:56px;font:inherit;font-size:14px;font-family:ui-monospace,Menlo,monospace;
+  text-align:center;padding:5px 4px;border-radius:6px;border:1px solid var(--border);
+  background:var(--ground);color:var(--ink)}
+.cfg input:focus-visible{outline:2px solid var(--data);outline-offset:1px}
+.cfg .x{color:var(--faint);font-size:13px}
+.cfg .eq{margin-left:6px;font-family:ui-monospace,Menlo,monospace;color:var(--ink);font-weight:600}
+.badge{margin-left:auto;font-size:11px;font-family:ui-monospace,Menlo,monospace;padding:3px 10px;
+  border-radius:20px;border:1px solid}
+.b-real{background:var(--accent-bg);border-color:var(--accent-br);color:var(--accent)}
+.b-proj{background:var(--heal-bg);border-color:var(--heal-br);color:var(--heal)}
+.lname{position:relative}
+.lcount{font-size:10.5px;font-family:ui-monospace,Menlo,monospace;color:var(--faint);
+  letter-spacing:-.01em}
+.lcount b{color:var(--data);font-weight:600}
+.lcount.done b{color:var(--accent)}
+.key{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--faint);padding:0 20px 16px}
+.key i{display:inline-block;width:11px;height:11px;border-radius:2px;border:1px solid;
+  margin-right:6px;vertical-align:-1px}
+/* ── generic ──────────────────────────────────────────── */
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(228px,1fr));gap:16px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+.card h3{margin:0 0 6px;font-size:14px;letter-spacing:.01em}
+.card p{margin:0;font-size:13.5px;color:var(--faint)}
+.card .big{font-family:ui-monospace,Menlo,monospace;font-size:26px;font-weight:600;line-height:1.1}
+ol.steps{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;gap:12px}
+ol.steps li{counter-increment:s;position:relative;padding-left:44px;font-size:14.5px}
+ol.steps li::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:1px;
+  font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--accent);
+  border:1px solid var(--accent-br);background:var(--accent-bg);border-radius:4px;
+  padding:3px 6px;line-height:1}
+ol.steps b{font-weight:600}
+ol.steps .note{display:block;color:var(--faint);font-size:13px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border)}
+th{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);font-weight:600}
+td.num{font-family:ui-monospace,Menlo,monospace;text-align:right}
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid;
+  font-weight:600}
+.p-ok{background:var(--accent-bg);border-color:var(--accent-br);color:var(--accent)}
+.p-bad{background:var(--block-bg);border-color:var(--block-br);color:var(--block)}
+.scroller{overflow-x:auto}
+.cmp{display:grid;gap:12px}
+.cmp-row{display:grid;grid-template-columns:96px 1fr;align-items:center;gap:14px}
+.cmp-lbl{font-size:13px;color:var(--faint);text-align:right}
+.cmp-track{position:relative;height:44px;background:var(--grid);border-radius:6px;overflow:hidden}
+.cmp-fill{height:100%;display:flex;align-items:center;padding:0 14px;border-radius:6px;
+  font-family:ui-monospace,Menlo,monospace;font-size:15px;font-weight:600;
+  animation:grow 1.1s cubic-bezier(.22,.9,.3,1) both}
+.cmp-fill.seq{width:100%;background:var(--block-bg);color:var(--block);
+  border:1px solid var(--block-br)}
+.cmp-fill.thr{width:28.2%;background:var(--accent-bg);color:var(--accent);
+  border:1px solid var(--accent-br);animation-delay:.15s}
+.cmp-shared{position:absolute;left:0;top:0;bottom:0;width:3.9%;background:var(--accent);
+  opacity:.22;border-radius:6px 0 0 6px}
+@keyframes grow{from{width:0}}
+.cmp-axis{display:grid;grid-template-columns:repeat(5,1fr);margin-left:110px;font-size:11px;
+  color:var(--faint)}
+.cmp-axis span:not(:first-child){text-align:right}
+.cmp-note{margin:18px 0 0;font-size:13.5px;color:var(--faint);max-width:70ch}
+.cmp-note b{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){.cmp-fill{animation:none}}
+footer{padding:34px 0 60px;color:var(--faint);font-size:13px}
+/* topology — portrait */
+.topo{display:grid;gap:0;justify-items:center;padding:26px 20px 30px}
+.node{background:var(--panel);border:1px solid var(--border);border-radius:9px;
+  padding:13px 18px;text-align:center;min-width:230px;max-width:460px}
+.node .tag{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.11em;
+  padding:2px 7px;border-radius:3px;border:1px solid;display:inline-block;margin-bottom:7px}
+.node h4{margin:0 0 3px;font-size:15px}
+.node p{margin:0;font-size:12.5px;color:var(--faint);line-height:1.45}
+.t-entry{background:var(--accent-bg);border-color:var(--accent-br);color:var(--accent)}
+.t-tool{background:var(--panel);border-color:var(--border);color:var(--faint)}
+.t-llm{background:var(--data-bg);border-color:var(--data-br);color:var(--data)}
+.n-entry{border-color:var(--accent-br);border-width:2px}
+.n-tool{border-color:var(--ink);border-width:2px;max-width:620px}
+.drop{width:2px;height:22px;background:var(--border)}
+.drop.wide{height:16px}
+.fanwrap{display:flex;flex-direction:column;align-items:center;width:100%}
+.fanbar{height:2px;background:var(--border);width:min(660px,86%)}
+.fan{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;
+  width:min(720px,100%);margin-top:0}
+.fan .node{min-width:0;width:100%}
+.aside{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--faint);
+  margin-top:6px}
+.aside .line{width:34px;height:1px;background:var(--border)}
+.stack{position:relative}
+.stack::before,.stack::after{content:"";position:absolute;inset:0;border-radius:9px;
+  border:1px solid var(--data-br);background:var(--panel);z-index:-1}
+.stack::before{transform:translate(5px,5px);opacity:.55}
+.stack::after{transform:translate(10px,10px);opacity:.28}
+.node.stack{background:var(--panel)}
+.per{display:inline-flex;align-items:center;gap:5px;margin-top:9px;font-size:11px;
+  font-family:ui-monospace,Menlo,monospace;color:var(--data);
+  background:var(--data-bg);border:1px solid var(--data-br);border-radius:20px;padding:2px 9px}
+.per .dot{width:5px;height:5px;border-radius:50%;background:var(--data);
+  animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.25)}}
+.once{display:inline-block;margin-top:9px;font-size:11px;font-family:ui-monospace,Menlo,monospace;
+  color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-br);
+  border-radius:20px;padding:2px 9px}
+@media (prefers-reduced-motion:reduce){.per .dot{animation:none;opacity:.9}}
+/* faq */
+details{border:1px solid var(--border);border-radius:9px;background:var(--panel);
+  padding:0 16px;margin-bottom:9px}
+details[open]{border-color:var(--accent-br)}
+summary{cursor:pointer;padding:13px 0;font-weight:600;font-size:14.5px;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"+";color:var(--accent);font-family:ui-monospace,Menlo,monospace;
+  margin-right:10px;font-weight:700}
+details[open] summary::before{content:"\2013"}
+details p{margin:0 0 14px 26px;font-size:14px;color:var(--faint);max-width:70ch}
+details p b{color:var(--ink)}
+summary:focus-visible{outline:2px solid var(--data);outline-offset:3px;border-radius:4px}
+/* token bar */
+.tbar{display:flex;height:30px;border-radius:5px;overflow:hidden;border:1px solid var(--border);
+  margin:6px 0 8px}
+.tbar div{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;
+  font-family:ui-monospace,Menlo,monospace}
+.tk-rev{background:var(--block-bg);color:var(--block)}
+.tk-gen{background:var(--data-bg);color:var(--data)}
+.tk-scn{background:var(--accent-bg);color:var(--accent)}
+.trick{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:baseline;
+  padding:13px 0;border-bottom:1px solid var(--border);font-size:14px}
+.trick:last-child{border-bottom:0}
+.trick .num{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--accent);
+  border:1px solid var(--accent-br);background:var(--accent-bg);border-radius:4px;padding:3px 6px}
+.trick .win{font-family:ui-monospace,Menlo,monospace;font-weight:600;color:var(--accent);
+  white-space:nowrap;font-size:15px}
+.trick b{font-weight:600} .trick span.d{display:block;color:var(--faint);font-size:13px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow"><span>AAVA · EDI 834 test generation · orchestrator</span><span class="by"><b>Jaydeep</b> · 18 August 2026</span></div>
+  <h1>Seven threads, one budget</h1>
+  <p class="lede">One agent, one tool. The tool splits a user story into scenarios and runs
+  every one of them <strong>at the same time</strong> — each on its own thread, each with its own
+  repair loop. Below is a real run: story 640764, seven scenarios, <strong>324 seconds</strong>.
+  Run sequentially it would have taken <strong>1,150</strong>.</p>
+</header>
+
+<section>
+  <h2><span class="n">THE SHAPE</span>One agent, one tool, three sub-agents</h2>
+  <p class="sub">You run the agent at the top. It calls the tool once and hands back whatever the
+  tool returns. Everything else — reading the story, splitting it, running seven threads, judging,
+  repairing — happens inside the tool. The three sub-agents are not on the workflow canvas; the
+  tool calls them by id.</p>
+  <div class="panel topo">
+    <div class="node n-entry">
+      <span class="tag t-entry">ENTRY · you run this</span>
+      <h4>Test Generation Orchestrator</h4>
+      <p>Passes <span class="mono">runinputs</span> through. Returns the tool's answer unchanged.</p>
+    </div>
+    <div class="drop"></div>
+    <div class="node n-tool">
+      <span class="tag t-tool">TOOL · owns the pipeline</span>
+      <h4>AavaTestGenOrchestrator</h4>
+      <p>Threads, the repair loop, the budget, the deadline and the logging all live here — in
+      code, not in a model's judgement.</p>
+      <div class="aside"><span class="line"></span>
+        reads the story straight from Azure DevOps over REST · 0.4s<span class="line"></span></div>
+    </div>
+    <div class="drop wide"></div><div class="fanbar"></div><div class="drop wide"></div>
+    <div class="fan">
+      <div class="node"><span class="tag t-llm">625</span>
+        <h4>Scenario generator</h4>
+        <p>Story in, scenarios out. The only step every thread waits for.</p>
+        <span class="once">runs once</span></div>
+      <div class="node stack"><span class="tag t-llm">626</span>
+        <h4>Test case generator</h4>
+        <p>One scenario in, its test cases out as nested JSON.</p>
+        <span class="per"><i class="dot"></i>one per thread</span></div>
+      <div class="node stack"><span class="tag t-llm">627</span>
+        <h4>Reviewer</h4>
+        <p>Scores each test case, names what is wrong in plain English.</p>
+        <span class="per"><i class="dot"></i>one per thread</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">THE RUN</span>Watch the threads</h2>
+  <p class="sub">Every bar is a real agent call from
+  <span class="mono">AgentActivityLogs&nbsp;(22)</span>. Threads start together at 45s and finish
+  at 144, 164, 165, 244, 307 and 324 — the slowest one sets the clock, not the sum.</p>
+
+  <div class="panel">
+    <div class="cfg">
+      <label>scenarios <input type="number" id="cScen" value="7" min="1" max="10"></label>
+      <span class="x">×</span>
+      <label>test cases each <input type="number" id="cTc" value="3" min="1" max="5"></label>
+      <span class="x">×</span>
+      <label>steps <input type="number" id="cStep" value="13" min="4" max="25"></label>
+      <span class="eq" id="cEq">= 21 test cases · 273 rows</span>
+      <span class="badge b-real" id="cBadge">measured run</span>
+    </div>
+    <div class="stage">
+      <div class="axis" id="axis"></div>
+      <div class="headwrap">
+        <div class="shared" id="shared"></div>
+        <div class="lanes" id="lanes"></div>
+        <div class="head" id="head" style="left:118px"></div>
+      </div>
+    </div>
+    <div class="key">
+      <span><i style="background:var(--data-bg);border-color:var(--data-br)"></i>generate test cases</span>
+      <span><i style="background:var(--accent-bg);border-color:var(--accent-br)"></i>review — passed</span>
+      <span><i style="background:var(--block-bg);border-color:var(--block-br)"></i>review — flagged</span>
+      <span><i style="background:var(--heal-bg);border-color:var(--heal-br)"></i>repair round</span>
+    </div>
+    <div class="ctl">
+      <button id="play">▶ Play</button>
+      <button class="ghost" id="reset">Reset</button>
+      <span class="clock mono" id="clock">0:00</span>
+      <input type="range" id="scrub" min="0" max="324" value="0" aria-label="Scrub the run timeline">
+      <div class="readout">
+        <span><b id="rActive">0</b>threads running</span>
+        <span class="g"><b id="rReady">0</b>test cases ready</span>
+        <span class="h"><b id="rHeal">0</b>repairs</span>
+        <span><b id="rRows">0</b>table rows</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">ONE THREAD</span>What each scenario does on its own</h2>
+  <p class="sub">Seven copies of this run at once. Nothing waits for anything else — a thread that
+  passes first time finishes in 99 seconds while its neighbour is still on its second attempt.</p>
+  <ol class="steps">
+    <li><b>Generate.</b> The test case agent gets one scenario and writes three test cases as
+      nested JSON. <span class="note">84–145s, the longest step by far. The tool expands the JSON
+      into the 13-column table itself, so the model never repeats the nine header columns on
+      every step row.</span></li>
+    <li><b>Review.</b> An independent judge scores every test case and marks each pass or fail.
+      <span class="note">15–26s. It returns one plain-English reason per failure alongside the
+      precise evidence the generator needs.</span></li>
+    <li><b>All passed?</b> The thread stops. Its test cases are ready to use.
+      <span class="note">Four of seven scenarios reached this on the first attempt — two scoring
+      95, one 100.</span></li>
+    <li><b>Otherwise, repair.</b> Only the failing test case ids go back, with the reviewer's
+      quoted evidence. <span class="note">Three scenarios needed this. TS_002 went 85 → 95 and
+      passed; TS_004 also recovered.</span></li>
+    <li><b>No improvement? Stop.</b> If the second score is no better than the first, the thread
+      gives up rather than spending another two minutes.
+      <span class="note">TS_003 scored 85 twice and stopped. Its test cases are still in the
+      output, flagged for a human.</span></li>
+  </ol>
+</section>
+
+<section>
+  <h2><span class="n">WHY IT FITS</span>Parallel or nothing</h2>
+  <p class="sub">Generation is 80% of the cost and it happens once per scenario. Run those in
+  sequence and the run is four times longer than the platform allows.</p>
+  <div class="panel" style="padding:22px 24px 24px">
+    <div class="cmp">
+      <div class="cmp-row">
+        <span class="cmp-lbl">Sequential</span>
+        <div class="cmp-track"><div class="cmp-fill seq"><span>19 min 10 sec</span></div></div>
+      </div>
+      <div class="cmp-row">
+        <span class="cmp-lbl">Threaded</span>
+        <div class="cmp-track">
+          <div class="cmp-fill thr"><span>5 min 24 sec</span></div>
+          <div class="cmp-shared" title="shared start"></div>
+        </div>
+      </div>
+      <div class="cmp-axis"><span>0</span><span>5 min</span><span>10 min</span>
+        <span>15 min</span><span>20 min</span></div>
+    </div>
+    <p class="cmp-note">The bars are the same work. Threading does not make any single step
+    faster — it stops them queueing. The pale block at the start of the lower bar is the
+    <b>45 seconds</b> that cannot be split: reading the story and writing the scenarios.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">GUARDRAILS</span>What stops a thread</h2>
+  <p class="sub">Threads are cheap to start and expensive to leave running. Four limits bound
+  them, and every one of them returns the work done so far rather than discarding it.</p>
+  <div class="scroller"><table>
+    <tr><th>Limit</th><th>What it does</th><th style="text-align:right">This run</th></tr>
+    <tr><td class="mono">maxworkers</td><td>Threads at once. Set below the scenario count and
+      the run splits into waves, doubling the clock.</td><td class="num">7</td></tr>
+    <tr><td class="mono">maxhealrounds</td><td>Total attempts per scenario. Two means one
+      repair.</td><td class="num">2</td></tr>
+    <tr><td class="mono">stoponstagnation</td><td>Abandons a scenario whose repair scored no
+      better than the first attempt.</td><td class="num">on</td></tr>
+    <tr><td class="mono">deadlineseconds</td><td>Wall clock. The tool stops on its own terms and
+      returns partial results.</td><td class="num">630</td></tr>
+    <tr><td class="mono">maxagentcalls</td><td>Hard cap on sub-agent calls, shared across every
+      thread.</td><td class="num">35</td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="n">RESULT</span>What came out</h2>
+  <div class="scroller"><table>
+    <tr><th>Scenario</th><th>Attempts</th><th>Score</th><th>Outcome</th><th>Finished</th></tr>
+    <tr><td class="mono">TS_001</td><td class="num">1</td><td class="num">95</td>
+      <td><span class="pill p-ok">3 of 3 ready</span></td><td class="num">2:24</td></tr>
+    <tr><td class="mono">TS_006</td><td class="num">1</td><td class="num">95</td>
+      <td><span class="pill p-ok">3 of 3 ready</span></td><td class="num">2:24</td></tr>
+    <tr><td class="mono">TS_007</td><td class="num">1</td><td class="num">95</td>
+      <td><span class="pill p-ok">3 of 3 ready</span></td><td class="num">2:44</td></tr>
+    <tr><td class="mono">TS_005</td><td class="num">1</td><td class="num">100</td>
+      <td><span class="pill p-ok">3 of 3 ready</span></td><td class="num">2:45</td></tr>
+    <tr><td class="mono">TS_003</td><td class="num">2</td><td class="num">85 → 85</td>
+      <td><span class="pill p-bad">1 flagged</span></td><td class="num">4:04</td></tr>
+    <tr><td class="mono">TS_004</td><td class="num">2</td><td class="num">85 → 85</td>
+      <td><span class="pill p-ok">3 of 3 ready</span></td><td class="num">5:07</td></tr>
+    <tr><td class="mono">TS_002</td><td class="num">2</td><td class="num">85 → 95</td>
+      <td><span class="pill p-ok">3 of 3 ready</span></td><td class="num">5:24</td></tr>
+  </table></div>
+  <p class="sub" style="margin-top:18px"><strong>20 of 21 test cases ready to use.</strong> The one
+  flagged test case is still in the output, with the reviewer's reason attached:
+  <span class="mono">wrong status for a negative-path test</span>.</p>
+</section>
+
+<section>
+  <h2><span class="n">READING IT</span>Questions people ask first</h2>
+  <p class="sub">Plain answers, no jargon.</p>
+
+  <details open><summary>What is a "thread"?</summary>
+  <p>One scenario, doing its own work. Seven scenarios means seven threads, all going at the
+  same time. Each one writes its test cases, gets them checked, and fixes them if needed —
+  <b>without waiting for the other six</b>. That is why the whole run takes as long as the
+  slowest thread, not all seven added together.</p></details>
+
+  <details><summary>Why does nothing happen for the first 45 seconds?</summary>
+  <p>Two jobs have to finish before there is anything to split up: reading the story from Azure
+  DevOps (under a second), and turning it into seven scenarios (44 seconds). Only then does the
+  work fan out. That 45 seconds is the same whether you ask for two scenarios or ten.</p></details>
+
+  <details><summary>What is a repair round?</summary>
+  <p>The reviewer said one of the three test cases was not good enough, so the thread writes them
+  again — this time it is told exactly what was wrong. Three of the seven threads needed one.
+  Two of those came back better and passed. <b>A repair costs about two more minutes</b>, which
+  is why the lanes that needed one finish so much later.</p></details>
+
+  <details><summary>One lane scored 85, then 85 again, and stopped. Why?</summary>
+  <p>If a repair does not improve the score, trying a third time almost never helps — the
+  generator has already seen the feedback and produced the same thing. So the thread gives up
+  instead of spending another two minutes. <b>Its test cases are still in the output</b>, marked
+  for someone to look at.</p></details>
+
+  <details><summary>"20 of 21 ready" — is the other one missing?</summary>
+  <p>No. <b>You always get all 21.</b> "Ready" means the reviewer had no objection and you can
+  hand it to a tester as it is. The one that is not ready is in the same file, with a note saying
+  what the reviewer did not like — in this run, <span class="mono">wrong status for a
+  negative-path test</span>. It is a second opinion, not a filter.</p></details>
+
+  <details><summary>Why is the review bar so much shorter than the writing bar?</summary>
+  <p>Writing three test cases with fifteen steps each takes a while — 85 to 145 seconds. Reading
+  them and giving a verdict takes 15 to 26. Writing is where nearly all the time goes, which is
+  also why the threads matter: it is the writing that runs seven ways at once.</p></details>
+
+  <details><summary>Would more scenarios make it slower?</summary>
+  <p>Barely. Six scenarios and seven scenarios both take about five minutes, because they run
+  side by side. What does make it slower is <b>repairs</b> — each one adds a full round of
+  writing and reviewing to that one lane.</p></details>
+</section>
+
+<section>
+  <h2><span class="n">THE BILL</span>Where the tokens went</h2>
+  <p class="sub">About <strong>408,000 tokens</strong> for 21 test cases — roughly 19,400 each.
+  The surprise is which agent costs the most.</p>
+  <div class="tbar">
+    <div class="tk-rev" style="width:50%">reviewer 204k</div>
+    <div class="tk-gen" style="width:48.7%">generator 199k</div>
+    <div class="tk-scn" style="width:1.3%">·</div>
+  </div>
+  <div class="scroller"><table>
+    <tr><th>Agent</th><th>Calls</th><th style="text-align:right">Read in</th>
+      <th style="text-align:right">Wrote out</th><th style="text-align:right">Total</th></tr>
+    <tr><td>Reviewer</td><td class="num">10</td><td class="num">201,005</td>
+      <td class="num">3,000</td><td class="num">204,005</td></tr>
+    <tr><td>Test case generator</td><td class="num">10</td><td class="num">101,690</td>
+      <td class="num">97,065</td><td class="num">198,755</td></tr>
+    <tr><td>Scenario generator</td><td class="num">1</td><td class="num">3,772</td>
+      <td class="num">1,225</td><td class="num">4,997</td></tr>
+    <tr><td><b>Total</b></td><td class="num">21</td><td class="num"><b>306,467</b></td>
+      <td class="num"><b>101,290</b></td><td class="num"><b>407,757</b></td></tr>
+  </table></div>
+  <p class="sub" style="margin-top:14px">Estimated at four characters per token from the run's own
+  logged sizes. Knowledge-base retrieval is not counted, so the real input is higher.</p>
+</section>
+
+<section>
+  <h2><span class="n">STAYING SMALL</span>Five things that keep the payloads down</h2>
+  <p class="sub">The first version of this pipeline sent everything in one call and kept dying.
+  Each of these is measured, and each one bought back time or headroom.</p>
+
+  <div class="trick"><span class="num">01</span>
+    <span><b>The generator writes nested JSON, not a table.</b>
+    <span class="d">In the 13-column table, nine columns repeat identically on every step row —
+    65% of all characters were the same text over and over. Writing each test case once, with
+    its steps as a list, and letting the tool build the table cut what the model has to produce
+    from 27,819 characters per scenario to 15,724. Flat JSON would have been 36% <em>worse</em>
+    than the table, because it repeats the key names instead.</span></span>
+    <span class="win">−43%</span></div>
+
+  <div class="trick"><span class="num">02</span>
+    <span><b>The finished table never goes back through an agent.</b>
+    <span class="d">It is printed to the log; the answer carries a pointer to it. Returning it
+    meant the calling agent had to retype 53,000 tokens it already had — about fifteen minutes of
+    doing nothing useful.</span></span>
+    <span class="win">42× smaller</span></div>
+
+  <div class="trick"><span class="num">03</span>
+    <span><b>One scenario per call.</b>
+    <span class="d">Each generate call carries roughly 28 KB instead of all seven scenarios at
+    once. The single-call version produced 124 KB in one response and the connection kept
+    dropping. Smaller calls are also what makes them safe to run in parallel.</span></span>
+    <span class="win">4× smaller</span></div>
+
+  <div class="trick"><span class="num">04</span>
+    <span><b>A repair is told which test cases are broken.</b>
+    <span class="d">The reviewer returns a verdict per test case, so the repair round gets the
+    failing ids and the exact quoted evidence — not a single score for the batch and a request to
+    start over.</span></span>
+    <span class="win">targeted</span></div>
+
+  <div class="trick"><span class="num">05</span>
+    <span><b>Submit, then poll.</b>
+    <span class="d">No request is held open while an agent thinks. The longest single call in
+    this run took 227 seconds and returned normally, because the tool asked for the result
+    rather than waiting on the line.</span></span>
+    <span class="win">no timeouts</span></div>
+</section>
+
+<footer class="wrap" style="padding-left:0;padding-right:0">
+  Every number on this page is read from one run of story 640764 — 7 scenarios, 21 test cases,
+  324 seconds. Bars are drawn from the <span class="mono">[ORCH]</span> log's own timestamps and
+  durations.
+  <br><br>
+  <b style="color:var(--ink)">Jaydeep</b> · 18 August 2026
+</footer>
+</div>
+
+<script>
+/* The default 7 x 3 x 13 is the run that was actually measured, so those lanes use its real
+   segment times. Change any number and the lanes are MODELLED from the same measurements:
+   ~1,689 characters per table row, the generator emitting 57% of that as nested JSON at
+   ~145 tokens/second, plus ~20s of retrieval before it starts writing. The badge says which
+   you are looking at. */
+const REAL = {scen:7, tc:3, step:13};
+const MEASURED = [
+  {id:"TS_001", gen:84.5, rev:15.3, heal:null,  ok:true,  score:"95"},
+  {id:"TS_006", gen:84.7, rev:15.2, heal:null,  ok:true,  score:"95"},
+  {id:"TS_007", gen:105.1, rev:14.7, heal:null, ok:true,  score:"95"},
+  {id:"TS_005", gen:105.2, rev:14.8, heal:null, ok:true,  score:"100"},
+  {id:"TS_003", gen:84.8, rev:15.1, heal:[84.6,14.6], ok:false, score:"85→85"},
+  {id:"TS_004", gen:105.3, rev:26.3, heal:[104.8,26.3], ok:true, score:"85→85"},
+  {id:"TS_002", gen:105.2, rev:14.5, heal:[145.3,14.8], ok:true, score:"85→95"}
+];
+const SHARED_END = 45;
+const CHARS_PER_ROW = 1689;
+const genSecs  = (tc,st) => 20 + (tc*st*CHARS_PER_ROW*0.57/4)/145;
+const revSecs  = (tc,st) => 14 + (tc*st*CHARS_PER_ROW/4)/3000;
+
+let CFG = {scen:7, tc:3, step:13}, RUN = [], TOTAL = 324;
+
+function build(){
+  const real = CFG.scen===REAL.scen && CFG.tc===REAL.tc && CFG.step===REAL.step;
+  RUN = [];
+  for(let i=0;i<CFG.scen;i++){
+    const m = real ? MEASURED[i] : null;
+    const g = m ? m.gen  : genSecs(CFG.tc,CFG.step) * (i%3===0?1:i%3===1?1.24:1.05);
+    const r = m ? m.rev  : revSecs(CFG.tc,CFG.step);
+    const heals = m ? m.heal : (i%5===2||i%5===4 ? [g*1.05, r] : null);
+    const ok = m ? m.ok : !(i%5===2);
+    const segs = [[SHARED_END, g, "gen", "generate " + Math.round(g) + "s"]];
+    let t = SHARED_END + g;
+    segs.push([t, r, heals?"revx":"rev", heals ? "flagged" : "review"]);
+    t += r;
+    if(heals){
+      segs.push([t, heals[0], "heal", "repair " + Math.round(heals[0]) + "s"]);
+      t += heals[0];
+      segs.push([t, heals[1], ok?"rev":"revx", ok ? "passed" : "no better"]);
+      t += heals[1];
+    }
+    RUN.push({id: m ? m.id : "TS_"+String(i+1).padStart(3,"0"),
+              segs, end:Math.round(t), ok, score: m ? m.score : (heals ? (ok?"85→95":"85→85") : "95")});
+  }
+  TOTAL = Math.max(...RUN.map(r=>r.end));
+  document.getElementById("cBadge").textContent = real ? "measured run" : "projected";
+  document.getElementById("cBadge").className = "badge " + (real ? "b-real" : "b-proj");
+  document.getElementById("cEq").textContent =
+    "= " + (CFG.scen*CFG.tc) + " test cases · " + (CFG.scen*CFG.tc*CFG.step) + " rows";
+  document.getElementById("scrub").max = TOTAL;
+  draw();
+}
+
+const pct = s => (s / TOTAL * 100) + "%";
+const fmt = s => (s/60|0)+":"+String(Math.floor(s%60)).padStart(2,"0");
+let bars=[], caps=[], counters=[];
+
+function draw(){
+  const axis=document.getElementById("axis"); axis.innerHTML="";
+  const stepTick = TOTAL>600?180:60;
+  for(let s=0;s<=TOTAL;s+=stepTick){
+    const e=document.createElement("span"); e.style.left=pct(s); e.textContent=fmt(s); axis.appendChild(e);
+  }
+  const last=document.createElement("span"); last.style.left=pct(TOTAL);
+  last.textContent=fmt(TOTAL); axis.appendChild(last);
+
+  const sharedEl=document.getElementById("shared");
+  sharedEl.innerHTML='<div class="lname" style="position:absolute;left:-118px;top:8px"><b>shared</b></div>';
+  [[0,1,"read the story"],[1,44,"write "+CFG.scen+" scenarios · 44s"]].forEach(([s,d,label])=>{
+    const b=document.createElement("div");
+    b.className="bar b-gen on"; b.style.left=pct(s); b.style.width=pct(d); b.style.top="8px";
+    b.textContent=label; sharedEl.appendChild(b);
+  });
+
+  const lanes=document.getElementById("lanes"); lanes.innerHTML="";
+  bars=[]; caps=[]; counters=[];
+  const rowsEach = CFG.tc*CFG.step;
+  RUN.forEach(r=>{
+    const lane=document.createElement("div"); lane.className="lane";
+    const nm=document.createElement("div"); nm.className="lname";
+    nm.innerHTML='<b>'+r.id+'</b><span class="lcount"><b>0</b>/'+CFG.tc+' tc</span>';
+    lane.appendChild(nm);
+    counters.push({el:nm.querySelector(".lcount"), at:r.end, tc:CFG.tc, rows:rowsEach});
+    const track=document.createElement("div"); track.className="track";
+    r.segs.forEach(([s,d,k,label])=>{
+      const b=document.createElement("div");
+      b.className="bar b-"+k; b.style.left=pct(s); b.style.width=pct(d); b.textContent=label;
+      track.appendChild(b); bars.push({el:b,start:s});
+    });
+    const cap=document.createElement("div");
+    cap.className="cap "+(r.ok?"ok":"bad"); cap.style.left="calc("+pct(r.end)+" + 8px)";
+    cap.textContent=r.ok ? rowsEach+" rows ready" : "flagged";
+    track.appendChild(cap); caps.push({el:cap,at:r.end,ok:r.ok});
+    lane.appendChild(track); lanes.appendChild(lane);
+  });
+  render();
+}
+
+const head=document.getElementById("head"), clock=document.getElementById("clock"),
+      scrub=document.getElementById("scrub"), play=document.getElementById("play"),
+      rA=document.getElementById("rActive"), rR=document.getElementById("rReady"),
+      rH=document.getElementById("rHeal"), rW=document.getElementById("rRows");
+let t=0, running=false, last=0;
+
+function render(){
+  const trackLeft=118, w=lanes.clientWidth-trackLeft;
+  head.style.left=(trackLeft + w*(t/TOTAL))+"px";
+  clock.textContent=fmt(t);
+  scrub.value=Math.round(t);
+  bars.forEach(b=>b.el.classList.toggle("on", t>=b.start));
+  let ready=0, rows=0, heal=0, doneN=0;
+  caps.forEach((c,i)=>{
+    const on=t>=c.at; c.el.classList.toggle("on",on);
+    const cnt=counters[i];
+    if(on){ doneN++;
+      const got = c.ok ? cnt.tc : cnt.tc-1;
+      ready += got; rows += cnt.rows;
+      cnt.el.innerHTML='<b>'+cnt.tc+'</b>/'+cnt.tc+' tc';
+      cnt.el.classList.add("done");
+    } else {
+      cnt.el.innerHTML='<b>0</b>/'+cnt.tc+' tc'; cnt.el.classList.remove("done");
+    }
+  });
+  RUN.forEach(r=>r.segs.forEach(s=>{ if(s[2]==="heal" && t>=s[0]) heal++; }));
+  rA.textContent = t<SHARED_END ? 0 : RUN.length-doneN;
+  rR.textContent = ready; rH.textContent = heal; rW.textContent = rows;
+}
+function tick(now){
+  if(!running) return;
+  const dt=(now-last)/1000; last=now;
+  t=Math.min(TOTAL, t+dt*(TOTAL/15));
+  render();
+  if(t>=TOTAL){ running=false; play.textContent="▶ Replay"; return; }
+  requestAnimationFrame(tick);
+}
+play.onclick=()=>{
+  if(running){ running=false; play.textContent="▶ Play"; return; }
+  if(t>=TOTAL) t=0;
+  running=true; play.textContent="❚❚ Pause"; last=performance.now();
+  requestAnimationFrame(tick);
+};
+document.getElementById("reset").onclick=()=>{ running=false; t=0; play.textContent="▶ Play"; render(); };
+scrub.oninput=()=>{ running=false; play.textContent="▶ Play"; t=+scrub.value; render(); };
+["cScen","cTc","cStep"].forEach(id=>document.getElementById(id).oninput=()=>{
+  const v=id=>Math.max(+document.getElementById(id).min,
+                Math.min(+document.getElementById(id).max, +document.getElementById(id).value||1));
+  CFG={scen:v("cScen"), tc:v("cTc"), step:v("cStep")};
+  running=false; t=0; play.textContent="▶ Play"; build();
+});
+addEventListener("resize", render);
+build();
+</script>
