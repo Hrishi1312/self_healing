@@ -1,0 +1,202 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "741005",
+    "title": "Dev & Test | 834 Inbound | CSNV | CSNV Inbound Spanned Zip Code Region Break Fix"
+  },
+  "summary": {
+    "scenarios": 7,
+    "approved": 5,
+    "unreviewed": 0,
+    "unhealed": 0,
+    "stagnant": 2,
+    "hardstop": 0,
+    "failed": 0,
+    "skipped": 0,
+    "testcases": 21,
+    "totalrounds": 11,
+    "agentcalls": 23,
+    "elapsedms": 337053
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "Validate ZipToRegion crosswalk configuration for CSNV region derivation",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        95
+      ],
+      "finalscore": 95,
+      "rounds": 1,
+      "testcasecount": 3,
+      "chars": 58413,
+      "elapsedms": 120275,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "Derive region from valid home address ZIP first five digits in inbound CSNV 834",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_TS002_003",
+          "why": "edge case never tests an edge failure"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 62864,
+      "elapsedms": 231177,
+      "gaps": [
+        "Status field for id TC_TS002_003 is \"Edge\", but no Test Step Expected Result describes an error, rejection, or absent record; examples include Test Step Expected Result \"The transaction is available for review and there is no file-level processing block that would prevent ZIP validation from being evaluated.\", \"A processed member row exists for the current SSN, confirming the transaction reached downstream load.\", and \"The edge condition is proven by an absent match for ZIP 89701-9999 while the transaction evidence shows processing relied only on first five digits 89701 for region derivation.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "Store derived region in AuxiliarySpanData with configured key and derived span dates",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        85,
+        95
+      ],
+      "finalscore": 95,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 70495,
+      "elapsedms": 272127,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Do not derive or load region when residence ZIP is not found in ZipToRegion crosswalk",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        100
+      ],
+      "finalscore": 100,
+      "rounds": 1,
+      "testcasecount": 3,
+      "chars": 59235,
+      "elapsedms": 99907,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_006",
+      "title": "Terminate existing region Aux span on term transaction without changing historical region value",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        95
+      ],
+      "finalscore": 95,
+      "rounds": 1,
+      "testcasecount": 3,
+      "chars": 68278,
+      "elapsedms": 111498,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "Restrict ZIP-to-region processing to home address only and preserve existing address processing for other address contexts",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        85,
+        95
+      ],
+      "finalscore": 95,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 84579,
+      "elapsedms": 231237,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_007",
+      "title": "Maintain region span history across add or change processing using existing effective and term date handling",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_TS007_003",
+          "why": "edge case never tests an error path"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 82417,
+      "elapsedms": 219351,
+      "gaps": [
+        "Status field for id TC_TS007_003 is \"Edge\"",
+        "No step in Test Step Expected Result for id TC_TS007_003 describes an error, a rejection, or an absent record; examples include \"The transmission shows successful processing, with no blocking validation errors and policy unit delivery completed so the changed member data is available for FACETS and AuxiliarySpanData evaluation.\", \"The query returns the member's region span history rows for the configured KeyID after the change transaction.\", and \"A newer AuxiliarySpanData row exists for the changed ZIP-derived region with the configured KeyID, VALUE equal to the newly derived region, derived SPAN_EFF_DT and SPAN_TERM_DT populated for the new span, and active non-void status. If the new row is absent, the edge case fails because the changed region span was not created.\""
+      ],
+      "error": null
+    }
+  ],
+  "warnings": [],
+  "testcases": {
+    "rows": 288,
+    "chars": 484709,
+    "scenarios": 7,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-08-20T10:06:07Z step=start story=741005 maxscenarios=7 tcper=3 steps=12-20 rounds=3 workers=7 pass_=80/50 judge=627 deadline=630s",
+    "[ORCH] ts=2026-08-20T10:06:08Z step=fetch story=741005 titlechars=80 descchars=1901 acchars=1835 ms=578",
+    "[ORCH] ts=2026-08-20T10:07:12Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_006,TS_005,TS_007 ms=64333",
+    "[ORCH] ts=2026-08-20T10:08:37Z step=generate scenario=TS_006 round=1 tc=3 ids=TC_TS006_001,TC_TS006_002,TC_TS006_003 chars=68278 ms=84736",
+    "[ORCH] ts=2026-08-20T10:08:37Z step=generate scenario=TS_007 round=1 tc=3 ids=TC_TS007_001,TC_TS007_002,TC_TS007_003 chars=68672 ms=84783",
+    "[ORCH] ts=2026-08-20T10:08:37Z step=generate scenario=TS_004 round=1 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=59235 ms=84880",
+    "[ORCH] ts=2026-08-20T10:08:51Z step=review scenario=TS_007 round=1 score=85 passed=2/3 failing=TC_TS007_003 ms=14769",
+    "[ORCH] ts=2026-08-20T10:08:52Z step=review scenario=TS_004 round=1 score=100 passed=3/3 ms=15025",
+    "[ORCH] ts=2026-08-20T10:08:52Z step=result scenario=TS_004 status=approved scores=[100] rounds=1 tc=3 ms=99907",
+    "[ORCH] ts=2026-08-20T10:08:57Z step=generate scenario=TS_001 round=1 tc=3 ids=TC_TS001_001,TC_TS001_002,TC_TS001_003 chars=58413 ms=105503",
+    "[ORCH] ts=2026-08-20T10:08:58Z step=generate scenario=TS_003 round=1 tc=3 ids=TC_TS_003_001,TC_TS_003_002,TC_TS_003_003 chars=83070 ms=105695",
+    "[ORCH] ts=2026-08-20T10:08:58Z step=generate scenario=TS_005 round=1 tc=3 ids=TC_TS005_001,TC_TS005_002,TC_TS005_003 chars=89051 ms=105711",
+    "[ORCH] ts=2026-08-20T10:08:58Z step=generate scenario=TS_002 round=1 tc=3 ids=TC_TS002_001,TC_TS002_002,TC_TS002_003 chars=79918 ms=105731",
+    "[ORCH] ts=2026-08-20T10:09:03Z step=review scenario=TS_006 round=1 score=95 passed=3/3 ms=26760",
+    "[ORCH] ts=2026-08-20T10:09:03Z step=result scenario=TS_006 status=approved scores=[95] rounds=1 tc=3 ms=111498",
+    "[ORCH] ts=2026-08-20T10:09:12Z step=review scenario=TS_001 round=1 score=95 passed=3/3 ms=14769",
+    "[ORCH] ts=2026-08-20T10:09:12Z step=result scenario=TS_001 status=approved scores=[95] rounds=1 tc=3 ms=120275",
+    "[ORCH] ts=2026-08-20T10:09:13Z step=review scenario=TS_002 round=1 score=85 passed=2/3 failing=TC_TS002_003 ms=14991",
+    "[ORCH] ts=2026-08-20T10:09:24Z step=review scenario=TS_003 round=1 score=85 passed=1/3 failing=TC_TS_003_002,TC_TS_003_003 ms=26450",
+    "[ORCH] ts=2026-08-20T10:09:24Z step=review scenario=TS_005 round=1 score=85 passed=2/3 failing=TC_TS005_003 ms=26512",
+    "[ORCH] ts=2026-08-20T10:10:37Z step=generate scenario=TS_007 round=2 tc=3 ids=TC_TS007_001,TC_TS007_002,TC_TS007_003 chars=82417 ms=105258 regen=1",
+    "[ORCH] ts=2026-08-20T10:10:37Z step=generate scenario=TS_002 round=2 tc=3 ids=TC_TS002_001,TC_TS002_002,TC_TS002_003 chars=62864 ms=84264 regen=1",
+    "[ORCH] ts=2026-08-20T10:10:48Z step=generate scenario=TS_005 round=2 tc=3 ids=TC_TS005_001,TC_TS005_002,TC_TS005_003 chars=84579 ms=84317 regen=1",
+    "[ORCH] ts=2026-08-20T10:10:51Z step=review scenario=TS_007 round=2 score=85 passed=2/3 failing=TC_TS007_003 ms=14536",
+    "[ORCH] ts=2026-08-20T10:10:51Z step=stagnant scenario=TS_007 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-08-20T10:10:51Z step=result scenario=TS_007 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=219351",
+    "[ORCH] ts=2026-08-20T10:11:03Z step=review scenario=TS_002 round=2 score=85 passed=2/3 failing=TC_TS002_003 ms=26183",
+    "[ORCH] ts=2026-08-20T10:11:03Z step=stagnant scenario=TS_002 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-08-20T10:11:03Z step=result scenario=TS_002 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=231177",
+    "[ORCH] ts=2026-08-20T10:11:03Z step=review scenario=TS_005 round=2 score=95 passed=3/3 ms=14690",
+    "[ORCH] ts=2026-08-20T10:11:03Z step=result scenario=TS_005 status=approved scores=[85, 95] rounds=2 tc=3 ms=231237",
+    "[ORCH] ts=2026-08-20T10:11:29Z step=generate scenario=TS_003 round=2 tc=3 ids=TC_TS_003_001,TC_TS_003_002,TC_TS_003_003 chars=70495 ms=125043 regen=2",
+    "[ORCH] ts=2026-08-20T10:11:44Z step=review scenario=TS_003 round=2 score=95 passed=3/3 ms=14932",
+    "[ORCH] ts=2026-08-20T10:11:44Z step=result scenario=TS_003 status=approved scores=[85, 95] rounds=2 tc=3 ms=272127",
+    "[ORCH] ts=2026-08-20T10:11:44Z step=done approved=5 unreviewed=0 unhealed=0 stagnant=2 hardstop=0 failed=0 skipped=0 testcases=21 agentcalls=23 ms=337053",
+    "[ORCH] ts=2026-08-20T10:11:44Z step=outcome story=741005 ready=19/21 testcases flagged=2 scenarios=7 elapsed=5m37s",
+    "[ORCH] ts=2026-08-20T10:11:44Z step=flagged tc=TC_TS002_003 scenario=TS_002 why=edge case never tests an edge failure",
+    "[ORCH] ts=2026-08-20T10:11:44Z step=flagged tc=TC_TS007_003 scenario=TS_007 why=edge case never tests an error path",
+    "[ORCH] ts=2026-08-20T10:11:44Z step=detail calls=23 rounds=11 scoreboard=TS_001:approved(95)  TS_002:stagnant(85>85)  TS_003:approved(85>95)  TS_004:approved(100)  TS_006:approved(95)  TS_005:approved(85>95)  TS_007:stagnant(85>85)"
+  ]
+}
