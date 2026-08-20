@@ -1,0 +1,229 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "671027",
+    "title": "Dev & Test | Inbound 834 | CSGA | Table Update to EE_PlanMapping to Add New Rows & Assign Plan ID Based on Member Age"
+  },
+  "summary": {
+    "scenarios": 7,
+    "approved": 4,
+    "unreviewed": 0,
+    "unhealed": 0,
+    "stagnant": 3,
+    "hardstop": 0,
+    "failed": 0,
+    "skipped": 0,
+    "testcases": 21,
+    "totalrounds": 12,
+    "agentcalls": 25,
+    "elapsedms": 323846
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "Update existing CSGA EE_PlanMapping rows for under-21 age band",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_TS_001_003",
+          "why": "edge case never tests a failure path"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 67962,
+      "elapsedms": 259649,
+      "gaps": [
+        "Status field for id TC_TS_001_003 is \"Edge\", but no Test Step Expected Result describes an error, rejection, or absent record. Examples quoted from Test Step Expected Result: \"Exactly one row is returned and it shows AgeMax = 251 for the under-21 GAMPTH02 mapping.\", \"No rows are returned, proving that a member at 252 months does not match the under-21 GAMPTH02 row.\", \"BoundaryMatchCount = 0.\", \"Exactly one row is returned for GAMPTH01, while the under-21 row remains absent for the same 252-month condition.\", \"OverlapCount = 1, meaning only the 21-and-above row matches and the under-21 row is absent at the 252-month boundary.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "Add new CSGA EE_PlanMapping rows for age 21 and over",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        85,
+        95
+      ],
+      "finalscore": 95,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 90001,
+      "elapsedms": 230953,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "Process inbound CSGA 834 from NAS through Georgia Health Coverage Program and archive on success",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_TS003_001",
+          "why": "acceptance path leaves placeholder text"
+        },
+        {
+          "id": "TC_TS003_002",
+          "why": "negative path leaves placeholder text"
+        },
+        {
+          "id": "TC_TS003_003",
+          "why": "edge case never tests an edge failure"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 94031,
+      "elapsedms": 251107,
+      "gaps": [
+        "Precondition contains unresolved angle-bracket token: \"A unique valid CSGA 834 enrollment file for Georgia Health Coverage Program is prepared for one member with Aid Category 198, a DOB that keeps the member below 21 years of age, a valid NM109 member SSN of [TEST DATA: member SSN used in the mocked 834 file], and a unique file name [TEST DATA: unique CSGA 834 file name]. The updated age based plan assignment logic is deployed in the CRT environment, tester access to TM is active, and the CRT file share locations are reachable.\" as quoted with unresolved path token in AcceptanceCriteriaRef rows: \"\\\\day<env>appfs01\\EdifecsSTRoot\\834\\Inbound\"",
+        "Test Step Description contains unresolved angle-bracket token: \"Copy [TEST DATA: unique CSGA 834 file name] to the NAS inbound location \\\\daycrtappfs01\\EdifecsSTRoot\\834\\Inbound.\" alongside AcceptanceCriteriaRef unresolved token \"\\\\day<env>appfs01\\EdifecsSTRoot\\834\\Inbound\"",
+        "Precondition contains unresolved angle-bracket token: \"A deliberately invalid CSGA 834 file for Georgia Health Coverage Program is prepared for one member with Aid Category 199, an invalid or mismatched mandatory enrollment value that causes TM rejection, member SSN in NM109 as [TEST DATA: member SSN used in the invalid mocked 834 file], and unique file name [TEST DATA: unique invalid CSGA 834 file name]. Tester access to TM is active and the CRT file share locations are reachable.\" as quoted with unresolved path token in AcceptanceCriteriaRef rows: \"\\\\day<env>appfs01\\EdifecsSTRoot\\834\\Inbound\"",
+        "Test Step Expected Result contains unresolved angle-bracket token via inherited AcceptanceCriteriaRef in rows: \"Then the original file shall be moved to the archive/success folder: \\\\day<env>appfs01\\EdifecsSTArchive\\834\\Inbound\\State_of_GA\\CCYYMMDD\"",
+        "Status field is \"Edge\" for id \"TC_TS003_003\", but no Test Step Expected Result describes an error, a rejection, or an absent record",
+        "Test Step Expected Result examples for id \"TC_TS003_003\" are all non-negative, including: \"The transmission shows successful processing with no policy unit error preventing completion.\" and \"The original inbound 834 boundary file is present in \\\\daycrtappfs01\\EdifecsSTArchive\\834\\Inbound\\State_of_GA\\[TEST DATA: CCYYMMDD processing date folder], confirming successful processing and archive completion for the age boundary condition.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Assign GAMPTH02 for members under age 21 with aid category 198 or 199",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_TS004_002",
+          "why": "wrong aid category coverage is incomplete"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 65825,
+      "elapsedms": 198196,
+      "gaps": [
+        "Name field \"Verify GA Medicaid rejects assignment of GAMPTH02 when member is under age 21 but aid category is not 199\" covers only 199, but acceptanceCriteriaRef says \"When the aid category is 198 or 199\"",
+        "Description field \"Validate inbound 834 processing does not satisfy the GAMPTH02 rule when the member is younger than 21 but the Loop 2000 REF*ZZ value does not begin with the required aid category 199.\" covers only 199, but acceptanceCriteriaRef says \"When the aid category is 198 or 199\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "Assign GAMPTH01 for members age 21 and over with aid category 198 or 199 including boundary at 252 months",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        95
+      ],
+      "finalscore": 95,
+      "rounds": 1,
+      "testcasecount": 3,
+      "chars": 79194,
+      "elapsedms": 120568,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_006",
+      "title": "Reflect derived plan ID correctly in Facets SBEL for mapped CSGA transactions",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        95
+      ],
+      "finalscore": 95,
+      "rounds": 1,
+      "testcasecount": 3,
+      "chars": 61452,
+      "elapsedms": 99546,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_007",
+      "title": "Regression across add, change, term, and reinstate for existing and new members with audit applicability gap flagged",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        85,
+        95
+      ],
+      "finalscore": 95,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 64987,
+      "elapsedms": 198307,
+      "gaps": [],
+      "error": null
+    }
+  ],
+  "warnings": [],
+  "testcases": {
+    "rows": 288,
+    "chars": 521880,
+    "scenarios": 7,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-08-20T10:21:25Z step=start story=671027 maxscenarios=7 tcper=3 steps=12-20 rounds=3 workers=7 pass_=80/50 judge=627 deadline=630s",
+    "[ORCH] ts=2026-08-20T10:21:25Z step=fetch story=671027 titlechars=117 descchars=681 acchars=4654 ms=259",
+    "[ORCH] ts=2026-08-20T10:22:29Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=63927",
+    "[ORCH] ts=2026-08-20T10:23:54Z step=generate scenario=TS_004 round=1 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=86388 ms=84845",
+    "[ORCH] ts=2026-08-20T10:23:54Z step=generate scenario=TS_007 round=1 tc=3 ids=TC_TS007_001,TC_TS007_002,TC_TS007_003 chars=63617 ms=84977",
+    "[ORCH] ts=2026-08-20T10:23:54Z step=generate scenario=TS_006 round=1 tc=3 ids=TC_TS006_001,TC_TS006_002,TC_TS006_003 chars=61452 ms=85057",
+    "[ORCH] ts=2026-08-20T10:24:09Z step=review scenario=TS_004 round=1 score=85 passed=2/3 failing=TC_TS004_003 ms=14597",
+    "[ORCH] ts=2026-08-20T10:24:09Z step=review scenario=TS_006 round=1 score=95 passed=3/3 ms=14486",
+    "[ORCH] ts=2026-08-20T10:24:09Z step=result scenario=TS_006 status=approved scores=[95] rounds=1 tc=3 ms=99546",
+    "[ORCH] ts=2026-08-20T10:24:09Z step=review scenario=TS_007 round=1 score=85 passed=2/3 failing=TC_TS007_003 ms=14662",
+    "[ORCH] ts=2026-08-20T10:24:14Z step=generate scenario=TS_003 round=1 tc=3 ids=TC_TS003_001,TC_TS003_002,TC_TS003_003 chars=62975 ms=105022",
+    "[ORCH] ts=2026-08-20T10:24:14Z step=generate scenario=TS_001 round=1 tc=3 ids=TC_TS_001_001,TC_TS_001_002,TC_TS_001_003 chars=87240 ms=105177",
+    "[ORCH] ts=2026-08-20T10:24:14Z step=generate scenario=TS_005 round=1 tc=3 ids=TC_TS005_001,TC_TS005_002,TC_TS005_003 chars=79194 ms=105203",
+    "[ORCH] ts=2026-08-20T10:24:15Z step=generate scenario=TS_002 round=1 tc=3 ids=TC_TS002_001,TC_TS002_002,TC_TS002_003 chars=104904 ms=105387",
+    "[ORCH] ts=2026-08-20T10:24:29Z step=review scenario=TS_003 round=1 score=85 passed=2/3 failing=TC_TS003_003 ms=14873",
+    "[ORCH] ts=2026-08-20T10:24:29Z step=review scenario=TS_001 round=1 score=85 passed=2/3 failing=TC_TS_001_003 ms=15059",
+    "[ORCH] ts=2026-08-20T10:24:30Z step=review scenario=TS_005 round=1 score=95 passed=3/3 ms=15363",
+    "[ORCH] ts=2026-08-20T10:24:30Z step=result scenario=TS_005 status=approved scores=[95] rounds=1 tc=3 ms=120568",
+    "[ORCH] ts=2026-08-20T10:24:41Z step=review scenario=TS_002 round=1 score=85 passed=2/3 failing=TC_TS002_001 ms=26755",
+    "[ORCH] ts=2026-08-20T10:25:33Z step=generate scenario=TS_004 round=2 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=65825 ms=84117 regen=1",
+    "[ORCH] ts=2026-08-20T10:25:33Z step=generate scenario=TS_007 round=2 tc=3 ids=TC_TS007_001,TC_TS007_002,TC_TS007_003 chars=64987 ms=84207 regen=1",
+    "[ORCH] ts=2026-08-20T10:25:47Z step=review scenario=TS_004 round=2 score=85 passed=2/3 failing=TC_TS004_002 ms=14631",
+    "[ORCH] ts=2026-08-20T10:25:47Z step=stagnant scenario=TS_004 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-08-20T10:25:47Z step=result scenario=TS_004 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=198196",
+    "[ORCH] ts=2026-08-20T10:25:48Z step=review scenario=TS_007 round=2 score=95 passed=3/3 ms=14455",
+    "[ORCH] ts=2026-08-20T10:25:48Z step=result scenario=TS_007 status=approved scores=[85, 95] rounds=2 tc=3 ms=198307",
+    "[ORCH] ts=2026-08-20T10:26:05Z step=generate scenario=TS_002 round=2 tc=3 ids=TC_TS002_001,TC_TS002_002,TC_TS002_003 chars=90001 ms=84107 regen=1",
+    "[ORCH] ts=2026-08-20T10:26:14Z step=generate scenario=TS_003 round=2 tc=3 ids=TC_TS003_001,TC_TS003_002,TC_TS003_003 chars=94031 ms=104919 regen=1",
+    "[ORCH] ts=2026-08-20T10:26:20Z step=review scenario=TS_002 round=2 score=95 passed=3/3 ms=14698",
+    "[ORCH] ts=2026-08-20T10:26:20Z step=result scenario=TS_002 status=approved scores=[85, 95] rounds=2 tc=3 ms=230953",
+    "[ORCH] ts=2026-08-20T10:26:34Z step=generate scenario=TS_001 round=2 tc=3 ids=TC_TS_001_001,TC_TS_001_002,TC_TS_001_003 chars=67962 ms=124995 regen=1",
+    "[ORCH] ts=2026-08-20T10:26:40Z step=review scenario=TS_003 round=2 score=85 passed=0/3 failing=TC_TS003_001,TC_TS003_002,TC_TS003_003 ms=26287",
+    "[ORCH] ts=2026-08-20T10:26:40Z step=stagnant scenario=TS_003 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-08-20T10:26:40Z step=result scenario=TS_003 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=251107",
+    "[ORCH] ts=2026-08-20T10:26:49Z step=review scenario=TS_001 round=2 score=85 passed=2/3 failing=TC_TS_001_003 ms=14411",
+    "[ORCH] ts=2026-08-20T10:26:49Z step=stagnant scenario=TS_001 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-08-20T10:26:49Z step=result scenario=TS_001 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=259649",
+    "[ORCH] ts=2026-08-20T10:26:49Z step=done approved=4 unreviewed=0 unhealed=0 stagnant=3 hardstop=0 failed=0 skipped=0 testcases=21 agentcalls=25 ms=323846",
+    "[ORCH] ts=2026-08-20T10:26:49Z step=outcome story=671027 ready=16/21 testcases flagged=5 scenarios=7 elapsed=5m23s",
+    "[ORCH] ts=2026-08-20T10:26:49Z step=flagged tc=TC_TS_001_003 scenario=TS_001 why=edge case never tests a failure path",
+    "[ORCH] ts=2026-08-20T10:26:49Z step=flagged tc=TC_TS003_001 scenario=TS_003 why=acceptance path leaves placeholder text",
+    "[ORCH] ts=2026-08-20T10:26:49Z step=flagged tc=TC_TS003_002 scenario=TS_003 why=negative path leaves placeholder text",
+    "[ORCH] ts=2026-08-20T10:26:49Z step=flagged tc=TC_TS003_003 scenario=TS_003 why=edge case never tests an edge failure",
+    "[ORCH] ts=2026-08-20T10:26:49Z step=flagged tc=TC_TS004_002 scenario=TS_004 why=wrong aid category coverage is incomplete",
+    "[ORCH] ts=2026-08-20T10:26:49Z step=detail calls=25 rounds=12 scoreboard=TS_001:stagnant(85>85)  TS_002:approved(85>95)  TS_003:stagnant(85>85)  TS_004:stagnant(85>85)  TS_005:approved(95)  TS_006:approved(95)  TS_007:approved(85>95)"
+  ]
+}
