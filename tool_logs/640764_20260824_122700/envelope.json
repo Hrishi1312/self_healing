@@ -1,0 +1,258 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "640764",
+    "title": "(ENR SUCC) DEV & TEST - 834E/U AR PASSE Transaction Effective Date Logic Update - EDI"
+  },
+  "summary": {
+    "scenarios": 7,
+    "approved": 3,
+    "unreviewed": 0,
+    "unhealed": 0,
+    "stagnant": 2,
+    "hardstop": 0,
+    "failed": 2,
+    "skipped": 0,
+    "testcases": 42,
+    "totalrounds": 13,
+    "agentcalls": 23,
+    "elapsedms": 398233
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "Identify inbound 834 effective, assessment, and maintenance dates for transaction effective date selection",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        92
+      ],
+      "finalscore": 92,
+      "rounds": 1,
+      "testcasecount": 8,
+      "chars": 110908,
+      "elapsedms": 140311,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "Use Eligibility Date for new enrollment when eligibility span has not yet begun regardless of Assessment Date",
+      "status": "failed",
+      "flagged": [
+        {
+          "id": "TC_002",
+          "why": "too many test cases in batch"
+        },
+        {
+          "id": "TC_003",
+          "why": "duplicates another test case intent"
+        },
+        {
+          "id": "TC_004",
+          "why": "duplicates another test case intent"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 3,
+      "testcasecount": 4,
+      "chars": 56937,
+      "elapsedms": 320610,
+      "gaps": [
+        "Volume gate failed: found 4 distinct test case ids in the table for this scenario, exceeding testcasesperscenario 8 is false because the batch contains only scenario test cases 'TC_001', 'TC_002', 'TC_003', 'TC_004' but this test case is capped only by duplicate-intent overlap with 'TC_001': Test Case Name field 'Verify AR PASSE new enrollment uses future Eligibility Date from DTP*348 as the Facets transaction effective date when DTP*356 is not present' shares the same business intent as TC_001 validating Eligibility Date as transaction effective date for a new enrollment with future eligibility.",
+        "Semantic duplicate with TC_004: Test Case Name field 'Verify AR PASSE new enrollment honors the exact future Eligibility Date boundary when Eligibility Date is one day after Assessment Date' and Test Case Name field in TC_004 'Verify AR PASSE new enrollment honors month-end future Eligibility Date as the Facets transaction effective date' both validate the same business intent: future Eligibility Date populates as transaction effective date for new enrollment.",
+        "Semantic duplicate with TC_003: Test Case Name field 'Verify AR PASSE new enrollment honors month-end future Eligibility Date as the Facets transaction effective date' and Test Case Name field in TC_003 'Verify AR PASSE new enrollment honors the exact future Eligibility Date boundary when Eligibility Date is one day after Assessment Date' both validate the same business intent: future Eligibility Date populates as transaction effective date for new enrollment."
+      ],
+      "error": "header has 8 columns, expected the 15 standard columns"
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "Use Assessment Date for current eligibility when Assessment Date changes",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        100
+      ],
+      "finalscore": 100,
+      "rounds": 1,
+      "testcasecount": 4,
+      "chars": 66292,
+      "elapsedms": 99553,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Use Assessment Date and retain relevant field values when only Assessment Date changes",
+      "status": "failed",
+      "flagged": [
+        {
+          "id": "TC_001",
+          "why": "too many test cases in batch"
+        },
+        {
+          "id": "TC_002",
+          "why": "duplicate business intent"
+        },
+        {
+          "id": "TC_003",
+          "why": "duplicate business intent"
+        },
+        {
+          "id": "TC_004",
+          "why": "duplicate business intent"
+        },
+        {
+          "id": "TC_005",
+          "why": "duplicate business intent"
+        },
+        {
+          "id": "TC_006",
+          "why": "duplicate business intent"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 3,
+      "testcasecount": 6,
+      "chars": 139453,
+      "elapsedms": 259793,
+      "gaps": [
+        "batch has 6 distinct test case ids \"TC_001\", \"TC_002\", \"TC_003\", \"TC_004\", \"TC_005\", \"TC_006\" in field \"Test Case Id\", which exceeds allowed testcasesperscenario 8? No violation here; actual violation is semantic duplicate with \"TC_002\" and shared intent \"Assessment Date changes and all relevant fields remain unchanged so Assessment Date becomes transaction effective date\"",
+        "semantic duplicate: \"Verify AR PASSE inbound 834 uses changed Assessment Date as the transaction effective date when Assessment Number remains unchanged\" in field \"Test Case Name\" shares the same business intent as \"Verify AR PASSE inbound 834 uses changed Assessment Date as the transaction effective date when Assessment Tier remains unchanged\" in field \"Test Case Name\"",
+        "semantic duplicate: \"Verify AR PASSE inbound 834 uses changed Assessment Date as the transaction effective date when Assessment Tier remains unchanged\" in field \"Test Case Name\" shares the same business intent as \"Verify AR PASSE inbound 834 uses changed Assessment Date as the transaction effective date when Assessment Number remains unchanged\" in field \"Test Case Name\"",
+        "semantic duplicate: \"Verify AR PASSE inbound 834 uses changed Assessment Date as the transaction effective date when Assessment Division remains unchanged\" in field \"Test Case Name\" shares the same business intent as \"Verify AR PASSE inbound 834 uses changed Assessment Date as the transaction effective date when Assessment Number remains unchanged\" in field \"Test Case Name\"",
+        "semantic duplicate: \"Verify AR PASSE inbound 834 uses changed Assessment Date as the transaction effective date when Aid Category remains unchanged\" in field \"Test Case Name\" shares the same business intent as \"Verify AR PASSE inbound 834 uses changed Assessment Date as the transaction effective date when Assessment Number remains unchanged\" in field \"Test Case Name\"",
+        "semantic duplicate: \"Verify AR PASSE inbound 834 uses changed Assessment Date as the transaction effective date when Rate Cell remains unchanged\" in field \"Test Case Name\" shares the same business intent as \"Verify AR PASSE inbound 834 uses changed Assessment Date as the transaction effective date when Assessment Number remains unchanged\" in field \"Test Case Name\"",
+        "semantic duplicate: \"Verify AR PASSE inbound 834 uses changed Assessment Date as the transaction effective date when Pregnancy remains unchanged\" in field \"Test Case Name\" shares the same business intent as \"Verify AR PASSE inbound 834 uses changed Assessment Date as the transaction effective date when Assessment Number remains unchanged\" in field \"Test Case Name\""
+      ],
+      "error": "header has 6 columns, expected the 15 standard columns"
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "Use Eligibility Date for relevant field changes received before eligibility start when Assessment Date is unchanged",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        92
+      ],
+      "finalscore": 92,
+      "rounds": 1,
+      "testcasecount": 6,
+      "chars": 107917,
+      "elapsedms": 119897,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_006",
+      "title": "Use Maintenance Date for relevant field changes received after eligibility start when Assessment Date is unchanged",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_006",
+          "why": "too few test cases in batch"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 6,
+      "chars": 112363,
+      "elapsedms": 311685,
+      "gaps": [
+        "Batch count failure: distinct Test Case Ids found = \"TC_001\", \"TC_002\", \"TC_003\", \"TC_004\", \"TC_005\", \"TC_006\"; total distinct test cases = 6, which is fewer than required testcasesperscenario 8"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_007",
+      "title": "Regression validation that Maintenance Date is not used outside specified rules and downstream reporting remains accurate",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_007",
+          "why": "priority is not high for this scenario"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 8,
+      "chars": 135082,
+      "elapsedms": 332549,
+      "gaps": [
+        "Test Case Priority field contains \"P2\" while scenario priority is \"High\""
+      ],
+      "error": null
+    }
+  ],
+  "warnings": [],
+  "testcases": {
+    "rows": 590,
+    "chars": 727068,
+    "scenarios": 7,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-08-24T12:20:21Z step=start story=640764 maxscenarios=7 tcper=8 steps=12-20 rounds=3 workers=7 pass_=90/50 judge=653 deadline=630s",
+    "[ORCH] ts=2026-08-24T12:20:22Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=717",
+    "[ORCH] ts=2026-08-24T12:21:27Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=64290",
+    "[ORCH] ts=2026-08-24T12:22:52Z step=generate scenario=TS_002 round=1 tc=4 ids=TC_001,TC_002,TC_003,TC_004 chars=56937 ms=84945",
+    "[ORCH] ts=2026-08-24T12:22:52Z step=generate scenario=TS_003 round=1 tc=4 ids=TC_001,TC_002,TC_003,TC_004 chars=66292 ms=84967",
+    "[ORCH] ts=2026-08-24T12:23:06Z step=review scenario=TS_003 round=1 score=100 passed=4/4 ms=14580",
+    "[ORCH] ts=2026-08-24T12:23:06Z step=result scenario=TS_003 status=approved scores=[100] rounds=1 tc=4 ms=99553",
+    "[ORCH] ts=2026-08-24T12:23:12Z step=generate scenario=TS_005 round=1 tc=6 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 chars=107917 ms=105177",
+    "[ORCH] ts=2026-08-24T12:23:18Z step=review scenario=TS_002 round=1 score=85 passed=1/4 failing=TC_002,TC_003,TC_004 ms=26382",
+    "[ORCH] ts=2026-08-24T12:23:27Z step=review scenario=TS_005 round=1 score=92 passed=6/6 ms=14717",
+    "[ORCH] ts=2026-08-24T12:23:27Z step=result scenario=TS_005 status=approved scores=[92] rounds=1 tc=6 ms=119897",
+    "[ORCH] ts=2026-08-24T12:23:32Z step=generate scenario=TS_001 round=1 tc=8 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008 chars=110908 ms=125499",
+    "[ORCH] ts=2026-08-24T12:23:33Z step=generate scenario=TS_004 round=1 tc=6 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 chars=139453 ms=125881",
+    "[ORCH] ts=2026-08-24T12:23:47Z step=review scenario=TS_001 round=1 score=92 passed=8/8 ms=14798",
+    "[ORCH] ts=2026-08-24T12:23:47Z step=result scenario=TS_001 status=approved scores=[92] rounds=1 tc=8 ms=140311",
+    "[ORCH] ts=2026-08-24T12:23:53Z step=generate scenario=TS_006 round=1 tc=8 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008 chars=138928 ms=145880",
+    "[ORCH] ts=2026-08-24T12:23:54Z step=generate scenario=TS_007 round=1 tc=8 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008 chars=149627 ms=146440",
+    "[ORCH] ts=2026-08-24T12:23:59Z step=review scenario=TS_004 round=1 score=85 passed=0/6 failing=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 ms=26284",
+    "[ORCH] ts=2026-08-24T12:24:02Z step=generate scenario=TS_002 round=2 error=no markdown table found raw={ \"id\" : \"TC_001\", \"name\" : \"Verify AR PASSE new enrollment uses DTP*356 Eligibility Date as the Facets transaction effective date when eligibility has not yet begun\", \"description\" : \"Validate that a",
+    "[ORCH] ts=2026-08-24T12:24:19Z step=review scenario=TS_006 round=1 score=85 passed=5/8 failing=TC_003,TC_005,TC_006 ms=26278",
+    "[ORCH] ts=2026-08-24T12:24:20Z step=review scenario=TS_007 round=1 score=85 passed=5/8 failing=TC_002,TC_004,TC_005 ms=26087",
+    "[ORCH] ts=2026-08-24T12:25:03Z step=generate scenario=TS_004 round=2 error=no markdown table found raw={ \"id\" : \"TC_001\", \"name\" : \"Verify AR PASSE inbound 834 uses the changed Assessment Date as the eligibility transaction effective date when all relevant span values remain unchanged\", \"description\" :",
+    "[ORCH] ts=2026-08-24T12:25:47Z step=generate scenario=TS_004 round=3 error=header has 6 columns, expected the 15 standard columns raw=| id | name | description | precondition | priority | steps | |---|---|---|---|---|---| | TC_001 | Verify AR PASSE inbound 834 uses changed Assessment Date as transaction effective date when all relev",
+    "[ORCH] ts=2026-08-24T12:25:47Z step=result scenario=TS_004 status=failed scores=[85] rounds=3 tc=6 ms=259793",
+    "[ORCH] ts=2026-08-24T12:26:24Z step=generate scenario=TS_006 round=2 tc=6 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 chars=112363 ms=125009 regen=3",
+    "[ORCH] ts=2026-08-24T12:26:39Z step=review scenario=TS_006 round=2 score=85 passed=5/6 failing=TC_006 ms=14507",
+    "[ORCH] ts=2026-08-24T12:26:39Z step=stagnant scenario=TS_006 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-08-24T12:26:39Z step=result scenario=TS_006 status=stagnant scores=[85, 85] rounds=2 tc=6 ms=311685",
+    "[ORCH] ts=2026-08-24T12:26:45Z step=generate scenario=TS_007 round=2 tc=8 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008 chars=135082 ms=145113 regen=3",
+    "[ORCH] ts=2026-08-24T12:26:47Z step=generate scenario=TS_002 round=3 error=header has 8 columns, expected the 15 standard columns raw=| Test Case ID | Test Case Name | Description | Precondition | Priority | Test Step No. | Test Step Description | Test Step Expected Result | |---|---|---|---|---|---:|---|---| | TC_001 | Verify AR PA",
+    "[ORCH] ts=2026-08-24T12:26:47Z step=result scenario=TS_002 status=failed scores=[85] rounds=3 tc=4 ms=320610",
+    "[ORCH] ts=2026-08-24T12:27:00Z step=review scenario=TS_007 round=2 score=85 passed=7/8 failing=TC_007 ms=14895",
+    "[ORCH] ts=2026-08-24T12:27:00Z step=stagnant scenario=TS_007 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-08-24T12:27:00Z step=result scenario=TS_007 status=stagnant scores=[85, 85] rounds=2 tc=8 ms=332549",
+    "[ORCH] ts=2026-08-24T12:27:00Z step=done approved=3 unreviewed=0 unhealed=0 stagnant=2 hardstop=0 failed=2 skipped=0 testcases=42 agentcalls=23 ms=398233",
+    "[ORCH] ts=2026-08-24T12:27:00Z step=outcome story=640764 ready=31/42 testcases flagged=11 scenarios=7 elapsed=6m38s",
+    "[ORCH] ts=2026-08-24T12:27:00Z step=flagged tc=TC_002 scenario=TS_002 why=too many test cases in batch",
+    "[ORCH] ts=2026-08-24T12:27:00Z step=flagged tc=TC_003 scenario=TS_002 why=duplicates another test case intent",
+    "[ORCH] ts=2026-08-24T12:27:00Z step=flagged tc=TC_004 scenario=TS_002 why=duplicates another test case intent",
+    "[ORCH] ts=2026-08-24T12:27:00Z step=flagged tc=TC_001 scenario=TS_004 why=too many test cases in batch",
+    "[ORCH] ts=2026-08-24T12:27:00Z step=flagged tc=TC_002 scenario=TS_004 why=duplicate business intent",
+    "[ORCH] ts=2026-08-24T12:27:00Z step=flagged tc=TC_003 scenario=TS_004 why=duplicate business intent",
+    "[ORCH] ts=2026-08-24T12:27:00Z step=flagged tc=TC_004 scenario=TS_004 why=duplicate business intent",
+    "[ORCH] ts=2026-08-24T12:27:00Z step=flagged tc=TC_005 scenario=TS_004 why=duplicate business intent",
+    "[ORCH] ts=2026-08-24T12:27:00Z step=flagged tc=TC_006 scenario=TS_004 why=duplicate business intent",
+    "[ORCH] ts=2026-08-24T12:27:00Z step=flagged tc=TC_006 scenario=TS_006 why=too few test cases in batch",
+    "[ORCH] ts=2026-08-24T12:27:00Z step=flagged tc=TC_007 scenario=TS_007 why=priority is not high for this scenario",
+    "[ORCH] ts=2026-08-24T12:27:00Z step=detail calls=23 rounds=13 scoreboard=TS_001:approved(92)  TS_002:failed(85)  TS_003:approved(100)  TS_004:failed(85)  TS_005:approved(92)  TS_006:stagnant(85>85)  TS_007:stagnant(85>85)"
+  ]
+}
