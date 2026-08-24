@@ -118,31 +118,40 @@ Flat, lowercase, no separators.
   "adoproject": "ADO",
   "adostoryid": "640764",
 
-  "scenarioagentid": 613,
-  "testcaseagentid": 564,
-  "reviewagentid": 559,
+  "scenarioagentid": 625,
+  "testcaseagentid": 652,
+  "reviewagentid": 627,
 
-  "maxscenarios": 5,
-  "testcasesperscenario": 3,
+  "maxscenarios": 7,
+  "testcasesperscenario": 8,
   "stepsmin": 15,
   "stepsmax": 18,
   "maxhealrounds": 3,
   "passscore": 90,
   "hardstopscore": 50,
-  "maxworkers": 3,
   "stoponstagnation": true,
 
-  "deadlineseconds": 190,
-  "maxagentcalls": 60,
+  "deadlineseconds": 630,
+  "maxagentcalls": null,
 
   "aavabaseurl": "https://aava-core-api-agents-svc.redtree-f4541a84.eastus.azurecontainerapps.io",
-  "realmid": "4",
+  "realmid": "",
   "userprincipal": "",
 
   "adopat": "",
-  "aavatoken": ""
+  "aavatoken": "",
+
+  "publish": false,
+  "githubtoken": "",
+  "githubrepo": "Hrishi1312/self_healing",
+  "githubbranch": "main"
 }
 ```
+
+`testcasesperscenario` is a CEILING, not a target: the generator writes one test case per
+genuinely distinct condition a scenario supports, up to this many. `maxworkers` is gone —
+one thread per scenario, and `maxagentcalls: null` lets the budget size itself from the run
+shape (3 + maxscenarios x 2 x maxhealrounds).
 
 Degraded modes: `maxhealrounds: 0` runs a single pass with no regeneration;
 `reviewagentid: 0` runs without the judge and gates on the deterministic pre gate alone.
@@ -157,6 +166,6 @@ The tool calls these by id through `/agents/execute`. They are not wired into th
 
 | Role | inputs key | Current id | Spec |
 |---|---|---|---|
-| Scenario generator | `scenarioagentid` | 613 | [01_scenario_generator_agent.md](01_scenario_generator_agent.md) |
-| Test case generator | `testcaseagentid` | 564 | [02_test_case_generator_agent.md](02_test_case_generator_agent.md) |
-| Reviewer, LLM as a judge | `reviewagentid` | 559 | [03_reviewer_agent.md](03_reviewer_agent.md) |
+| Scenario generator | `scenarioagentid` | 625 | [01_scenario_generator_agent.md](01_scenario_generator_agent.md) |
+| Test case generator | `testcaseagentid` | 652 | [02_test_case_generator_agent.md](02_test_case_generator_agent.md) |
+| Reviewer, LLM as a judge | `reviewagentid` | 627 | [03_reviewer_agent.md](03_reviewer_agent.md) |

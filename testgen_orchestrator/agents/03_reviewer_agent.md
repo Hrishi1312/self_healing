@@ -65,9 +65,9 @@ Any JSON input may be wrapped in markdown fences — strip fences before parsing
 
 - {{testcases}} — the generated test cases as a MARKDOWN TABLE. Columns are:
 
-  ScenarioId | AcceptanceCriteriaRef | Name | Id | Attachments | Status | Test Case Type | Description | Precondition | Test Step # | Test Step Description | Test Step Expected Result | Test Step Attachment
+  Test Case Id | Test Case Name | Description | Pre-condition | Step # | Step Description | Expected Result | Test Case Type | Test Case Status | Test Case Priority | Test Case Assigned To | Product Area | Implementation | Test Type | Requirement Ids
 
-  Each test case has an Id that starts with "TC" and ends in a number — for example `TC_001` or `TC_MIHAP_001`. Both are valid; the prefix style is not fixed. A single test case spans multiple rows — one row per test step (the Id/Name repeat or are blank on continuation rows). `Status` carries the classification — one of Positive, Negative, Edge. `Test Case Type` carries the category — one of Functional, Regression. Do not expect Positive/Negative/Edge in the Test Case Type column.
+  Each test case has a Test Case Id that starts with "TC" and ends in a number — for example `TC_001` or `TC_MIHAP_001`. Both are valid; the prefix style is not fixed. A single test case spans multiple rows — one row per test step (the Id/Name repeat or are blank on continuation rows). `Test Case Type` is always `Manual`, `Test Case Status` is always `New`, and `Test Type` is always `Functional` — these are tool-injected constants, not something the generator decided; never flag them. `Test Case Priority` carries `P1`, `P2` or `P3`.
 
 - {{scenario}} — the ONE scenario these test cases were built from. It has: `scenarioId` (e.g. `TS_001`), `title`, `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, `dodRef`, `type`, `description`, `priority`. `dorRef` and `dodRef` may be empty strings when the user story has no Definition of Ready or Definition of Done — that is expected and is NOT a defect. There is NO separate story or epic input. Trace test cases using that scenario only (specifically its `scenarioId` and `acceptanceCriteriaRef`).
 
@@ -100,24 +100,22 @@ The generator deliberately folds `descriptionRef`, `dorRef` and `dodRef` into th
 
 6.No source names in the output — this check fails ONLY if one of these EXACT strings appears in the table text: `kb_`, `EDI and FACETS Schema 2`, `Facets 834`, `EDIFECS Full with AUX 834`. Nothing else counts. Server names, database names, UNC file paths, URLs, table names, column names and SQL are all EXPECTED content and are NEVER a violation of this check.
 
-7.No meta-labels — this check fails ONLY if one of these EXACT strings appears in Name, Description, Precondition, Test Step Description, or Test Step Expected Result: `DoR`, `DoD`, `Definition of Ready`, `Definition of Done`, `descriptionRef`, `dorRef`, `dodRef`, `per the AC`, `as referenced in`. Nothing else counts — do NOT judge phrasing, tone, or whether wording "sounds like" a citation. The ScenarioId and AcceptanceCriteriaRef COLUMNS are exempt from this check entirely.
+7.No meta-labels — this check fails ONLY if one of these EXACT strings appears in Test Case Name, Description, Pre-condition, Step Description, or Expected Result: `DoR`, `DoD`, `Definition of Ready`, `Definition of Done`, `descriptionRef`, `dorRef`, `dodRef`, `per the AC`, `as referenced in`. Nothing else counts — do NOT judge phrasing, tone, or whether wording "sounds like" a citation.
 
-8.Volume within limits — COUNT before you judge. Count the distinct test case Ids per ScenarioId, count the steps in each test case, and count the total number of test cases. This check fails ONLY if there are MORE than `limits.testcasesperscenario` test cases, OR a test case has fewer than `limits.stepsmin` or more than `limits.stepsmax` steps. Exactly `limits.testcasesperscenario` is the TARGET and PASSES; fewer also PASSES, since a scenario that cannot support one of the required types is allowed to produce fewer. When this check fails, state the counts you actually measured.
+8.Volume within limits — COUNT before you judge. Count the distinct test case Ids, count the steps in each test case, and count the total number of test cases. This check fails ONLY if there are MORE than `limits.testcasesperscenario` test cases, OR a test case has fewer than `limits.stepsmin` or more than `limits.stepsmax` steps. `limits.testcasesperscenario` is a CEILING, not a target — fewer test cases always PASSES, since a scenario that only supports a handful of distinct conditions is expected to produce fewer. When this check fails, state the counts you actually measured.
 
 10.Semantic duplicates — two test cases that validate the SAME business intent are duplicates even when worded differently. This check fails ONLY if you can name two ids and state the shared intent in one sentence. Different data, different condition or different expected outcome means NOT a duplicate. Do not guess at intent you cannot state plainly.
 
 11.Step depth consistency — COUNT the steps in each test case. This check fails ONLY if one test case has fewer than half the steps of the largest test case in the same batch. Report the counts you measured. Normal variation within `limits.stepsmin` to `limits.stepsmax` is not a failure.
 
-12.Edge cases carry negative path steps — an Edge test case must contain at least one step whose Expected Result describes an error, a rejection, or an absent record. This check fails ONLY if a test case whose `Status` is `Edge` has no such step. Quote the Status cell and say which id.
-
-9.Column values in the right columns — `Status` must contain `Positive`, `Negative` or `Edge`, and `Test Case Type` must contain `Functional` or `Regression`. This check fails if `Status` contains a workflow state such as `Draft`, `New` or `Approved`, or if `Test Case Type` contains Positive/Negative/Edge. These two are commonly swapped; the values above are the ones the existing manual test cases for this programme use.
+9.Column values in the right columns — `Test Case Priority` must contain `P1`, `P2` or `P3`. This check fails ONLY if `Test Case Priority` holds anything else. `Test Case Type`, `Test Case Status` and `Test Type` are tool-injected constants (`Manual`/`New`/`Functional`) and are never a failure.
 
 # Scoring
 
 Score EACH TEST CASE separately, on the four basics (checks 1-4) for that test case:
 
 90-100 — all four basics pass for this test case. This is the default when nothing is broken.
-No deductions for bundling, copied preconditions, missing Positive/Negative/Edge labels, or minor vagueness.
+No deductions for bundling, copied preconditions, or minor vagueness.
 
 70-89 — one basic is weak, for example a vague expected result on one step. Minor, fixable.
 
@@ -125,7 +123,7 @@ No deductions for bundling, copied preconditions, missing Positive/Negative/Edge
 
 0-49 — the test case is empty, unparseable, or clearly unrelated to the scenario.
 
-Checks 5-12 are HARD GATES, not deductions. Each one is a literal string test or a numeric count
+Checks 5-11 are HARD GATES, not deductions. Each one is a literal string test or a numeric count
 — never a judgement about phrasing, tone, or style.
 
 EVIDENCE RULE [MUST]: a gate fails ONLY if you can quote the exact offending substring verbatim
@@ -138,12 +136,11 @@ well its basics score, set its `pass` to false, and put the quoted evidence in i
 
 `pass` is true when a test case scores at or above `limits.passscore`.
 
-If all of checks 5-12 pass for a test case, score it on the basics alone. 90-100 when the four
+If all of checks 5-11 pass for a test case, score it on the basics alone. 90-100 when the four
 basics are met is the EXPECTED outcome for sound output. Do NOT manufacture a reason to withhold
-a pass, and do NOT reduce a score for issues outside checks 1-12.
+a pass, and do NOT reduce a score for issues outside checks 1-11.
 
-Do NOT deduct for the naming style of test case Ids, and do NOT deduct for the presence of the
-ScenarioId or AcceptanceCriteriaRef columns. Both are expected and correct.
+Do NOT deduct for the naming style of test case Ids.
 
 # Output Format
 
@@ -170,9 +167,9 @@ case passes. Every id in `scores` must be a test case id present in the table.
 
 - `reason` is ONE short plain English phrase, under 60 characters, saying what is wrong with
   this test case as a person would say it out loud. It is read by a test lead deciding whether
-  to use the test case, not by a machine. Write "the Edge case never tests an edge condition",
-  not "Status field is Edge but no Test Step Expected Result describes an error". No field
-  names, no check numbers, no quoted cell values. Use `""` when the test case passes.
+  to use the test case, not by a machine. Write "step 7 has no expected result", not
+  "Test Step Expected Result column is empty on row 7". No field names, no check numbers,
+  no quoted cell values. Use `""` when the test case passes.
 
 - `gaps` stays as it is: the precise, quoted evidence a generator needs to repair the test
   case. `reason` is for a human, `gaps` is for the generator. Both are required on a failure.

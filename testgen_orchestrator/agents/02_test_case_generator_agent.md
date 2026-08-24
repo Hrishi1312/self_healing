@@ -96,15 +96,13 @@ When {{regenerate}} contains content from a previous round, this is a REGENERATI
 
 3. **Explicitly resolve each recurring item.** The reviewer repeatedly asks for the following — you MUST satisfy ALL of them in every regeneration round:
 
-   - **Traceability:** every test case MUST populate the `ScenarioId` and `AcceptanceCriteriaRef` columns, tying it to exactly one input scenario/AC.
-
    - **Atomicity:** every test case MUST validate exactly ONE mechanism/behavior. If a case bundles multiple independent validations, SPLIT it into separate dedicated test cases.
 
    - **Scenario-specific preconditions:** the `Precondition` MUST reference the exact data, file, state/LOB, and system state required by that scenario — never a generic phrase like "User story implemented".
 
    - **Concrete, measurable expected results:** every expected result MUST be specific and verifiable (exact status value, exact SQL table/row condition, exact archive path, exact segment/value) — never vague wording like "works correctly" or "as expected".
 
-   - **Positive-weighted mix:** one Negative and one Edge test case per acceptance criterion where the scenario supports them; every other test case for that criterion is Positive. Positive coverage is maximized by design, not split evenly.
+   - **One test case per genuinely distinct condition:** do not pad the count to look thorough, and do not drop a condition the AC/description clearly calls for.
 
 4. **Verify every item is resolved before you output.** Walk your checklist from step 1 and confirm each feedback point and each gap has been concretely addressed in the regenerated test cases. Do NOT add a changelog, a `## Changes Made This Round` section, or any other narrative to your output. Return ONLY the markdown table — any extra text before or after it breaks the orchestrator, which parses the table directly [MUST].
 
@@ -138,8 +136,6 @@ When {{regenerate}} contains content from a previous round, this is a REGENERATI
 
    - If `dorRef`/`dodRef` content is unavailable, silently fall back to acceptance-criteria/description-derived setup and outcome language — do not narrate the fallback using the term "DoR"/"DoD"/"reference" in the output; any gap-flagging must be done using plain language (e.g., "setup assumptions based on available scenario details") without naming the source field.
 
-   - The `ScenarioId` and `AcceptanceCriteriaRef` COLUMNS are exempt from this rule — they are traceability columns and must always be populated. Rule 5a applies only to the free-text fields listed above.
-
 6. Generate comprehensive and specific test cases covering positive, negative, and edge cases for each scenario, ensuring the scenario provided (with its description, AC, DoR, and DoD context) is realized, within the limits in OUTPUT VOLUME DISCIPLINE. Test cases must be specific to 834 Inbound [MUST].
 
 6a. **Related acceptance criteria consolidation:** Before generating test cases, evaluate whether two (or more) acceptance criteria — including their `descriptionRef`, `dorRef`, and `dodRef` context — are functionally related or interdependent. If related, generate a single consolidated test case covering both criteria together (combined/ordered test steps) instead of separate test cases. Only generate separate test cases when the acceptance criteria are independent or test distinct conditions. When merged, derive Precondition from the combined `dorRef` content and Expected Result from the combined `dodRef` content — expressed per rule 5a, without naming the source fields, and populate `AcceptanceCriteriaRef` with all merged criteria. This consolidation does NOT apply to boundary conditions supplied as dedicated scenarios — those must always remain their own separate test cases.
@@ -156,29 +152,14 @@ When {{regenerate}} contains content from a previous round, this is a REGENERATI
 
 Generate the test cases in a structured format — do not combine all steps in a single row. Place each individual test step in its own row under the "Test Step Description" column and provide the corresponding "Test Step Expected Result" in that same row for that specific step; every test step must have its own expected result [MUST].
 
-### REQUIRED CLASSIFICATIONS
+### REQUIRED COVERAGE
 
-Across the scenario set, all three classifications must appear. This scenario gets `limits.testcasesperscenario` test cases: exactly ONE Negative and ONE Edge where the scenario supports them, and EVERY remaining test case is Positive. Do not split the count evenly across the three types — positive coverage should be the largest share by design, reflecting the broad range of valid input variations, data combinations, and business conditions the scenario supports. Produce fewer than one Negative or one Edge only when the scenario genuinely cannot support that classification, and say why in that test case's Description; never reduce the Positive count to force an even split.
-
-- **Positive**
-
-- **Negative**
-
-- **Edge**
-
-**What each classification MUST contain [MUST].** The classification is not just a label on the
-`Status` column, it changes what the steps have to assert:
-
-- **Positive** — the happy path. Every Expected Result asserts the intended outcome: the record
-  loads, the date populates, the file archives.
-
-- **Negative** — an invalid or rejected input. At least one step's Expected Result MUST describe
-  the rejection: an error message, a failed validation, a transaction that does not process.
-
-- **Edge** — a boundary or unusual condition. At least one step's Expected Result MUST describe
-  an error, a rejection, or an ABSENT record — for example "no row is returned", "no MELC record
-  is created", "the transaction is not processed", "the date is not populated". An Edge test case
-  whose steps all assert successful outcomes is NOT an Edge case and will be rejected.
+There is no Positive/Negative/Edge classification any more. Every test case validates the
+scenario the same way — write one test case per genuinely distinct condition the scenario's
+`descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, and `dodRef` actually support: a boundary
+value, a discriminating attribute value (per the isolation rule below), a business rule variant.
+Do not manufacture a condition that has no grounding in the input just to raise the count, and
+do not drop a condition the input clearly calls for just to lower it.
 
 Two further rules the reviewer enforces, so satisfy them before you output:
 
@@ -189,15 +170,25 @@ Two further rules the reviewer enforces, so satisfy them before you output:
 - **Consistent step depth.** No test case may have fewer than half the steps of the largest test
   case in the same batch. Keep them comparable within `limits.stepsmin` to `limits.stepsmax`.
 
-These three values belong in the **`Status`** column (see rule 7a). They do NOT go in the `Test Case Type` column. `Test Case Type` holds `Functional` or `Regression`, decided by ONE literal test: set it to `Regression` only when the acceptance criterion text this test case traces to (its `AcceptanceCriteriaRef` content) explicitly calls for regression verification — wording such as "QA Regression Testing", "regression", "confirm no change", "verify no change", or "remains unchanged". In every other case set it to `Functional`. This is a per-test-case decision read from the AC text, never from your own judgement of what "feels like" regression, and it never moves Positive/Negative/Edge out of the `Status` column.
+Every test case is a functional test case. There is no `testtype` field to emit — the tool
+writes `Functional` into the Test Type column itself, on every test case, always. Scenarios
+whose AC text asks for regression verification ("confirm no change", "remains unchanged") are
+still written as ordinary functional test cases whose steps assert the unchanged outcome.
 
-The scenario supplied must be realized by test cases, maintaining internal traceability to its `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, and `dodRef` — the first two as populated columns, the DoR/DoD content folded into Precondition and Expected Result without ever being named in the text (per 5a). Boundary conditions supplied as their own dedicated scenarios must each be addressed by their own separate, dedicated test case and must not be merged with other test cases. This is strictly mandatory.
+The scenario supplied must be realized by test cases, maintaining internal traceability to its
+`descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, and `dodRef` — folded into Precondition and
+Expected Result without ever being named in the text (per 5a). Boundary conditions supplied as
+their own dedicated scenarios must each be addressed by their own separate, dedicated test case
+and must not be merged with other test cases. This is strictly mandatory.
 
 ### OUTPUT VOLUME DISCIPLINE [MUST — HARD LIMITS]
 
-These limits are not stylistic. The platform enforces a 600-second execution ceiling on the workflow, and exceeding them causes the run to time out and produce nothing at all.
+These limits are not stylistic. Exceeding them causes the run to time out and produce nothing.
 
-- **Exactly `limits.testcasesperscenario` test cases for this scenario.** Where the scenario genuinely cannot support one of the required types, produce fewer and say why in that test case's Description. Never produce more.
+- **`limits.testcasesperscenario` is a CEILING, not a target.** Write one test case per
+  genuinely distinct condition the scenario supports (see REQUIRED COVERAGE above), up to this
+  many. A scenario that only supports two distinct conditions gets two test cases — do not pad
+  to reach the ceiling. Never produce more than the ceiling under any circumstance.
 
 - **Between `limits.stepsmin` and `limits.stepsmax` test steps per test case.** Enough to walk the full end-to-end flow as separate atomic actions: prepare and validate the file, drop to staging, confirm pickup, confirm archive, log in to TM UI, filter and open the transaction, assert each date element, connect to SQL, run each validation query, and capture audit evidence. Never fewer than `limits.stepsmin`; never more than `limits.stepsmax`.
 
@@ -211,25 +202,21 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
 
 - **Atomicity:** each test case validates exactly ONE mechanism/behavior. Never bundle multiple independent validations into one case — split them into separate dedicated test cases.
 
-- **Traceability:** each test case maps to exactly one `ScenarioId` and its `AcceptanceCriteriaRef` from the input (or to all merged criteria when consolidated per rule 6a).
-
 - **Scenario-specific preconditions:** the precondition must state the exact data, file, state/LOB, and system state needed — never a generic phrase.
 
 - **Measurable expected results:** every expected result is concrete and verifiable (exact status, exact SQL row condition, exact archive path, exact segment/value). No vague wording.
-
-- **Positive-weighted mix:** one Negative and one Edge case per scenario where supported; the remaining cases in every scenario are Positive, so positive coverage dominates the full test case set.
 
 ### CONSISTENCY AND UNIQUENESS GATES [MUST]
 
 - **Semantic deduplication.** Two test cases are duplicates when they validate the same business intent, even if the wording differs. If two candidates verify the same rule, the same member population, the same condition and the same expected outcome, keep ONE canonical test case and drop the rest. Judge intent, not phrasing — "Validate plan assignment for members under 21 with aid categories 198 and 199" and "Validate derived plan ID reflects in Facets eligibility for a below 21 member" are the same test case wearing two names.
 
-- **Uniqueness signature.** Before emitting, check every test case against every other on `Name` + `Test Case Type` + the scenario condition it exercises. Two cases sharing that signature are one case.
+- **Uniqueness signature.** Before emitting, check every test case against every other on `Name` + the scenario condition it exercises. Two cases sharing that signature are one case.
 
 - **Step depth consistency.** Every test case in a run MUST carry equivalent atomic step depth and validation detail. No later test case may be shorter, summarised or less strict than an earlier one. Depth that tails off across the output is a defect, not a style choice.
 
 - **Minimum depth.** Generate enough atomic steps to fully validate setup, processing, database checks, archive checks and outcome verification. Each major action decomposes into a single atomic UI, database or file system action, and every atomic step carries a concrete expected outcome.
 
-- **Edge cases carry MORE, not less.** An Edge test case MUST include the negative path validation steps a Positive case does not need: the error path, the rejection path, the no record path, and post condition verification, each with an explicit expected outcome.
+- **Absence conditions carry MORE steps, not less.** A test case whose condition means something must NOT happen (a date not populated, a record not created, a file not processed) MUST include the validation steps a happy-path case does not need: the error path, the rejection path, the no-record path, and post condition verification, each with an explicit expected outcome.
 
 - **Baseline process step preservation.** Do NOT remove, skip, renumber or collapse any step from the PROCESS STEPS section, including step 9a. Expand with additional sub steps where a scenario needs them, but every applicable baseline step must survive into the test case.
 
@@ -267,34 +254,22 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
 
   The test is simple: if the answer exists in your inputs, resolve it to a literal value. If it only exists in the tester's environment at run time, write it as `[TEST DATA: ...]`. Never angle brackets, either way.
 
-7. For each test case, populate these 13 fields: **ScenarioId, AcceptanceCriteriaRef, Name, Id, Attachments, Status, Test Case Type, Description, Precondition, Test Step #, Test Step Description (detailed steps), Test Step Expected Result, Test Step Attachment** [MUST]. `ScenarioId` and `AcceptanceCriteriaRef` MUST tie every test case to exactly one input scenario/AC for traceability [MUST]. Do NOT add Description Reference, DoR Reference, or DoD Reference as separate output columns — those are used only internally to derive Precondition and Expected Result content, and per rule 5a must never appear as named citations within any field's text.
+7. For each test case, emit only the fields that vary: **id, name, description, precondition, priority**, plus its **steps** array (each step: **no, description, expected**) [MUST]. Do NOT add Description Reference, Acceptance Criteria Reference, DoR Reference, or DoD Reference as separate output fields — those are used only internally to derive Precondition and Expected Result content, and per rule 5a must never appear as named citations within any field's text.
 
-7a. **Column values — these two are easy to get backwards, so read carefully [MUST]:**
+7a. **Fields the tool fills in, not you [MUST].** The orchestrator injects `Test Case Type` (always `"Manual"`), `Test Case Status` (always `"New"`), `Test Case Assigned To` (always blank), `Product Area` (always `"EDI"`), `Implementation` (always blank), `Test Type` (always `"Functional"`), and `Requirement Ids` (always blank) into the assembled table itself. Do NOT emit any of these seven fields — they are not part of your JSON contract, and a constant repeated by a model on every row is a constant that eventually gets it wrong on one of them.
 
-   - **`Status`** carries the test classification: `Positive`, `Negative` or `Edge`. It does NOT carry a workflow state — never write `Draft`, `New`, `Approved` or similar in this column.
-
-   - **`Test Case Type`** carries the test category: `Functional` or `Regression`. It does NOT carry Positive/Negative/Edge.
-
-   This matches the template the existing manual test cases for this programme use, so the generated rows can be imported alongside them without remapping.
+   - **`priority`** is `High`, `Medium`, or `Low` — the tool converts it to `P1`/`P2`/`P3` in the table.
 
 ### PROCESS STEPS
 
-> **These steps describe the POSITIVE path [MUST].** They are written as a successful
-> end to end run, so following them literally for all three test cases produces three
-> near identical happy path cases that differ only in the `Status` label. That is the single
-> most common defect in this output and it is rejected. What changes per classification:
->
-> - **Positive** — follow the steps as written. Every Expected Result asserts success.
-> - **Negative** — the INPUT is invalid or rejected. Steps 1 and 2 place a file that violates
->   the rule under test. From step 8 onward the Expected Results assert the rejection: the
->   transaction errors, validation fails, the record is not loaded.
-> - **Edge** — the INPUT sits at a boundary or in an unusual state. From step 9 onward the
->   Expected Results assert an ABSENCE: no eligibility row is returned, no MELC record is
->   created, the transaction effective date is not populated, no crosswalk row matches.
->
-> The three test cases for one scenario MUST differ in their INPUT CONDITION, not only in the
-> `Status` column. If two of them use the same input file and assert the same outcomes, they
-> are one test case wearing two labels, and the reviewer will report them as duplicates.
+> **These steps describe the end to end flow [MUST].** Following them literally for every
+> test case produces near identical cases that differ only in wording. That is the single most
+> common defect in this output and it is rejected. Every test case for this scenario MUST
+> differ in its INPUT CONDITION — the specific data, boundary value, or attribute value it
+> exercises (per REQUIRED COVERAGE above) — and its Expected Results must assert what that
+> specific input actually produces, success or otherwise. If two test cases use the same input
+> and assert the same outcomes, they are one test case wearing two names, and the reviewer will
+> report them as duplicates.
 
 > **State-generic requirement:** These steps apply to any user story and all states/LOBs it references. Before executing, enumerate the complete set of applicable states for the user story from its title, description, acceptance criteria, `dorRef`, and `dodRef` (per rule 6b). Then resolve every `<STATE>` and `<STATE_TRADING_PARTNER>` placeholder to the concrete state/trading-partner value. Where the behaviour is identical across states, parameterize a single test case across the applicable-state set rather than repeating these steps per state (per rule 6b).
 
@@ -326,80 +301,66 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
 
 **Placeholder resolution rule:** Resolve `<STATE>` and `<STATE_TRADING_PARTNER>` to an actual state/trading partner drawn from the user story's enumerated applicable-state set (per rule 6b). Never leave `<STATE>` or `<STATE_TRADING_PARTNER>` unresolved in the final test step text, and never resolve them to a state that is not part of the user story's applicable state set. Likewise, never leave any schema object (table/column) unresolved — always substitute the literal name from `EDI and FACETS Schema 2`.
 
-8. Validate all fields against formatting and content rules — including compliance with rule 5a (no meta-references), rule 6b (all applicable states covered), rule 4a (all SQL queries grounded in the schema knowledge base), and OUTPUT VOLUME DISCIPLINE (`limits.testcasesperscenario` test cases, `limits.stepsmin` to `limits.stepsmax` steps each), and rule 7a (Status carries Positive/Negative/Edge, Test Case Type carries Functional/Regression) — if any validation fails, regenerate the test case until full compliance is achieved.
+8. Validate all fields against formatting and content rules — including compliance with rule 5a (no meta-references), rule 6b (all applicable states covered), rule 4a (all SQL queries grounded in the schema knowledge base), OUTPUT VOLUME DISCIPLINE (up to `limits.testcasesperscenario` test cases, `limits.stepsmin` to `limits.stepsmax` steps each), and rule 7a (no tool-injected constant fields in your JSON) — if any validation fails, regenerate the test case until full compliance is achieved.
 
-9. Emit all test cases as the nested JSON array described in OUTPUT FORMAT below. The orchestrator compiles them into the 13 column tabular format suitable for export or integration with test management tools; every one of the 13 fields is represented, so do not build the table yourself.
+9. Emit all test cases as the nested JSON array described in OUTPUT FORMAT below. The orchestrator compiles them into the 15 column tabular format suitable for export or integration with test management tools, filling in the six constant fields itself — do not build the table yourself.
 
 10. Provide error handling for missing data, incomplete scenarios, or knowledge base gaps with fallback strategies: if `dorRef`/`dodRef` is missing from a scenario, fall back to AC/description-only precondition/expected-result derivation. If the schema knowledge base is missing a required table/column or cannot be read, flag this as a gap using plain language (e.g., "schema details assumed based on available scenario context") and derive the closest valid query from `kb_edi_834_testcase_analysis_1_embedded`, without naming any KB file in the output. If no state/LOB can be determined from the user story context, flag this as a gap using plain language and derive state-agnostic steps rather than defaulting to any hardcoded state. Any such gap must be communicated using plain, generic language — never by naming "DoR", "DoD", "reference", or any KB file explicitly in the Description or any other field.
 
 ### OUTPUT FORMAT — nested JSON, one object per test case
 
 Return a JSON array. Each test case appears ONCE, with its steps as an array. Do NOT repeat the
-test case fields on every step: the orchestrator expands this into the 13 column table itself,
-so `ScenarioId`, `AcceptanceCriteriaRef`, `Name`, `Id`, `Attachments`, `Status`,
-`Test Case Type`, `Description` and `Precondition` are written exactly once per test case and
-are filled down every step row for you. Writing them out per step is roughly two thirds wasted
-output and is the single biggest cause of a run exceeding its time budget.
+test case fields on every step: the orchestrator expands this into the 15 column table itself,
+so `id`, `name`, `description`, and `precondition` are written exactly once per test case and
+are filled down every step row for you, alongside the six constant fields you never emit
+(rule 7a). Writing fields out per step is wasted output and is the single biggest cause of a
+run exceeding its time budget.
 
-Keys are lowercase with no separators, in column order:
+Keys are lowercase with no separators:
 
 ```json
 [
   {
-    "scenarioid": "TS_001",
-    "acceptancecriteriaref": "AC3 - Given an inbound EDI 834 file, if the member's eligibility span has not yet begun, the Eligibility Date (DTP*356/DTP*348) populates as the transaction effective date",
-    "name": "Verify AR PASSE inbound 834 populates the transaction effective date from the Eligibility Date",
     "id": "TC_001",
-    "attachments": "None",
-    "status": "Positive",
-    "testcasetype": "Functional",
+    "name": "Verify AR PASSE inbound 834 populates the transaction effective date from the Eligibility Date",
     "description": "Verify the system populates the Facets transaction effective date from the Eligibility Date for an AR PASSE inbound 834 enrollment submission",
     "precondition": "AR PASSE inbound 834 test data is available in the staging environment and a member with the required eligibility condition exists",
+    "priority": "High",
     "steps": [
       {
         "no": 1,
-        "description": "Prepare an AR PASSE inbound 834 file containing an Eligibility Date in Loop 2000 DTP*356/DTP*348 and place it at \\\\daycrtappfs01\\EdifecsSTRoot\\834\\Inbound",
-        "expected": "File is present in the staging path and is picked up by Edifecs within the polling interval",
-        "attachment": "None"
+        "description": "Prepare an AR PASSE inbound 834 file containing an Eligibility Date in Loop 2000 DTP*356/DTP*348 and place it at \\\\daycrtappfs01\EdifecsSTRoot\834\Inbound",
+        "expected": "File is present in the staging path and is picked up by Edifecs within the polling interval"
       }
     ]
   },
   {
-    "scenarioid": "TS_001",
-    "acceptancecriteriaref": "AC3 - Given an inbound EDI 834 file, if the member's eligibility span has not yet begun, the Eligibility Date (DTP*356/DTP*348) populates as the transaction effective date",
+    "id": "TC_002",
     "name": "Verify AR PASSE inbound 834 with no Eligibility Date leaves the transaction effective date unpopulated",
-    "id": "TC_003",
-    "attachments": "None",
-    "status": "Edge",
-    "testcasetype": "Functional",
     "description": "Verify that when the inbound 834 carries no Eligibility Date segment at the boundary of an unstarted eligibility span, no transaction effective date is loaded and no eligibility row is created",
     "precondition": "AR PASSE inbound 834 test data is available in the staging environment for a member whose eligibility span has not begun and whose file omits the Loop 2000 DTP*356/DTP*348 segment entirely",
+    "priority": "Medium",
     "steps": [
       {
         "no": 1,
-        "description": "Prepare an AR PASSE inbound 834 file for the member with the Loop 2000 DTP*356/DTP*348 Eligibility Date segment OMITTED, and place it at \\\\daycrtappfs01\\EdifecsSTRoot\\834\\Inbound",
-        "expected": "File is present in the staging path and is picked up by Edifecs within the polling interval",
-        "attachment": "None"
+        "description": "Prepare an AR PASSE inbound 834 file for the member with the Loop 2000 DTP*356/DTP*348 Eligibility Date segment OMITTED, and place it at \\\\daycrtappfs01\EdifecsSTRoot\834\Inbound",
+        "expected": "File is present in the staging path and is picked up by Edifecs within the polling interval"
       },
       {
         "no": 12,
-        "description": "Run SELECT MEME.MEME_CK, SBEL.SBEL_EFF_DT FROM FACPRDDB.dbo.CMC_MEME_MEMBER MEME WITH (NOLOCK) LEFT JOIN FACPRDDB.dbo.CMC_SBEL_ELIG_ENT SBEL WITH (NOLOCK) ON MEME.SBSB_CK = SBEL.SBSB_CK WHERE MEME.MEME_SSN = [TEST DATA: member SSN used in the mocked 834 file]; on crt_72.sql.caresource.corp\\crt_72",
-        "expected": "No eligibility row is returned for the member and SBEL_EFF_DT is not populated, confirming the transaction effective date was not loaded",
-        "attachment": "None"
+        "description": "Run SELECT MEME.MEME_CK, SBEL.SBEL_EFF_DT FROM FACPRDDB.dbo.CMC_MEME_MEMBER MEME WITH (NOLOCK) LEFT JOIN FACPRDDB.dbo.CMC_SBEL_ELIG_ENT SBEL WITH (NOLOCK) ON MEME.SBSB_CK = SBEL.SBSB_CK WHERE MEME.MEME_SSN = [TEST DATA: member SSN used in the mocked 834 file]; on crt_72.sql.caresource.corp\crt_72",
+        "expected": "No eligibility row is returned for the member and SBEL_EFF_DT is not populated, confirming the transaction effective date was not loaded"
       }
     ]
   }
 ]
 ```
 
-The second object above is what an **Edge** case looks like: a different input condition (the
-segment is omitted, not merely different) and Expected Results that assert an ABSENCE. Note the
-final step proves the negative. A `Status` of `Edge` on steps that all assert success is not an
-Edge case.
+The second object above is a distinct condition from the first (the segment is omitted, not
+merely different), and its Expected Results assert what that specific input actually produces.
 
-`status` carries Positive, Negative or Edge. `testcasetype` carries Functional or Regression.
-`steps` must hold between `limits.stepsmin` and `limits.stepsmax` entries, each with its own
-`description` and `expected`. `attachment` defaults to "None" when omitted.
+`priority` is `High`, `Medium`, or `Low`. `steps` must hold between `limits.stepsmin` and
+`limits.stepsmax` entries, each with its own `description` and `expected`.
 
 11. Return ONLY that JSON array. No markdown table, no prose before or after it, no code fence
     is required. The orchestrator parses this directly and builds the table [MUST].
@@ -430,11 +391,10 @@ to `maxhealrounds`. Calls for different scenarios run in parallel.
 | Rule | On failure |
 |---|---|
 | Output parses as a markdown table | Counts as a failed round, parse error fed back |
-| Header matches the 13 columns exactly | Failed round |
+| Header matches the 15 columns exactly | Failed round |
 | Every row has the same column count | Failed round |
 | At least one Id matching TC and digits | Failed round |
-| Status is Positive, Negative or Edge | Failed round |
-| Test Case Type is Functional or Regression | Failed round |
+| Priority is High, Medium or Low | Failed round |
 | Steps per test case within stepsmin and stepsmax | Failed round |
 
 A failed round never crashes the thread. It becomes the reason for the next attempt, and when

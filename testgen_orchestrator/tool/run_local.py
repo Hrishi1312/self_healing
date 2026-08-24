@@ -248,7 +248,9 @@ def main():
     ap.add_argument("--org", default=d("adoorg", "CSGRP"))
     ap.add_argument("--project", default=d("adoproject", "ADO"))
     ap.add_argument("--scenarios", type=int, default=d("maxscenarios", 4, int))
-    ap.add_argument("--cases", type=int, default=d("testcasesperscenario", 3, int))
+    ap.add_argument("--cases", type=int, default=d("testcasesperscenario", 8, int),
+                    help="ceiling, not a target: the generator writes fewer when a scenario "
+                         "supports fewer distinct conditions")
     ap.add_argument("--stepsmin", type=int, default=d("stepsmin", 15, int))
     ap.add_argument("--stepsmax", type=int, default=d("stepsmax", 18, int))
     ap.add_argument("--rounds", type=int, default=d("maxhealrounds", 2, int))

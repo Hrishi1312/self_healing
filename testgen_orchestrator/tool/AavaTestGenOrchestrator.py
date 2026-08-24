@@ -45,7 +45,10 @@ DEF_AAVA_BASE = ("https://aava-core-api-agents-svc"
 DEF_ADO_BASE = "https://dev.azure.com"
 
 # maxscenarios has no default: it sizes the whole run, so the caller must pass it.
-DEF_TESTCASESPERSCENARIO = 3
+# testcasesperscenario is a CEILING, not a target: the agent writes one case per genuinely
+# distinct condition the scenario supports, up to this many. 8 covers the richest real
+# pattern seen so far (one case per discriminating attribute value, e.g. Aid Category).
+DEF_TESTCASESPERSCENARIO = 8
 DEF_STEPSMIN = 15
 DEF_STEPSMAX = 18
 DEF_MAXHEALROUNDS = 3
@@ -83,9 +86,13 @@ HTTP_TIMEOUT = 60
 POLL_START, POLL_MAX, POLL_GROWTH = 5.0, 20.0, 1.5
 ADO_TIMEOUT = (15, 45)
 
-COLUMNS = ["ScenarioId", "AcceptanceCriteriaRef", "Name", "Id", "Attachments", "Status",
-           "Test Case Type", "Description", "Precondition", "Test Step #",
-           "Test Step Description", "Test Step Expected Result", "Test Step Attachment"]
+# 15 columns matching the test-management import format. No traceability columns
+# (ScenarioId/AcceptanceCriteriaRef) — scenario association is tracked internally by the
+# tool (each record already carries its scenarioid in Python), never rendered in the table.
+COLUMNS = ["Test Case Id", "Test Case Name", "Description", "Pre-condition", "Step #",
+           "Step Description", "Expected Result", "Test Case Type", "Test Case Status",
+           "Test Case Priority", "Test Case Assigned To", "Product Area", "Implementation",
+           "Test Type", "Requirement Ids"]
 
 # Field names INSIDE a scenario object, as the scenario generator emits them. These are
 # camelCase because the agent prompt is carried verbatim from production and specifies
@@ -95,9 +102,10 @@ COLUMNS = ["ScenarioId", "AcceptanceCriteriaRef", "Name", "Id", "Attachments", "
 SCENARIO_KEYS = ["scenarioId", "title", "descriptionRef", "acceptanceCriteriaRef",
                  "dorRef", "dodRef", "type", "description", "priority"]
 
-TYPES = {"Positive", "Negative", "Edge"}
+TYPES = {"Positive", "Negative", "Edge"}   # scenario classification only, not a table column
 PRIORITIES = {"High", "Medium", "Low"}
-CATEGORIES = {"Functional", "Regression"}
+PRIORITY_CODE = {"High": "P1", "Medium": "P2", "Low": "P3"}
+TEST_TYPE = "Functional"  # the Test Type column — always Functional, tool-injected
 
 
 def _now() -> str:
@@ -458,10 +466,11 @@ def parse_scenarios(raw: str, maxscenarios: int) -> List[Dict[str, Any]]:
     return out[:maxscenarios]
 
 
-# Field names in the generator's JSON, lowercase with no separators, in column order.
-TC_KEYS = ["scenarioid", "acceptancecriteriaref", "name", "id", "attachments", "status",
-           "testcasetype", "description", "precondition"]
-STEP_KEYS = ["no", "description", "expected", "attachment"]
+# Case-level fields the generator emits. Constant fields (Test Case Type, Test Case Status,
+# Assigned To, Product Area, Implementation, Test Type, Requirement Ids) are injected by the
+# tool, not the model, since they never vary and there is nothing for the model to get wrong.
+TC_KEYS = ["id", "name", "description", "precondition", "priority"]
+STEP_KEYS = ["no", "description", "expected"]
 
 
 def _cell(v: Any) -> str:
@@ -471,13 +480,13 @@ def _cell(v: Any) -> str:
 
 
 def expand_testcases(raw: str) -> str:
-    """Nested JSON from the generator to the 13 column markdown table.
+    """Nested JSON from the generator to the 15 column markdown table.
 
     The generator emits each test case ONCE with its steps as an array, instead of repeating
-    the nine header columns on every step row. Measured on real output, those repeats were
-    64.6% of all characters, so this halves what the model has to write. The table itself is
-    unchanged: the tool expands it here, so the deliverable still matches the 13 column
-    contract byte for byte.
+    the header columns on every step row. Constant columns (Test Case Type, Test Case Status,
+    Assigned To, Product Area, Implementation, Test Type, Requirement Ids) are injected here
+    from fixed values, never trusted to the model, since a constant the model has to repeat
+    correctly on every row is a constant it will eventually get wrong on one of them.
     """
     text = _strip_fences(raw)
     start, end = text.find("["), text.rfind("]")
@@ -497,16 +506,21 @@ def expand_testcases(raw: str) -> str:
         steps = tc.get("steps")
         if not isinstance(steps, list) or not steps:
             raise ValueError(f"{tc.get('id', 'test case ' + str(i))} has no steps array")
-        head = [_cell(tc[k]) for k in TC_KEYS]
+        priority = str(tc["priority"]).strip()
+        if priority not in PRIORITIES:
+            raise ValueError(f"{tc['id']} priority '{priority}' is not High, Medium or Low")
+        head = [_cell(tc["id"]), _cell(tc["name"]), _cell(tc["description"]),
+                _cell(tc["precondition"])]
+        tail = ["Manual", "New", PRIORITY_CODE[priority], "", "EDI", "", TEST_TYPE, ""]
         for n, st in enumerate(steps, 1):
             if not isinstance(st, dict):
                 raise ValueError(f"{tc['id']} step {n} is not an object")
             for k in ("description", "expected"):
                 if k not in st:
                     raise ValueError(f"{tc['id']} step {n} missing '{k}'")
-            out.append("| " + " | ".join(head + [
-                _cell(st.get("no") or n), _cell(st["description"]), _cell(st["expected"]),
-                _cell(st.get("attachment") or "None")]) + " |")
+            out.append("| " + " | ".join(
+                head + [_cell(st.get("no") or n), _cell(st["description"]),
+                        _cell(st["expected"])] + tail) + " |")
     return "\n".join(out)
 
 
@@ -520,9 +534,8 @@ def read_testcases(raw: str, stepsmin: int, stepsmax: int) -> Dict[str, Any]:
 def parse_testcases(raw: str, stepsmin: int, stepsmax: int) -> Dict[str, Any]:
     """Parse the markdown table and check its shape. Returns rows plus a per test case index."""
     text = _strip_fences(raw)
-    # A cell holding a newline splits one table row across physical lines. Real output does
-    # this whenever acceptanceCriteriaRef carries two AC lines. Rejoin before splitting on
-    # pipes, or the row is dropped and its steps vanish without any check noticing.
+    # A cell holding a newline splits one table row across physical lines. Rejoin before
+    # splitting on pipes, or the row is dropped and its steps vanish without any check noticing.
     rows: List[str] = []
     for line in text.split("\n"):
         s = line.strip()
@@ -535,46 +548,28 @@ def parse_testcases(raw: str, stepsmin: int, stepsmax: int) -> Dict[str, Any]:
     cells = [[c.strip() for c in r.strip().strip("|").split("|")] for r in rows]
     header = cells[0]
     if header != COLUMNS:
-        raise ValueError(f"header has {len(header)} columns, expected the 13 standard columns")
+        raise ValueError(f"header has {len(header)} columns, expected the {len(COLUMNS)} standard columns")
 
     body = [c for c in cells[2:] if len(c) == len(COLUMNS)]
     if not body:
         raise ValueError("table has a header but no data rows")
 
+    # Test Case Id is column 0 now (no leading traceability columns), repeated on every row.
     cases: Dict[str, List[List[str]]] = {}
     current = None
     for row in body:
-        if row[3]:
-            current = row[3]
+        if row[0]:
+            current = row[0]
         if current:
             cases.setdefault(current, []).append(row)
     if not cases:
-        raise ValueError("no test case id found in the Id column")
+        raise ValueError("no test case id found in the Test Case Id column")
     for tid in cases:
         if not re.match(r"^TC[_-]?\w*\d+$", tid):
             raise ValueError(f"test case id '{tid}' does not look like TC followed by digits")
 
-    # ── DISABLED 2026-08-18 — moved to the agent instructions ──────────────
-    # Step count, Status and Test Case Type are stated in agent 02 (OUTPUT VOLUME
-    # DISCIPLINE, rule 7a) and enforced by agent 03 (checks 8 and 9). Keeping them here
-    # too put the same rule in two places that could drift. Re-enable if a run ships a
-    # swapped Status column or a short test case: the failure is silent, and this is the
-    # only thing that would have caught it before the workbook.
-    #
-    # problems = []
-    # for tid, tcrows in cases.items():
-    #     n = len(tcrows)
-    #     if n < stepsmin or n > stepsmax:
-    #         problems.append(f"{tid} has {n} steps, expected {stepsmin} to {stepsmax}")
-    #     st = {r[5] for r in tcrows if r[5]}
-    #     if st - TYPES:
-    #         problems.append(f"{tid} Status holds {sorted(st - TYPES)}, expected Positive, Negative or Edge")
-    #     cat = {r[6] for r in tcrows if r[6]}
-    #     if cat - CATEGORIES:
-    #         problems.append(f"{tid} Test Case Type holds {sorted(cat - CATEGORIES)}, expected Functional or Regression")
-    # if problems:
-    #     raise ValueError("; ".join(problems))
-    # ── end disabled ───────────────────────────────────────────────────────
+    # Step count, Priority and Test Type are stated in agent 02 and enforced by agent 03 —
+    # kept out of the tool so the same rule does not live in two places that could drift.
 
     # Rebuild the table from the parsed rows rather than handing back the raw text. The raw
     # text still contains any physically split rows this function just rejoined, so returning
@@ -616,9 +611,8 @@ def parse_verdict(raw: str, known_ids: List[str]) -> Dict[str, Any]:
 SOURCE_NAMES = ["kb_", "EDI and FACETS Schema 2", "Facets 834", "EDIFECS Full with AUX 834"]
 META_LABELS = ["DoR", "DoD", "Definition of Ready", "Definition of Done",
                "descriptionRef", "dorRef", "dodRef", "per the AC", "as referenced in"]
-# Name, Description, Precondition, Test Step Description, Test Step Expected Result.
-# ScenarioId and AcceptanceCriteriaRef are exempt, as they are in the reviewer's own rules.
-_META_COLS = [2, 7, 8, 10, 11]
+# Test Case Name, Description, Pre-condition, Step Description, Expected Result.
+_META_COLS = [1, 2, 3, 5, 6]
 
 
 def pregate(parsed: Dict[str, Any]) -> List[str]:
@@ -634,11 +628,11 @@ def pregate(parsed: Dict[str, Any]) -> List[str]:
 
     for tid, rows in parsed["cases"].items():
         for r in rows:
-            if not r[10].strip():
-                problems.append(f"{tid} step {r[9] or '?'} has an empty Test Step Description")
+            if not r[5].strip():
+                problems.append(f"{tid} step {r[4] or '?'} has an empty Step Description")
                 break
-            if not r[11].strip():
-                problems.append(f"{tid} step {r[9] or '?'} has an empty Test Step Expected Result")
+            if not r[6].strip():
+                problems.append(f"{tid} step {r[4] or '?'} has an empty Expected Result")
                 break
 
     table = parsed["table"]
@@ -649,7 +643,7 @@ def pregate(parsed: Dict[str, Any]) -> List[str]:
         for c in _META_COLS:
             for label in META_LABELS:
                 if label in row[c]:
-                    problems.append(f"{row[3] or 'a test case'} carries the meta label "
+                    problems.append(f"{row[0] or 'a test case'} carries the meta label "
                                     f"'{label}' in {COLUMNS[c]}")
                     break
     seen, unique = set(), []
@@ -827,25 +821,19 @@ def cross_batch_check(records: List[Dict[str, Any]], scenarios: List[Dict[str, A
             warnings.append(f"{s['scenarioId']} produced no test cases")
 
     seen: Dict[str, str] = {}
-    statuses: Dict[str, int] = {}
     for r in records:
         for row in (r.get("table") or "").split("\n"):
             cells = [c.strip() for c in row.strip().strip("|").split("|")]
-            # "---" is the markdown separator row: 13 cells of dashes, which otherwise
-            # collides with every other scenario's separator and reports itself as a
-            # duplicate. Every warning in every run so far was this row.
-            if len(cells) != len(COLUMNS) or cells[3] in ("Id", "") or set(cells[3]) <= {"-", ":"}:
+            # "---" is the markdown separator row, which otherwise collides with every other
+            # scenario's separator and reports itself as a duplicate.
+            if len(cells) != len(COLUMNS) or cells[0] in ("Test Case Id", "") \
+                    or set(cells[0]) <= {"-", ":"}:
                 continue
-            statuses[cells[5]] = statuses.get(cells[5], 0) + 1
-            key = _WS.sub(" ", (cells[2] + "|" + cells[7]).lower()).strip()
+            key = _WS.sub(" ", (cells[1] + "|" + cells[2]).lower()).strip()
             if key and key in seen and seen[key] != r["scenarioid"]:
-                warnings.append(f"{cells[3]} looks like a duplicate of a test case in {seen[key]}")
+                warnings.append(f"{cells[0]} looks like a duplicate of a test case in {seen[key]}")
             elif key:
                 seen[key] = r["scenarioid"]
-
-    for t in TYPES:
-        if statuses.get(t, 0) == 0:
-            warnings.append(f"no {t} test cases across the whole set")
     return warnings
 
 
@@ -967,7 +955,7 @@ class AavaTestGenOrchestrator(BaseTool):
         except (KeyError, TypeError, ValueError):
             raise ValueError("runinputs is missing maxscenarios")
         num("maxscenarios", 0, 1, 20)
-        num("testcasesperscenario", DEF_TESTCASESPERSCENARIO, 1, 5)
+        num("testcasesperscenario", DEF_TESTCASESPERSCENARIO, 1, 8)
         num("stepsmin", DEF_STEPSMIN, 1, 40)
         num("stepsmax", DEF_STEPSMAX, cfg.get("stepsmin", DEF_STEPSMIN), 40)
         num("maxhealrounds", DEF_MAXHEALROUNDS, 0, 5)
@@ -1093,7 +1081,7 @@ class AavaTestGenOrchestrator(BaseTool):
             for row in (r.get("table") or "").split("\n"):
                 stripped = row.strip()
                 if stripped.startswith("|") and not stripped.startswith("|--") \
-                        and "| ScenarioId |" not in stripped:
+                        and "| Test Case Id |" not in stripped:
                     body.append(stripped)
         table = ""
         if body:
