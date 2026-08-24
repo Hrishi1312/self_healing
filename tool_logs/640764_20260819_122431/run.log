@@ -1,0 +1,77 @@
+story 640764: 7 scenarios x 3 cases x 12-15 steps, 2 heal round(s), judged, deadline 630s
+config: C:\Users\cs218321\OneDrive - Caresource Management Group\AAVA\AAVA_Agents\Self healing\testgen_orchestrator\tool\.env
+
+[ORCH] ts=2026-08-19T06:54:31Z step=start story=640764 maxscenarios=7 tcper=3 steps=12-15 rounds=2 workers=7 pass_=80/50 judge=627 deadline=630s
+[ORCH] ts=2026-08-19T06:54:31Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=319
+[ORCH] ts=2026-08-19T06:55:15Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=43416
+[ORCH] ts=2026-08-19T06:56:39Z step=generate scenario=TS_006 round=1 tc=3 ids=TC_TS006_001,TC_TS006_002,TC_TS006_003 chars=68252 ms=83994
+[ORCH] ts=2026-08-19T06:56:39Z step=generate scenario=TS_004 round=1 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=60841 ms=84090
+[ORCH] ts=2026-08-19T06:56:39Z step=generate scenario=TS_005 round=1 tc=3 ids=TC_TS005_001,TC_TS005_002,TC_TS005_003 chars=69079 ms=84325
+[ORCH] ts=2026-08-19T06:56:39Z step=generate scenario=TS_003 round=1 tc=3 ids=TC_TS003_001,TC_TS003_002,TC_TS003_003 chars=59521 ms=84357
+[ORCH] ts=2026-08-19T06:56:39Z step=generate scenario=TS_001 round=1 tc=3 ids=TC_TS001_001,TC_TS001_002,TC_TS001_003 chars=58584 ms=84416
+[ORCH] ts=2026-08-19T06:56:39Z step=generate scenario=TS_002 round=1 tc=3 ids=TC_TS002_001,TC_TS002_002,TC_TS002_003 chars=50239 ms=84553
+[ORCH] ts=2026-08-19T06:56:53Z step=review scenario=TS_006 round=1 score=85 passed=1/3 failing=TC_TS006_002,TC_TS006_003 ms=14566
+[ORCH] ts=2026-08-19T06:56:54Z step=review scenario=TS_004 round=1 score=95 passed=3/3 ms=14823
+[ORCH] ts=2026-08-19T06:56:54Z step=result scenario=TS_004 status=approved scores=[95] rounds=1 tc=3 ms=98920
+[ORCH] ts=2026-08-19T06:56:54Z step=review scenario=TS_002 round=1 score=85 passed=2/3 failing=TC_TS002_003 ms=14740
+[ORCH] ts=2026-08-19T06:57:00Z step=generate scenario=TS_007 round=1 tc=3 ids=TC_TS007_001,TC_TS007_002,TC_TS007_003 chars=72858 ms=105116
+[ORCH] ts=2026-08-19T06:57:05Z step=review scenario=TS_001 round=1 score=96 passed=3/3 ms=25797
+[ORCH] ts=2026-08-19T06:57:05Z step=result scenario=TS_001 status=approved scores=[96] rounds=1 tc=3 ms=110216
+[ORCH] ts=2026-08-19T06:57:05Z step=review scenario=TS_003 round=1 score=85 passed=2/3 failing=TC_TS003_003 ms=26314
+[ORCH] ts=2026-08-19T06:57:05Z step=review scenario=TS_005 round=1 score=85 passed=1/3 failing=TC_TS005_002,TC_TS005_003 ms=26347
+[ORCH] ts=2026-08-19T06:57:14Z step=review scenario=TS_007 round=1 score=95 passed=3/3 ms=14393
+[ORCH] ts=2026-08-19T06:57:14Z step=result scenario=TS_007 status=approved scores=[95] rounds=1 tc=3 ms=119512
+[ORCH] ts=2026-08-19T06:58:17Z step=generate scenario=TS_006 round=2 tc=3 ids=TC_TS006_001,TC_TS006_002,TC_TS006_003 chars=66588 ms=83925 regen=2
+[ORCH] ts=2026-08-19T06:58:18Z step=generate scenario=TS_002 round=2 tc=3 ids=TC_TS002_001,TC_TS002_002,TC_TS002_003 chars=59258 ms=83758 regen=1
+[ORCH] ts=2026-08-19T06:58:29Z step=generate scenario=TS_005 round=2 tc=3 ids=TC_TS005_001,TC_TS005_002,TC_TS005_003 chars=73813 ms=83673 regen=2
+[ORCH] ts=2026-08-19T06:58:29Z step=generate scenario=TS_003 round=2 tc=3 ids=TC_TS003_001,TC_TS003_002,TC_TS003_003 chars=58297 ms=83847 regen=1
+[ORCH] ts=2026-08-19T06:58:32Z step=review scenario=TS_006 round=2 score=95 passed=3/3 ms=14436
+[ORCH] ts=2026-08-19T06:58:32Z step=result scenario=TS_006 status=approved scores=[85, 95] rounds=2 tc=3 ms=196930
+[ORCH] ts=2026-08-19T06:58:32Z step=review scenario=TS_002 round=2 score=85 passed=2/3 failing=TC_TS002_003 ms=14479
+[ORCH] ts=2026-08-19T06:58:32Z step=stagnant scenario=TS_002 round=2 scores=[85, 85]
+[ORCH] ts=2026-08-19T06:58:32Z step=result scenario=TS_002 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=197537
+[ORCH] ts=2026-08-19T06:58:43Z step=review scenario=TS_005 round=2 score=95 passed=3/3 ms=14333
+[ORCH] ts=2026-08-19T06:58:43Z step=result scenario=TS_005 status=approved scores=[85, 95] rounds=2 tc=3 ms=208684
+[ORCH] ts=2026-08-19T06:58:43Z step=review scenario=TS_003 round=2 score=85 passed=2/3 failing=TC_TS003_003 ms=14181
+[ORCH] ts=2026-08-19T06:58:43Z step=stagnant scenario=TS_003 round=2 scores=[85, 85]
+[ORCH] ts=2026-08-19T06:58:43Z step=result scenario=TS_003 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=208705
+[ORCH] ts=2026-08-19T06:58:43Z step=done approved=5 unreviewed=0 unhealed=0 stagnant=2 hardstop=0 failed=0 skipped=0 testcases=21 agentcalls=23 ms=252500
+[ORCH] ts=2026-08-19T06:58:43Z step=outcome story=640764 ready=19/21 testcases flagged=2 scenarios=7 elapsed=4m12s
+[ORCH] ts=2026-08-19T06:58:43Z step=flagged tc=TC_TS002_003 scenario=TS_002 why=the Edge case never tests an error path
+[ORCH] ts=2026-08-19T06:58:43Z step=flagged tc=TC_TS003_003 scenario=TS_003 why=the Edge case never tests an edge condition
+[ORCH] ts=2026-08-19T06:58:43Z step=detail calls=23 rounds=11 scoreboard=TS_001:approved(96)  TS_002:stagnant(85>85)  TS_003:stagnant(85>85)  TS_004:approved(95)  TS_005:approved(85>95)  TS_006:approved(85>95)  TS_007:approved(95)
+[ORCH-TABLE-BEGIN] story=640764 scenarios=7 rows=264
+[ORCH-TABLE-END] chars=448667
+           266 rows -> tool_logs\640764_20260819_122431\testcases.md
+[ORCH] ts=2026-08-19T06:58:44Z step=publish file=run.log status=403 error=Resource not accessible by personal access token
+[ORCH] ts=2026-08-19T06:58:44Z step=publish file=testcases.md status=403 error=Resource not accessible by personal access token
+[ORCH] ts=2026-08-19T06:58:44Z step=publish file=envelope.json status=403 error=Resource not accessible by personal access token
+[ORCH] ts=2026-08-19T06:58:45Z step=publish file=runinputs.json status=403 error=Resource not accessible by personal access token
+
+=== completed in 254s ===
+
+Story 640764 — 21 test cases in 4m 13s
+
+  READY TO USE   19 of 21 test cases
+  NEEDS A LOOK   2 of 21 test cases
+
+  TS_001   3 of 3 ready
+  TS_002   2 of 3 ready   TC_TS002_003
+  TS_003   2 of 3 ready   TC_TS003_003
+  TS_004   3 of 3 ready
+  TS_005   3 of 3 ready
+  TS_006   3 of 3 ready
+  TS_007   3 of 3 ready
+
+  why each was flagged:
+     TC_TS002_003     the Edge case never tests an error path
+     TC_TS003_003     the Edge case never tests an edge condition
+
+  All 21 test cases are in testcases.md. envelope.json carries the reviewer's full reasoning.
+  published: runinputs.json: http 403 Resource not accessible by personal access token
+
+C:\Users\cs218321\OneDrive - Caresource Management Group\AAVA\AAVA_Agents\Self healing\tool_logs\640764_20260819_122431
+   run.log         every [ORCH] line and this summary
+   testcases.md    the assembled table
+   envelope.json   per scenario scores and the reviewer's gaps
+   runinputs.json  the exact settings used, credentials blanked

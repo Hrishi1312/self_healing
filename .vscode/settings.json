@@ -1,0 +1,6 @@
+{
+  "chat.tools.terminal.autoApprove": {
+    // Read-only AAVA log fetch — safe to auto-approve, no destructive side effects.
+    "/^python\\s+aava_logs_helper\\.py\\b/": true
+  }
+}

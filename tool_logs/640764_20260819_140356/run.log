@@ -1,0 +1,67 @@
+story 640764: 7 scenarios x 3 cases x 18-25 steps, 2 heal round(s), judged, deadline 450s
+config: C:\Users\cs218321\OneDrive - Caresource Management Group\AAVA\AAVA_Agents\Self healing\testgen_orchestrator\tool\.env
+
+[ORCH] ts=2026-08-19T08:33:56Z step=start story=640764 maxscenarios=7 tcper=3 steps=18-25 rounds=2 workers=7 pass_=80/50 judge=627 deadline=450s
+[ORCH] ts=2026-08-19T08:33:57Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=310
+[ORCH] ts=2026-08-19T08:37:45Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=227999
+[ORCH] ts=2026-08-19T08:41:12Z step=generate scenario=TS_004 round=1 error=test case array is empty
+[ORCH] ts=2026-08-19T08:41:12Z step=budget scenario=TS_004 round=2 note=stopped, budget low
+[ORCH] ts=2026-08-19T08:41:12Z step=result scenario=TS_004 status=failed scores=[] rounds=1 tc=0 ms=206875
+[ORCH] ts=2026-08-19T08:41:12Z step=generate scenario=TS_007 round=1 error=test case array is empty
+[ORCH] ts=2026-08-19T08:41:12Z step=budget scenario=TS_007 round=2 note=stopped, budget low
+[ORCH] ts=2026-08-19T08:41:12Z step=result scenario=TS_007 status=failed scores=[] rounds=1 tc=0 ms=206995
+[ORCH] ts=2026-08-19T08:41:12Z step=generate scenario=TS_001 round=1 error=test case array is empty
+[ORCH] ts=2026-08-19T08:41:12Z step=budget scenario=TS_001 round=2 note=stopped, budget low
+[ORCH] ts=2026-08-19T08:41:12Z step=result scenario=TS_001 status=failed scores=[] rounds=1 tc=0 ms=207152
+[ORCH] ts=2026-08-19T08:41:12Z step=generate scenario=TS_006 round=1 error=test case array is empty
+[ORCH] ts=2026-08-19T08:41:12Z step=budget scenario=TS_006 round=2 note=stopped, budget low
+[ORCH] ts=2026-08-19T08:41:12Z step=result scenario=TS_006 status=failed scores=[] rounds=1 tc=0 ms=207197
+[ORCH] ts=2026-08-19T08:41:12Z step=generate scenario=TS_003 round=1 error=test case array is empty
+[ORCH] ts=2026-08-19T08:41:12Z step=budget scenario=TS_003 round=2 note=stopped, budget low
+[ORCH] ts=2026-08-19T08:41:12Z step=result scenario=TS_003 status=failed scores=[] rounds=1 tc=0 ms=207253
+[ORCH] ts=2026-08-19T08:41:12Z step=generate scenario=TS_002 round=1 error=test case array is empty
+[ORCH] ts=2026-08-19T08:41:12Z step=budget scenario=TS_002 round=2 note=stopped, budget low
+[ORCH] ts=2026-08-19T08:41:12Z step=result scenario=TS_002 status=failed scores=[] rounds=1 tc=0 ms=207421
+[ORCH] ts=2026-08-19T08:41:12Z step=generate scenario=TS_005 round=1 error=test case array is empty
+[ORCH] ts=2026-08-19T08:41:12Z step=budget scenario=TS_005 round=2 note=stopped, budget low
+[ORCH] ts=2026-08-19T08:41:12Z step=result scenario=TS_005 status=failed scores=[] rounds=1 tc=0 ms=207440
+[ORCH] ts=2026-08-19T08:41:12Z step=done approved=0 unreviewed=0 unhealed=0 stagnant=0 hardstop=0 failed=7 skipped=0 testcases=0 agentcalls=8 ms=435786
+[ORCH] ts=2026-08-19T08:41:12Z step=outcome story=640764 ready=0/0 testcases scenarios=7 elapsed=7m15s warnings=10
+[ORCH] ts=2026-08-19T08:41:12Z step=detail calls=8 rounds=7 scoreboard=TS_001:failed  TS_002:failed  TS_003:failed  TS_004:failed  TS_005:failed  TS_006:failed  TS_007:failed
+[ORCH] ts=2026-08-19T08:41:13Z step=publish file=run.log chars=2901
+[ORCH] ts=2026-08-19T08:41:14Z step=publish file=testcases.md chars=0
+[ORCH] ts=2026-08-19T08:41:15Z step=publish file=envelope.json chars=6845
+[ORCH] ts=2026-08-19T08:41:16Z step=publish file=runinputs.json chars=707
+
+=== completed in 439s ===
+
+Story 640764 — 0 test cases in 7m 19s
+
+  READY TO USE   0 of 0 test cases
+
+  TS_001   0 of 0 ready  budget exhausted
+  TS_002   0 of 0 ready  budget exhausted
+  TS_003   0 of 0 ready  budget exhausted
+  TS_004   0 of 0 ready  budget exhausted
+  TS_005   0 of 0 ready  budget exhausted
+  TS_006   0 of 0 ready  budget exhausted
+  TS_007   0 of 0 ready  budget exhausted
+  warning: TS_001 produced no test cases
+  warning: TS_002 produced no test cases
+  warning: TS_003 produced no test cases
+  warning: TS_004 produced no test cases
+  warning: TS_005 produced no test cases
+  warning: TS_006 produced no test cases
+  warning: TS_007 produced no test cases
+  warning: no Negative test cases across the whole set
+  warning: no Edge test cases across the whole set
+  warning: no Positive test cases across the whole set
+
+  All 0 test cases are in testcases.md. envelope.json carries the reviewer's full reasoning.
+  published: https://github.com/Hrishi1312/self_healing/tree/main/tool_logs/640764_20260819_084112
+
+C:\Users\cs218321\OneDrive - Caresource Management Group\AAVA\AAVA_Agents\Self healing\tool_logs\640764_20260819_140356
+   run.log         every [ORCH] line and this summary
+   testcases.md    the assembled table
+   envelope.json   per scenario scores and the reviewer's gaps
+   runinputs.json  the exact settings used, credentials blanked

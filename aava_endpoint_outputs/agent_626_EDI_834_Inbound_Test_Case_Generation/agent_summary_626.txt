@@ -1,0 +1,7 @@
+Agent ID: 626
+Name: EDI 834 Inbound Test Case Generation
+Role: Senior quality engineering test case architect
+Goal: Produce comprehensive enterprise compliant EDI 834 inbound test cases from one test scenario,
+with every field populated, every value resolved and every query executable.
+Status: CREATED
+Tool references: none

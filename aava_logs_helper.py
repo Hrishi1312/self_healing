@@ -1,14 +1,17 @@
-"""Fetch workflow execution logs from AAVA and save them for analysis.
+"""Fetch workflow or standalone agent execution logs from AAVA and save them
+for analysis.
 
 Usage:
-    python aava_logs_helper.py <executionId>
+    python aava_logs_helper.py <executionId>                    # workflow execution logs
+    python aava_logs_helper.py <executionId> --type agent        # standalone agent execution logs
     python aava_logs_helper.py <executionId> --output-dir logs
 
-Saves the raw JSON response (data.workflowExecutionLogs[].logs, each a JSON
-string event) plus a readable .md transcript grouped by event type — mirroring
-the AAVA UI's "Agent Activity Logs" export — under --output-dir. Each rendered
-block keeps both the event's own `timestamp` and the API's `createAt` receipt
-time, and secrets (LLM api_key/tokens) are redacted before being written out.
+Saves the raw JSON response (data.<workflow|agent>ExecutionLogs[].logs, each a
+JSON string event) plus a readable .md transcript grouped by event type —
+mirroring the AAVA UI's "Agent Activity Logs" export — under --output-dir.
+Each rendered block keeps both the event's own `timestamp` and the API's
+`createAt` receipt time, and secrets (LLM api_key/tokens) are redacted before
+being written out.
 """
 
 import argparse
@@ -21,7 +24,11 @@ from pathlib import Path
 
 import requests
 
-from aava_endpoint_helper import WORKFLOWS_BASE_URL, get_headers, load_aava_token
+from aava_endpoint_helper import AGENTS_BASE_URL, WORKFLOWS_BASE_URL, get_headers, load_aava_token
+
+# Possible top-level keys holding the log entry list, across the different
+# /logs endpoints (workflow execution vs. standalone agent execution).
+_LOG_LIST_KEYS = ("workflowExecutionLogs", "agentExecutionLogs", "executionLogs")
 
 # Keys that hold secrets and must never be written to the readable transcript.
 _SECRET_KEYS = {
@@ -103,6 +110,14 @@ def get_execution_logs(execution_id: str, headers: dict, timeout: int = 30) -> d
     return response.json()
 
 
+def get_agent_execution_logs(execution_id: str, headers: dict, timeout: int = 30) -> dict:
+    url = f"{AGENTS_BASE_URL}/agents/execute/{execution_id}/logs"
+    response = requests.get(url, headers=headers, timeout=timeout, verify=False)
+    response.raise_for_status()
+    return response.json()
+
+
+
 def _redact(value):
     """Recursively strip secret-bearing keys (api_key, tokens, ...) from a value."""
     if isinstance(value, dict):
@@ -115,13 +130,21 @@ def _redact(value):
     return value
 
 
+def _find_log_list(payload: dict) -> list:
+    """Locate the log-entry list under any of the known response shapes
+    (workflow execution logs vs. standalone agent execution logs)."""
+    data = payload.get("data") or {}
+    for key in _LOG_LIST_KEYS:
+        if data.get(key):
+            return data[key]
+        if payload.get(key):
+            return payload[key]
+    return []
+
+
 def _parse_log_entries(payload: dict) -> list[dict]:
-    """Decode each data.workflowExecutionLogs[].logs JSON string into an event dict."""
-    entries = (
-        (payload.get("data") or {}).get("workflowExecutionLogs")
-        or payload.get("workflowExecutionLogs")
-        or []
-    )
+    """Decode each logs[].logs JSON string into an event dict."""
+    entries = _find_log_list(payload)
     events = []
     for entry in entries:
         raw = entry.get("logs") if isinstance(entry, dict) else entry
@@ -141,11 +164,7 @@ def _redact_raw_payload(payload: dict) -> dict:
     JSON-string-encoded log entry (the entries are not plain nested dicts, so
     the generic _redact() walk can't reach the tool_args fields directly)."""
     payload = json.loads(json.dumps(payload))  # cheap deep copy
-    entries = (
-        (payload.get("data") or {}).get("workflowExecutionLogs")
-        or payload.get("workflowExecutionLogs")
-        or []
-    )
+    entries = _find_log_list(payload)
     for entry in entries:
         if not isinstance(entry, dict):
             continue
@@ -273,11 +292,12 @@ def render_markdown_transcript(payload: dict) -> str:
     return "\n\n---\n\n".join(blocks)
 
 
-def save_logs(payload: dict, execution_id: str, output_dir: Path) -> tuple[Path, Path]:
+def save_logs(payload: dict, execution_id: str, output_dir: Path, log_type: str = "workflow") -> tuple[Path, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now().strftime("%m%d_%H%M")
-    json_path = output_dir / f"execution_{execution_id}_{stamp}.json"
-    md_path = output_dir / f"execution_{execution_id}_{stamp}.md"
+    prefix = "execution" if log_type == "workflow" else f"{log_type}_execution"
+    json_path = output_dir / f"{prefix}_{execution_id}_{stamp}.json"
+    md_path = output_dir / f"{prefix}_{execution_id}_{stamp}.md"
 
     raw_text = json.dumps(_redact_raw_payload(payload), indent=2)
     md_text = render_markdown_transcript(payload)
@@ -289,8 +309,14 @@ def save_logs(payload: dict, execution_id: str, output_dir: Path) -> tuple[Path,
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Fetch AAVA workflow execution logs.")
-    parser.add_argument("execution_id", help="Workflow execution ID (runId) to fetch logs for")
+    parser = argparse.ArgumentParser(description="Fetch AAVA workflow or agent execution logs.")
+    parser.add_argument("execution_id", help="Execution ID (runId) to fetch logs for")
+    parser.add_argument(
+        "--type",
+        choices=["workflow", "agent"],
+        default="workflow",
+        help="Whether execution_id refers to a workflow execution or a standalone agent execution (default: workflow)",
+    )
     parser.add_argument("--token", help="Bearer token to use instead of .env AAVA_TOKEN")
     parser.add_argument("--output-dir", default="logs", help="Directory to save the logs")
     args = parser.parse_args()
@@ -304,7 +330,10 @@ def main() -> int:
     headers = get_headers(token)
 
     try:
-        payload = get_execution_logs(args.execution_id, headers)
+        if args.type == "agent":
+            payload = get_agent_execution_logs(args.execution_id, headers)
+        else:
+            payload = get_execution_logs(args.execution_id, headers)
     except requests.exceptions.HTTPError as exc:
         print(f"HTTP error: {exc}", file=sys.stderr)
         return 1
@@ -312,7 +341,7 @@ def main() -> int:
         print(f"Request error: {exc}", file=sys.stderr)
         return 1
 
-    json_path, md_path = save_logs(payload, args.execution_id, Path(args.output_dir))
+    json_path, md_path = save_logs(payload, args.execution_id, Path(args.output_dir), log_type=args.type)
     print(f"Saved raw JSON to: {json_path}")
     print(f"Saved readable transcript to: {md_path}")
     return 0
