@@ -812,6 +812,43 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
     return rec
 
 
+# ── id renumbering, deterministic, no llm ───────────────────────────────────
+def renumber_testcases(records: List[Dict[str, Any]]) -> Dict[str, Dict[str, str]]:
+    """Rewrite Test Case Ids into one global TC_001..TC_NNN sequence, in scenario order.
+
+    Every generator call numbers its own scenario's cases from TC_001, so the per-scenario
+    tables collide once concatenated (run 640764_20260824_122700 delivered 42 test cases
+    under 8 distinct ids). An id is a uniqueness contract, so the tool owns it here rather
+    than trusting the model to prefix correctly. Runs before cross_batch_check so any
+    duplicate warning quotes the id the delivered table actually carries.
+    Returns {scenarioid: {oldid: newid}} so the caller can log the mapping.
+    """
+    mapping: Dict[str, Dict[str, str]] = {}
+    n = 0
+    for r in records:
+        table = r.get("table") or ""
+        if not table:
+            continue
+        seen: Dict[str, str] = {}
+        out = []
+        for row in table.split("\n"):
+            cells = [c.strip() for c in row.strip().strip("|").split("|")]
+            # header, separator and blank-id continuation rows pass through untouched
+            if len(cells) != len(COLUMNS) or cells[0] in ("Test Case Id", "") \
+                    or set(cells[0]) <= {"-", ":"}:
+                out.append(row)
+                continue
+            if cells[0] not in seen:
+                n += 1
+                seen[cells[0]] = f"TC_{n:03d}"
+            cells[0] = seen[cells[0]]
+            out.append("| " + " | ".join(cells) + " |")
+        if seen:
+            r["table"] = "\n".join(out)
+            mapping[r["scenarioid"]] = seen
+    return mapping
+
+
 # ── cross batch check, deterministic, no llm ────────────────────────────────
 def cross_batch_check(records: List[Dict[str, Any]], scenarios: List[Dict[str, Any]]) -> List[str]:
     warnings: List[str] = []
@@ -1074,7 +1111,11 @@ class AavaTestGenOrchestrator(BaseTool):
         order = {s["scenarioId"]: i for i, s in enumerate(scenarios)}
         records.sort(key=lambda r: order.get(r["scenarioid"], 999))
 
-        # 4. cross batch check and assembly
+        # 4. renumber, cross batch check and assembly
+        for sid, m in renumber_testcases(records).items():
+            changed = [f"{o}>{new}" for o, new in m.items() if o != new]
+            if changed:
+                log.line("renumber", scenario=sid, ids=",".join(changed))
         warnings = cross_batch_check(records, scenarios)
         body: List[str] = []
         for r in records:

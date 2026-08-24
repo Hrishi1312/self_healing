@@ -910,6 +910,22 @@ check("the markdown separator row is never a duplicate",
       or all("---" not in w for w in T.cross_batch_check(
           _recs, [{"scenarioId": "TS_00%d" % i} for i in (1, 2, 3)])),
       str(T.cross_batch_check(_recs, [{"scenarioId": "TS_00%d" % i} for i in (1, 2, 3)])[:2]))
+# every scenario numbers its own cases from TC_001, so concatenation collides
+# (run 640764_20260824_122700 delivered 42 test cases under 8 distinct ids)
+_r1 = {"scenarioid": "TS_001", "testcasecount": 2, "table": build_table(2, 2)}
+_r2 = {"scenarioid": "TS_002", "testcasecount": 2, "table": build_table(2, 2)}
+_map = T.renumber_testcases([_r1, _r2])
+_ids1 = T.parse_testcases(_r1["table"], 1, 100)["ids"]
+_ids2 = T.parse_testcases(_r2["table"], 1, 100)["ids"]
+check("colliding per-scenario ids are renumbered into one global sequence",
+      set(_ids1) == {"TC_001", "TC_002"} and set(_ids2) == {"TC_003", "TC_004"},
+      f"{_ids1} / {_ids2}")
+check("the renumber mapping names every rewritten id",
+      _map.get("TS_002") == {"TC_001": "TC_003", "TC_002": "TC_004"}, str(_map))
+_rrows = T.parse_testcases(_r2["table"], 1, 100)["rows"]
+check("renumbering rewrites only the id column",
+      all(r[1].startswith("Verify AR PASSE") and r[13] == T.TEST_TYPE for r in _rrows))
+
 check("a clean scenario has an empty flagged list",
       any(r["flagged"] == [] for r in res10["scenarios"]))
 check("a flagged scenario names the id and keeps its other test cases",
