@@ -1,4 +1,4 @@
-"""Run AavaTestGenOrchestrator from a developer machine, against the real platform.
+"""Run AavaTestGenOrchestratorTwoStage from a developer machine, against the real platform.
 
 This is the step between the offline suite and an upload. The offline suite proves the parsers
 accept what the agents produce; this proves the agent ids exist, the credentials work, the
@@ -92,7 +92,7 @@ if "crewai" not in sys.modules:
     crewai.tools = tools
     sys.modules["crewai"], sys.modules["crewai.tools"] = crewai, tools
 
-import AavaTestGenOrchestrator as T      # noqa: E402
+import AavaTestGenOrchestratorTwoStage as T      # noqa: E402
 
 
 def load_env(path):
@@ -227,7 +227,7 @@ def _files(tee, rundir):
 
 def main():
     ap = argparse.ArgumentParser(
-        description="Run AavaTestGenOrchestrator locally. Settings come from .env next to "
+        description="Run AavaTestGenOrchestratorTwoStage locally. Settings come from .env next to "
                     "this file; any flag below overrides it.")
     # --env has to be resolved before the other defaults exist, so read it with a throwaway
     # parser. Doing it on `ap` would make -h exit here, printing only this one flag.
@@ -314,7 +314,7 @@ def main():
     }
 
     if a.probe:
-        tool = T.AavaTestGenOrchestrator()
+        tool = T.AavaTestGenOrchestratorTwoStage()
         sys.exit(probe(tool._config(json.dumps(runinputs))))
 
     hdr = (f"story {a.storyid} [{a.stage}]: {a.scenarios} scenarios x {a.cases} cases x "
@@ -334,7 +334,7 @@ def main():
                                      else "built in defaults, no .env found"))
     t0 = time.monotonic()
     try:
-        envelope = T.AavaTestGenOrchestrator()._run(runinputs=json.dumps(runinputs))
+        envelope = T.AavaTestGenOrchestratorTwoStage()._run(runinputs=json.dumps(runinputs))
     except Exception:
         sys.stdout = sys.__stdout__; tee.close(); raise
     wall = time.monotonic() - t0

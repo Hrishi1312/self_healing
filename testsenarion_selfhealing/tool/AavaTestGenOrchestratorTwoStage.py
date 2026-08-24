@@ -1,4 +1,4 @@
-"""AavaTestGenOrchestrator — Azure DevOps story to EDI 834 test cases, in one tool call.
+"""AavaTestGenOrchestratorTwoStage — Azure DevOps story to EDI 834 test cases, in one tool call.
 
 TWO-STAGE COPY (testsenarion_selfhealing). This file is the successor to
 testgen_orchestrator/tool/AavaTestGenOrchestrator.py, which stays frozen as the in-production
@@ -988,8 +988,8 @@ def fetch_handoff(cfg: Dict[str, Any], log: _Log) -> Tuple[Dict[str, Any], List[
 
 
 # ── crewai surface ──────────────────────────────────────────────────────────
-class AavaTestGenOrchestratorSchema(BaseModel):
-    """Input schema for AavaTestGenOrchestrator.
+class AavaTestGenOrchestratorTwoStageSchema(BaseModel):
+    """Input schema for AavaTestGenOrchestratorTwoStage.
 
     ONE object, not one field per setting. The orchestrator agent is an LLM: every separate
     variable it has to relay is another chance for it to reformat, reorder or drop a value.
@@ -1015,10 +1015,10 @@ class AavaTestGenOrchestratorSchema(BaseModel):
     )
 
 
-class AavaTestGenOrchestrator(BaseTool):
+class AavaTestGenOrchestratorTwoStage(BaseTool):
     """Runs the whole Azure DevOps story to EDI 834 test cases pipeline in one call."""
 
-    name: str = "Aava Test Gen Orchestrator"
+    name: str = "Aava Test Gen Orchestrator Two Stage"
     description: str = (
         "Turns an Azure DevOps user story into EDI 834 inbound test cases, in one call or in "
         "two stages. stage=scenarios fetches the story, generates and reviews test scenarios "
@@ -1029,7 +1029,7 @@ class AavaTestGenOrchestrator(BaseTool):
         "in one call. Returns one JSON envelope with a full structured log. Always returns: "
         "a scenario that failed is reported inside the envelope, never raised."
     )
-    args_schema: Type[BaseModel] = AavaTestGenOrchestratorSchema
+    args_schema: Type[BaseModel] = AavaTestGenOrchestratorTwoStageSchema
 
     # ── config ──────────────────────────────────────────────────────────────
     def _config(self, blob: Any) -> Dict[str, Any]:

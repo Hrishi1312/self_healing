@@ -28,7 +28,7 @@ between stages if you want a human gate.
 | Here (new or modified) | |
 |---|---|
 | `agents/04_scenario_reviewer_agent.md` | The one NEW console agent: judges the scenario list (coverage, redundancy both directions, traceability), returns confidence/approved/feedback/gaps |
-| `tool/AavaTestGenOrchestrator.py` | The working-copy tool plus: `stage` key (`all`/`scenarios`/`testcases`), scenario review with one rework, the handoff write/read, deadline default 450 (500s ceiling − margin) |
+| `tool/AavaTestGenOrchestratorTwoStage.py` | The working-copy tool plus: `stage` key (`all`/`scenarios`/`testcases`), scenario review with one rework, the handoff write/read, deadline default 450 (500s ceiling − margin). Renamed from `AavaTestGenOrchestrator.py` — the two tools share a class name and platform display name otherwise. |
 | `tool/run_local.py` | Plus `--stage` and `--scenarioreviewagent` |
 | `tool/test_orchestrator.py` | All working-copy checks plus section 18 (stages, handoff, new prompt wiring) — 218 checks |
 | `tool/.env.example` | Plus `stage`, `scenarioreviewagentid`, `scenariopassscore` |

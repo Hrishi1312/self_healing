@@ -1,4 +1,4 @@
-"""Offline test suite for AavaTestGenOrchestrator. No credentials, no network.
+"""Offline test suite for AavaTestGenOrchestratorTwoStage. No credentials, no network.
 
 The point of this file is to answer one question before anything is uploaded:
 **will the tool accept what the agents actually produce?**
@@ -40,7 +40,7 @@ if "crewai" not in sys.modules:
     sys.modules["crewai"] = crewai
     sys.modules["crewai.tools"] = tools
 
-import AavaTestGenOrchestrator as T      # noqa: E402
+import AavaTestGenOrchestratorTwoStage as T      # noqa: E402
 
 PASS, FAIL = [], []
 
@@ -186,7 +186,7 @@ check("strips markdown fences an agent may wrap the JSON in",
 # ────────────────────────────────────────────────────────────────────────────
 section("3. CONFIG VALIDATION  (a bad runinputs object must fail fast and say why)")
 
-tool = T.AavaTestGenOrchestrator()
+tool = T.AavaTestGenOrchestratorTwoStage()
 base = {"adoorg": "CSGRP", "adoproject": "ADO", "adostoryid": "640764",
         "scenarioagentid": 613, "testcaseagentid": 564, "reviewagentid": 559,
         "maxscenarios": 5}
@@ -455,7 +455,7 @@ section("10. PLACEHOLDER WIRING  (the failure that produces confident nonsense)"
 import re as _re                                          # noqa: E402
 AGENTS = os.path.join(SHARED, "agents")          # 00-03 stay with the working copy
 AGENTS_LOCAL = os.path.join(HERE, "..", "agents")  # 04 scenario reviewer lives here
-TOOLSRC = open(os.path.join(HERE, "AavaTestGenOrchestrator.py"), encoding="utf-8").read()
+TOOLSRC = open(os.path.join(HERE, "AavaTestGenOrchestratorTwoStage.py"), encoding="utf-8").read()
 
 
 def prompt_of(fname):
@@ -510,8 +510,8 @@ check("00 orchestrator: declares one runinputs placeholder and nothing else",
       set(_re.findall(r"\{\{(\w+)\}\}", orch)) == {"runinputs"},
       f"found: {sorted(set(_re.findall(r'{{(\w+)}}', orch)))}")
 check("00 orchestrator: the tool takes exactly one argument",
-      set(T.AavaTestGenOrchestratorSchema.model_fields) == {"runinputs"},
-      f"fields: {sorted(T.AavaTestGenOrchestratorSchema.model_fields)}")
+      set(T.AavaTestGenOrchestratorTwoStageSchema.model_fields) == {"runinputs"},
+      f"fields: {sorted(T.AavaTestGenOrchestratorTwoStageSchema.model_fields)}")
 doc_keys = set(_re.findall(r'"(\w+)":', orch_src[orch_src.index("## The runinputs object"):]))
 required = {"adoorg", "adoproject", "adostoryid", "scenarioagentid", "testcaseagentid", "reviewagentid"}
 check("00 orchestrator: the documented object carries every required key",
@@ -628,7 +628,7 @@ _rec5 = res5["scenarios"][0]
 check("a never-passing gate ends unhealed with the problem in gaps",
       _rec5["status"] == "unhealed" and any("DoR" in g for g in _rec5["gaps"]),
       f"status={_rec5['status']} gaps={_rec5['gaps'][:1]}")
-_src = open(os.path.join(HERE, "AavaTestGenOrchestrator.py"), encoding="utf-8").read()
+_src = open(os.path.join(HERE, "AavaTestGenOrchestratorTwoStage.py"), encoding="utf-8").read()
 check("pregate() is defined and wired in",
       "def pregate(" in _src and "\n            problems = pregate(parsed)" in _src)
 check("and the re-enable reason is written next to it", "re-enabled\n# 2026-08-19" in _src
@@ -747,7 +747,7 @@ check("read_testcases still accepts a markdown table",
       len(T.read_testcases(_p["table"], 1, 100)["ids"]) == len(_p["ids"]))
 
 check("the log flushes every line", "flush=True" in open(
-    os.path.join(HERE, "AavaTestGenOrchestrator.py"), encoding="utf-8").read())
+    os.path.join(HERE, "AavaTestGenOrchestratorTwoStage.py"), encoding="utf-8").read())
 
 
 section("13. THE TABLE LEAVES THE ENVELOPE  (~900s of agent relay at 8 scenarios)")
@@ -994,12 +994,12 @@ check("a decoded output object is normalised back to text",
 
 section("16. AAVA UPLOAD GATE")
 
-src = open(os.path.join(HERE, "AavaTestGenOrchestrator.py"), encoding="utf-8").read()
+src = open(os.path.join(HERE, "AavaTestGenOrchestratorTwoStage.py"), encoding="utf-8").read()
 import re as _re
 check("exactly one BaseTool subclass in the file",
       len(_re.findall(r"class \w+\(BaseTool\)", src)) == 1)
 check("the class name the upload will reference exists",
-      "class AavaTestGenOrchestrator(BaseTool)" in src)
+      "class AavaTestGenOrchestratorTwoStage(BaseTool)" in src)
 check("args_schema is declared", "args_schema: Type[BaseModel]" in src)
 check("_run unwraps CrewAI's nested kwargs", 'kwargs.get("kwargs", kwargs)' in src)
 check("every _run exit returns a JSON string", src.count("return json.dumps(") >= 5)
