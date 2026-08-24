@@ -845,6 +845,11 @@ def renumber_testcases(records: List[Dict[str, Any]]) -> Dict[str, Dict[str, str
             out.append("| " + " | ".join(cells) + " |")
         if seen:
             r["table"] = "\n".join(out)
+            # keep the envelope's flagged ids pointing at the ids the table now carries,
+            # or run_local's "needs a look" list names test cases that no longer exist
+            for f in r.get("flagged") or []:
+                if f.get("id") in seen:
+                    f["id"] = seen[f["id"]]
             mapping[r["scenarioid"]] = seen
     return mapping
 

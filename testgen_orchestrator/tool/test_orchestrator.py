@@ -913,7 +913,8 @@ check("the markdown separator row is never a duplicate",
 # every scenario numbers its own cases from TC_001, so concatenation collides
 # (run 640764_20260824_122700 delivered 42 test cases under 8 distinct ids)
 _r1 = {"scenarioid": "TS_001", "testcasecount": 2, "table": build_table(2, 2)}
-_r2 = {"scenarioid": "TS_002", "testcasecount": 2, "table": build_table(2, 2)}
+_r2 = {"scenarioid": "TS_002", "testcasecount": 2, "table": build_table(2, 2),
+       "flagged": [{"id": "TC_002", "why": "duplicate business intent"}]}
 _map = T.renumber_testcases([_r1, _r2])
 _ids1 = T.parse_testcases(_r1["table"], 1, 100)["ids"]
 _ids2 = T.parse_testcases(_r2["table"], 1, 100)["ids"]
@@ -925,6 +926,8 @@ check("the renumber mapping names every rewritten id",
 _rrows = T.parse_testcases(_r2["table"], 1, 100)["rows"]
 check("renumbering rewrites only the id column",
       all(r[1].startswith("Verify AR PASSE") and r[13] == T.TEST_TYPE for r in _rrows))
+check("flagged ids follow the renumbering, so run_local names real ids",
+      _r2["flagged"][0]["id"] == "TC_004", str(_r2["flagged"]))
 
 check("a clean scenario has an empty flagged list",
       any(r["flagged"] == [] for r in res10["scenarios"]))
