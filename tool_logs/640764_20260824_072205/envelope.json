@@ -1,0 +1,219 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "640764",
+    "title": "(ENR SUCC) DEV & TEST - 834E/U AR PASSE Transaction Effective Date Logic Update - EDI"
+  },
+  "summary": {
+    "scenarios": 7,
+    "approved": 3,
+    "unreviewed": 0,
+    "unhealed": 0,
+    "stagnant": 4,
+    "hardstop": 0,
+    "failed": 0,
+    "skipped": 0,
+    "testcases": 21,
+    "totalrounds": 11,
+    "agentcalls": 23,
+    "elapsedms": 263652
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "Identify inbound 834 date elements and support Facets transaction effective date population",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_TS001_003",
+          "why": "the Edge case never tests an edge condition"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 67102,
+      "elapsedms": 219091,
+      "gaps": [
+        "Status field for id 'TC_TS001_003' is 'Edge', but Test Step Expected Result text shows no error, rejection, or absent record in examples such as 'The transmission processes successfully with no blocking error and the canonical attachment is available for review.' and 'A row is returned for SBEL_EFF_DT = 2025-01-01, confirming the first candidate date was used for the transaction effective date.'"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "Use Eligibility Date for new enrollment before eligibility span begins regardless of Assessment Date",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        95
+      ],
+      "finalscore": 95,
+      "rounds": 1,
+      "testcasecount": 3,
+      "chars": 62666,
+      "elapsedms": 99848,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "Use Assessment Date for current eligibility when Assessment Date changes",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_TS003_003",
+          "why": "the Edge case never tests an edge condition"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 66963,
+      "elapsedms": 210292,
+      "gaps": [
+        "Status field for id TC_TS003_003 is \"Edge\" but Test Step Expected Result text contains no error, rejection, or absent-record result. Example expected results: \"The transmission itself shows successful file-level processing with Disposition = Completed and Validation Status = Accepted, allowing boundary-condition verification downstream.\", \"No new transaction effective date driven by a changed Assessment Date is displayed for this update because the Assessment Date did not change.\", \"The post-processing FACETS eligibility data matches the pre-file baseline for transaction effective date selection, showing the unchanged Assessment Date did not trigger a new effective-date update.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Use Assessment Date and retain relevant field values when only Assessment Date changes",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_TS004_003",
+          "why": "edge case never tests a failure outcome"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 75791,
+      "elapsedms": 209701,
+      "gaps": [
+        "Status field for TC_TS004_003 is \"Edge\", but no Test Step Expected Result describes an error, rejection, or absent record. Example Expected Result text: \"The duplicate file may complete transport-level processing and archive handling, but this does not confirm creation of a new eligibility change.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "Use Eligibility Date for relevant field changes received before eligibility start when Assessment Date is unchanged",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        95
+      ],
+      "finalscore": 95,
+      "rounds": 1,
+      "testcasecount": 3,
+      "chars": 70061,
+      "elapsedms": 111214,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_006",
+      "title": "Use Maintenance Date only for current eligibility relevant field changes when Assessment Date is unchanged",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_TS006_003",
+          "why": "edge case never tests rejection or absence"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 77724,
+      "elapsedms": 219088,
+      "gaps": [
+        "Status field for id TC_TS006_003 is \"Edge\" but no Test Step Expected Result describes an error, rejection, or absent record; examples include step 8 Expected Result \"The transaction is traceable in TM, but the boundary condition does not prove a post-begin maintenance-date split and therefore requires absence validation in FACETS.\" and step 16 Expected Result \"The boundary test completes with full audit evidence. The update does not create a new current eligibility effective date or an additional FACETS eligibility row when DTP*303 is equal to the existing eligibility begin date, confirming Maintenance Date is only used in the specified condition.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_007",
+      "title": "Regression coverage for date-selection logic impact on capitation and finance reporting",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        95
+      ],
+      "finalscore": 95,
+      "rounds": 1,
+      "testcasecount": 3,
+      "chars": 68132,
+      "elapsedms": 120438,
+      "gaps": [],
+      "error": null
+    }
+  ],
+  "warnings": [],
+  "testcases": {
+    "rows": 290,
+    "chars": 486867,
+    "scenarios": 7,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-08-24T07:17:40Z step=start story=640764 maxscenarios=7 tcper=3 steps=12-20 rounds=3 workers=7 pass_=90/50 judge=627 deadline=630s",
+    "[ORCH] ts=2026-08-24T07:17:41Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=652",
+    "[ORCH] ts=2026-08-24T07:18:25Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=43864",
+    "[ORCH] ts=2026-08-24T07:19:50Z step=generate scenario=TS_004 round=1 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=75713 ms=84856",
+    "[ORCH] ts=2026-08-24T07:19:50Z step=generate scenario=TS_005 round=1 tc=3 ids=TC_TS005_001,TC_TS005_002,TC_TS005_003 chars=70061 ms=84938",
+    "[ORCH] ts=2026-08-24T07:19:50Z step=generate scenario=TS_003 round=1 tc=3 ids=TC_TS003_001,TC_TS003_002,TC_TS003_003 chars=73088 ms=85177",
+    "[ORCH] ts=2026-08-24T07:19:50Z step=generate scenario=TS_002 round=1 tc=3 ids=TC_TS002_001,TC_TS002_002,TC_TS002_003 chars=62666 ms=85185",
+    "[ORCH] ts=2026-08-24T07:20:05Z step=review scenario=TS_002 round=1 score=95 passed=3/3 ms=14660",
+    "[ORCH] ts=2026-08-24T07:20:05Z step=result scenario=TS_002 status=approved scores=[95] rounds=1 tc=3 ms=99848",
+    "[ORCH] ts=2026-08-24T07:20:11Z step=generate scenario=TS_006 round=1 tc=3 ids=TC_TS006_001,TC_TS006_002,TC_TS006_003 chars=71285 ms=105599",
+    "[ORCH] ts=2026-08-24T07:20:11Z step=generate scenario=TS_001 round=1 tc=3 ids=TC_TS001_001,TC_TS001_002,TC_TS001_003 chars=83523 ms=105671",
+    "[ORCH] ts=2026-08-24T07:20:11Z step=generate scenario=TS_007 round=1 tc=3 ids=TC_TS007_001,TC_TS007_002,TC_TS007_003 chars=68132 ms=105693",
+    "[ORCH] ts=2026-08-24T07:20:16Z step=review scenario=TS_004 round=1 score=85 passed=1/3 failing=TC_TS004_002,TC_TS004_003 ms=26073",
+    "[ORCH] ts=2026-08-24T07:20:16Z step=review scenario=TS_005 round=1 score=95 passed=3/3 ms=26270",
+    "[ORCH] ts=2026-08-24T07:20:16Z step=result scenario=TS_005 status=approved scores=[95] rounds=1 tc=3 ms=111214",
+    "[ORCH] ts=2026-08-24T07:20:16Z step=review scenario=TS_003 round=1 score=85 passed=1/3 failing=TC_TS003_001,TC_TS003_003 ms=26285",
+    "[ORCH] ts=2026-08-24T07:20:25Z step=review scenario=TS_006 round=1 score=85 passed=1/3 failing=TC_TS006_002,TC_TS006_003 ms=14501",
+    "[ORCH] ts=2026-08-24T07:20:25Z step=review scenario=TS_001 round=1 score=85 passed=2/3 failing=TC_TS001_003 ms=14501",
+    "[ORCH] ts=2026-08-24T07:20:25Z step=review scenario=TS_007 round=1 score=95 passed=3/3 ms=14743",
+    "[ORCH] ts=2026-08-24T07:20:25Z step=result scenario=TS_007 status=approved scores=[95] rounds=1 tc=3 ms=120438",
+    "[ORCH] ts=2026-08-24T07:21:40Z step=generate scenario=TS_004 round=2 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=75791 ms=84031 regen=2",
+    "[ORCH] ts=2026-08-24T07:21:41Z step=generate scenario=TS_003 round=2 tc=3 ids=TC_TS003_001,TC_TS003_002,TC_TS003_003 chars=66963 ms=84123 regen=2",
+    "[ORCH] ts=2026-08-24T07:21:49Z step=generate scenario=TS_006 round=2 tc=3 ids=TC_TS006_001,TC_TS006_002,TC_TS006_003 chars=77724 ms=84165 regen=2",
+    "[ORCH] ts=2026-08-24T07:21:49Z step=generate scenario=TS_001 round=2 tc=3 ids=TC_TS001_001,TC_TS001_002,TC_TS001_003 chars=67102 ms=84163 regen=1",
+    "[ORCH] ts=2026-08-24T07:21:55Z step=review scenario=TS_004 round=2 score=85 passed=2/3 failing=TC_TS004_003 ms=14735",
+    "[ORCH] ts=2026-08-24T07:21:55Z step=stagnant scenario=TS_004 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-08-24T07:21:55Z step=result scenario=TS_004 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=209701",
+    "[ORCH] ts=2026-08-24T07:21:55Z step=review scenario=TS_003 round=2 score=85 passed=2/3 failing=TC_TS003_003 ms=14699",
+    "[ORCH] ts=2026-08-24T07:21:55Z step=stagnant scenario=TS_003 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-08-24T07:21:55Z step=result scenario=TS_003 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=210292",
+    "[ORCH] ts=2026-08-24T07:22:04Z step=review scenario=TS_006 round=2 score=85 passed=2/3 failing=TC_TS006_003 ms=14648",
+    "[ORCH] ts=2026-08-24T07:22:04Z step=stagnant scenario=TS_006 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-08-24T07:22:04Z step=review scenario=TS_001 round=2 score=85 passed=2/3 failing=TC_TS001_003 ms=14651",
+    "[ORCH] ts=2026-08-24T07:22:04Z step=stagnant scenario=TS_001 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-08-24T07:22:04Z step=result scenario=TS_001 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=219091",
+    "[ORCH] ts=2026-08-24T07:22:04Z step=result scenario=TS_006 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=219088",
+    "[ORCH] ts=2026-08-24T07:22:04Z step=done approved=3 unreviewed=0 unhealed=0 stagnant=4 hardstop=0 failed=0 skipped=0 testcases=21 agentcalls=23 ms=263652",
+    "[ORCH] ts=2026-08-24T07:22:04Z step=outcome story=640764 ready=17/21 testcases flagged=4 scenarios=7 elapsed=4m23s",
+    "[ORCH] ts=2026-08-24T07:22:04Z step=flagged tc=TC_TS001_003 scenario=TS_001 why=the Edge case never tests an edge condition",
+    "[ORCH] ts=2026-08-24T07:22:04Z step=flagged tc=TC_TS003_003 scenario=TS_003 why=the Edge case never tests an edge condition",
+    "[ORCH] ts=2026-08-24T07:22:04Z step=flagged tc=TC_TS004_003 scenario=TS_004 why=edge case never tests a failure outcome",
+    "[ORCH] ts=2026-08-24T07:22:05Z step=flagged tc=TC_TS006_003 scenario=TS_006 why=edge case never tests rejection or absence",
+    "[ORCH] ts=2026-08-24T07:22:05Z step=detail calls=23 rounds=11 scoreboard=TS_001:stagnant(85>85)  TS_002:approved(95)  TS_003:stagnant(85>85)  TS_004:stagnant(85>85)  TS_005:approved(95)  TS_006:stagnant(85>85)  TS_007:approved(95)"
+  ]
+}
