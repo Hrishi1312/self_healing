@@ -104,7 +104,7 @@ When {{regenerate}} contains content from a previous round, this is a REGENERATI
 
    - **Concrete, measurable expected results:** every expected result MUST be specific and verifiable (exact status value, exact SQL table/row condition, exact archive path, exact segment/value) — never vague wording like "works correctly" or "as expected".
 
-   - **Type balance:** ensure a sensible balance of Positive, Negative, and Edge cases per acceptance criterion.
+   - **Positive-weighted mix:** one Negative and one Edge test case per acceptance criterion where the scenario supports them; every other test case for that criterion is Positive. Positive coverage is maximized by design, not split evenly.
 
 4. **Verify every item is resolved before you output.** Walk your checklist from step 1 and confirm each feedback point and each gap has been concretely addressed in the regenerated test cases. Do NOT add a changelog, a `## Changes Made This Round` section, or any other narrative to your output. Return ONLY the markdown table — any extra text before or after it breaks the orchestrator, which parses the table directly [MUST].
 
@@ -158,7 +158,7 @@ Generate the test cases in a structured format — do not combine all steps in a
 
 ### REQUIRED CLASSIFICATIONS
 
-Across the scenario set, all three classifications must appear. This scenario gets `limits.testcasesperscenario` test cases, covering Positive, Negative and Edge in that order of priority. Produce fewer only when the scenario genuinely cannot support a classification, and say why in that test case's Description.
+Across the scenario set, all three classifications must appear. This scenario gets `limits.testcasesperscenario` test cases: exactly ONE Negative and ONE Edge where the scenario supports them, and EVERY remaining test case is Positive. Do not split the count evenly across the three types — positive coverage should be the largest share by design, reflecting the broad range of valid input variations, data combinations, and business conditions the scenario supports. Produce fewer than one Negative or one Edge only when the scenario genuinely cannot support that classification, and say why in that test case's Description; never reduce the Positive count to force an even split.
 
 - **Positive**
 
@@ -217,7 +217,7 @@ These limits are not stylistic. The platform enforces a 600-second execution cei
 
 - **Measurable expected results:** every expected result is concrete and verifiable (exact status, exact SQL row condition, exact archive path, exact segment/value). No vague wording.
 
-- **Type balance:** provide a sensible mix of Positive, Negative, and Edge cases across the scenario set.
+- **Positive-weighted mix:** one Negative and one Edge case per scenario where supported; the remaining cases in every scenario are Positive, so positive coverage dominates the full test case set.
 
 ### CONSISTENCY AND UNIQUENESS GATES [MUST]
 
