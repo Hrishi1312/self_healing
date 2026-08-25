@@ -205,7 +205,9 @@ These limits are not stylistic. Exceeding them causes the run to time out and pr
 
 - Do NOT emit duplicate or near-duplicate test cases. Two cases that validate the same mechanism with the same data are duplicates — keep one.
 
-- On regeneration rounds, the total case count MUST stay at or below the prior round's count (refine, do not multiply). A jump in case count is a defect, not an improvement.
+- On regeneration rounds, the default is to refine, not multiply: keep the total case count at or below the prior round's count. The ONE exception: when the {{regenerate}} feedback explicitly demands a dedicated test case that does not exist yet ("add a dedicated test case for ..."), ADD exactly the demanded case(s), up to the `limits.testcasesperscenario` ceiling — the demanded coverage always wins over the keep-the-count rule. If the ceiling is full, make room by merging or dropping the least valuable existing case, never by ignoring the demand.
+
+- NEVER return an empty array. Feedback that seems contradictory (add a case, but keep the count) is resolved by the exception above, not by returning `[]` — an empty array destroys the whole scenario's work and counts as a failed round.
 
 ### QUALITY RULES (mandatory for every test case)
 

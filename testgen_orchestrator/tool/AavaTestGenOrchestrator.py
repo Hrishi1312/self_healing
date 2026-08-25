@@ -631,7 +631,8 @@ _PRIO_COL = COLUMNS.index("Test Case Priority")
 ALL_HIGH_MIN_CASES = 4
 
 
-def pregate(parsed: Dict[str, Any], bannedterms: List[str] = None) -> List[str]:
+def pregate(parsed: Dict[str, Any], bannedterms: List[str] = None,
+            maxcases: int = 0) -> List[str]:
     """Return the problems a machine can prove. Empty means it is worth reviewing.
 
     Deliberately NOT here: the angle-bracket rule. It lives in agent 02 (write
@@ -641,6 +642,13 @@ def pregate(parsed: Dict[str, Any], bannedterms: List[str] = None) -> List[str]:
     machine can prove cheaply and the reviewer would otherwise be paid to eyeball.
     """
     problems: List[str] = []
+
+    # Ceiling count, deterministic. Was a judge check, but run 640764_062519 failed a
+    # 10-case batch against a ceiling of 10 ("10 is more than 10") — an LLM fumbling a
+    # boundary a counter cannot. Exactly the ceiling passes; only above it fails.
+    if maxcases and len(parsed["cases"]) > maxcases:
+        problems.append(f"batch has {len(parsed['cases'])} test cases, above the ceiling of "
+                        f"{maxcases}; merge or drop the least valuable cases")
 
     # Caller-supplied banned terms (e.g. invented EDI element names like DTP01). Token
     # match, not substring: "DTP03" must not fire inside "DTP*303".
@@ -700,7 +708,7 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
         # which test cases the reviewer flagged, and why. Without this the envelope can say
         # "this scenario has a problem" but not "2 of its 3 test cases are fine".
         "flagged": [],
-        "scorehistory": [], "finalscore": None, "rounds": 0,
+        "scorehistory": [], "passedhistory": [], "finalscore": None, "rounds": 0,
         "testcasecount": 0, "chars": 0, "elapsedms": 0, "gaps": [], "error": None,
         "table": "",
     }
@@ -759,7 +767,7 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             # in 5 preconditions) that this gate catches for free. Disabling it (2026-08-18)
             # was the drift the code comment warned about. Only work that survives this gate
             # is worth a reviewer call; its problems feed the regenerate round verbatim.
-            problems = pregate(parsed, cfg["bannedterms"])
+            problems = pregate(parsed, cfg["bannedterms"], cfg["testcasesperscenario"])
             if problems:
                 log.line("pregate", scenario=sid, round=rnd, failed=len(problems),
                          first=problems[0][:90])
@@ -805,6 +813,7 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             failing = [s for s in scores if not s.get("pass")]
             batchscore = int(verdict.get("batchscore") or min(s["score"] for s in scores))
             rec["scorehistory"].append(batchscore)
+            rec["passedhistory"].append(len(scores) - len(failing))
             rec["finalscore"] = batchscore
             rec["gaps"] = [g for s in failing for g in (s.get("gaps") or [])]
             # `reason` is the reviewer's own plain English line for a person; `gaps` is the
@@ -834,10 +843,17 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                          floor=cfg["hardstopscore"], note="too low to heal, stopping")
                 break
 
+            # Stagnant only when NEITHER signal moved. A coverage gap caps its case at 85,
+            # and batchscore is the minimum, so a scenario adding the demanded cases can go
+            # 0/7 -> 4/10 passing while the score sits at 85 (run 640764_062519: six
+            # scenarios stopped "stagnant" mid-improvement). Passed count sees that
+            # progress; score alone cannot.
             if cfg["stoponstagnation"] and len(rec["scorehistory"]) >= 2 \
-                    and rec["scorehistory"][-1] <= rec["scorehistory"][-2]:
+                    and rec["scorehistory"][-1] <= rec["scorehistory"][-2] \
+                    and rec["passedhistory"][-1] <= rec["passedhistory"][-2]:
                 rec["status"] = "stagnant"
-                log.line("stagnant", scenario=sid, round=rnd, scores=rec["scorehistory"])
+                log.line("stagnant", scenario=sid, round=rnd, scores=rec["scorehistory"],
+                         passed=rec["passedhistory"])
                 break
 
             if rnd >= passes:
@@ -1166,7 +1182,8 @@ class AavaTestGenOrchestrator(BaseTool):
                     records.append(fut.result())
                 except Exception as e:                        # belt and braces
                     records.append({"scenarioid": s["scenarioId"], "status": "failed",
-                                    "error": str(e)[:300], "scorehistory": [], "rounds": 0,
+                                    "error": str(e)[:300], "scorehistory": [],
+                                    "passedhistory": [], "flagged": [], "rounds": 0,
                                     "testcasecount": 0, "chars": 0, "elapsedms": 0,
                                     "gaps": [], "table": "", "finalscore": None,
                                     "title": s.get("title", "")})

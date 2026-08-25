@@ -219,7 +219,7 @@ check("the minimal seven key payload is enough",
       tool._config(json.dumps(base))["testcasesperscenario"] == 8
       and tool._config(json.dumps(base))["hardstopscore"] == 50
       and tool._config(json.dumps(base))["maxworkers"] == 5)
-check("testcasesperscenario is a ceiling clamped to 8, not the old 5",
+check("testcasesperscenario is a ceiling clamped to 12",
       tool._config(json.dumps(dict(base, testcasesperscenario=20)))["testcasesperscenario"] == 12)
 check("clamps an absurd deadline", tool._config(json.dumps(dict(base, deadlineseconds=99999)))["deadlineseconds"] == 3600)
 check("coerces stoponstagnation from a string",
@@ -345,7 +345,7 @@ orig_exec, orig_story, orig_secret = T.exec_agent, T.fetch_story, T._secret
 T.exec_agent, T.fetch_story = fake_exec, fake_story
 T._secret = lambda k, f="": "test-token"
 
-blob = json.dumps(dict(base, maxscenarios=4, testcasesperscenario=3, stepsmin=1,
+blob = json.dumps(dict(base, maxscenarios=4, testcasesperscenario=12, stepsmin=1,
                        stepsmax=100, maxworkers=4, deadlineseconds=120))
 t0 = time.monotonic()
 res = json.loads(tool._run(runinputs=blob))
@@ -431,7 +431,7 @@ def healing_exec(agentid, userinputs, cfg, token, budget, log, label):
 
 T.exec_agent = healing_exec
 res3 = json.loads(tool._run(runinputs=json.dumps(dict(
-    base, maxscenarios=2, testcasesperscenario=3, stepsmin=1, stepsmax=100,
+    base, maxscenarios=2, testcasesperscenario=12, stepsmin=1, stepsmax=100,
     maxworkers=2, maxhealrounds=3, stoponstagnation=False, deadlineseconds=120))))
 sc = res3["scenarios"]
 check("a never passing scenario ends unhealed, not failed",
@@ -443,7 +443,7 @@ check("score history has one entry per round", all(len(r["scorehistory"]) == 3 f
 
 T.exec_agent = healing_exec
 res4 = json.loads(tool._run(runinputs=json.dumps(dict(
-    base, maxscenarios=2, testcasesperscenario=3, stepsmin=1, stepsmax=100,
+    base, maxscenarios=2, testcasesperscenario=12, stepsmin=1, stepsmax=100,
     maxworkers=2, maxhealrounds=3, stoponstagnation=True, deadlineseconds=120))))
 check("stoponstagnation stops early when the score does not improve",
       all(r["status"] == "stagnant" and r["rounds"] == 2 for r in res4["scenarios"]),
@@ -642,7 +642,7 @@ check("a never-passing gate ends unhealed with the problem in gaps",
 _src = open(os.path.join(HERE, "AavaTestGenOrchestrator.py"), encoding="utf-8").read()
 check("pregate() is defined and wired in",
       "def pregate(" in _src
-      and '\n            problems = pregate(parsed, cfg["bannedterms"])' in _src)
+      and '\n            problems = pregate(parsed, cfg["bannedterms"], cfg["testcasesperscenario"])' in _src)
 check("and the re-enable reason is written next to it", "re-enabled\n# 2026-08-19" in _src
       or "Re-enabled 2026-08-19" in _src or "re-enabled 2026-08-19" in _src)
 
@@ -661,8 +661,8 @@ def lowscore_exec(agentid, userinputs, cfg, token, budget, log, label):
 
 T.exec_agent = lowscore_exec
 res6 = json.loads(tool._run(runinputs=json.dumps(dict(
-    base, maxscenarios=1, stepsmin=1, stepsmax=100, maxworkers=1, maxhealrounds=3,
-    deadlineseconds=120))))
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100, maxworkers=1,
+    maxhealrounds=3, deadlineseconds=120))))
 r6 = res6["scenarios"][0]
 check("a score below hardstopscore stops immediately", r6["status"] == "hardstop", str(r6["status"]))
 check("it stops after ONE round, not three", r6["rounds"] == 1, f"rounds={r6['rounds']}")
@@ -671,8 +671,8 @@ check("hardstop is counted in the summary", res6["summary"]["hardstop"] == 1)
 # 5. Degraded modes.
 T.exec_agent = healing_exec
 res7 = json.loads(tool._run(runinputs=json.dumps(dict(
-    base, maxscenarios=1, stepsmin=1, stepsmax=100, maxworkers=1, maxhealrounds=0,
-    deadlineseconds=120))))
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100, maxworkers=1,
+    maxhealrounds=0, deadlineseconds=120))))
 check("maxhealrounds=0 still runs ONE pass", res7["scenarios"][0]["rounds"] == 1,
       str(res7["scenarios"][0]["rounds"]))
 check("maxhealrounds=0 returns test cases and a score",
@@ -692,8 +692,8 @@ def nojudge_exec(agentid, userinputs, cfg, token, budget, log, label):
 
 T.exec_agent = nojudge_exec
 res8 = json.loads(tool._run(runinputs=json.dumps(dict(
-    base, maxscenarios=1, stepsmin=1, stepsmax=100, maxworkers=1, reviewagentid=0,
-    deadlineseconds=120))))
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100, maxworkers=1,
+    reviewagentid=0, deadlineseconds=120))))
 check("reviewagentid=0 never calls a judge", nojudge["rev"] == 0)
 check("reviewagentid=0 yields status unreviewed",
       res8["scenarios"][0]["status"] == "unreviewed", str(res8["scenarios"][0]["status"]))
@@ -769,7 +769,8 @@ T.exec_agent, T.fetch_story, T._secret = fake_exec, fake_story, lambda k, f="": 
 _buf = _io.StringIO()
 with _ctx.redirect_stdout(_buf):
     res9 = json.loads(tool._run(runinputs=json.dumps(dict(
-        base, maxscenarios=2, stepsmin=1, stepsmax=100, maxworkers=2, deadlineseconds=120))))
+        base, maxscenarios=2, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+        maxworkers=2, deadlineseconds=120))))
 out = _buf.getvalue()
 T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
 
@@ -860,8 +861,8 @@ def mixed_exec(agentid, userinputs, cfg, token, budget, log, label):
 
 T.exec_agent, T.fetch_story, T._secret = mixed_exec, fake_story, lambda k, f="": "t"
 res10 = json.loads(tool._run(runinputs=json.dumps(dict(
-    base, maxscenarios=2, stepsmin=1, stepsmax=100, maxworkers=2, maxhealrounds=1,
-    deadlineseconds=120))))
+    base, maxscenarios=2, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+    maxworkers=2, maxhealrounds=1, deadlineseconds=120))))
 T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
 
 _out = next(l for l in res10["log"] if "step=outcome" in l)
@@ -1041,7 +1042,7 @@ check("no hardcoded secret literals",
 section("17. GITHUB PUBLISH  (opt in, and a failure can never fail the run)")
 
 _ghtoken = "ghp_FAKETOKENVALUE1234567890"
-_gh_base = dict(base, maxscenarios=2, testcasesperscenario=3, stepsmin=1, stepsmax=100,
+_gh_base = dict(base, maxscenarios=2, testcasesperscenario=12, stepsmin=1, stepsmax=100,
                 maxworkers=2, deadlineseconds=120)
 
 cfgp = tool._config(json.dumps(_gh_base))
@@ -1212,8 +1213,8 @@ def capture_exec(agentid, userinputs, cfg, token, budget, log, label):
 
 T.exec_agent, T.fetch_story, T._secret = capture_exec, fake_story, lambda k, f="": "t"
 res22 = json.loads(tool._run(runinputs=json.dumps(dict(
-    base, maxscenarios=1, stepsmin=1, stepsmax=100, deadlineseconds=120,
-    domainhints="Assessment Date = Loop 2300 HD03"))))
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+    deadlineseconds=120, domainhints="Assessment Date = Loop 2300 HD03"))))
 _scen_in = _captured.get(base["scenarioagentid"], {})
 _gen_in = _captured.get(base["testcaseagentid"], {})
 _rev_in = _captured.get(base["reviewagentid"], {})
@@ -1225,7 +1226,8 @@ check("the reviewer receives the full story acceptance criteria",
       bool(_rev_in.get("storyac")) and _rev_in["storyac"] != "{{storyac}}")
 _captured.clear()
 res23 = json.loads(tool._run(runinputs=json.dumps(dict(
-    base, maxscenarios=1, stepsmin=1, stepsmax=100, deadlineseconds=120))))
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+    deadlineseconds=120))))
 check("with no hints configured the keys are still bound, as 'none'",
       _captured.get(base["testcaseagentid"], {}).get("domainhints") == "none"
       and _captured.get(base["reviewagentid"], {}).get("domainhints") == "none")
@@ -1251,13 +1253,52 @@ def heal_exec(agentid, userinputs, cfg, token, budget, log, label):
 
 T.exec_agent, T.fetch_story, T._secret = heal_exec, fake_story, lambda k, f="": "t"
 res24 = json.loads(tool._run(runinputs=json.dumps(dict(
-    base, maxscenarios=1, stepsmin=1, stepsmax=100, maxhealrounds=3, deadlineseconds=120))))
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+    maxhealrounds=3, deadlineseconds=120))))
 _rec24 = res24["scenarios"][0]
 check("a bare-object round is rejected and healed on the next round",
       _rec24["status"] == "approved" and _healcalls["gen"] == 2,
       f"status={_rec24['status']} gen={_healcalls['gen']}")
 check("an approved scenario carries no stale error from the failed round",
       _rec24["error"] is None, str(_rec24["error"])[:80])
+
+# 7. Ceiling count is the pre gate's job now, deterministic. Exactly the ceiling passes;
+#    only above fails; 0 disables (the judge is told never to police the count).
+_twelve = T.parse_testcases(build_table(12, 2), 1, 100)
+check("pre gate fails a batch above the ceiling",
+      any("above the ceiling" in x for x in T.pregate(_twelve, None, 10)))
+check("a batch at exactly the ceiling passes", T.pregate(_twelve, None, 12) == [])
+check("maxcases 0 disables the ceiling check", T.pregate(_twelve, None, 0) == [])
+
+# 8. Stagnation needs BOTH signals flat. Score pinned at 85 while the passed count climbs
+#    (the coverage-gap pattern from run 640764_062519) must keep healing, not stop.
+_prog = {"round": 0}
+
+
+def progress_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        return real_table, 10
+    _prog["round"] += 1
+    ids = T.parse_testcases(real_table, 1, 100)["ids"]
+    passing = min(_prog["round"] * 4, len(ids) - 1)     # 4 then 8 pass, never all 12
+    scores = [{"id": i, "score": 95, "pass": True, "gaps": []} for i in ids[:passing]]
+    scores += [{"id": i, "score": 85, "pass": False, "gaps": ["coverage gap"]}
+               for i in ids[passing:]]
+    return json.dumps({"scenarioid": "x", "scores": scores,
+                       "batchscore": 85, "batchpass": False}), 10
+
+
+T.exec_agent, T.fetch_story, T._secret = progress_exec, fake_story, lambda k, f="": "t"
+res25 = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+    maxhealrounds=3, stoponstagnation=True, deadlineseconds=120))))
+_rec25 = res25["scenarios"][0]
+check("a flat score with a rising passed count is NOT stagnation",
+      _rec25["status"] == "unhealed" and _rec25["rounds"] == 3
+      and _rec25["passedhistory"] == [4, 8, 11],
+      f"status={_rec25['status']} rounds={_rec25['rounds']} passed={_rec25.get('passedhistory')}")
 T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
 
 
