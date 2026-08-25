@@ -51,7 +51,9 @@ DEF_ADO_BASE = "https://dev.azure.com"
 # full discriminating-attribute list (6 field permutations + negatives + a finance check),
 # which is how Rate Cell and Pregnancy fell out of the maintenance-date scenario.
 DEF_TESTCASESPERSCENARIO = 8
-DEF_STEPSMIN = 15
+# The domain experts' reference output (640764_edi_834.xlsx) is front-loaded: one ~18-step
+# foundation case, then 7-step variants that compress the shared plumbing. 7 admits that shape.
+DEF_STEPSMIN = 7
 DEF_STEPSMAX = 18
 DEF_MAXHEALROUNDS = 3
 DEF_PASSSCORE = 90
@@ -716,6 +718,12 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
     passscore = cfg["passscore"]
     parsed: Optional[Dict[str, Any]] = None
     regenerate: List[Dict[str, Any]] = []
+    # Best reviewed round so far. Run 640764_064825: two scenarios went from 7 cases
+    # passing to 0 after a heal round, and the last (worst) table was shipped. A heal
+    # round must never lose work, so the best round is kept and restored after the loop.
+    best: Optional[Dict[str, Any]] = None
+    tablernd = 0      # round whose table is currently in rec["table"]
+    reviewedrnd = 0   # last round the reviewer actually scored
     # maxhealrounds 0 means one pass and no regeneration: score it, report it, change nothing.
     passes = max(1, cfg["maxhealrounds"])
     reviewing = int(cfg["reviewagentid"]) > 0          # 0 disables the judge entirely
@@ -759,6 +767,7 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             rec["table"] = parsed["table"]
             rec["chars"] = parsed["chars"]
             rec["testcasecount"] = len(parsed["ids"])
+            tablernd = rnd
             log.line("generate", scenario=sid, round=rnd, tc=len(parsed["ids"]),
                      ids=",".join(parsed["ids"]), chars=parsed["chars"], ms=gen_ms,
                      regen=len(regenerate) or None)
@@ -827,6 +836,14 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                      passed=f"{len(scores) - len(failing)}/{len(scores)}",
                      failing=",".join(s["id"] for s in failing) or None, ms=rev_ms)
 
+            reviewedrnd = rnd
+            passedcount = len(scores) - len(failing)
+            if best is None or passedcount > best["passed"]:
+                best = {"round": rnd, "passed": passedcount, "table": rec["table"],
+                        "chars": rec["chars"], "testcasecount": rec["testcasecount"],
+                        "gaps": rec["gaps"], "flagged": rec["flagged"],
+                        "finalscore": batchscore}
+
             if not failing:
                 rec["status"] = "approved"
                 # A failed earlier round leaves its message in rec["error"]; keeping it on an
@@ -867,6 +884,22 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
         rec["status"] = "failed"
         rec["error"] = str(e)[:300]
         log.line("threaderror", scenario=sid, error=str(e)[:160])
+
+    if best is not None and rec["status"] != "approved":
+        # The table in hand is a later round's than the best reviewed one, and it is
+        # either unreviewed (its round failed the pre gate or the parser) or reviewed
+        # worse. Ship the best round instead — a heal round must never lose work.
+        currentpassed = rec["passedhistory"][-1] if reviewedrnd == tablernd else -1
+        if tablernd != best["round"] and currentpassed < best["passed"]:
+            for k in ("table", "chars", "testcasecount", "gaps", "flagged", "finalscore"):
+                rec[k] = best[k]
+            log.line("keptbest", scenario=sid, round=best["round"], passed=best["passed"],
+                     note="later round was worse, shipping the best reviewed round")
+        if rec["status"] == "failed":
+            # The loop ended on an error (e.g. a final round returning []), but a
+            # reviewed table is in hand — that is unhealed work, not a failed scenario.
+            rec["status"] = "unhealed"
+            rec["error"] = None
 
     rec["elapsedms"] = int((time.monotonic() - t0) * 1000)
     log.line("result", scenario=sid, status=rec["status"],

@@ -108,7 +108,7 @@ The generator deliberately folds `descriptionRef`, `dorRef` and `dodRef` into th
 
 10.Semantic duplicates — two test cases that validate the SAME business intent are duplicates even when worded differently. This check fails ONLY if you can name two ids and state the shared intent in one sentence. Different data, different condition or different expected outcome means NOT a duplicate. Do not guess at intent you cannot state plainly.
 
-11.Step depth consistency — COUNT the steps in each test case. This check fails ONLY if one test case has fewer than half the steps of the largest test case in the same batch. Report the counts you measured. Normal variation within `limits.stepsmin` to `limits.stepsmax` is not a failure.
+(There is no step-depth-consistency check any more. The programme's manual test cases are deliberately front-loaded — one deep primary case, then short variant cases that compress the shared plumbing — so a batch whose step counts range from `limits.stepsmin` to `limits.stepsmax` is the EXPECTED shape, never a failure. Step counts are judged by check 8's bounds alone.)
 
 9.Column values in the right columns — `Test Case Priority` must contain `P1`, `P2` or `P3`. This check fails ONLY if `Test Case Priority` holds anything else. `Test Case Type`, `Test Case Status` and `Test Type` are tool-injected constants (`Manual`/`New`/`Functional`) and are never a failure.
 
@@ -131,9 +131,9 @@ No deductions for bundling, copied preconditions, or minor vagueness.
 
 0-49 — the test case is empty, unparseable, or clearly unrelated to the scenario.
 
-Checks 5-13 are HARD GATES, not deductions. Checks 5-11 are literal string tests or numeric
+Checks 5-13 are HARD GATES, not deductions. Checks 5-10 are literal string tests or numeric
 counts; checks 12 and 13 require a verbatim quote of the missing clause or the contradicting
-text — never a judgement about phrasing, tone, or style.
+text — never a judgement about phrasing, tone, or style. (Check 11 is retired.)
 
 EVIDENCE RULE [MUST]: a gate fails ONLY if you can quote the exact offending substring verbatim
 from the table and name the field it appears in. If you cannot quote it word for word, the check

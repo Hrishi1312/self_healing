@@ -449,6 +449,75 @@ check("stoponstagnation stops early when the score does not improve",
       all(r["status"] == "stagnant" and r["rounds"] == 2 for r in res4["scenarios"]),
       str([(r["status"], r["rounds"]) for r in res4["scenarios"]]))
 
+# Run 640764_064825: TS_003/TS_005 went from 7 cases passing in round 1 to 0 passing after
+# a heal round, and the tool shipped the 0-passing table. A heal round must never lose work.
+worse = {"gen": 0}
+
+
+def worsening_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        worse["gen"] += 1
+        # round 1: 3 cases; the regeneration round: only 2, and they all fail review
+        return build_table(3 if worse["gen"] == 1 else 2, 3), 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    if len(ids) == 3:      # round 1's table: 2 of 3 pass
+        scores = [{"id": ids[0], "score": 85, "pass": False, "gaps": ["step 3 is vague"]}]
+        scores += [{"id": i, "score": 95, "pass": True, "gaps": []} for i in ids[1:]]
+    else:                  # the regenerated table: everything fails
+        scores = [{"id": i, "score": 85, "pass": False, "gaps": ["worse than before"]}
+                  for i in ids]
+    return json.dumps({"scenarioid": "x", "scores": scores,
+                       "batchscore": 85, "batchpass": False}), 10
+
+
+T.exec_agent = worsening_exec
+res4b = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=3, stoponstagnation=True, deadlineseconds=120))))
+r4b = res4b["scenarios"][0]
+check("a heal round that loses passing cases still stops as stagnant",
+      r4b["status"] == "stagnant" and r4b["passedhistory"] == [2, 0],
+      f"status={r4b['status']} passed={r4b.get('passedhistory')}")
+check("the shipped table is the BEST round's, not the last round's",
+      r4b["testcasecount"] == 3, f"testcasecount={r4b['testcasecount']}")
+check("flagged reflects the best round too", len(r4b["flagged"]) == 1,
+      str(r4b["flagged"]))
+check("keeping the best round is logged",
+      any("step=keptbest" in l for l in res4b["log"]))
+
+# Run 640764_064825: TS_002/TS_007's final heal round returned [], ending the scenario as
+# status=failed with an error, even though an earlier reviewed table was still in hand.
+lastempty = {"gen": 0}
+
+
+def finalround_empty_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        lastempty["gen"] += 1
+        return (build_table(3, 3) if lastempty["gen"] == 1 else "[]"), 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    scores = [{"id": ids[0], "score": 85, "pass": False, "gaps": ["step 3 is vague"]}]
+    scores += [{"id": i, "score": 95, "pass": True, "gaps": []} for i in ids[1:]]
+    return json.dumps({"scenarioid": "x", "scores": scores,
+                       "batchscore": 85, "batchpass": False}), 10
+
+
+T.exec_agent = finalround_empty_exec
+res4c = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=2, stoponstagnation=False, deadlineseconds=120))))
+r4c = res4c["scenarios"][0]
+check("a final round returning [] ends unhealed, not failed",
+      r4c["status"] == "unhealed", f"status={r4c['status']} error={r4c.get('error')}")
+check("its stale error message is cleared", r4c.get("error") is None,
+      f"error={r4c.get('error')}")
+check("the reviewed table survives the bad final round",
+      r4c["testcasecount"] == 3 and res4c["testcases"]["rows"] > 0,
+      f"testcasecount={r4c['testcasecount']} rows={res4c['testcases']['rows']}")
+
 # mocks stay installed; section 11 restores them
 
 

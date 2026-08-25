@@ -118,13 +118,13 @@ Flat, lowercase, no separators.
   "adoproject": "ADO",
   "adostoryid": "640764",
 
-  "scenarioagentid": 625,
+  "scenarioagentid": 654,
   "testcaseagentid": 652,
-  "reviewagentid": 627,
+  "reviewagentid": 653,
 
   "maxscenarios": 7,
   "testcasesperscenario": 8,
-  "stepsmin": 15,
+  "stepsmin": 7,
   "stepsmax": 18,
   "maxhealrounds": 3,
   "passscore": 90,
@@ -166,6 +166,6 @@ The tool calls these by id through `/agents/execute`. They are not wired into th
 
 | Role | inputs key | Current id | Spec |
 |---|---|---|---|
-| Scenario generator | `scenarioagentid` | 625 | [01_scenario_generator_agent.md](01_scenario_generator_agent.md) |
+| Scenario generator | `scenarioagentid` | 654 | [01_scenario_generator_agent.md](01_scenario_generator_agent.md) |
 | Test case generator | `testcaseagentid` | 652 | [02_test_case_generator_agent.md](02_test_case_generator_agent.md) |
-| Reviewer, LLM as a judge | `reviewagentid` | 627 | [03_reviewer_agent.md](03_reviewer_agent.md) |
+| Reviewer, LLM as a judge | `reviewagentid` | 653 | [03_reviewer_agent.md](03_reviewer_agent.md) |

@@ -70,7 +70,7 @@ Any JSON input may be wrapped in markdown fences — strip fences before parsing
 - {{scenario}}   — JSON: ONE test scenario object, carrying the fields `scenarioId`, `title`, `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, `dodRef`, `type`, `description`, `priority`
 - {{storytitle}} — the title of the user story the scenario came from
 - {{limits}}     — JSON with: testcasesperscenario, stepsmin, stepsmax
-- {{domainhints}} — free-text domain glossary from the orchestrator (e.g. which EDI segment carries which business date). The literal value `none` means no hints were supplied, which is normal. When hints ARE supplied they are AUTHORITATIVE: use their terminology and segment/loop/element mappings EXACTLY in every name, description, precondition, step and expected result — never invent, substitute or "correct" a mapping they state. A test step that references a segment the hints do not support is a defect.
+- {{domainhints}} — free-text domain glossary from the orchestrator (e.g. which EDI segment carries which business date). The literal value `none` means no hints were supplied, which is normal. When hints ARE supplied they are AUTHORITATIVE mappings: never invent, substitute or "correct" a mapping they state, and a test step that references a segment the hints do not support is a defect. Use them the way the mapping reads: the BUSINESS term (e.g. "Eligibility Date") is the name used in Test Case Name, Description and Precondition; the segment/loop/element notation (e.g. `Loop 2000 DTP*356`) appears only inside step descriptions and expected results, where a tester needs the exact element. A test case NAMED by segment notation is a defect.
 - {{regenerate}} — present ONLY on a rework round. Absent on the first round, which is normal.
 
 - {{scenario}} — REQUIRED. ONE test scenario object as JSON. It contains the fields `scenarioId`, `title`, `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, `dodRef`, `type`, `description`, and `priority`. Use it — including the description context and the DoR/DoD references — as the basis for test case generation. Do NOT call Azure DevOps directly.
@@ -170,14 +170,21 @@ produce one dedicated test case per listed value BEFORE spending any of the
 the ceiling cannot fit every listed value plus your extras, DROP THE EXTRAS, never a listed
 value: an enumerated value with no test case is a coverage defect the reviewer will reject.
 
-Two further rules the reviewer enforces, so satisfy them before you output:
+Two further rules to satisfy before you output:
 
 - **No semantic duplicates.** Two test cases that validate the same business intent are duplicates
   even when the wording differs. Different data, a different condition or a different expected
-  outcome makes them distinct; a reworded version of the same check does not.
+  outcome makes them distinct; a reworded version of the same check does not. Multiple boundary
+  offsets of the SAME comparison ("one day before", "earlier", "much earlier") are ONE condition
+  — write one boundary case per rule, never a family of near-identical offsets.
 
-- **Consistent step depth.** No test case may have fewer than half the steps of the largest test
-  case in the same batch. Keep them comparable within `limits.stepsmin` to `limits.stepsmax`.
+- **Front-loaded depth, not uniform depth.** The scenario's PRIMARY case — the one that proves
+  the core rule works — walks the full end-to-end flow as atomic steps, near `limits.stepsmax`.
+  Every VARIANT case (a per-field permutation, a boundary, an occurrence variant) compresses the
+  shared pipeline plumbing (staging, pickup, archive, TM UI verification) into 3–4 combined
+  steps and spends its remaining steps on what that case is actually about. This is how the
+  programme's manual test cases are written; near-identical 15-step walks that differ in one
+  assertion are the defect, not the shortcut.
 
 Every test case is a functional test case. There is no `testtype` field to emit — the tool
 writes `Functional` into the Test Type column itself, on every test case, always. Scenarios
@@ -199,7 +206,7 @@ These limits are not stylistic. Exceeding them causes the run to time out and pr
   many. A scenario that only supports two distinct conditions gets two test cases — do not pad
   to reach the ceiling. Never produce more than the ceiling under any circumstance.
 
-- **Between `limits.stepsmin` and `limits.stepsmax` test steps per test case.** Enough to walk the full end-to-end flow as separate atomic actions: prepare and validate the file, drop to staging, confirm pickup, confirm archive, log in to TM UI, filter and open the transaction, assert each date element, connect to SQL, run each validation query, and capture audit evidence. Never fewer than `limits.stepsmin`; never more than `limits.stepsmax`.
+- **Between `limits.stepsmin` and `limits.stepsmax` test steps per test case.** The PRIMARY case sits near `limits.stepsmax`: the full end-to-end flow as separate atomic actions — prepare and validate the file, drop to staging, confirm pickup, confirm archive, log in to TM UI, filter and open the transaction, assert each date element, connect to SQL, run each validation query. VARIANT cases sit near `limits.stepsmin`: shared plumbing compressed into 3–4 combined steps, then the assertions specific to that case's condition. Never fewer than `limits.stepsmin`; never more than `limits.stepsmax`.
 
 - Break each test step into a single atomic action with its own expected result — do not collapse multiple actions into one step, and do not pad to reach a count.
 
@@ -223,13 +230,11 @@ These limits are not stylistic. Exceeding them causes the run to time out and pr
 
 - **Uniqueness signature.** Before emitting, check every test case against every other on `Name` + the scenario condition it exercises. Two cases sharing that signature are one case.
 
-- **Step depth consistency.** Every test case in a run MUST carry equivalent atomic step depth and validation detail. No later test case may be shorter, summarised or less strict than an earlier one. Depth that tails off across the output is a defect, not a style choice.
-
-- **Minimum depth.** Generate enough atomic steps to fully validate setup, processing, database checks, archive checks and outcome verification. Each major action decomposes into a single atomic UI, database or file system action, and every atomic step carries a concrete expected outcome.
+- **Depth follows role, not position.** The primary case is the deepest; variant cases are deliberately shorter (per the front-loaded depth rule above). What must NOT tail off is strictness: a variant's assertion steps carry the same concrete expected outcomes — exact date, exact row condition — as the primary's. A variant that compresses its plumbing is correct; a variant that goes vague in its assertions is a defect.
 
 - **Absence conditions carry MORE steps, not less.** A test case whose condition means something must NOT happen (a date not populated, a record not created, a file not processed) MUST include the validation steps a happy-path case does not need: the error path, the rejection path, the no-record path, and post condition verification, each with an explicit expected outcome.
 
-- **Baseline process step preservation.** Do NOT remove, skip, renumber or collapse any step from the PROCESS STEPS section, including step 9a. Expand with additional sub steps where a scenario needs them, but every applicable baseline step must survive into the test case.
+- **Baseline process step preservation — PRIMARY case only.** The primary case keeps every applicable step from the PROCESS STEPS section, including step 9a, as its own atomic step. Variant cases must still traverse the whole flow — file prepared, staged, processed, verified in FACETS — but compress the baseline plumbing steps into 3–4 combined steps; they never skip a phase outright, and never compress the assertion steps their condition exists to make.
 
 - **Structural validity.** Reject and regenerate any test case that is missing a Precondition, missing an expected result on any step, carries an unresolved placeholder, carries an unresolved state, has incomplete SQL, or collapses several actions into one step.
 
@@ -323,7 +328,7 @@ These limits are not stylistic. Exceeding them causes the run to time out and pr
 
 8. Validate all fields against formatting and content rules — including compliance with rule 5a (no meta-references), rule 6b (all applicable states covered), rule 4a (all SQL queries grounded in the schema knowledge base), OUTPUT VOLUME DISCIPLINE (up to `limits.testcasesperscenario` test cases, `limits.stepsmin` to `limits.stepsmax` steps each), and rule 7a (no tool-injected constant fields in your JSON) — if any validation fails, regenerate the test case until full compliance is achieved.
 
-9. Emit all test cases as the nested JSON array described in OUTPUT FORMAT below. The orchestrator compiles them into the 15 column tabular format suitable for export or integration with test management tools, filling in the six constant fields itself — do not build the table yourself.
+9. Emit all test cases as the nested JSON array described in OUTPUT FORMAT below. The orchestrator compiles them into the 15 column tabular format suitable for export or integration with test management tools, filling in the seven constant fields itself — do not build the table yourself.
 
 10. Provide error handling for missing data, incomplete scenarios, or knowledge base gaps with fallback strategies: if `dorRef`/`dodRef` is missing from a scenario, fall back to AC/description-only precondition/expected-result derivation. If the schema knowledge base is missing a required table/column or cannot be read, flag this as a gap using plain language (e.g., "schema details assumed based on available scenario context") and derive the closest valid query from `kb_edi_834_testcase_analysis_1_embedded`, without naming any KB file in the output. If no state/LOB can be determined from the user story context, flag this as a gap using plain language and derive state-agnostic steps rather than defaulting to any hardcoded state. Any such gap must be communicated using plain, generic language — never by naming "DoR", "DoD", "reference", or any KB file explicitly in the Description or any other field.
 
@@ -410,12 +415,15 @@ to `maxhealrounds`. Calls for different scenarios run in parallel.
 
 | Rule | On failure |
 |---|---|
-| Output parses as a markdown table | Counts as a failed round, parse error fed back |
-| Header matches the 15 columns exactly | Failed round |
-| Every row has the same column count | Failed round |
-| At least one Id matching TC and digits | Failed round |
+| Output parses as the nested JSON array (a markdown table is tolerated; a single bare object or an empty array is rejected) | Counts as a failed round, parse error fed back |
+| Every test case has a non-empty steps array; ids match TC and digits | Failed round |
 | Priority is High, Medium or Low | Failed round |
-| Steps per test case within stepsmin and stepsmax | Failed round |
+| Case count at or below the `testcasesperscenario` ceiling | Failed round (pre gate) |
+| No banned term, KB/schema name, or meta label in the table text | Failed round (pre gate) |
+| No empty Step Description or Expected Result | Failed round (pre gate) |
+| Not all-High priority when the batch has 4+ cases | Failed round (pre gate) |
+
+Step counts within `stepsmin`–`stepsmax` are enforced by the reviewer (check 8), not the tool.
 
 A failed round never crashes the thread. It becomes the reason for the next attempt, and when
 rounds run out the output is kept and flagged.
