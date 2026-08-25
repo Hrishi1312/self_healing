@@ -1,0 +1,89 @@
+[ORCH] ts=2026-08-25T06:39:40Z step=start story=640764 maxscenarios=7 tcper=10 steps=12-20 rounds=3 workers=7 pass_=90/50 judge=653 deadline=630s
+[ORCH] ts=2026-08-25T06:39:40Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=308
+[ORCH] ts=2026-08-25T06:40:23Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=43496
+[ORCH] ts=2026-08-25T06:40:51Z step=generate scenario=TS_007 round=1 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-25T06:40:51Z step=generate scenario=TS_002 round=1 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-25T06:41:49Z step=generate scenario=TS_006 round=1 tc=3 ids=TC_001,TC_002,TC_003 chars=52541 ms=85406
+[ORCH] ts=2026-08-25T06:42:05Z step=review scenario=TS_006 round=1 score=85 passed=2/3 failing=TC_001 ms=15800
+[ORCH] ts=2026-08-25T06:42:15Z step=generate scenario=TS_002 round=2 tc=4 ids=TC_001,TC_002,TC_003,TC_004 chars=58130 ms=84284 regen=1
+[ORCH] ts=2026-08-25T06:42:29Z step=generate scenario=TS_001 round=1 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=111841 ms=125957
+[ORCH] ts=2026-08-25T06:42:29Z step=generate scenario=TS_004 round=1 tc=6 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 chars=143337 ms=126137
+[ORCH] ts=2026-08-25T06:42:30Z step=generate scenario=TS_003 round=1 tc=8 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008 chars=128450 ms=126297
+[ORCH] ts=2026-08-25T06:42:41Z step=review scenario=TS_002 round=2 score=85 passed=1/4 failing=TC_002,TC_003,TC_004 ms=26155
+[ORCH] ts=2026-08-25T06:42:56Z step=review scenario=TS_003 round=1 score=85 passed=7/8 failing=TC_006 ms=26788
+[ORCH] ts=2026-08-25T06:42:57Z step=review scenario=TS_004 round=1 score=85 passed=5/6 failing=TC_004 ms=27118
+[ORCH] ts=2026-08-25T06:43:08Z step=generate scenario=TS_002 round=3 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-25T06:43:08Z step=result scenario=TS_002 status=failed scores=[85] rounds=3 tc=4 ms=164831
+[ORCH] ts=2026-08-25T06:43:13Z step=review scenario=TS_001 round=1 score=85 passed=1/10 failing=TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 ms=43674
+[ORCH] ts=2026-08-25T06:43:23Z step=generate scenario=TS_003 round=2 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-25T06:43:31Z step=generate scenario=TS_005 round=1 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=210190 ms=187232
+[ORCH] ts=2026-08-25T06:43:57Z step=generate scenario=TS_007 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=203583 ms=186416 regen=1
+[ORCH] ts=2026-08-25T06:44:14Z step=review scenario=TS_005 round=1 score=85 passed=7/10 failing=TC_004,TC_009,TC_010 ms=43713
+[ORCH] ts=2026-08-25T06:44:17Z step=generate scenario=TS_001 round=2 error=response is a single JSON test case object; return the complete JSON array of ALL test cases for the scenario, with the  raw={ "id" : "TC_001", "name" : "Verify AR PASSE inbound 834 uses Eligibility Date as the transaction effective date for a prospective new enrollment", "description" : "Validate that a new AR PASSE inboun
+[ORCH] ts=2026-08-25T06:44:41Z step=review scenario=TS_007 round=2 score=85 passed=6/10 failing=TC_004,TC_005,TC_007,TC_009 ms=43900
+[ORCH] ts=2026-08-25T06:45:02Z step=generate scenario=TS_004 round=2 tc=6 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 chars=110266 ms=125171 regen=1
+[ORCH] ts=2026-08-25T06:45:08Z step=generate scenario=TS_007 round=3 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-25T06:45:08Z step=result scenario=TS_007 status=failed scores=[85] rounds=3 tc=10 ms=284202
+[ORCH] ts=2026-08-25T06:45:11Z step=generate scenario=TS_006 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=222091 ms=186103 regen=1
+[ORCH] ts=2026-08-25T06:45:28Z step=generate scenario=TS_003 round=3 tc=6 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 chars=130003 ms=125180 regen=1
+[ORCH] ts=2026-08-25T06:45:28Z step=review scenario=TS_004 round=2 score=85 passed=5/6 failing=TC_006 ms=26206
+[ORCH] ts=2026-08-25T06:45:28Z step=stagnant scenario=TS_004 round=2 scores=[85, 85] passed=[5, 5]
+[ORCH] ts=2026-08-25T06:45:28Z step=result scenario=TS_004 status=stagnant scores=[85, 85] rounds=2 tc=6 ms=304653
+[ORCH] ts=2026-08-25T06:45:54Z step=review scenario=TS_006 round=2 score=85 passed=5/10 failing=TC_001,TC_002,TC_003,TC_004,TC_010 ms=43444
+[ORCH] ts=2026-08-25T06:45:54Z step=review scenario=TS_003 round=3 score=85 passed=0/6 failing=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 ms=26291
+[ORCH] ts=2026-08-25T06:45:54Z step=stagnant scenario=TS_003 round=3 scores=[85, 85] passed=[7, 0]
+[ORCH] ts=2026-08-25T06:45:54Z step=result scenario=TS_003 status=stagnant scores=[85, 85] rounds=3 tc=6 ms=330943
+[ORCH] ts=2026-08-25T06:47:03Z step=generate scenario=TS_001 round=3 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=127801 ms=165748 regen=1
+[ORCH] ts=2026-08-25T06:47:20Z step=generate scenario=TS_005 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=226556 ms=186069 regen=3
+[ORCH] ts=2026-08-25T06:47:47Z step=review scenario=TS_001 round=3 score=85 passed=2/10 failing=TC_002,TC_003,TC_004,TC_005,TC_006,TC_008,TC_009,TC_010 ms=43669
+[ORCH] ts=2026-08-25T06:47:47Z step=result scenario=TS_001 status=unhealed scores=[85, 85] rounds=3 tc=10 ms=443181
+[ORCH] ts=2026-08-25T06:47:59Z step=generate scenario=TS_006 round=3 tc=7 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007 chars=103174 ms=124855 regen=5
+[ORCH] ts=2026-08-25T06:48:04Z step=review scenario=TS_005 round=2 score=85 passed=0/10 failing=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 ms=43710
+[ORCH] ts=2026-08-25T06:48:04Z step=stagnant scenario=TS_005 round=2 scores=[85, 85] passed=[7, 0]
+[ORCH] ts=2026-08-25T06:48:04Z step=result scenario=TS_005 status=stagnant scores=[85, 85] rounds=2 tc=10 ms=460758
+[ORCH] ts=2026-08-25T06:48:25Z step=review scenario=TS_006 round=3 score=85 passed=5/7 failing=TC_005,TC_007 ms=26313
+[ORCH] ts=2026-08-25T06:48:25Z step=stagnant scenario=TS_006 round=3 scores=[85, 85, 85] passed=[2, 5, 5]
+[ORCH] ts=2026-08-25T06:48:25Z step=result scenario=TS_006 status=stagnant scores=[85, 85, 85] rounds=3 tc=7 ms=481953
+[ORCH] ts=2026-08-25T06:48:25Z step=renumber scenario=TS_002 ids=TC_001>TC_011,TC_002>TC_012,TC_003>TC_013,TC_004>TC_014
+[ORCH] ts=2026-08-25T06:48:25Z step=renumber scenario=TS_003 ids=TC_001>TC_015,TC_002>TC_016,TC_003>TC_017,TC_004>TC_018,TC_005>TC_019,TC_006>TC_020
+[ORCH] ts=2026-08-25T06:48:25Z step=renumber scenario=TS_004 ids=TC_001>TC_021,TC_002>TC_022,TC_003>TC_023,TC_004>TC_024,TC_005>TC_025,TC_006>TC_026
+[ORCH] ts=2026-08-25T06:48:25Z step=renumber scenario=TS_005 ids=TC_001>TC_027,TC_002>TC_028,TC_003>TC_029,TC_004>TC_030,TC_005>TC_031,TC_006>TC_032,TC_007>TC_033,TC_008>TC_034,TC_009>TC_035,TC_010>TC_036
+[ORCH] ts=2026-08-25T06:48:25Z step=renumber scenario=TS_006 ids=TC_001>TC_037,TC_002>TC_038,TC_003>TC_039,TC_004>TC_040,TC_005>TC_041,TC_006>TC_042,TC_007>TC_043
+[ORCH] ts=2026-08-25T06:48:25Z step=renumber scenario=TS_007 ids=TC_001>TC_044,TC_002>TC_045,TC_003>TC_046,TC_004>TC_047,TC_005>TC_048,TC_006>TC_049,TC_007>TC_050,TC_008>TC_051,TC_009>TC_052,TC_010>TC_053
+[ORCH] ts=2026-08-25T06:48:25Z step=done approved=0 unreviewed=0 unhealed=1 stagnant=4 hardstop=0 failed=2 skipped=0 testcases=53 agentcalls=33 ms=525790
+[ORCH] ts=2026-08-25T06:48:25Z step=outcome story=640764 ready=19/53 testcases flagged=34 scenarios=7 elapsed=8m45s
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_002 scenario=TS_001 why=duplicates TC_003 intent
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_003 scenario=TS_001 why=duplicates TC_002 intent
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_004 scenario=TS_001 why=duplicates TC_002 intent
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_005 scenario=TS_001 why=duplicates TC_001 intent
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_006 scenario=TS_001 why=missing core rule coverage
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_008 scenario=TS_001 why=missing core rule coverage
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_009 scenario=TS_001 why=missing core rule coverage
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_010 scenario=TS_001 why=missing core rule coverage
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_012 scenario=TS_002 why=duplicate of another test case
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_013 scenario=TS_002 why=duplicate of another test case
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_014 scenario=TS_002 why=duplicate of another test case
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_015 scenario=TS_003 why=missing combined field-preservation coverage
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_016 scenario=TS_003 why=missing combined field-preservation coverage
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_017 scenario=TS_003 why=missing combined field-preservation coverage
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_018 scenario=TS_003 why=missing combined field-preservation coverage
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_019 scenario=TS_003 why=missing combined field-preservation coverage
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_020 scenario=TS_003 why=missing combined field-preservation coverage
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_026 scenario=TS_004 why=missing scenario coverage
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_027 scenario=TS_005 why=has invalid SQL object reference
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_028 scenario=TS_005 why=has invalid SQL object reference
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_029 scenario=TS_005 why=has invalid SQL object reference
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_030 scenario=TS_005 why=has invalid SQL object reference
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_031 scenario=TS_005 why=has invalid SQL object reference
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_032 scenario=TS_005 why=has invalid SQL object reference
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_033 scenario=TS_005 why=has invalid SQL object reference
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_034 scenario=TS_005 why=includes stray config text
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_035 scenario=TS_005 why=has invalid SQL object reference
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_036 scenario=TS_005 why=has invalid SQL object reference
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_041 scenario=TS_006 why=wrong expected date text in one step
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_043 scenario=TS_006 why=scenario also requires assessment date case
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_047 scenario=TS_007 why=wrong effective date intent
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_048 scenario=TS_007 why=missing field validation step
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_050 scenario=TS_007 why=wrong effective date intent
+[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_052 scenario=TS_007 why=missing finance verification
+[ORCH] ts=2026-08-25T06:48:25Z step=detail calls=33 rounds=19 scoreboard=TS_001:unhealed(85>85)  TS_002:failed(85)  TS_003:stagnant(85>85)  TS_004:stagnant(85>85)  TS_005:stagnant(85>85)  TS_006:stagnant(85>85>85)  TS_007:failed(85)
