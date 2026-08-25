@@ -155,20 +155,24 @@ Generate the test cases in a structured format — do not combine all steps in a
 
 ### REQUIRED COVERAGE
 
-There is no Positive/Negative/Edge classification any more. Every test case validates the
-scenario the same way — write one test case per genuinely distinct condition the scenario's
-`descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, and `dodRef` actually support: a boundary
-value, a discriminating attribute value (per the isolation rule below), a business rule variant.
-Do not manufacture a condition that has no grounding in the input just to raise the count, and
-do not drop a condition the input clearly calls for just to lower it.
+There is no Positive/Negative/Edge classification any more, and there is NO standard test case
+count. **The scenario's `description` ends with a numbered `Conditions to cover:` list — that
+list IS your test case count [MUST].** Write EXACTLY one test case per listed condition: a
+scenario listing two conditions gets two test cases, a scenario listing six gets six. Never add
+a test case for anything not on the list, and never drop a listed condition. If two listed
+conditions genuinely cannot be distinguished by any input, cover both in one case and say so in
+its Description — that is the only permitted deviation, in either direction.
 
-**Enumerated lists are covered FIRST [MUST].** When the scenario's `description` (or its other
-reference fields) enumerates a list of discriminating attribute values — e.g. "relevant fields:
-Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy" —
-produce one dedicated test case per listed value BEFORE spending any of the
-`limits.testcasesperscenario` budget on negatives, boundary cases or supplementary checks. If
-the ceiling cannot fit every listed value plus your extras, DROP THE EXTRAS, never a listed
-value: an enumerated value with no test case is a coverage defect the reviewer will reject.
+**Not a condition, so never a standalone test case:** archival, traceability, TM-detail
+retention, "records exist", "loads end to end" and other observability checks. Those are STEPS
+inside the condition cases (the plumbing and verification steps every case already carries),
+not test cases of their own.
+
+**Fallback** — only if the scenario has NO `Conditions to cover:` list: derive the conditions
+yourself from `descriptionRef`, `acceptanceCriteriaRef`, `dorRef` and `dodRef` — one case per
+genuinely distinct input condition, nothing manufactured to raise the count, nothing dropped
+to lower it — and cover any enumerated attribute values in the description before anything
+else.
 
 Two further rules to satisfy before you output:
 
@@ -201,10 +205,10 @@ and must not be merged with other test cases. This is strictly mandatory.
 
 These limits are not stylistic. Exceeding them causes the run to time out and produce nothing.
 
-- **`limits.testcasesperscenario` is a CEILING, not a target.** Write one test case per
-  genuinely distinct condition the scenario supports (see REQUIRED COVERAGE above), up to this
-  many. A scenario that only supports two distinct conditions gets two test cases — do not pad
-  to reach the ceiling. Never produce more than the ceiling under any circumstance.
+- **The test case count comes from the scenario's `Conditions to cover:` list** (see REQUIRED
+  COVERAGE above). `limits.testcasesperscenario` is only a BACKSTOP ceiling: if the list is
+  somehow longer than the ceiling, merge the most closely related conditions to fit — never
+  exceed the ceiling under any circumstance, and never pad up toward it.
 
 - **Between `limits.stepsmin` and `limits.stepsmax` test steps per test case.** The PRIMARY case sits near `limits.stepsmax`: the full end-to-end flow as separate atomic actions — prepare and validate the file, drop to staging, confirm pickup, confirm archive, log in to TM UI, filter and open the transaction, assert each date element, connect to SQL, run each validation query. VARIANT cases sit near `limits.stepsmin`: shared plumbing compressed into 3–4 combined steps, then the assertions specific to that case's condition. Never fewer than `limits.stepsmin`; never more than `limits.stepsmax`.
 
@@ -218,7 +222,7 @@ These limits are not stylistic. Exceeding them causes the run to time out and pr
 
 ### QUALITY RULES (mandatory for every test case)
 
-- **Atomicity:** each test case validates exactly ONE mechanism/behavior. Never bundle multiple independent validations into one case — split them into separate dedicated test cases.
+- **Atomicity:** each test case validates exactly ONE input condition. Never bundle two different input conditions into one case. Atomicity splits on INPUT CONDITIONS, not on assertions: verifying that several fields are all preserved under ONE input change is ONE test case with several assertion steps, not several test cases. Splitting a single condition's assertions into per-assertion cases is padding, not atomicity.
 
 - **Scenario-specific preconditions:** the precondition must state the exact data, file, state/LOB, and system state needed — never a generic phrase.
 

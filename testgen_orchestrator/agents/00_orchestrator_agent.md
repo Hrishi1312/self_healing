@@ -123,7 +123,7 @@ Flat, lowercase, no separators.
   "reviewagentid": 653,
 
   "maxscenarios": 7,
-  "testcasesperscenario": 8,
+  "testcasesperscenario": 6,
   "stepsmin": 7,
   "stepsmax": 18,
   "maxhealrounds": 3,
@@ -148,10 +148,11 @@ Flat, lowercase, no separators.
 }
 ```
 
-`testcasesperscenario` is a CEILING, not a target: the generator writes one test case per
-genuinely distinct condition a scenario supports, up to this many. `maxworkers` is gone —
-one thread per scenario, and `maxagentcalls: null` lets the budget size itself from the run
-shape (3 + maxscenarios x 2 x maxhealrounds).
+`testcasesperscenario` (default 6) is only a BACKSTOP ceiling: each scenario's test case
+count comes from the numbered `Conditions to cover:` list the scenario generator writes into
+its `description` — one case per condition, so counts vary per scenario (1 to 6 in the expert
+reference). `maxworkers` is gone — one thread per scenario, and `maxagentcalls: null` lets
+the budget size itself from the run shape (3 + maxscenarios x 2 x maxhealrounds).
 
 Degraded modes: `maxhealrounds: 0` runs a single pass with no regeneration;
 `reviewagentid: 0` runs without the judge and gates on the deterministic pre gate alone.

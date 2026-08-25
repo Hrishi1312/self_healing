@@ -45,12 +45,12 @@ DEF_AAVA_BASE = ("https://aava-core-api-agents-svc"
 DEF_ADO_BASE = "https://dev.azure.com"
 
 # maxscenarios has no default: it sizes the whole run, so the caller must pass it.
-# testcasesperscenario is a CEILING, not a target: the agent writes one case per genuinely
-# distinct condition the scenario supports, up to this many. The default stays 8, but the
-# clamp allows up to 12: run 640764_141324 proved 8 is too tight when a scenario carries a
-# full discriminating-attribute list (6 field permutations + negatives + a finance check),
-# which is how Rate Cell and Pregnancy fell out of the maintenance-date scenario.
-DEF_TESTCASESPERSCENARIO = 8
+# testcasesperscenario is a BACKSTOP ceiling, not a target: the case count comes from the
+# scenario's own "Conditions to cover" list (agent 01 declares it, agent 02 writes one case
+# per entry). 6 matches the largest genuine family in the domain experts' reference output
+# (6 field permutations); run 640764_073418 showed anything higher gets padded to. The
+# clamp still allows up to 12 for stories with bigger enumerations.
+DEF_TESTCASESPERSCENARIO = 6
 # The domain experts' reference output (640764_edi_834.xlsx) is front-loaded: one ~18-step
 # foundation case, then 7-step variants that compress the shared plumbing. 7 admits that shape.
 DEF_STEPSMIN = 7

@@ -216,7 +216,7 @@ check("maxagentcalls sizes itself: 3 + scenarios x 2 x rounds",
 check("an explicit maxagentcalls still overrides the formula",
       tool._config(json.dumps(dict(base, maxagentcalls=99)))["maxagentcalls"] == 99)
 check("the minimal seven key payload is enough",
-      tool._config(json.dumps(base))["testcasesperscenario"] == 8
+      tool._config(json.dumps(base))["testcasesperscenario"] == 6
       and tool._config(json.dumps(base))["hardstopscore"] == 50
       and tool._config(json.dumps(base))["maxworkers"] == 5)
 check("testcasesperscenario is a ceiling clamped to 12",
