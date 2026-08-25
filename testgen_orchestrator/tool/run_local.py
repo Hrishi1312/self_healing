@@ -299,6 +299,10 @@ def main():
         "githubtoken": E.get("githubtoken") or os.environ.get("GITHUB_TOKEN", ""),
         "githubrepo": d("githubrepo", ""),        # blank falls to the tool's default
         "githubbranch": d("githubbranch", ""),
+        # Optional, from .env only: a domain glossary handed to all three agents, and a
+        # comma separated list of terms the pregate rejects from the assembled table.
+        "domainhints": d("domainhints", ""),
+        "bannedterms": d("bannedterms", ""),
     }
 
     if a.probe:

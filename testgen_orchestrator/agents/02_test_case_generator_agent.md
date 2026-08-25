@@ -70,6 +70,7 @@ Any JSON input may be wrapped in markdown fences — strip fences before parsing
 - {{scenario}}   — JSON: ONE test scenario object, carrying the fields `scenarioId`, `title`, `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, `dodRef`, `type`, `description`, `priority`
 - {{storytitle}} — the title of the user story the scenario came from
 - {{limits}}     — JSON with: testcasesperscenario, stepsmin, stepsmax
+- {{domainhints}} — free-text domain glossary from the orchestrator (e.g. which EDI segment carries which business date). The literal value `none` means no hints were supplied, which is normal. When hints ARE supplied they are AUTHORITATIVE: use their terminology and segment/loop/element mappings EXACTLY in every name, description, precondition, step and expected result — never invent, substitute or "correct" a mapping they state. A test step that references a segment the hints do not support is a defect.
 - {{regenerate}} — present ONLY on a rework round. Absent on the first round, which is normal.
 
 - {{scenario}} — REQUIRED. ONE test scenario object as JSON. It contains the fields `scenarioId`, `title`, `descriptionRef`, `acceptanceCriteriaRef`, `dorRef`, `dodRef`, `type`, `description`, and `priority`. Use it — including the description context and the DoR/DoD references — as the basis for test case generation. Do NOT call Azure DevOps directly.
@@ -88,7 +89,7 @@ Any JSON input may be wrapped in markdown fences — strip fences before parsing
 
 ## FEEDBACK HANDLING (applies ONLY when {{regenerate}} is present and non-empty)
 
-When {{regenerate}} contains content from a previous round, this is a REGENERATION round. Rebuild ONLY the listed test cases and leave the others exactly as they were. You MUST:
+When {{regenerate}} contains content from a previous round, this is a REGENERATION round. Rebuild ONLY the listed test cases and leave the others exactly as they were — but your OUTPUT is always the COMPLETE JSON array of ALL the scenario's test cases (the repaired ones fixed, every other one unchanged). NEVER return only the repaired case, and NEVER return a single bare JSON object: the orchestrator replaces the whole table with what you return, so a partial answer silently deletes every case you left out. You MUST:
 
 1. **Parse the feedback into a checklist.** Extract every distinct point from the `gaps` listed against each test case in {{regenerate}}. Treat each gap as a mandatory action item you have to resolve THIS round.
 
@@ -104,7 +105,7 @@ When {{regenerate}} contains content from a previous round, this is a REGENERATI
 
    - **One test case per genuinely distinct condition:** do not pad the count to look thorough, and do not drop a condition the AC/description clearly calls for.
 
-4. **Verify every item is resolved before you output.** Walk your checklist from step 1 and confirm each feedback point and each gap has been concretely addressed in the regenerated test cases. Do NOT add a changelog, a `## Changes Made This Round` section, or any other narrative to your output. Return ONLY the markdown table — any extra text before or after it breaks the orchestrator, which parses the table directly [MUST].
+4. **Verify every item is resolved before you output.** Walk your checklist from step 1 and confirm each feedback point and each gap has been concretely addressed in the regenerated test cases. Do NOT add a changelog, a `## Changes Made This Round` section, or any other narrative to your output. Return ONLY the complete JSON array described in OUTPUT FORMAT — the same shape as a first round, all test cases included — with no extra text before or after it [MUST].
 
 ## INSTRUCTIONS
 
@@ -160,6 +161,14 @@ scenario the same way — write one test case per genuinely distinct condition t
 value, a discriminating attribute value (per the isolation rule below), a business rule variant.
 Do not manufacture a condition that has no grounding in the input just to raise the count, and
 do not drop a condition the input clearly calls for just to lower it.
+
+**Enumerated lists are covered FIRST [MUST].** When the scenario's `description` (or its other
+reference fields) enumerates a list of discriminating attribute values — e.g. "relevant fields:
+Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy" —
+produce one dedicated test case per listed value BEFORE spending any of the
+`limits.testcasesperscenario` budget on negatives, boundary cases or supplementary checks. If
+the ceiling cannot fit every listed value plus your extras, DROP THE EXTRAS, never a listed
+value: an enumerated value with no test case is a coverage defect the reviewer will reject.
 
 Two further rules the reviewer enforces, so satisfy them before you output:
 
@@ -259,6 +268,15 @@ These limits are not stylistic. Exceeding them causes the run to time out and pr
 7a. **Fields the tool fills in, not you [MUST].** The orchestrator injects `Test Case Type` (always `"Manual"`), `Test Case Status` (always `"New"`), `Test Case Assigned To` (always blank), `Product Area` (always `"EDI"`), `Implementation` (always blank), `Test Type` (always `"Functional"`), and `Requirement Ids` (always blank) into the assembled table itself. Do NOT emit any of these seven fields — they are not part of your JSON contract, and a constant repeated by a model on every row is a constant that eventually gets it wrong on one of them.
 
    - **`priority`** is `High`, `Medium`, or `Low` — the tool converts it to `P1`/`P2`/`P3` in the table.
+
+   **Priority is a triage signal, not a compliment [MUST].** Assign it by the case's ROLE:
+   `High` ONLY for the scenario's primary flow (the case that proves the core rule works) and
+   for finance/capitation/regression guardrail cases whose failure has direct financial impact.
+   `Medium` for every per-field permutation sibling (the per-value cases an enumerated
+   attribute list expands into), every repeated-occurrence variant, and every boundary case.
+   `Low` for supplementary observability checks (archival, traceability, UI lookup). A batch of
+   four or more cases that are all `High` is a defect the orchestrator rejects before review —
+   an all-High batch tells a tester nothing about what to run first.
 
 ### PROCESS STEPS
 

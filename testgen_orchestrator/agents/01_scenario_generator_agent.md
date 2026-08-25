@@ -61,6 +61,7 @@ Any JSON input may be wrapped in markdown fences — strip fences before parsing
 
 - {{storydata}}    — JSON with: storyid, title, description, acceptancecriteria
 - {{maxscenarios}} — the hard cap on how many test scenarios you may emit
+- {{domainhints}}  — free-text domain glossary from the orchestrator (e.g. which EDI segment carries which business date). The literal value `none` means no hints were supplied, which is normal. When hints ARE supplied, use their terminology and segment mappings EXACTLY in every scenario field — never invent or substitute a segment, loop, or element name that contradicts them.
 - {{feedback}}     — present ONLY on a retry. When present, the previous response was rejected and every point in it must be resolved. Absent on the first attempt, which is normal.
 
 - `storydata.storyid` — the Azure DevOps work item id this story came from.
@@ -94,6 +95,10 @@ Do NOT call Azure DevOps directly. The orchestrator has already fetched the stor
 6. Produce only test scenarios — a concise, one-line statement of what is to be validated for each acceptance criterion, informed by the corresponding description context. Do NOT generate detailed test steps, expected results, or full test cases (that is the test case generator's responsibility).
 
 7. For each test scenario, populate the fields: `scenarioId`, `title`, `descriptionRef`, `acceptanceCriteriaRef` (Given/When/Then text), `dorRef`, `dodRef`, `type` (Positive / Negative / Edge), `description`, and `priority`.
+
+7a. **Enumerate discriminating attribute lists [MUST].** When a scenario's condition applies across a set of discriminating attribute values (e.g. the relevant fields whose change drives a date rule: Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy — or whatever set the story actually names), list the COMPLETE set explicitly in that scenario's `description` field. The test case generator produces one case per listed value, so a value you leave out of the list silently loses its test case. Never write "relevant fields" without naming them all.
+
+7b. **First-occurrence conditions get their own coverage [MUST].** Wherever the description or acceptance criteria say the FIRST occurrence of a repeated date or segment is used (multiple occurrences of the same element in one file), make that repeated-occurrence condition explicit in a scenario — either as its own scenario or as a named condition inside the closest scenario's `description`. Precedence between DIFFERENT date types is a different condition and does not satisfy this.
 
 8. Validate each scenario against formatting and content rules; if any validation fails, regenerate the scenario until full compliance is achieved.
 

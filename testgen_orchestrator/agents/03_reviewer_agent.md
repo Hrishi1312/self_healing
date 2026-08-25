@@ -62,6 +62,8 @@ Any JSON input may be wrapped in markdown fences — strip fences before parsing
 - {{scenario}}  — JSON: the ONE scenario these test cases were built from
 - {{testcases}} — the generated test cases as a MARKDOWN TABLE
 - {{limits}}    — JSON with: passscore, stepsmin, stepsmax, testcasesperscenario
+- {{storyac}}   — the FULL acceptance criteria text of the user story the scenario came from. The literal value `none` means it was unavailable. Used ONLY for check 12 (coverage completeness); do not judge the test cases against AC clauses that belong to OTHER scenarios.
+- {{domainhints}} — free-text domain glossary (e.g. which EDI segment carries which business date). The literal value `none` means no hints were supplied, and check 13 then always passes. When supplied, the hints are AUTHORITATIVE over the table's segment/loop/element usage.
 
 - {{testcases}} — the generated test cases as a MARKDOWN TABLE. Columns are:
 
@@ -110,6 +112,10 @@ The generator deliberately folds `descriptionRef`, `dorRef` and `dodRef` into th
 
 9.Column values in the right columns — `Test Case Priority` must contain `P1`, `P2` or `P3`. This check fails ONLY if `Test Case Priority` holds anything else. `Test Case Type`, `Test Case Status` and `Test Type` are tool-injected constants (`Manual`/`New`/`Functional`) and are never a failure.
 
+12.Coverage completeness — read the scenario's `acceptanceCriteriaRef` and `description`, and the clauses of {{storyac}} that this scenario clearly owns. This check fails ONLY if you can quote a concrete requirement clause (an enumerated attribute value with no dedicated case, a first-occurrence/repeated-segment condition with no case, a named condition with no case) that has NO test case in the table. Quote the clause verbatim in `gaps` and attach the failure to the MOST CLOSELY RELATED test case id in the table (set its `pass` false, gap text: "scenario also requires <quoted clause>; add a dedicated test case for it"). Do NOT fail this check for AC clauses that belong to a different scenario, and do NOT fail it because coverage could be "deeper" — only for a nameable, quotable missing condition.
+
+13.Domain-hint consistency — when {{domainhints}} is not `none`, this check fails ONLY if you can quote a segment/loop/element usage in the table that CONTRADICTS a mapping stated in the hints (e.g. the table calls a date by a segment the hints assign to a different date, or references an element name the hints say must not be used). Quote both the offending table text and the hint line it contradicts. Terminology the hints do not mention is NOT a violation.
+
 # Scoring
 
 Score EACH TEST CASE separately, on the four basics (checks 1-4) for that test case:
@@ -123,8 +129,9 @@ No deductions for bundling, copied preconditions, or minor vagueness.
 
 0-49 — the test case is empty, unparseable, or clearly unrelated to the scenario.
 
-Checks 5-11 are HARD GATES, not deductions. Each one is a literal string test or a numeric count
-— never a judgement about phrasing, tone, or style.
+Checks 5-13 are HARD GATES, not deductions. Checks 5-11 are literal string tests or numeric
+counts; checks 12 and 13 require a verbatim quote of the missing clause or the contradicting
+text — never a judgement about phrasing, tone, or style.
 
 EVIDENCE RULE [MUST]: a gate fails ONLY if you can quote the exact offending substring verbatim
 from the table and name the field it appears in. If you cannot quote it word for word, the check
@@ -136,9 +143,9 @@ well its basics score, set its `pass` to false, and put the quoted evidence in i
 
 `pass` is true when a test case scores at or above `limits.passscore`.
 
-If all of checks 5-11 pass for a test case, score it on the basics alone. 90-100 when the four
+If all of checks 5-13 pass for a test case, score it on the basics alone. 90-100 when the four
 basics are met is the EXPECTED outcome for sound output. Do NOT manufacture a reason to withhold
-a pass, and do NOT reduce a score for issues outside checks 1-11.
+a pass, and do NOT reduce a score for issues outside checks 1-13.
 
 Do NOT deduct for the naming style of test case Ids.
 

@@ -220,7 +220,7 @@ check("the minimal seven key payload is enough",
       and tool._config(json.dumps(base))["hardstopscore"] == 50
       and tool._config(json.dumps(base))["maxworkers"] == 5)
 check("testcasesperscenario is a ceiling clamped to 8, not the old 5",
-      tool._config(json.dumps(dict(base, testcasesperscenario=20)))["testcasesperscenario"] == 8)
+      tool._config(json.dumps(dict(base, testcasesperscenario=20)))["testcasesperscenario"] == 12)
 check("clamps an absurd deadline", tool._config(json.dumps(dict(base, deadlineseconds=99999)))["deadlineseconds"] == 3600)
 check("coerces stoponstagnation from a string",
       tool._config(json.dumps(dict(base, stoponstagnation="false")))["stoponstagnation"] is False)
@@ -641,7 +641,8 @@ check("a never-passing gate ends unhealed with the problem in gaps",
       f"status={_rec5['status']} gaps={_rec5['gaps'][:1]}")
 _src = open(os.path.join(HERE, "AavaTestGenOrchestrator.py"), encoding="utf-8").read()
 check("pregate() is defined and wired in",
-      "def pregate(" in _src and "\n            problems = pregate(parsed)" in _src)
+      "def pregate(" in _src
+      and '\n            problems = pregate(parsed, cfg["bannedterms"])' in _src)
 check("and the re-enable reason is written next to it", "re-enabled\n# 2026-08-19" in _src
       or "Re-enabled 2026-08-19" in _src or "re-enabled 2026-08-19" in _src)
 
@@ -1138,6 +1139,125 @@ check("a generate parse failure logs the head of the raw answer",
 check("the run still completes and reports the scenario failed",
       res21.get("status") == "completed"
       and res21["scenarios"][0]["status"] == "failed")
+T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
+
+
+section("19. EXPERT-BASELINE FIXES  (run 640764_141324 vs the expert workbook)")
+
+# 1. Config: the two new optional inputs.
+check("domainhints defaults to empty and passes through",
+      tool._config(json.dumps(base))["domainhints"] == ""
+      and tool._config(json.dumps(dict(base, domainhints=" Assessment Date = HD03 ")))[
+          "domainhints"] == "Assessment Date = HD03")
+check("bannedterms accepts a comma string or a list",
+      tool._config(json.dumps(dict(base, bannedterms="DTP01, DTP03 ,")))["bannedterms"]
+      == ["DTP01", "DTP03"]
+      and tool._config(json.dumps(dict(base, bannedterms=["DTP01"])))["bannedterms"]
+      == ["DTP01"]
+      and tool._config(json.dumps(base))["bannedterms"] == [])
+
+# 2. A bare JSON object on a heal round is rejected with actionable feedback, never parsed
+#    as markdown and never allowed to replace the whole table with one case.
+try:
+    T.read_testcases('{ "id": "TC_003_02", "name": "x", "steps": [] }', 1, 100)
+    _objerr = ""
+except ValueError as e:
+    _objerr = str(e)
+check("a bare JSON object is rejected with the full-array instruction",
+      "complete" in _objerr and "array" in _objerr and "ALL test cases" in _objerr,
+      _objerr[:80] or "did not raise")
+
+# 3. Priority differentiation: an all-P1 batch of 4+ cases fails the pre gate; smaller
+#    batches and mixed batches pass.
+_allp1 = T.parse_testcases(
+    build_table(5, 2).replace("| P2 |", "| P1 |").replace("| P3 |", "| P1 |"), 1, 100)
+check("pre gate catches an all-P1 batch of 4 or more cases",
+      any("High priority" in x for x in T.pregate(_allp1)),
+      str(T.pregate(_allp1)[:1]))
+_small = T.parse_testcases(
+    build_table(3, 2).replace("| P2 |", "| P1 |").replace("| P3 |", "| P1 |"), 1, 100)
+check("an all-P1 batch of 3 or fewer cases is not a violation", T.pregate(_small) == [])
+check("a mixed-priority batch is not a violation",
+      T.pregate(T.parse_testcases(build_table(6, 2), 1, 100)) == [])
+
+# 4. Banned terms: token match, so DTP03 fires as a bare element name but never inside
+#    the legitimate qualifier DTP*303.
+_banned = T.parse_testcases(build_table(4, 2).replace(
+    _ANCHOR, "Verify the Loop 2000 DTP01 Maintenance Date is loaded.", 1), 1, 100)
+check("pre gate catches a banned term as a whole token",
+      any("DTP01" in x for x in T.pregate(_banned, ["DTP01", "DTP03"])))
+_legit = T.parse_testcases(build_table(4, 2).replace(
+    _ANCHOR, "Verify the DTP*303 Maintenance Date is loaded.", 1), 1, 100)
+check("a banned term inside a legitimate qualifier does not fire",
+      T.pregate(_legit, ["DTP03", "DTP01"]) == [])
+check("no banned terms configured means no banned-term check",
+      T.pregate(_banned) == [])
+
+# 5. Wiring: domainhints reaches all three agents, storyac reaches the reviewer, and both
+#    are always bound (never an unbound {{variable}}).
+_captured = {}
+
+
+def capture_exec(agentid, userinputs, cfg, token, budget, log, label):
+    _captured[agentid] = dict(userinputs)
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        return real_table, 10
+    ids = T.parse_testcases(real_table, 1, 100)["ids"]
+    return json.dumps({"scenarioid": "x", "batchpass": True, "batchscore": 95,
+                       "scores": [{"id": i, "score": 95, "pass": True, "gaps": []}
+                                  for i in ids]}), 10
+
+
+T.exec_agent, T.fetch_story, T._secret = capture_exec, fake_story, lambda k, f="": "t"
+res22 = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, stepsmin=1, stepsmax=100, deadlineseconds=120,
+    domainhints="Assessment Date = Loop 2300 HD03"))))
+_scen_in = _captured.get(base["scenarioagentid"], {})
+_gen_in = _captured.get(base["testcaseagentid"], {})
+_rev_in = _captured.get(base["reviewagentid"], {})
+check("domainhints reaches the scenario, generator and reviewer agents",
+      _scen_in.get("domainhints") == "Assessment Date = Loop 2300 HD03"
+      and _gen_in.get("domainhints") == "Assessment Date = Loop 2300 HD03"
+      and _rev_in.get("domainhints") == "Assessment Date = Loop 2300 HD03")
+check("the reviewer receives the full story acceptance criteria",
+      bool(_rev_in.get("storyac")) and _rev_in["storyac"] != "{{storyac}}")
+_captured.clear()
+res23 = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, stepsmin=1, stepsmax=100, deadlineseconds=120))))
+check("with no hints configured the keys are still bound, as 'none'",
+      _captured.get(base["testcaseagentid"], {}).get("domainhints") == "none"
+      and _captured.get(base["reviewagentid"], {}).get("domainhints") == "none")
+
+# 6. A scenario that heals to approved clears the earlier round's error, so a consumer
+#    keying off error != None never misreads a healed scenario as broken (640764 TS_003).
+_healcalls = {"gen": 0}
+
+
+def heal_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        _healcalls["gen"] += 1
+        if _healcalls["gen"] == 1:
+            return '{ "id": "TC_003_02", "name": "only one case" }', 10   # the TS_003 shape
+        return real_table, 10
+    ids = T.parse_testcases(real_table, 1, 100)["ids"]
+    return json.dumps({"scenarioid": "x", "batchpass": True, "batchscore": 95,
+                       "scores": [{"id": i, "score": 95, "pass": True, "gaps": []}
+                                  for i in ids]}), 10
+
+
+T.exec_agent, T.fetch_story, T._secret = heal_exec, fake_story, lambda k, f="": "t"
+res24 = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, stepsmin=1, stepsmax=100, maxhealrounds=3, deadlineseconds=120))))
+_rec24 = res24["scenarios"][0]
+check("a bare-object round is rejected and healed on the next round",
+      _rec24["status"] == "approved" and _healcalls["gen"] == 2,
+      f"status={_rec24['status']} gen={_healcalls['gen']}")
+check("an approved scenario carries no stale error from the failed round",
+      _rec24["error"] is None, str(_rec24["error"])[:80])
 T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
 
 

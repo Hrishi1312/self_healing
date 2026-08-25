@@ -46,8 +46,10 @@ DEF_ADO_BASE = "https://dev.azure.com"
 
 # maxscenarios has no default: it sizes the whole run, so the caller must pass it.
 # testcasesperscenario is a CEILING, not a target: the agent writes one case per genuinely
-# distinct condition the scenario supports, up to this many. 8 covers the richest real
-# pattern seen so far (one case per discriminating attribute value, e.g. Aid Category).
+# distinct condition the scenario supports, up to this many. The default stays 8, but the
+# clamp allows up to 12: run 640764_141324 proved 8 is too tight when a scenario carries a
+# full discriminating-attribute list (6 field permutations + negatives + a finance check),
+# which is how Rate Cell and Pregnancy fell out of the maintenance-date scenario.
 DEF_TESTCASESPERSCENARIO = 8
 DEF_STEPSMIN = 15
 DEF_STEPSMAX = 18
@@ -528,6 +530,15 @@ def read_testcases(raw: str, stepsmin: int, stepsmax: int) -> Dict[str, Any]:
     """Accept either shape. Nested JSON is what the generator emits now; a markdown table is
     still accepted so an older agent, or a model that ignores the format, is not a hard fail."""
     head = _strip_fences(raw).lstrip()[:1]
+    if head == "{":
+        # Seen on a heal round (640764_141324, TS_003): the model returned only the ONE
+        # repaired case as a bare object. Wrapping it in an array would silently replace the
+        # whole table with a single case, so reject it with feedback precise enough that the
+        # next round returns the full set. Falling through to the markdown parser instead
+        # produced "no markdown table found", which told the model nothing.
+        raise ValueError("response is a single JSON test case object; return the complete "
+                         "JSON array of ALL test cases for the scenario, with the repaired "
+                         "cases fixed and every other case unchanged")
     return parse_testcases(expand_testcases(raw) if head == "[" else raw, stepsmin, stepsmax)
 
 
@@ -613,9 +624,14 @@ META_LABELS = ["DoR", "DoD", "Definition of Ready", "Definition of Done",
                "descriptionRef", "dorRef", "dodRef", "per the AC", "as referenced in"]
 # Test Case Name, Description, Pre-condition, Step Description, Expected Result.
 _META_COLS = [1, 2, 3, 5, 6]
+# Derived, not hardcoded: a column inserted into COLUMNS must not silently shift this.
+_PRIO_COL = COLUMNS.index("Test Case Priority")
+# An all-High batch below this many cases is legitimate (a scenario with 2-3 genuinely
+# critical conditions); at or above it, an undifferentiated batch carries no triage signal.
+ALL_HIGH_MIN_CASES = 4
 
 
-def pregate(parsed: Dict[str, Any]) -> List[str]:
+def pregate(parsed: Dict[str, Any], bannedterms: List[str] = None) -> List[str]:
     """Return the problems a machine can prove. Empty means it is worth reviewing.
 
     Deliberately NOT here: the angle-bracket rule. It lives in agent 02 (write
@@ -625,6 +641,25 @@ def pregate(parsed: Dict[str, Any]) -> List[str]:
     machine can prove cheaply and the reviewer would otherwise be paid to eyeball.
     """
     problems: List[str] = []
+
+    # Caller-supplied banned terms (e.g. invented EDI element names like DTP01). Token
+    # match, not substring: "DTP03" must not fire inside "DTP*303".
+    for term in bannedterms or []:
+        pat = r"(?<![A-Za-z0-9*])" + re.escape(term) + r"(?![A-Za-z0-9*])"
+        if re.search(pat, parsed["table"]):
+            problems.append(f"the banned term '{term}' appears in the output; replace it "
+                            f"with the correct domain terminology")
+
+    # Priority differentiation. Run 640764_141324 delivered 45 of 48 cases as P1 against an
+    # expert baseline that marks per-field permutation and occurrence variants P2 — an
+    # all-P1 batch carries no triage signal. Numeric count, so it lives here, not in a
+    # reviewer call.
+    prios = {rows[0][_PRIO_COL] for rows in parsed["cases"].values() if rows}
+    if len(parsed["cases"]) >= ALL_HIGH_MIN_CASES and prios == {"P1"}:
+        problems.append(f"all {len(parsed['cases'])} test cases are High priority; only the "
+                        f"scenario's primary flow and finance/regression guardrail cases are "
+                        f"High — per-field permutation, repeated-occurrence and boundary "
+                        f"variants are Medium")
 
     for tid, rows in parsed["cases"].items():
         for r in rows:
@@ -691,6 +726,9 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                 "storytitle": story["title"],
                 "limits": _j({"testcasesperscenario": cfg["testcasesperscenario"],
                                           "stepsmin": cfg["stepsmin"], "stepsmax": cfg["stepsmax"]}),
+                # Always present, even empty: an unbound {{variable}} arrives as its own
+                # literal name in the agent's prompt.
+                "domainhints": cfg["domainhints"] or "none",
             }
             if regenerate:
                 gen_inputs["regenerate"] = _j(regenerate)   # omitted on the first round
@@ -721,7 +759,7 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             # in 5 preconditions) that this gate catches for free. Disabling it (2026-08-18)
             # was the drift the code comment warned about. Only work that survives this gate
             # is worth a reviewer call; its problems feed the regenerate round verbatim.
-            problems = pregate(parsed)
+            problems = pregate(parsed, cfg["bannedterms"])
             if problems:
                 log.line("pregate", scenario=sid, round=rnd, failed=len(problems),
                          first=problems[0][:90])
@@ -746,6 +784,11 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                 "limits": _j({"passscore": passscore, "stepsmin": cfg["stepsmin"],
                                           "stepsmax": cfg["stepsmax"],
                                           "testcasesperscenario": cfg["testcasesperscenario"]}),
+                # The judge previously saw only the scenario object, so a requirement clause
+                # lost between story and scenario (first-occurrence handling in 640764) was
+                # invisible to it. The full AC text lets it check clause-level coverage.
+                "storyac": story["acceptancecriteria"] or "none",
+                "domainhints": cfg["domainhints"] or "none",
             }
             raw = ""
             try:
@@ -777,6 +820,10 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
 
             if not failing:
                 rec["status"] = "approved"
+                # A failed earlier round leaves its message in rec["error"]; keeping it on an
+                # approved scenario (640764_141324, TS_003: approved yet error="no markdown
+                # table found") misleads any consumer that keys off error != None.
+                rec["error"] = None
                 break
 
             # Hard stop: this far below the bar the output is wrong, not rough, and another
@@ -932,7 +979,7 @@ class AavaTestGenOrchestratorSchema(BaseModel):
             "reviewagentid, maxscenarios, testcasesperscenario, stepsmin, stepsmax, "
             "maxhealrounds, passscore, hardstopscore, stoponstagnation, "
             "deadlineseconds, maxagentcalls, aavabaseurl, realmid, userprincipal, publish, "
-            "githubtoken, githubrepo, githubbranch, and for "
+            "githubtoken, githubrepo, githubbranch, domainhints, bannedterms, and for "
             "local testing only adopat and aavatoken. Set maxhealrounds to 0 for a single "
             "pass with no regeneration, or reviewagentid to 0 to run without the judge. Pass "
             "the value through EXACTLY as received, as one opaque string. Do not parse it, "
@@ -997,7 +1044,7 @@ class AavaTestGenOrchestrator(BaseTool):
         except (KeyError, TypeError, ValueError):
             raise ValueError("runinputs is missing maxscenarios")
         num("maxscenarios", 0, 1, 20)
-        num("testcasesperscenario", DEF_TESTCASESPERSCENARIO, 1, 8)
+        num("testcasesperscenario", DEF_TESTCASESPERSCENARIO, 1, 12)
         num("stepsmin", DEF_STEPSMIN, 1, 40)
         num("stepsmax", DEF_STEPSMAX, cfg.get("stepsmin", DEF_STEPSMIN), 40)
         num("maxhealrounds", DEF_MAXHEALROUNDS, 0, 5)
@@ -1026,6 +1073,15 @@ class AavaTestGenOrchestrator(BaseTool):
         cfg["githubtoken"] = str(cfg.get("githubtoken") or "")
         cfg["aavabaseurl"] = str(cfg.get("aavabaseurl") or DEF_AAVA_BASE)
         cfg["realmid"] = str(cfg.get("realmid") or "")
+        # Free-text domain glossary passed to every sub agent (segment mappings, terminology).
+        # Optional: empty means the agents work from the story and knowledge bases alone.
+        cfg["domainhints"] = str(cfg.get("domainhints") or "").strip()
+        # Terms that must never appear in the assembled table (e.g. invented EDI element
+        # names like DTP01). Accepts a JSON list or a comma separated string.
+        bt = cfg.get("bannedterms") or []
+        if isinstance(bt, str):
+            bt = [t.strip() for t in bt.split(",")]
+        cfg["bannedterms"] = [str(t).strip() for t in bt if str(t).strip()]
         # Attribution on every /agents/execute call. Never blank: an unattributed
         # execution is hard to find later in the platform analytics.
         cfg["userprincipal"] = str(cfg.get("userprincipal") or DEF_USERPRINCIPAL)
@@ -1080,6 +1136,7 @@ class AavaTestGenOrchestrator(BaseTool):
                                      "description": story["description"],
                                      "acceptancecriteria": story["acceptancecriteria"]}),
                     "maxscenarios": str(cfg["maxscenarios"]),
+                    "domainhints": cfg["domainhints"] or "none",
                 }
                 if feedback:
                     scen_inputs["feedback"] = feedback      # omitted on the first attempt
