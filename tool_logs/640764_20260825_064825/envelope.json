@@ -1,0 +1,453 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "640764",
+    "title": "(ENR SUCC) DEV & TEST - 834E/U AR PASSE Transaction Effective Date Logic Update - EDI"
+  },
+  "summary": {
+    "scenarios": 7,
+    "approved": 0,
+    "unreviewed": 0,
+    "unhealed": 1,
+    "stagnant": 4,
+    "hardstop": 0,
+    "failed": 2,
+    "skipped": 0,
+    "testcases": 53,
+    "totalrounds": 19,
+    "agentcalls": 33,
+    "elapsedms": 525790
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "Eligibility Date is used for new enrollment before eligibility begins",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_002",
+          "why": "duplicates TC_003 intent"
+        },
+        {
+          "id": "TC_003",
+          "why": "duplicates TC_002 intent"
+        },
+        {
+          "id": "TC_004",
+          "why": "duplicates TC_002 intent"
+        },
+        {
+          "id": "TC_005",
+          "why": "duplicates TC_001 intent"
+        },
+        {
+          "id": "TC_006",
+          "why": "missing core rule coverage"
+        },
+        {
+          "id": "TC_008",
+          "why": "missing core rule coverage"
+        },
+        {
+          "id": "TC_009",
+          "why": "missing core rule coverage"
+        },
+        {
+          "id": "TC_010",
+          "why": "missing core rule coverage"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        1,
+        2
+      ],
+      "finalscore": 85,
+      "rounds": 3,
+      "testcasecount": 10,
+      "chars": 127801,
+      "elapsedms": 443181,
+      "gaps": [
+        "Semantic duplicate with Test Case Id 'TC_003': both validate the same business intent that a future new enrollment uses Eligibility Date as the transaction effective date when Assessment Date is earlier. TC_002 Test Case Name: 'Verify AR PASSE new enrollment still uses Loop 2000 DTP*356/DTP*348 when Loop 2300 HD03 is earlier than the eligibility date'; TC_003 Test Case Name: 'Verify AR PASSE new enrollment still uses Loop 2000 DTP*356/DTP*348 when Loop 2300 HD03 is much earlier than the eligibility date'",
+        "Semantic duplicate with Test Case Id 'TC_002': both validate the same business intent that a future new enrollment uses Eligibility Date as the transaction effective date when Assessment Date is earlier. TC_003 Test Case Name: 'Verify AR PASSE new enrollment still uses Loop 2000 DTP*356/DTP*348 when Loop 2300 HD03 is much earlier than the eligibility date'; TC_002 Test Case Name: 'Verify AR PASSE new enrollment still uses Loop 2000 DTP*356/DTP*348 when Loop 2300 HD03 is earlier than the eligibility date'",
+        "Semantic duplicate with Test Case Id 'TC_002': both validate the same business intent that a future new enrollment uses Eligibility Date as the transaction effective date when Assessment Date is earlier. TC_004 Test Case Name: 'Verify AR PASSE new enrollment uses Loop 2000 DTP*356/DTP*348 when Loop 2300 HD03 is one day before the eligibility date'; TC_002 Test Case Name: 'Verify AR PASSE new enrollment still uses Loop 2000 DTP*356/DTP*348 when Loop 2300 HD03 is earlier than the eligibility date'",
+        "Semantic duplicate with Test Case Id 'TC_001': both validate the same business intent that a future new enrollment uses Eligibility Date rather than Assessment Date 20250124 as the transaction effective date. TC_005 Test Case Name: 'Verify AR PASSE new enrollment uses Loop 2000 DTP*356/DTP*348 when Loop 2300 HD03 equals the file creation period but eligibility has not begun'; TC_001 Test Case Name: 'Verify AR PASSE new enrollment uses Loop 2000 DTP*356/DTP*348 as the transaction effective date when eligibility has not yet begun'",
+        "TS_001 also requires 'not from Assessment Date = Loop 2300 HD03, regardless of Assessment Date value'; add a dedicated test case for it. Related test case TC_006 focuses on 'creates the FACETS subscriber-member relationship' and does not verify any negative assessment-date outcome.",
+        "TS_001 also requires 'not from Assessment Date = Loop 2300 HD03, regardless of Assessment Date value'; add a dedicated test case for it. Related test case TC_008 focuses on 'is searchable in FACETS by member SSN' and does not verify any negative assessment-date outcome.",
+        "TS_001 also requires 'not from Assessment Date = Loop 2300 HD03, regardless of Assessment Date value'; add a dedicated test case for it. Related test case TC_009 focuses on 'archive and TM traceability' and does not verify any negative assessment-date outcome.",
+        "TS_001 also requires 'not from Assessment Date = Loop 2300 HD03, regardless of Assessment Date value'; add a dedicated test case for it. Related test case TC_010 focuses on 'does not create a MELC error record' and does not verify any negative assessment-date outcome."
+      ],
+      "error": "response is a single JSON test case object; return the complete JSON array of ALL test cases for the scenario, with the repaired cases fixed and every other case unchanged"
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "Assessment Date is used for current eligibility when Assessment Date changes",
+      "status": "failed",
+      "flagged": [
+        {
+          "id": "TC_012",
+          "why": "duplicate of another test case"
+        },
+        {
+          "id": "TC_013",
+          "why": "duplicate of another test case"
+        },
+        {
+          "id": "TC_014",
+          "why": "duplicate of another test case"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        1
+      ],
+      "finalscore": 85,
+      "rounds": 3,
+      "testcasecount": 4,
+      "chars": 58130,
+      "elapsedms": 164831,
+      "gaps": [
+        "TC_002 and TC_001 share the same business intent: both verify that for current eligibility where Assessment Date has changed, Facets uses Assessment Date as the transaction effective date. Evidence from Test Case Name/Description: TC_002 \"Verify AR PASSE current eligibility change still uses Assessment Date from Loop 2300 HD03 when Maintenance Date is later than Eligibility Date\" / \"the Facets transaction effective date still comes from Loop 2300 HD03.\" and TC_001 \"Verify AR PASSE current eligibility change uses Assessment Date from Loop 2300 HD03 as the Facets transaction effective date when Assessment Date is later than the existing current eligibility start date\" / \"loads the Facets transaction effective date from Assessment Date in Loop 2300 HD03 and not from Eligibility Date ... or Maintenance Date ...\"",
+        "TC_003 and TC_001 share the same business intent: both verify that for current eligibility where Assessment Date has changed, Facets uses Assessment Date as the transaction effective date. Evidence from Test Case Name/Description: TC_003 \"Verify AR PASSE current eligibility change uses Assessment Date from Loop 2300 HD03 when Eligibility Date is carried in Loop 2000 DTP*348\" / \"the changed Assessment Date in Loop 2300 HD03 must populate the Facets transaction effective date.\" and TC_001 \"Verify AR PASSE current eligibility change uses Assessment Date from Loop 2300 HD03 as the Facets transaction effective date when Assessment Date is later than the existing current eligibility start date\" / \"loads the Facets transaction effective date from Assessment Date in Loop 2300 HD03 and not from Eligibility Date ... or Maintenance Date ...\"",
+        "TC_004 and TC_001 share the same business intent: both verify that for current eligibility where Assessment Date has changed, Facets uses Assessment Date as the transaction effective date. Evidence from Test Case Name/Description: TC_004 \"Verify AR PASSE current eligibility change uses Assessment Date from Loop 2300 HD03 when Eligibility Date is carried in Loop 2000 DTP*356\" / \"a changed Assessment Date in Loop 2300 HD03 must populate the Facets transaction effective date.\" and TC_001 \"Verify AR PASSE current eligibility change uses Assessment Date from Loop 2300 HD03 as the Facets transaction effective date when Assessment Date is later than the existing current eligibility start date\" / \"loads the Facets transaction effective date from Assessment Date in Loop 2300 HD03 and not from Eligibility Date ... or Maintenance Date ...\""
+      ],
+      "error": "test case array is empty"
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "Assessment Date change with no other field changes preserves listed fields",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_015",
+          "why": "missing combined field-preservation coverage"
+        },
+        {
+          "id": "TC_016",
+          "why": "missing combined field-preservation coverage"
+        },
+        {
+          "id": "TC_017",
+          "why": "missing combined field-preservation coverage"
+        },
+        {
+          "id": "TC_018",
+          "why": "missing combined field-preservation coverage"
+        },
+        {
+          "id": "TC_019",
+          "why": "missing combined field-preservation coverage"
+        },
+        {
+          "id": "TC_020",
+          "why": "missing combined field-preservation coverage"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        7,
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 3,
+      "testcasecount": 6,
+      "chars": 130003,
+      "elapsedms": 330943,
+      "gaps": [
+        "Coverage gap for TC_001: scenario description requires \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\" and acceptanceCriteriaRef requires \"none of the relevant fields have changed\" / \"maintaining values of relevant fields.\" This test case covers only \"Assessment Number\" in Test Case Name/Description; add a dedicated test case for the full combined condition that all listed relevant fields remain unchanged together.",
+        "Coverage gap for TC_002: scenario description requires \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\" and acceptanceCriteriaRef requires \"none of the relevant fields have changed\" / \"maintaining values of relevant fields.\" This test case covers only \"Assessment Tier\" in Test Case Name/Description; add a dedicated test case for the full combined condition that all listed relevant fields remain unchanged together.",
+        "Coverage gap for TC_003: scenario description requires \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\" and acceptanceCriteriaRef requires \"none of the relevant fields have changed\" / \"maintaining values of relevant fields.\" This test case covers only \"Assessment Division\" in Test Case Name/Description; add a dedicated test case for the full combined condition that all listed relevant fields remain unchanged together.",
+        "Coverage gap for TC_004: scenario description requires \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\" and acceptanceCriteriaRef requires \"none of the relevant fields have changed\" / \"maintaining values of relevant fields.\" This test case covers only \"Aid Category\" in Test Case Name/Description; add a dedicated test case for the full combined condition that all listed relevant fields remain unchanged together.",
+        "Coverage gap for TC_005: scenario description requires \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\" and acceptanceCriteriaRef requires \"none of the relevant fields have changed\" / \"maintaining values of relevant fields.\" This test case covers only \"Rate Cell\" in Test Case Name/Description; add a dedicated test case for the full combined condition that all listed relevant fields remain unchanged together.",
+        "Coverage gap for TC_006: scenario description requires \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\" and acceptanceCriteriaRef requires \"none of the relevant fields have changed\" / \"maintaining values of relevant fields.\" This test case covers only \"Pregnancy\" in Test Case Name/Description; add a dedicated test case for the full combined condition that all listed relevant fields remain unchanged together."
+      ],
+      "error": "test case array is empty"
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Future eligibility field-only changes use Eligibility Date when Assessment Date is unchanged",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_026",
+          "why": "missing scenario coverage"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        5,
+        5
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 6,
+      "chars": 110266,
+      "elapsedms": 304653,
+      "gaps": [
+        "TC_006 is the closest related case, but scenario TS_004 also requires \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\" in Scenario Description field text \"Validate that when the member\u2019s eligibility span has not yet begun and one or more listed discriminating fields change while Assessment Date = Loop 2300 HD03 is unchanged\u2014Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\u2014Facets populates the transaction effective date from Eligibility Date = Loop 2000 DTP*356/DTP*348.\"; add a dedicated test case for it"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "Current eligibility field-only changes use Maintenance Date when Assessment Date is unchanged",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_027",
+          "why": "has invalid SQL object reference"
+        },
+        {
+          "id": "TC_028",
+          "why": "has invalid SQL object reference"
+        },
+        {
+          "id": "TC_029",
+          "why": "has invalid SQL object reference"
+        },
+        {
+          "id": "TC_030",
+          "why": "has invalid SQL object reference"
+        },
+        {
+          "id": "TC_031",
+          "why": "has invalid SQL object reference"
+        },
+        {
+          "id": "TC_032",
+          "why": "has invalid SQL object reference"
+        },
+        {
+          "id": "TC_033",
+          "why": "has invalid SQL object reference"
+        },
+        {
+          "id": "TC_034",
+          "why": "includes stray config text"
+        },
+        {
+          "id": "TC_035",
+          "why": "has invalid SQL object reference"
+        },
+        {
+          "id": "TC_036",
+          "why": "has invalid SQL object reference"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        7,
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 226556,
+      "elapsedms": 460758,
+      "gaps": [
+        "Step Description field contains \"On crt_72.sql.caresource.corp\\crt_72, run SELECT * FROM CMC_MELC_LSTY_CD WITH (NOLOCK) WHERE MEME_CK = [TEST DATA: MEME_CK returned in step 10];\"",
+        "Domain hint line is \"Eligibility Date = Loop 2000 DTP*356/DTP*348. Assessment Date = Loop 2300 HD03. Maintenance Date = Loop 2000 DTP*303. Never name a date by a bare element position such as DTP01 or DTP03.\"",
+        "Test case TC_001 also requires \"Confirm that Maintenance Date is only used when specified in acceptance criteria.\"; add a dedicated test case for it",
+        "Step Description field contains \"On crt_72.sql.caresource.corp\\crt_72, run SELECT * FROM CMC_MELC_LSTY_CD WITH (NOLOCK) WHERE MEME_CK = [TEST DATA: MEME_CK returned in step 10];\"",
+        "Step Description field contains \"On crt_72.sql.caresource.corp\\crt_72, run SELECT * FROM CMC_MELC_LSTY_CD WITH (NOLOCK) WHERE MEME_CK = [TEST DATA: MEME_CK returned in step 10];\"",
+        "Step Description field contains \"On crt_72.sql.caresource.corp\\crt_72, run SELECT * FROM CMC_MELC_LSTY_CD WITH (NOLOCK) WHERE MEME_CK = [TEST DATA: MEME_CK returned in step 10];\"",
+        "Step Description field contains \"On crt_72.sql.caresource.corp\\crt_72, run SELECT * FROM CMC_MELC_LSTY_CD WITH (NOLOCK) WHERE MEME_CK = [TEST DATA: MEME_CK returned in step 10];\"",
+        "Step Description field contains \"On crt_72.sql.caresource.corp\\crt_72, run SELECT * FROM CMC_MELC_LSTY_CD WITH (NOLOCK) WHERE MEME_CK = [TEST DATA: MEME_CK returned in step 10];\"",
+        "Step Description field contains \"On crt_72.sql.caresource.corp\\crt_72, run SELECT * FROM CMC_MELC_LSTY_CD WITH (NOLOCK) WHERE MEME_CK = [TEST DATA: MEME_CK returned in step 10];\"",
+        "Description field contains \"because the story {\"passscore\": 90, \"stepsmin\": 12, \"stepsmax\": 20, \"testcasesperscenario\": 10} Maintenance Date usage to updates where Assessment Date is unchanged.\"",
+        "Step Description field contains \"On crt_72.sql.caresource.corp\\crt_72, run SELECT * FROM CMC_MELC_LSTY_CD WITH (NOLOCK) WHERE MEME_CK = [TEST DATA: MEME_CK returned in step 10];\"",
+        "Step Description field contains \"On crt_72.sql.caresource.corp\\crt_72, run SELECT * FROM CMC_MELC_LSTY_CD WITH (NOLOCK) WHERE MEME_CK = [TEST DATA: MEME_CK returned in step 10];\"",
+        "Step Description field contains \"On crt_72.sql.caresource.corp\\crt_72, run SELECT * FROM CMC_MELC_LSTY_CD WITH (NOLOCK) WHERE MEME_CK IN ([TEST DATA: MEME_CK for file A],[TEST DATA: MEME_CK for file B]);\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_006",
+      "title": "First occurrence of repeated inbound dates is selected",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_041",
+          "why": "wrong expected date text in one step"
+        },
+        {
+          "id": "TC_043",
+          "why": "scenario also requires assessment date case"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85,
+        85
+      ],
+      "passedhistory": [
+        2,
+        5,
+        5
+      ],
+      "finalscore": 85,
+      "rounds": 3,
+      "testcasecount": 7,
+      "chars": 103174,
+      "elapsedms": 481953,
+      "gaps": [
+        "Step 10 Expected Result contains \"The loaded transaction effective date equals 2025-03-01? No. The loaded transaction effective date equals 2026-03-01 only, proving the rule selected the first Loop 2300 HD03 Assessment Date and did not use the other business dates.\"",
+        "TS_006 also requires \"Assessment Date = Loop 2300 HD03\"; add a dedicated test case for it"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_007",
+      "title": "Regression confirms corrected span-split logic does not impact downstream business outcomes",
+      "status": "failed",
+      "flagged": [
+        {
+          "id": "TC_047",
+          "why": "wrong effective date intent"
+        },
+        {
+          "id": "TC_048",
+          "why": "missing field validation step"
+        },
+        {
+          "id": "TC_050",
+          "why": "wrong effective date intent"
+        },
+        {
+          "id": "TC_052",
+          "why": "missing finance verification"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        6
+      ],
+      "finalscore": 85,
+      "rounds": 3,
+      "testcasecount": 10,
+      "chars": 203583,
+      "elapsedms": 284202,
+      "gaps": [
+        "Test Case Name/Description/Expected Result use \"uses the Assessment Date\" / \"Assessment Date in Loop 2300 HD03 as the transaction effective date\" / \"transaction effective date matches Loop 2300 HD03 Assessment Date\" while scenario acceptance criteria says \"Confirm that Maintenance Date is only used when specified in acceptance criteria.\" and full clause: \"Given an inbound EDI 834 file, if the member\u2019s eligibility span has already begun and any relevant fields have changed but Assessment Date has NOT changed, the Maintenance Date (DTP*303) populates as the transaction effective date.\" TC_004 is the closest related case and also requires a dedicated test for that quoted clause.",
+        "Field coverage gap attached to closest related case TC_005: scenario description names listed field changes \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\" but TC_005 never validates the updated Rate Cell member value after processing. Quoted evidence: Step 12 Expected Result is only \"The lookup returns the configured key rows needed to identify the Rate Cell auxiliary span key for the member validation.\" and Step 14 Expected Result is only \"Evidence confirms the AR PASSE update processed successfully, the transaction effective date in Facets is populated from Loop 2300 HD03 according to the business rule, and no unintended Maintenance Date based span split occurred for the Rate Cell change.\" Add a dedicated validation of the processed Rate Cell value for this quoted listed field.",
+        "Test Case Name/Description/Expected Result use \"keeps existing effective dates\" / \"does not create a new transaction effective date from the Maintenance Date\" / \"Loop 2000 DTP*303 did not trigger an unintended new effective date\" while full clause referenced by scenario acceptance criteria says \"Given an inbound EDI 834 file, if the member\u2019s eligibility span has already begun and any relevant fields have changed but Assessment Date has NOT changed, the Maintenance Date (DTP*303) populates as the transaction effective date.\"",
+        "Coverage gap attached to closest related case TC_009 for scenario acceptanceCriteriaRef clause \"Verify no change in capitation calculations and accurate reporting for finance team.\" Quoted evidence from TC_009 Expected Results covers only eligibility rows: \"Evidence confirms no unintended additional eligibility span rows were created, preserving downstream capitation-driving eligibility outcomes and accurate finance reporting inputs.\" Add a dedicated test case that verifies actual capitation calculations and finance reporting do not change."
+      ],
+      "error": "test case array is empty"
+    }
+  ],
+  "warnings": [],
+  "testcases": {
+    "rows": 733,
+    "chars": 957629,
+    "scenarios": 7,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-08-25T06:39:40Z step=start story=640764 maxscenarios=7 tcper=10 steps=12-20 rounds=3 workers=7 pass_=90/50 judge=653 deadline=630s",
+    "[ORCH] ts=2026-08-25T06:39:40Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=308",
+    "[ORCH] ts=2026-08-25T06:40:23Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=43496",
+    "[ORCH] ts=2026-08-25T06:40:51Z step=generate scenario=TS_007 round=1 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-08-25T06:40:51Z step=generate scenario=TS_002 round=1 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-08-25T06:41:49Z step=generate scenario=TS_006 round=1 tc=3 ids=TC_001,TC_002,TC_003 chars=52541 ms=85406",
+    "[ORCH] ts=2026-08-25T06:42:05Z step=review scenario=TS_006 round=1 score=85 passed=2/3 failing=TC_001 ms=15800",
+    "[ORCH] ts=2026-08-25T06:42:15Z step=generate scenario=TS_002 round=2 tc=4 ids=TC_001,TC_002,TC_003,TC_004 chars=58130 ms=84284 regen=1",
+    "[ORCH] ts=2026-08-25T06:42:29Z step=generate scenario=TS_001 round=1 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=111841 ms=125957",
+    "[ORCH] ts=2026-08-25T06:42:29Z step=generate scenario=TS_004 round=1 tc=6 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 chars=143337 ms=126137",
+    "[ORCH] ts=2026-08-25T06:42:30Z step=generate scenario=TS_003 round=1 tc=8 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008 chars=128450 ms=126297",
+    "[ORCH] ts=2026-08-25T06:42:41Z step=review scenario=TS_002 round=2 score=85 passed=1/4 failing=TC_002,TC_003,TC_004 ms=26155",
+    "[ORCH] ts=2026-08-25T06:42:56Z step=review scenario=TS_003 round=1 score=85 passed=7/8 failing=TC_006 ms=26788",
+    "[ORCH] ts=2026-08-25T06:42:57Z step=review scenario=TS_004 round=1 score=85 passed=5/6 failing=TC_004 ms=27118",
+    "[ORCH] ts=2026-08-25T06:43:08Z step=generate scenario=TS_002 round=3 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-08-25T06:43:08Z step=result scenario=TS_002 status=failed scores=[85] rounds=3 tc=4 ms=164831",
+    "[ORCH] ts=2026-08-25T06:43:13Z step=review scenario=TS_001 round=1 score=85 passed=1/10 failing=TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 ms=43674",
+    "[ORCH] ts=2026-08-25T06:43:23Z step=generate scenario=TS_003 round=2 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-08-25T06:43:31Z step=generate scenario=TS_005 round=1 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=210190 ms=187232",
+    "[ORCH] ts=2026-08-25T06:43:57Z step=generate scenario=TS_007 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=203583 ms=186416 regen=1",
+    "[ORCH] ts=2026-08-25T06:44:14Z step=review scenario=TS_005 round=1 score=85 passed=7/10 failing=TC_004,TC_009,TC_010 ms=43713",
+    "[ORCH] ts=2026-08-25T06:44:17Z step=generate scenario=TS_001 round=2 error=response is a single JSON test case object; return the complete JSON array of ALL test cases for the scenario, with the  raw={ \"id\" : \"TC_001\", \"name\" : \"Verify AR PASSE inbound 834 uses Eligibility Date as the transaction effective date for a prospective new enrollment\", \"description\" : \"Validate that a new AR PASSE inboun",
+    "[ORCH] ts=2026-08-25T06:44:41Z step=review scenario=TS_007 round=2 score=85 passed=6/10 failing=TC_004,TC_005,TC_007,TC_009 ms=43900",
+    "[ORCH] ts=2026-08-25T06:45:02Z step=generate scenario=TS_004 round=2 tc=6 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 chars=110266 ms=125171 regen=1",
+    "[ORCH] ts=2026-08-25T06:45:08Z step=generate scenario=TS_007 round=3 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-08-25T06:45:08Z step=result scenario=TS_007 status=failed scores=[85] rounds=3 tc=10 ms=284202",
+    "[ORCH] ts=2026-08-25T06:45:11Z step=generate scenario=TS_006 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=222091 ms=186103 regen=1",
+    "[ORCH] ts=2026-08-25T06:45:28Z step=generate scenario=TS_003 round=3 tc=6 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 chars=130003 ms=125180 regen=1",
+    "[ORCH] ts=2026-08-25T06:45:28Z step=review scenario=TS_004 round=2 score=85 passed=5/6 failing=TC_006 ms=26206",
+    "[ORCH] ts=2026-08-25T06:45:28Z step=stagnant scenario=TS_004 round=2 scores=[85, 85] passed=[5, 5]",
+    "[ORCH] ts=2026-08-25T06:45:28Z step=result scenario=TS_004 status=stagnant scores=[85, 85] rounds=2 tc=6 ms=304653",
+    "[ORCH] ts=2026-08-25T06:45:54Z step=review scenario=TS_006 round=2 score=85 passed=5/10 failing=TC_001,TC_002,TC_003,TC_004,TC_010 ms=43444",
+    "[ORCH] ts=2026-08-25T06:45:54Z step=review scenario=TS_003 round=3 score=85 passed=0/6 failing=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 ms=26291",
+    "[ORCH] ts=2026-08-25T06:45:54Z step=stagnant scenario=TS_003 round=3 scores=[85, 85] passed=[7, 0]",
+    "[ORCH] ts=2026-08-25T06:45:54Z step=result scenario=TS_003 status=stagnant scores=[85, 85] rounds=3 tc=6 ms=330943",
+    "[ORCH] ts=2026-08-25T06:47:03Z step=generate scenario=TS_001 round=3 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=127801 ms=165748 regen=1",
+    "[ORCH] ts=2026-08-25T06:47:20Z step=generate scenario=TS_005 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=226556 ms=186069 regen=3",
+    "[ORCH] ts=2026-08-25T06:47:47Z step=review scenario=TS_001 round=3 score=85 passed=2/10 failing=TC_002,TC_003,TC_004,TC_005,TC_006,TC_008,TC_009,TC_010 ms=43669",
+    "[ORCH] ts=2026-08-25T06:47:47Z step=result scenario=TS_001 status=unhealed scores=[85, 85] rounds=3 tc=10 ms=443181",
+    "[ORCH] ts=2026-08-25T06:47:59Z step=generate scenario=TS_006 round=3 tc=7 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007 chars=103174 ms=124855 regen=5",
+    "[ORCH] ts=2026-08-25T06:48:04Z step=review scenario=TS_005 round=2 score=85 passed=0/10 failing=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 ms=43710",
+    "[ORCH] ts=2026-08-25T06:48:04Z step=stagnant scenario=TS_005 round=2 scores=[85, 85] passed=[7, 0]",
+    "[ORCH] ts=2026-08-25T06:48:04Z step=result scenario=TS_005 status=stagnant scores=[85, 85] rounds=2 tc=10 ms=460758",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=review scenario=TS_006 round=3 score=85 passed=5/7 failing=TC_005,TC_007 ms=26313",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=stagnant scenario=TS_006 round=3 scores=[85, 85, 85] passed=[2, 5, 5]",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=result scenario=TS_006 status=stagnant scores=[85, 85, 85] rounds=3 tc=7 ms=481953",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=renumber scenario=TS_002 ids=TC_001>TC_011,TC_002>TC_012,TC_003>TC_013,TC_004>TC_014",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=renumber scenario=TS_003 ids=TC_001>TC_015,TC_002>TC_016,TC_003>TC_017,TC_004>TC_018,TC_005>TC_019,TC_006>TC_020",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=renumber scenario=TS_004 ids=TC_001>TC_021,TC_002>TC_022,TC_003>TC_023,TC_004>TC_024,TC_005>TC_025,TC_006>TC_026",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=renumber scenario=TS_005 ids=TC_001>TC_027,TC_002>TC_028,TC_003>TC_029,TC_004>TC_030,TC_005>TC_031,TC_006>TC_032,TC_007>TC_033,TC_008>TC_034,TC_009>TC_035,TC_010>TC_036",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=renumber scenario=TS_006 ids=TC_001>TC_037,TC_002>TC_038,TC_003>TC_039,TC_004>TC_040,TC_005>TC_041,TC_006>TC_042,TC_007>TC_043",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=renumber scenario=TS_007 ids=TC_001>TC_044,TC_002>TC_045,TC_003>TC_046,TC_004>TC_047,TC_005>TC_048,TC_006>TC_049,TC_007>TC_050,TC_008>TC_051,TC_009>TC_052,TC_010>TC_053",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=done approved=0 unreviewed=0 unhealed=1 stagnant=4 hardstop=0 failed=2 skipped=0 testcases=53 agentcalls=33 ms=525790",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=outcome story=640764 ready=19/53 testcases flagged=34 scenarios=7 elapsed=8m45s",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_002 scenario=TS_001 why=duplicates TC_003 intent",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_003 scenario=TS_001 why=duplicates TC_002 intent",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_004 scenario=TS_001 why=duplicates TC_002 intent",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_005 scenario=TS_001 why=duplicates TC_001 intent",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_006 scenario=TS_001 why=missing core rule coverage",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_008 scenario=TS_001 why=missing core rule coverage",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_009 scenario=TS_001 why=missing core rule coverage",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_010 scenario=TS_001 why=missing core rule coverage",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_012 scenario=TS_002 why=duplicate of another test case",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_013 scenario=TS_002 why=duplicate of another test case",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_014 scenario=TS_002 why=duplicate of another test case",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_015 scenario=TS_003 why=missing combined field-preservation coverage",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_016 scenario=TS_003 why=missing combined field-preservation coverage",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_017 scenario=TS_003 why=missing combined field-preservation coverage",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_018 scenario=TS_003 why=missing combined field-preservation coverage",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_019 scenario=TS_003 why=missing combined field-preservation coverage",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_020 scenario=TS_003 why=missing combined field-preservation coverage",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_026 scenario=TS_004 why=missing scenario coverage",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_027 scenario=TS_005 why=has invalid SQL object reference",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_028 scenario=TS_005 why=has invalid SQL object reference",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_029 scenario=TS_005 why=has invalid SQL object reference",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_030 scenario=TS_005 why=has invalid SQL object reference",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_031 scenario=TS_005 why=has invalid SQL object reference",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_032 scenario=TS_005 why=has invalid SQL object reference",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_033 scenario=TS_005 why=has invalid SQL object reference",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_034 scenario=TS_005 why=includes stray config text",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_035 scenario=TS_005 why=has invalid SQL object reference",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_036 scenario=TS_005 why=has invalid SQL object reference",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_041 scenario=TS_006 why=wrong expected date text in one step",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_043 scenario=TS_006 why=scenario also requires assessment date case",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_047 scenario=TS_007 why=wrong effective date intent",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_048 scenario=TS_007 why=missing field validation step",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_050 scenario=TS_007 why=wrong effective date intent",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=flagged tc=TC_052 scenario=TS_007 why=missing finance verification",
+    "[ORCH] ts=2026-08-25T06:48:25Z step=detail calls=33 rounds=19 scoreboard=TS_001:unhealed(85>85)  TS_002:failed(85)  TS_003:stagnant(85>85)  TS_004:stagnant(85>85)  TS_005:stagnant(85>85)  TS_006:stagnant(85>85>85)  TS_007:failed(85)"
+  ]
+}
