@@ -1,0 +1,383 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "640764",
+    "title": "(ENR SUCC) DEV & TEST - 834E/U AR PASSE Transaction Effective Date Logic Update - EDI"
+  },
+  "summary": {
+    "scenarios": 7,
+    "approved": 0,
+    "unreviewed": 0,
+    "unhealed": 3,
+    "stagnant": 0,
+    "hardstop": 0,
+    "failed": 4,
+    "skipped": 0,
+    "testcases": 35,
+    "totalrounds": 21,
+    "agentcalls": 29,
+    "elapsedms": 482633
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "Identify inbound date elements and support Facets transaction effective date population",
+      "status": "failed",
+      "flagged": [
+        {
+          "id": "TC_001",
+          "why": "priority column value is invalid"
+        },
+        {
+          "id": "TC_002",
+          "why": "priority column value is invalid"
+        },
+        {
+          "id": "TC_003",
+          "why": "priority column value is invalid"
+        },
+        {
+          "id": "TC_004",
+          "why": "priority column value is invalid"
+        },
+        {
+          "id": "TC_005",
+          "why": "priority column value is invalid"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 3,
+      "testcasecount": 5,
+      "chars": 104023,
+      "elapsedms": 382230,
+      "gaps": [
+        "Field 'Priority' has value 'High'; check 9 requires Test Case Priority to contain 'P1', 'P2' or 'P3'.",
+        "Field 'Priority' has value 'High'; check 9 requires Test Case Priority to contain 'P1', 'P2' or 'P3'.",
+        "Field 'Priority' has value 'High'; check 9 requires Test Case Priority to contain 'P1', 'P2' or 'P3'.",
+        "Field 'Priority' has value 'High'; check 9 requires Test Case Priority to contain 'P1', 'P2' or 'P3'.",
+        "Field 'Priority' has value 'High'; check 9 requires Test Case Priority to contain 'P1', 'P2' or 'P3'."
+      ],
+      "error": "test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype"
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "Use Eligibility Date for new enrollment before eligibility begins regardless of Assessment Date",
+      "status": "failed",
+      "flagged": [
+        {
+          "id": "TC_004",
+          "why": "priority value is missing/invalid"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 3,
+      "testcasecount": 5,
+      "chars": 96645,
+      "elapsedms": 329056,
+      "gaps": [
+        "Test Case Priority column has no value; expected one of 'P1', 'P2' or 'P3'"
+      ],
+      "error": "test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype"
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "Use Assessment Date for current eligibility changes when Assessment Date changes",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_002",
+          "why": "priority values are in wrong column"
+        },
+        {
+          "id": "TC_003",
+          "why": "priority values are in wrong column"
+        },
+        {
+          "id": "TC_004",
+          "why": "priority values are in wrong column"
+        },
+        {
+          "id": "TC_005",
+          "why": "priority values are in wrong column"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 3,
+      "testcasecount": 5,
+      "chars": 82711,
+      "elapsedms": 340980,
+      "gaps": [
+        "Table has no 'Test Case Priority' column; row header is \"| ScenarioId | AcceptanceCriteriaRef | Name | Id | Attachments | Status | Test Case Type | Description | Precondition | Test Step # | Test Step Description | Test Step Expected Result | Test Step Attachment |\" so no field contains required priority value \"P1\", \"P2\" or \"P3\" for TC_002",
+        "Table has no 'Test Case Priority' column; row header is \"| ScenarioId | AcceptanceCriteriaRef | Name | Id | Attachments | Status | Test Case Type | Description | Precondition | Test Step # | Test Step Description | Test Step Expected Result | Test Step Attachment |\" so no field contains required priority value \"P1\", \"P2\" or \"P3\" for TC_003",
+        "Table has no 'Test Case Priority' column; row header is \"| ScenarioId | AcceptanceCriteriaRef | Name | Id | Attachments | Status | Test Case Type | Description | Precondition | Test Step # | Test Step Description | Test Step Expected Result | Test Step Attachment |\" so no field contains required priority value \"P1\", \"P2\" or \"P3\" for TC_004",
+        "Table has no 'Test Case Priority' column; row header is \"| ScenarioId | AcceptanceCriteriaRef | Name | Id | Attachments | Status | Test Case Type | Description | Precondition | Test Step # | Test Step Description | Test Step Expected Result | Test Step Attachment |\" so no field contains required priority value \"P1\", \"P2\" or \"P3\" for TC_005"
+      ],
+      "error": "test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype"
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Use Assessment Date and preserve unchanged discriminating attributes when only Assessment Date changes",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_001",
+          "why": "missing Pregnancy coverage"
+        },
+        {
+          "id": "TC_002",
+          "why": "missing Pregnancy coverage"
+        },
+        {
+          "id": "TC_003",
+          "why": "missing Pregnancy coverage"
+        },
+        {
+          "id": "TC_004",
+          "why": "missing Pregnancy coverage"
+        },
+        {
+          "id": "TC_005",
+          "why": "missing Pregnancy coverage"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 3,
+      "testcasecount": 5,
+      "chars": 98372,
+      "elapsedms": 320203,
+      "gaps": [
+        "Coverage gap for TC_001: scenario description field says \"Validate that when the Assessment Date changes and none of these discriminating attributes change\u2014Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\u2014the Assessment Date populates as the Facets transaction effective date and the existing values of Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy are maintained.\" TC_001 also requires \"Pregnancy\"; add a dedicated test case for it",
+        "Coverage gap for TC_002: scenario description field says \"Validate that when the Assessment Date changes and none of these discriminating attributes change\u2014Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\u2014the Assessment Date populates as the Facets transaction effective date and the existing values of Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy are maintained.\" TC_002 also requires \"Pregnancy\"; add a dedicated test case for it",
+        "Coverage gap for TC_003: scenario description field says \"Validate that when the Assessment Date changes and none of these discriminating attributes change\u2014Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\u2014the Assessment Date populates as the Facets transaction effective date and the existing values of Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy are maintained.\" TC_003 also requires \"Pregnancy\"; add a dedicated test case for it",
+        "Coverage gap for TC_004: scenario description field says \"Validate that when the Assessment Date changes and none of these discriminating attributes change\u2014Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\u2014the Assessment Date populates as the Facets transaction effective date and the existing values of Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy are maintained.\" TC_004 also requires \"Pregnancy\"; add a dedicated test case for it",
+        "Coverage gap for TC_005: scenario description field says \"Validate that when the Assessment Date changes and none of these discriminating attributes change\u2014Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\u2014the Assessment Date populates as the Facets transaction effective date and the existing values of Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy are maintained.\" TC_005 also requires \"Pregnancy\"; add a dedicated test case for it"
+      ],
+      "error": "test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype"
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "Use Eligibility Date for pre-eligibility attribute changes when Assessment Date is unchanged",
+      "status": "failed",
+      "flagged": [
+        {
+          "id": "TC_001",
+          "why": "missing dedicated Pregnancy case"
+        },
+        {
+          "id": "TC_002",
+          "why": "missing dedicated Pregnancy case"
+        },
+        {
+          "id": "TC_003",
+          "why": "missing dedicated Pregnancy case"
+        },
+        {
+          "id": "TC_004",
+          "why": "missing dedicated Pregnancy case"
+        },
+        {
+          "id": "TC_005",
+          "why": "missing dedicated Pregnancy case"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 3,
+      "testcasecount": 5,
+      "chars": 109995,
+      "elapsedms": 361593,
+      "gaps": [
+        "Coverage gap tied to TC_001: scenario description field says \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\"; add a dedicated test case for \"Pregnancy\".",
+        "Coverage gap tied to TC_002: scenario description field says \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\"; add a dedicated test case for \"Pregnancy\".",
+        "Coverage gap tied to TC_003: scenario description field says \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\"; add a dedicated test case for \"Pregnancy\".",
+        "Coverage gap tied to TC_004: scenario description field says \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\"; add a dedicated test case for \"Pregnancy\".",
+        "Coverage gap tied to TC_005: scenario description field says \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\"; add a dedicated test case for \"Pregnancy\"."
+      ],
+      "error": "test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype"
+    },
+    {
+      "scenarioid": "TS_006",
+      "title": "Use Maintenance Date only for post-eligibility attribute changes when Assessment Date is unchanged",
+      "status": "failed",
+      "flagged": [
+        {
+          "id": "TC_001",
+          "why": "missing scenario coverage"
+        },
+        {
+          "id": "TC_002",
+          "why": "missing scenario coverage"
+        },
+        {
+          "id": "TC_003",
+          "why": "missing scenario coverage"
+        },
+        {
+          "id": "TC_004",
+          "why": "missing scenario coverage"
+        },
+        {
+          "id": "TC_005",
+          "why": "missing scenario coverage"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 3,
+      "testcasecount": 5,
+      "chars": 136826,
+      "elapsedms": 418559,
+      "gaps": [
+        "Coverage gap attached to TC_001: scenario description clause \"Pregnancy\" has no dedicated test case in the table. \"Validate that when the member\u2019s eligibility span has already begun and any of these discriminating attributes change\u2014Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\u2014while Assessment Date does NOT change, Maintenance Date (DTP*303) populates as the Facets transaction effective date and Maintenance Date is not used outside this specified condition.\" TC_001 also requires \"Pregnancy\"; add a dedicated test case for it",
+        "Coverage gap attached to TC_002: scenario description clause \"Pregnancy\" has no dedicated test case in the table. \"Validate that when the member\u2019s eligibility span has already begun and any of these discriminating attributes change\u2014Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\u2014while Assessment Date does NOT change, Maintenance Date (DTP*303) populates as the Facets transaction effective date and Maintenance Date is not used outside this specified condition.\" TC_002 also requires \"Pregnancy\"; add a dedicated test case for it",
+        "Coverage gap attached to TC_003: scenario description clause \"Pregnancy\" has no dedicated test case in the table. \"Validate that when the member\u2019s eligibility span has already begun and any of these discriminating attributes change\u2014Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\u2014while Assessment Date does NOT change, Maintenance Date (DTP*303) populates as the Facets transaction effective date and Maintenance Date is not used outside this specified condition.\" TC_003 also requires \"Pregnancy\"; add a dedicated test case for it",
+        "Coverage gap attached to TC_004: scenario description clause \"Pregnancy\" has no dedicated test case in the table. \"Validate that when the member\u2019s eligibility span has already begun and any of these discriminating attributes change\u2014Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\u2014while Assessment Date does NOT change, Maintenance Date (DTP*303) populates as the Facets transaction effective date and Maintenance Date is not used outside this specified condition.\" TC_004 also requires \"Pregnancy\"; add a dedicated test case for it",
+        "Coverage gap attached to TC_005: scenario description clause \"Pregnancy\" has no dedicated test case in the table. \"Validate that when the member\u2019s eligibility span has already begun and any of these discriminating attributes change\u2014Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy\u2014while Assessment Date does NOT change, Maintenance Date (DTP*303) populates as the Facets transaction effective date and Maintenance Date is not used outside this specified condition.\" TC_005 also requires \"Pregnancy\"; add a dedicated test case for it"
+      ],
+      "error": "test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype"
+    },
+    {
+      "scenarioid": "TS_007",
+      "title": "Regression and edge validation for date-selection logic, first-occurrence handling, and downstream business impact",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_001",
+          "why": "missing pregnancy coverage"
+        },
+        {
+          "id": "TC_002",
+          "why": "missing pregnancy coverage"
+        },
+        {
+          "id": "TC_003",
+          "why": "missing pregnancy coverage"
+        },
+        {
+          "id": "TC_004",
+          "why": "missing pregnancy coverage"
+        },
+        {
+          "id": "TC_005",
+          "why": "missing pregnancy coverage"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 3,
+      "testcasecount": 5,
+      "chars": 121274,
+      "elapsedms": 282296,
+      "gaps": [
+        "Coverage gap against scenario description: \"Validate across varying combinations of Eligibility Date, Assessment Date changes, and changes to Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy that the first occurrence of any repeated date type in the inbound 834 is the one used for Facets transaction effective date selection, backward compatibility is preserved, Maintenance Date is not overused, and the resulting split-span behavior does not introduce capitation calculation changes or inaccurate finance reporting.\" TC_001 also requires \"Pregnancy\"; add a dedicated test case for it",
+        "Coverage gap against scenario description: \"Validate across varying combinations of Eligibility Date, Assessment Date changes, and changes to Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy that the first occurrence of any repeated date type in the inbound 834 is the one used for Facets transaction effective date selection, backward compatibility is preserved, Maintenance Date is not overused, and the resulting split-span behavior does not introduce capitation calculation changes or inaccurate finance reporting.\" TC_002 also requires \"Pregnancy\"; add a dedicated test case for it",
+        "Coverage gap against scenario description: \"Validate across varying combinations of Eligibility Date, Assessment Date changes, and changes to Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy that the first occurrence of any repeated date type in the inbound 834 is the one used for Facets transaction effective date selection, backward compatibility is preserved, Maintenance Date is not overused, and the resulting split-span behavior does not introduce capitation calculation changes or inaccurate finance reporting.\" TC_003 also requires \"Pregnancy\"; add a dedicated test case for it",
+        "Coverage gap against scenario description: \"Validate across varying combinations of Eligibility Date, Assessment Date changes, and changes to Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy that the first occurrence of any repeated date type in the inbound 834 is the one used for Facets transaction effective date selection, backward compatibility is preserved, Maintenance Date is not overused, and the resulting split-span behavior does not introduce capitation calculation changes or inaccurate finance reporting.\" TC_004 also requires \"Pregnancy\"; add a dedicated test case for it",
+        "Coverage gap against scenario description: \"Validate across varying combinations of Eligibility Date, Assessment Date changes, and changes to Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy that the first occurrence of any repeated date type in the inbound 834 is the one used for Facets transaction effective date selection, backward compatibility is preserved, Maintenance Date is not overused, and the resulting split-span behavior does not introduce capitation calculation changes or inaccurate finance reporting.\" TC_005 also requires \"Pregnancy\"; add a dedicated test case for it"
+      ],
+      "error": "test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype"
+    }
+  ],
+  "warnings": [
+    "no Positive test cases across the whole set",
+    "no Edge test cases across the whole set",
+    "no Negative test cases across the whole set"
+  ],
+  "testcases": {
+    "rows": 503,
+    "chars": 748274,
+    "scenarios": 7,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-08-25T06:01:04Z step=start story=640764 maxscenarios=7 tcper=5 steps=12-20 rounds=3 workers=7 pass_=90/50 judge=653 deadline=630s",
+    "[ORCH] ts=2026-08-25T06:01:04Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=177",
+    "[ORCH] ts=2026-08-25T06:02:08Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=63875",
+    "[ORCH] ts=2026-08-25T06:02:34Z step=generate scenario=TS_007 round=1 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-08-25T06:03:53Z step=generate scenario=TS_003 round=1 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { \"id\": \"TC_001\", \"name\": \"Verify AR PASSE current eligibility change uses changed Assessment Date as the Facets transaction effective date\", \"description\": \"Verify that an AR PASSE inbound 834 chan",
+    "[ORCH] ts=2026-08-25T06:03:53Z step=generate scenario=TS_004 round=1 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { \"id\": \"TC_001\", \"name\": \"Verify AR PASSE inbound 834 uses changed Assessment Date as the Facets transaction effective date when Assessment Number remains unchanged\", \"description\": \"Validate that ",
+    "[ORCH] ts=2026-08-25T06:03:54Z step=generate scenario=TS_002 round=1 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { \"id\": \"TC_001\", \"name\": \"Verify AR PASSE new enrollment uses Loop 2000 DTP*356 or DTP*348 future eligibility date as the transaction effective date when assessment date is earlier\", \"description\":",
+    "[ORCH] ts=2026-08-25T06:04:13Z step=generate scenario=TS_006 round=1 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { \"id\": \"TC_001\", \"name\": \"Verify AR PASSE inbound 834 uses DTP*303 Maintenance Date as transaction effective date when only Assessment Number changes after eligibility start and Assessment Date is ",
+    "[ORCH] ts=2026-08-25T06:04:14Z step=generate scenario=TS_005 round=1 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { \"id\": \"TC_001\", \"name\": \"Verify AR PASSE inbound 834 uses Eligibility Date as transaction effective date when only Assessment Number changes before eligibility starts\", \"description\": \"Validate th",
+    "[ORCH] ts=2026-08-25T06:04:14Z step=generate scenario=TS_001 round=1 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { \"id\": \"TC_001\", \"name\": \"Verify AR PASSE inbound 834 populates the Facets transaction effective date from Loop 2000 DTP03 effective date\", \"description\": \"Validate that an AR PASSE inbound 834 fil",
+    "[ORCH] ts=2026-08-25T06:04:19Z step=generate scenario=TS_007 round=2 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { \"id\": \"TC_001\", \"name\": \"Verify AR PASSE update file uses the first Eligibility Date occurrence for transaction effective date selection\", \"description\": \"Verify that an AR PASSE inbound 834 updat",
+    "[ORCH] ts=2026-08-25T06:05:37Z step=generate scenario=TS_004 round=2 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { \"id\": \"TC_001\", \"name\": \"Verify AR PASSE inbound 834 uses the changed Assessment Date as the transaction effective date when Assessment Number remains unchanged\", \"description\": \"Validate that an ",
+    "[ORCH] ts=2026-08-25T06:05:38Z step=generate scenario=TS_003 round=2 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { \"id\": \"TC_001\", \"name\": \"Verify AR PASSE current eligibility change uses changed Assessment Date as transaction effective date in Facets\", \"description\": \"Validate that an inbound AR PASSE 834 cha",
+    "[ORCH] ts=2026-08-25T06:05:38Z step=generate scenario=TS_002 round=2 tc=5 ids=TC_001,TC_002,TC_003,TC_004,TC_005 chars=96645 ms=104418 regen=1",
+    "[ORCH] ts=2026-08-25T06:05:52Z step=review scenario=TS_002 round=2 score=85 passed=4/5 failing=TC_004 ms=14390",
+    "[ORCH] ts=2026-08-25T06:05:58Z step=generate scenario=TS_001 round=2 tc=5 ids=TC_001,TC_002,TC_003,TC_004,TC_005 chars=104023 ms=104381 regen=1",
+    "[ORCH] ts=2026-08-25T06:05:58Z step=generate scenario=TS_005 round=2 tc=5 ids=TC_001,TC_002,TC_003,TC_004,TC_005 chars=109995 ms=104562 regen=1",
+    "[ORCH] ts=2026-08-25T06:06:18Z step=generate scenario=TS_006 round=2 tc=5 ids=TC_001,TC_002,TC_003,TC_004,TC_005 chars=136826 ms=124642 regen=1",
+    "[ORCH] ts=2026-08-25T06:06:24Z step=generate scenario=TS_007 round=3 tc=5 ids=TC_001,TC_002,TC_003,TC_004,TC_005 chars=121274 ms=124819 regen=1",
+    "[ORCH] ts=2026-08-25T06:06:25Z step=review scenario=TS_005 round=2 score=85 passed=0/5 failing=TC_001,TC_002,TC_003,TC_004,TC_005 ms=26313",
+    "[ORCH] ts=2026-08-25T06:06:25Z step=review scenario=TS_001 round=2 score=85 passed=0/5 failing=TC_001,TC_002,TC_003,TC_004,TC_005 ms=26465",
+    "[ORCH] ts=2026-08-25T06:06:50Z step=review scenario=TS_007 round=3 score=85 passed=0/5 failing=TC_001,TC_002,TC_003,TC_004,TC_005 ms=26364",
+    "[ORCH] ts=2026-08-25T06:06:50Z step=result scenario=TS_007 status=unhealed scores=[85] rounds=3 tc=5 ms=282296",
+    "[ORCH] ts=2026-08-25T06:07:01Z step=review scenario=TS_006 round=2 score=85 passed=0/5 failing=TC_001,TC_002,TC_003,TC_004,TC_005 ms=43634",
+    "[ORCH] ts=2026-08-25T06:07:02Z step=generate scenario=TS_004 round=3 tc=5 ids=TC_001,TC_002,TC_003,TC_004,TC_005 chars=98372 ms=84408 regen=1",
+    "[ORCH] ts=2026-08-25T06:07:22Z step=generate scenario=TS_003 round=3 tc=5 ids=TC_001,TC_002,TC_003,TC_004,TC_005 chars=82711 ms=104692 regen=1",
+    "[ORCH] ts=2026-08-25T06:07:28Z step=review scenario=TS_004 round=3 score=85 passed=0/5 failing=TC_001,TC_002,TC_003,TC_004,TC_005 ms=26339",
+    "[ORCH] ts=2026-08-25T06:07:28Z step=result scenario=TS_004 status=unhealed scores=[85] rounds=3 tc=5 ms=320203",
+    "[ORCH] ts=2026-08-25T06:07:37Z step=generate scenario=TS_002 round=3 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { \"id\": \"TC_001\", \"name\": \"Verify AR PASSE new enrollment uses the future Eligibility Date as the Facets transaction effective date when Assessment Date is earlier\", \"description\": \"Validate that an",
+    "[ORCH] ts=2026-08-25T06:07:37Z step=result scenario=TS_002 status=failed scores=[85] rounds=3 tc=5 ms=329056",
+    "[ORCH] ts=2026-08-25T06:07:49Z step=review scenario=TS_003 round=3 score=85 passed=1/5 failing=TC_002,TC_003,TC_004,TC_005 ms=26511",
+    "[ORCH] ts=2026-08-25T06:07:49Z step=result scenario=TS_003 status=unhealed scores=[85] rounds=3 tc=5 ms=340980",
+    "[ORCH] ts=2026-08-25T06:08:09Z step=generate scenario=TS_005 round=3 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { \"id\": \"TC_001\", \"name\": \"Verify AR PASSE inbound 834 uses Eligibility Date as transaction effective date when Assessment Number changes before eligibility start and Assessment Date remains unchang",
+    "[ORCH] ts=2026-08-25T06:08:09Z step=result scenario=TS_005 status=failed scores=[85] rounds=3 tc=5 ms=361593",
+    "[ORCH] ts=2026-08-25T06:08:30Z step=generate scenario=TS_001 round=3 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { \"id\": \"TC_001\", \"name\": \"Verify AR PASSE inbound 834 populates Facets transaction effective date from Loop 2000 DTP03 effective date\", \"description\": \"Validate that an AR PASSE inbound 834 file co",
+    "[ORCH] ts=2026-08-25T06:08:30Z step=result scenario=TS_001 status=failed scores=[85] rounds=3 tc=5 ms=382230",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=generate scenario=TS_006 round=3 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { \"id\": \"TC_001\", \"name\": \"Verify AR PASSE inbound 834 uses Maintenance Date DTP*303 as transaction effective date when only Assessment Number changes after eligibility start and Assessment Date is ",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=result scenario=TS_006 status=failed scores=[85] rounds=3 tc=5 ms=418559",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=done approved=0 unreviewed=0 unhealed=3 stagnant=0 hardstop=0 failed=4 skipped=0 testcases=35 agentcalls=29 ms=482633",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=outcome story=640764 ready=5/35 testcases flagged=30 scenarios=7 elapsed=8m02s warnings=3",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_001 scenario=TS_001 why=priority column value is invalid",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_002 scenario=TS_001 why=priority column value is invalid",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_003 scenario=TS_001 why=priority column value is invalid",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_004 scenario=TS_001 why=priority column value is invalid",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_005 scenario=TS_001 why=priority column value is invalid",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_004 scenario=TS_002 why=priority value is missing/invalid",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_002 scenario=TS_003 why=priority values are in wrong column",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_003 scenario=TS_003 why=priority values are in wrong column",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_004 scenario=TS_003 why=priority values are in wrong column",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_005 scenario=TS_003 why=priority values are in wrong column",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_001 scenario=TS_004 why=missing Pregnancy coverage",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_002 scenario=TS_004 why=missing Pregnancy coverage",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_003 scenario=TS_004 why=missing Pregnancy coverage",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_004 scenario=TS_004 why=missing Pregnancy coverage",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_005 scenario=TS_004 why=missing Pregnancy coverage",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_001 scenario=TS_005 why=missing dedicated Pregnancy case",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_002 scenario=TS_005 why=missing dedicated Pregnancy case",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_003 scenario=TS_005 why=missing dedicated Pregnancy case",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_004 scenario=TS_005 why=missing dedicated Pregnancy case",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_005 scenario=TS_005 why=missing dedicated Pregnancy case",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_001 scenario=TS_006 why=missing scenario coverage",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_002 scenario=TS_006 why=missing scenario coverage",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_003 scenario=TS_006 why=missing scenario coverage",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_004 scenario=TS_006 why=missing scenario coverage",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_005 scenario=TS_006 why=missing scenario coverage",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_001 scenario=TS_007 why=missing pregnancy coverage",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_002 scenario=TS_007 why=missing pregnancy coverage",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_003 scenario=TS_007 why=missing pregnancy coverage",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_004 scenario=TS_007 why=missing pregnancy coverage",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=flagged tc=TC_005 scenario=TS_007 why=missing pregnancy coverage",
+    "[ORCH] ts=2026-08-25T06:09:06Z step=detail calls=29 rounds=21 scoreboard=TS_001:failed(85)  TS_002:failed(85)  TS_003:unhealed(85)  TS_004:unhealed(85)  TS_005:failed(85)  TS_006:failed(85)  TS_007:unhealed(85)"
+  ]
+}
