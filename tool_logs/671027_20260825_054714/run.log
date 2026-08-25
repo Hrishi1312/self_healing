@@ -1,0 +1,54 @@
+[ORCH] ts=2026-08-25T05:40:08Z step=start story=671027 maxscenarios=7 tcper=5 steps=12-20 rounds=3 workers=7 pass_=90/50 judge=653 deadline=630s
+[ORCH] ts=2026-08-25T05:40:08Z step=fetch story=671027 titlechars=117 descchars=681 acchars=4654 ms=482
+[ORCH] ts=2026-08-25T05:41:13Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=64210
+[ORCH] ts=2026-08-25T05:42:37Z step=generate scenario=TS_001 round=1 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { "id": "TC_001", "name": "Verify CSGA aid category 198 under-21 plan mapping row is updated with AgeMax 251 for GA Medicaid inbound 834 processing", "description": "Validate that the existing GA Me
+[ORCH] ts=2026-08-25T05:42:58Z step=generate scenario=TS_002 round=1 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { "id": "TC_001", "name": "Verify CSGA aid category 198 age 21 and over row exists in EE_PlanMapping with new medical and dental plan values", "description": "Verify that the Georgia Medicaid CSGA m
+[ORCH] ts=2026-08-25T05:42:58Z step=generate scenario=TS_007 round=1 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { "id": "TC_001", "name": "Verify CSGA Add transaction assigns plan ID GAMPTH02 for Aid Category 198 member younger than 21", "description": "Verify a GA Medicaid CSGA inbound 834 Add transaction fo
+[ORCH] ts=2026-08-25T05:42:58Z step=generate scenario=TS_003 round=1 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { "id": "TC_001", "name": "Verify Georgia Health Coverage Program processes a GA Medicaid CSGA inbound 834 for Aid Category 198 when the member is younger than 21 and archives the source file succes
+[ORCH] ts=2026-08-25T05:42:58Z step=generate scenario=TS_004 round=1 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { "id": "TC_001", "name": "Verify GA Medicaid CSGA inbound 834 assigns plan GAMPTH02 for aid category 198 when member age is below 21", "description": "Verify that a GA Medicaid CSGA inbound 834 fil
+[ORCH] ts=2026-08-25T05:42:58Z step=generate scenario=TS_006 round=1 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { "id": "TC_001", "name": "Verify CSGA inbound 834 with Aid Category 198 and member age below 21 stores the derived medical plan ID in FACPRDDB.dbo.CMC_SBEL_ELIG_ENT.CSPI_ID", "description": "Verify
+[ORCH] ts=2026-08-25T05:43:18Z step=generate scenario=TS_005 round=1 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { "id": "TC_001", "name": "Verify GA Medicaid CSGA inbound 834 assigns plan ID GAMPTH01 for aid category 198 when member age is exactly 21 years", "description": "Verify the inbound 834 processing s
+[ORCH] ts=2026-08-25T05:44:02Z step=generate scenario=TS_001 round=2 tc=5 ids=TC_001,TC_002,TC_003,TC_004,TC_005 chars=71498 ms=84336 regen=1
+[ORCH] ts=2026-08-25T05:44:22Z step=generate scenario=TS_002 round=2 tc=5 ids=TC_001,TC_002,TC_003,TC_004,TC_005 chars=67466 ms=84298 regen=1
+[ORCH] ts=2026-08-25T05:44:28Z step=review scenario=TS_001 round=2 score=85 passed=4/5 failing=TC_005 ms=26743
+[ORCH] ts=2026-08-25T05:44:42Z step=generate scenario=TS_007 round=2 tc=5 ids=TC_001,TC_002,TC_003,TC_004,TC_005 chars=112872 ms=104723 regen=1
+[ORCH] ts=2026-08-25T05:44:42Z step=generate scenario=TS_003 round=2 tc=5 ids=TC_001,TC_002,TC_003,TC_004,TC_005 chars=115211 ms=104631 regen=1
+[ORCH] ts=2026-08-25T05:44:43Z step=generate scenario=TS_006 round=2 tc=5 ids=TC_001,TC_002,TC_003,TC_004,TC_005 chars=108628 ms=104522 regen=1
+[ORCH] ts=2026-08-25T05:44:43Z step=generate scenario=TS_004 round=2 tc=5 ids=TC_001,TC_002,TC_003,TC_004,TC_005 chars=95606 ms=104579 regen=1
+[ORCH] ts=2026-08-25T05:44:48Z step=review scenario=TS_002 round=2 score=85 passed=0/5 failing=TC_001,TC_002,TC_003,TC_004,TC_005 ms=26558
+[ORCH] ts=2026-08-25T05:44:58Z step=review scenario=TS_006 round=2 score=85 passed=4/5 failing=TC_005 ms=14984
+[ORCH] ts=2026-08-25T05:45:03Z step=generate scenario=TS_005 round=2 tc=5 ids=TC_001,TC_002,TC_003,TC_004,TC_005 chars=108246 ms=104870 regen=1
+[ORCH] ts=2026-08-25T05:45:09Z step=review scenario=TS_007 round=2 score=85 passed=4/5 failing=TC_004 ms=26718
+[ORCH] ts=2026-08-25T05:45:09Z step=review scenario=TS_003 round=2 score=92 passed=5/5 ms=26878
+[ORCH] ts=2026-08-25T05:45:09Z step=result scenario=TS_003 status=approved scores=[92] rounds=2 tc=5 ms=236709
+[ORCH] ts=2026-08-25T05:45:09Z step=review scenario=TS_004 round=2 score=85 passed=0/5 failing=TC_001,TC_002,TC_003,TC_004,TC_005 ms=26677
+[ORCH] ts=2026-08-25T05:45:30Z step=review scenario=TS_005 round=2 score=85 passed=4/5 failing=TC_005 ms=26349
+[ORCH] ts=2026-08-25T05:45:53Z step=generate scenario=TS_001 round=3 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { "id": "TC_001", "name": "Verify CSGA aid category 198 under-21 plan mapping row is updated to age max 251 for GAMPTH02", "description": "Verify that the Georgia Medicaid CSGA row for aid category 
+[ORCH] ts=2026-08-25T05:45:53Z step=result scenario=TS_001 status=failed scores=[85] rounds=3 tc=5 ms=280219
+[ORCH] ts=2026-08-25T05:46:34Z step=generate scenario=TS_002 round=3 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { "id": "TC_001", "name": "Verify EE_PlanMapping row is added for CSGA AidCategory 198 age 21 and over with medical plan GAMPTH01", "description": "Validate that exactly one new mapping row exists f
+[ORCH] ts=2026-08-25T05:46:34Z step=result scenario=TS_002 status=failed scores=[85] rounds=3 tc=5 ms=321178
+[ORCH] ts=2026-08-25T05:46:42Z step=generate scenario=TS_006 round=3 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { "id": "TC_001", "name": "Verify Georgia Medicaid CSGA inbound 834 assigns the under-21 derived medical plan ID to CSPI_ID for Aid Category 198", "description": "Verify that a Georgia Medicaid CSGA
+[ORCH] ts=2026-08-25T05:46:42Z step=result scenario=TS_006 status=failed scores=[85] rounds=3 tc=5 ms=329779
+[ORCH] ts=2026-08-25T05:46:54Z step=generate scenario=TS_007 round=3 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { "id": "TC_001", "name": "Verify CSGA Add transaction for Aid Category 198 and member age below 21 loads plan ID GAMPTH02 into eligibility", "description": "Verify an inbound 834 Add transaction fo
+[ORCH] ts=2026-08-25T05:46:54Z step=result scenario=TS_007 status=failed scores=[85] rounds=3 tc=5 ms=341614
+[ORCH] ts=2026-08-25T05:46:54Z step=generate scenario=TS_004 round=3 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { "id": "TC_001", "name": "Verify GA Medicaid CSGA assigns Plan ID GAMPTH02 for Aid Category 198 when member age is below 21", "description": "Verify an inbound 834 for GA Medicaid CSGA with Loop 20
+[ORCH] ts=2026-08-25T05:46:54Z step=result scenario=TS_004 status=failed scores=[85] rounds=3 tc=5 ms=341644
+[ORCH] ts=2026-08-25T05:47:14Z step=generate scenario=TS_005 round=3 error=test case 0 missing keys: scenarioid, acceptancecriteriaref, attachments, status, testcasetype raw=[ { "id": "TC_001", "name": "Verify GA Medicaid CSGA inbound 834 assigns plan ID GAMPTH01 for aid category 198 when member age is greater than 21", "description": "Verify an inbound GA Medicaid CSGA 8
+[ORCH] ts=2026-08-25T05:47:14Z step=result scenario=TS_005 status=failed scores=[85] rounds=3 tc=5 ms=361830
+[ORCH] ts=2026-08-25T05:47:14Z step=done approved=1 unreviewed=0 unhealed=0 stagnant=0 hardstop=0 failed=6 skipped=0 testcases=35 agentcalls=28 ms=426549
+[ORCH] ts=2026-08-25T05:47:14Z step=outcome story=671027 ready=21/35 testcases flagged=14 scenarios=7 elapsed=7m06s warnings=3
+[ORCH] ts=2026-08-25T05:47:14Z step=flagged tc=TC_005 scenario=TS_001 why=priority value is missing
+[ORCH] ts=2026-08-25T05:47:14Z step=flagged tc=TC_001 scenario=TS_002 why=priority value is missing
+[ORCH] ts=2026-08-25T05:47:14Z step=flagged tc=TC_002 scenario=TS_002 why=priority value is missing
+[ORCH] ts=2026-08-25T05:47:14Z step=flagged tc=TC_003 scenario=TS_002 why=priority value is missing
+[ORCH] ts=2026-08-25T05:47:14Z step=flagged tc=TC_004 scenario=TS_002 why=priority value is missing
+[ORCH] ts=2026-08-25T05:47:14Z step=flagged tc=TC_005 scenario=TS_002 why=priority value is missing
+[ORCH] ts=2026-08-25T05:47:14Z step=flagged tc=TC_001 scenario=TS_004 why=missing direct plan ID verification
+[ORCH] ts=2026-08-25T05:47:14Z step=flagged tc=TC_002 scenario=TS_004 why=missing direct plan ID verification
+[ORCH] ts=2026-08-25T05:47:14Z step=flagged tc=TC_003 scenario=TS_004 why=missing direct plan ID verification
+[ORCH] ts=2026-08-25T05:47:14Z step=flagged tc=TC_004 scenario=TS_004 why=missing direct plan ID verification
+[ORCH] ts=2026-08-25T05:47:14Z step=flagged tc=TC_005 scenario=TS_004 why=missing direct plan ID verification
+[ORCH] ts=2026-08-25T05:47:14Z step=flagged tc=TC_005 scenario=TS_005 why=missing dedicated plan assignment case
+[ORCH] ts=2026-08-25T05:47:14Z step=flagged tc=TC_005 scenario=TS_006 why=missing dedicated aid category coverage
+[ORCH] ts=2026-08-25T05:47:14Z step=flagged tc=TC_004 scenario=TS_007 why=missing dedicated aid category 198 coverage
+[ORCH] ts=2026-08-25T05:47:14Z step=detail calls=28 rounds=20 scoreboard=TS_001:failed(85)  TS_002:failed(85)  TS_003:approved(92)  TS_004:failed(85)  TS_005:failed(85)  TS_006:failed(85)  TS_007:failed(85)
