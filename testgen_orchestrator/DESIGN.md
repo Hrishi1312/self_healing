@@ -1,7 +1,9 @@
 # AAVA Test Generation Orchestrator — Design
 
 **Date:** 2026-08-14
-**Status:** Approved for implementation planning
+**Status:** Approved for implementation planning — since built and run against the platform.
+This document is the dated design record; sections 1–15 are unedited. **§16 lists what has
+changed between this design and what is live (v2.0, 2026-08-25).**
 **Replaces:** workflows 161 + 163, tool 76, and the model-driven self-heal loop
 
 ---
@@ -427,3 +429,54 @@ platform activity log has none.
    threading degrades to sequential and `maxScenarios` must drop.
 3. **Where do finished test cases eventually go?** Deferred by decision; the output envelope
    is designed so a destination step can be added without touching anything else.
+
+## 16. Changes since this design shipped (v2.0, as of 2026-08-25)
+
+Sections 1–15 above are the record as approved. What is live differs as follows; the prompts
+in `agents/` and the tool are the source of truth for every item here.
+
+**Output contract (2026-08-24).** The 13-column table with `Status` =
+Positive/Negative/Edge and `Test Case Type` = Functional/Regression (§5) is retired. The tool
+now assembles a **15-column** table matching the test-management import format (`Test Case
+Id` … `Requirement Ids`). Positive/Negative/Edge survives only as the *scenario* `type`; test
+cases carry no classification. The generator emits only the varying fields (`id`, `name`,
+`description`, `precondition`, `priority`, `steps[]`); the tool injects seven constant
+columns itself (Type=Manual, Status=New, Assigned To/Implementation/Requirement Ids blank,
+Product Area=EDI, Test Type=Functional) and maps `priority` High/Medium/Low → P1/P2/P3.
+Traceability columns (ScenarioId/AcceptanceCriteriaRef) are gone from the table; the tool
+tracks the association internally and renumbers ids across scenarios at assembly.
+
+**Volume is a ceiling, not a target.** `testcasesperscenario` (default 8, clamp 1–12) caps
+one case per genuinely distinct condition; scenarios that support fewer produce fewer.
+`maxworkers` is no longer an input — one thread per scenario — and `maxagentcalls` sizes
+itself as `3 + maxscenarios × 2 × maxhealrounds` unless overridden. Step depth is
+**front-loaded** (2026-08-25, taken from the domain experts' 26-case reference for story
+640764): the scenario's primary case walks the full flow near `stepsmax` (18); variant cases
+compress shared plumbing into 3–4 steps and sit near `stepsmin` (now 7, was 15). The
+reviewer's step-depth-consistency check is retired accordingly.
+
+**Grounding inputs.** All three agents receive `{{domainhints}}` (an authoritative
+segment/date glossary; business terms in names, segment notation only in step text), and the
+reviewer additionally receives `{{storyac}}` for its coverage-completeness check. A
+caller-supplied `bannedterms` list is enforced deterministically by the tool's pre gate.
+
+**The gate split moved toward the tool.** The pre gate now enforces: case count ≤ ceiling,
+banned terms, all-High-priority batches (4+ cases), empty step/expected cells, KB names and
+meta labels. The reviewer keeps the judgement checks (basics 1–4 plus hard gates; check 11
+retired, checks 12–13 added for coverage and domain-hint consistency).
+
+**Healing hardening (2026-08-25).** Stagnation requires BOTH signals flat — batch score
+and passed-count (`passedhistory`) — since any failing case pins the batch score at 85. The
+tool snapshots the best reviewed round and restores it if a later heal round is worse or
+errors (`step=keptbest`); a final round that errors with a reviewed table in hand ends
+`unhealed`, never `failed`. A regeneration round returning a single bare JSON object or an
+empty array is rejected with precise feedback.
+
+**Configuration.** Live console agents: **654 / 652 / 653** (scenario / test case /
+reviewer) — not 613/564/559 (§4's example) nor the interim 625/626/627. `deadlineseconds`:
+630 for runs launched outside ACA, 190 default inside it. Optional GitHub publishing of run
+artifacts (`publish`, `githubrepo`).
+
+**Open questions (§15) status.** Q1 still open for platform-hosted runs; local runs are not
+under the AAVA ceiling and complete at 525 s observed. Q2 answered: threading is real —
+7 concurrent scenario workers overlap cleanly in the run logs. Q3 still deferred.
