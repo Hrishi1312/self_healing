@@ -518,6 +518,90 @@ check("the reviewed table survives the bad final round",
       r4c["testcasecount"] == 3 and res4c["testcases"]["rows"] > 0,
       f"testcasecount={r4c['testcasecount']} rows={res4c['testcases']['rows']}")
 
+# Run 640764_080233, TS_005: round 1 returned [], rounds 2-3 recovered and shipped 6 good
+# cases — yet the envelope still showed error="test case array is empty" next to them. A
+# transient error a later round recovered from must not linger in the record.
+recov = {"gen": 0}
+
+
+def transient_error_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        recov["gen"] += 1
+        return ("[]" if recov["gen"] == 1 else build_table(3, 3)), 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    scores = [{"id": ids[0], "score": 85, "pass": False, "gaps": ["step 3 is vague"]}]
+    scores += [{"id": i, "score": 95, "pass": True, "gaps": []} for i in ids[1:]]
+    return json.dumps({"scenarioid": "x", "scores": scores,
+                       "batchscore": 85, "batchpass": False}), 10
+
+
+T.exec_agent = transient_error_exec
+res4d = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=3, stoponstagnation=True, deadlineseconds=120))))
+r4d = res4d["scenarios"][0]
+check("a round-1 error later rounds recovered from does not linger in the record",
+      r4d["status"] == "stagnant" and r4d.get("error") is None,
+      f"status={r4d['status']} error={r4d.get('error')}")
+
+# Run 640764_083251: TS_002/TS_005 returned a bare JSON object on all six attempts and died
+# with tc=0. When no table exists yet there is nothing a single object can clobber, so it is
+# accepted as a one-case array; with a table in hand the rejection stands.
+single_obj = json.dumps({"id": "TC_001", "name": "n", "description": "d",
+                         "precondition": "p", "priority": "High",
+                         "steps": [{"no": 1, "description": "sd", "expected": "se"}]})
+check("a bare object is accepted when explicitly allowed",
+      len(T.read_testcases(single_obj, 1, 100, allow_single=True)["ids"]) == 1)
+
+
+def bareobj_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        return single_obj, 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    return json.dumps({"scenarioid": "x",
+                       "scores": [{"id": i, "score": 95, "pass": True, "gaps": []}
+                                  for i in ids],
+                       "batchscore": 95, "batchpass": True}), 10
+
+
+T.exec_agent = bareobj_exec
+res4d = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=6, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=3, deadlineseconds=120))))
+r4d = res4d["scenarios"][0]
+check("a first-round bare object is recovered as a one-case scenario, not failed",
+      r4d["status"] == "approved" and r4d["testcasecount"] == 1,
+      f"status={r4d['status']} tc={r4d['testcasecount']} err={r4d.get('error')}")
+
+tablethen = {"gen": 0}
+
+
+def table_then_bareobj_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        tablethen["gen"] += 1
+        return (build_table(3, 3) if tablethen["gen"] == 1 else single_obj), 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    scores = [{"id": ids[0], "score": 85, "pass": False, "gaps": ["step 3 is vague"]}]
+    scores += [{"id": i, "score": 95, "pass": True, "gaps": []} for i in ids[1:]]
+    return json.dumps({"scenarioid": "x", "scores": scores,
+                       "batchscore": 85, "batchpass": False}), 10
+
+
+T.exec_agent = table_then_bareobj_exec
+res4e = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=6, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=3, stoponstagnation=False, deadlineseconds=120))))
+r4e = res4e["scenarios"][0]
+check("a heal-round bare object still cannot replace an existing table",
+      r4e["testcasecount"] == 3 and r4e["status"] == "unhealed",
+      f"status={r4e['status']} tc={r4e['testcasecount']}")
+
 # mocks stay installed; section 11 restores them
 
 

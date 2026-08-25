@@ -528,19 +528,25 @@ def expand_testcases(raw: str) -> str:
     return "\n".join(out)
 
 
-def read_testcases(raw: str, stepsmin: int, stepsmax: int) -> Dict[str, Any]:
+def read_testcases(raw: str, stepsmin: int, stepsmax: int,
+                   allow_single: bool = False) -> Dict[str, Any]:
     """Accept either shape. Nested JSON is what the generator emits now; a markdown table is
     still accepted so an older agent, or a model that ignores the format, is not a hard fail."""
-    head = _strip_fences(raw).lstrip()[:1]
+    text = _strip_fences(raw).lstrip()
+    head = text[:1]
     if head == "{":
-        # Seen on a heal round (640764_141324, TS_003): the model returned only the ONE
-        # repaired case as a bare object. Wrapping it in an array would silently replace the
-        # whole table with a single case, so reject it with feedback precise enough that the
-        # next round returns the full set. Falling through to the markdown parser instead
-        # produced "no markdown table found", which told the model nothing.
-        raise ValueError("response is a single JSON test case object; return the complete "
-                         "JSON array of ALL test cases for the scenario, with the repaired "
-                         "cases fixed and every other case unchanged")
+        # A bare object instead of an array. On a heal round with a table in hand, wrapping
+        # it would silently replace the whole table with one case (640764_141324, TS_003),
+        # so the caller keeps allow_single False there and it is rejected with precise
+        # feedback. When NO table exists yet there is nothing to lose — and run
+        # 640764_083251 lost two whole scenarios (six bare-object rounds, tc=0) to the
+        # rejection — so the caller allows it and the object is read as a one-case array;
+        # the reviewer's coverage check then demands whatever cases are missing.
+        if not allow_single:
+            raise ValueError("response is a single JSON test case object; return the "
+                             "complete JSON array of ALL test cases for the scenario, with "
+                             "the repaired cases fixed and every other case unchanged")
+        return parse_testcases(expand_testcases("[" + text + "]"), stepsmin, stepsmax)
     return parse_testcases(expand_testcases(raw) if head == "[" else raw, stepsmin, stepsmax)
 
 
@@ -752,7 +758,9 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             try:
                 raw, gen_ms = exec_agent(cfg["testcaseagentid"], gen_inputs, cfg, token,
                                          budget, log, f"generate:{sid}")
-                parsed = read_testcases(raw, cfg["stepsmin"], cfg["stepsmax"])
+                # A bare single object is recoverable only while no table exists to clobber.
+                parsed = read_testcases(raw, cfg["stepsmin"], cfg["stepsmax"],
+                                        allow_single=not rec["table"])
             except Exception as e:
                 # Log the head of what the agent actually sent. Run 640764_084112 failed
                 # 7/7 with "test case array is empty" and the log carried no way to tell
@@ -768,6 +776,11 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             rec["chars"] = parsed["chars"]
             rec["testcasecount"] = len(parsed["ids"])
             tablernd = rnd
+            # A parse success supersedes any earlier round's error: the envelope's error
+            # field reports only what ended the scenario, never a transient a later round
+            # recovered from (640764_080233 showed "test case array is empty" beside six
+            # healthy shipped cases).
+            rec["error"] = None
             log.line("generate", scenario=sid, round=rnd, tc=len(parsed["ids"]),
                      ids=",".join(parsed["ids"]), chars=parsed["chars"], ms=gen_ms,
                      regen=len(regenerate) or None)

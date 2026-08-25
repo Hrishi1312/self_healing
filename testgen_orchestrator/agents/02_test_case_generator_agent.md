@@ -338,7 +338,9 @@ These limits are not stylistic. Exceeding them causes the run to time out and pr
 
 ### OUTPUT FORMAT — nested JSON, one object per test case
 
-Return a JSON array. Each test case appears ONCE, with its steps as an array. Do NOT repeat the
+Return a JSON array — ALWAYS an array, even for a single test case: one case is emitted as a
+one-element array `[ { ... } ]`, never as a bare object. Each test case appears ONCE, with its
+steps as an array. Do NOT repeat the
 test case fields on every step: the orchestrator expands this into the 15 column table itself,
 so `id`, `name`, `description`, and `precondition` are written exactly once per test case and
 are filled down every step row for you, alongside the six constant fields you never emit
