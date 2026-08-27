@@ -666,6 +666,16 @@
     animation-delay: .15s
   }
 
+  /* per-scenario test case count bars */
+  .tcwrap { display: flex; flex-direction: column; gap: 10px }
+  .tcwrap .cmp-row { grid-template-columns: 250px 1fr }
+  .tcwrap .cmp-lbl b { color: var(--ink); font-family: ui-monospace, Menlo, monospace }
+  .tcwrap .cmp-track { height: 32px; border-right: 2px dashed var(--block-br) }
+  .tcwrap .cmp-fill { font-size: 13px; padding: 0 10px }
+  .tc-approved { background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent-br) }
+  .tc-flagged { background: var(--block-bg); color: var(--block); border: 1px solid var(--block-br) }
+  .tc-cap { font-size: 12px; color: var(--faint); text-align: right; margin-top: 2px }
+
   .cmp-shared {
     position: absolute;
     left: 0;
@@ -1096,17 +1106,18 @@
       <div class="fanbar"></div>
       <div class="drop wide"></div>
       <div class="fan">
-        <div class="node"><span class="tag t-llm">625</span>
+        <div class="node"><span class="tag t-llm">654</span>
           <h4>Scenario generator</h4>
-          <p>Story in, scenarios out. The only step every thread waits for.</p>
+          <p>Story in, scenarios out — each ending with a numbered "Conditions to cover" list
+            that sets how many test cases it gets. The only step every thread waits for.</p>
           <span class="once">runs once</span>
         </div>
-        <div class="node stack"><span class="tag t-llm">626</span>
+        <div class="node stack"><span class="tag t-llm">652</span>
           <h4>Test case generator</h4>
-          <p>One scenario in, its test cases out as nested JSON.</p>
+          <p>One scenario in, one test case per listed condition out as nested JSON.</p>
           <span class="per"><i class="dot"></i>one per thread</span>
         </div>
-        <div class="node stack"><span class="tag t-llm">627</span>
+        <div class="node stack"><span class="tag t-llm">653</span>
           <h4>Reviewer</h4>
           <p>Scores each test case, names what is wrong in plain English.</p>
           <span class="per"><i class="dot"></i>one per thread</span>
@@ -1117,19 +1128,23 @@
 
   <section>
     <h2><span class="n">THE RUN</span>Watch the threads</h2>
-    <p class="sub">Every bar is a real agent call from
-      <span class="mono">AgentActivityLogs&nbsp;(22)</span>. Threads start together at 45s and finish
-      at 144, 164, 165, 244, 307 and 324 — the slowest one sets the clock, not the sum.
+    <p class="sub">Every bar is a real agent call from run
+      <span class="mono">640764_085802&nbsp;(23 calls)</span>. Threads start together at 63s and
+      finish at 143, 163, 183, 220, 220, 230 and 314 — the slowest one sets the clock, not the
+      sum. Watch the lane counters: each thread carries its own test case count (2/2/2/1/6/6/3),
+      set by its scenario's conditions list — there is no cases knob, because that number is not
+      a setting. Projections reuse the measured spread — see "The scenario decides" below.
     </p>
 
     <div class="panel">
       <div class="cfg">
         <label>scenarios <input type="number" id="cScen" value="7" min="1" max="10"></label>
         <span class="x">×</span>
-        <label>test cases each <input type="number" id="cTc" value="3" min="1" max="5"></label>
+        <span class="x" style="font-size:13px;color:var(--faint)">cases per scenario: set by each
+          scenario's conditions list</span>
         <span class="x">×</span>
-        <label>steps <input type="number" id="cStep" value="13" min="4" max="25"></label>
-        <span class="eq" id="cEq">= 21 test cases · 273 rows</span>
+        <label>steps <input type="number" id="cStep" value="9" min="4" max="25"></label>
+        <span class="eq" id="cEq">= 22 test cases · 189 rows</span>
         <span class="badge b-real" id="cBadge">measured run</span>
       </div>
       <div class="stage">
@@ -1166,27 +1181,66 @@
     <p class="sub">Seven copies of this run at once. Nothing waits for anything else — a thread that
       passes first time finishes in 99 seconds while its neighbour is still on its second attempt.</p>
     <ol class="steps">
-      <li><b>Generate.</b> The test case agent gets one scenario and writes three test cases as
-        nested JSON. <span class="note">84–145s, the longest step by far. The tool expands the JSON
-          into the 13-column table itself, so the model never repeats the nine header columns on
-          every step row.</span></li>
+      <li><b>Generate.</b> The test case agent gets one scenario and writes one test case per
+        entry on its "Conditions to cover" list — one to six — as nested JSON.
+        <span class="note">63–145s, the longest step by far. The tool expands the JSON into the
+          15-column table itself and injects the seven constant columns, so the model never
+          repeats the header columns on every step row. A single case returned as a bare object
+          instead of a one-element array is wrapped and accepted on a first attempt — there is
+          no table yet to lose.</span></li>
       <li><b>Review.</b> An independent judge scores every test case and marks each pass or fail.
         <span class="note">15–26s. It returns one plain-English reason per failure alongside the
           precise evidence the generator needs.</span>
       </li>
       <li><b>All passed?</b> The thread stops. Its test cases are ready to use.
-        <span class="note">Four of seven scenarios reached this on the first attempt — two scoring
-          95, one 100.</span>
+        <span class="note">Three of seven scenarios reached this on the first attempt — 92, 92
+          and 96.</span>
       </li>
       <li><b>Otherwise, repair.</b> Only the failing test case ids go back, with the reviewer's
-        quoted evidence. <span class="note">Three scenarios needed this. TS_002 went 85 → 95 and
-          passed; TS_004 also recovered.</span></li>
-      <li><b>No improvement? Stop.</b> If the second score is no better than the first, the thread
-        gives up rather than spending another two minutes.
-        <span class="note">TS_003 scored 85 twice and stopped. Its test cases are still in the
-          output, flagged for a human.</span>
+        quoted evidence. <span class="note">Four scenarios needed this. TS_003 went 85 → 92 and
+          TS_005 went 85 → 95; TS_001 and TS_004 did not recover and shipped flagged.</span></li>
+      <li><b>No improvement? Stop — and keep the best.</b> If a repair improves neither the batch
+        score nor the number of passing test cases, the thread gives up rather than spending
+        another two minutes. Any failing case pins the batch score at 85, so the passing count is
+        the signal that actually moves. <span class="note">Whatever round reviewed best is what
+          ships: a repair that comes back worse is discarded (<span class="mono">step=keptbest</span>
+          in the log), so a heal round can never lose work. The kept cases stay in the output,
+          flagged for a human.</span>
       </li>
     </ol>
+  </section>
+
+  <section>
+    <h2><span class="n">HOW MANY</span>The scenario decides the count, not a setting</h2>
+    <p class="sub">There is no fixed "N test cases per scenario". Each scenario ends with a
+      numbered <b>Conditions to cover</b> list, and the generator writes exactly one test case per
+      entry — so a thin scenario gets one and a six-field family gets six. The
+      <span class="mono">testcasesperscenario</span> setting is only a backstop ceiling (the dashed
+      line). Real counts from run <span class="mono">640764_085802</span>:</p>
+    <div class="panel" style="padding:22px 24px 16px">
+      <div class="tcwrap">
+        <div class="cmp-row"><span class="cmp-lbl"><b>TS_001</b> · backward compatibility</span>
+          <div class="cmp-track"><div class="cmp-fill tc-flagged" style="width:33.3%">2</div></div></div>
+        <div class="cmp-row"><span class="cmp-lbl"><b>TS_002</b> · new enrollment → Eligibility Date</span>
+          <div class="cmp-track"><div class="cmp-fill tc-approved" style="width:33.3%">2</div></div></div>
+        <div class="cmp-row"><span class="cmp-lbl"><b>TS_003</b> · Assessment change → Assessment Date</span>
+          <div class="cmp-track"><div class="cmp-fill tc-approved" style="width:33.3%">2</div></div></div>
+        <div class="cmp-row"><span class="cmp-lbl"><b>TS_004</b> · fields unchanged</span>
+          <div class="cmp-track"><div class="cmp-fill tc-flagged" style="width:16.7%">1</div></div></div>
+        <div class="cmp-row"><span class="cmp-lbl"><b>TS_005</b> · 6 field changes → Eligibility Date</span>
+          <div class="cmp-track"><div class="cmp-fill tc-approved" style="width:100%">6 — one per field</div></div></div>
+        <div class="cmp-row"><span class="cmp-lbl"><b>TS_006</b> · 6 field changes → Maintenance Date</span>
+          <div class="cmp-track"><div class="cmp-fill tc-approved" style="width:100%">6 — one per field</div></div></div>
+        <div class="cmp-row"><span class="cmp-lbl"><b>TS_007</b> · Maintenance Date not misused</span>
+          <div class="cmp-track"><div class="cmp-fill tc-approved" style="width:50%">3</div></div></div>
+      </div>
+      <div class="tc-cap">dashed line = backstop ceiling (testcasesperscenario, 6) · green = scenario
+        approved · red = flagged for review · 22 test cases total vs 26 in the experts' manual set</div>
+    </div>
+    <p class="sub" style="margin-top:12px">The calibration point: the experts also wrote exactly
+      <b>one</b> case for the fields-unchanged condition and exactly <b>six</b> for each field
+      family. When the count comes from the conditions list, the machine lands on the same
+      numbers a domain expert does — earlier runs with a fixed count padded every scenario to 8.</p>
   </section>
 
   <section>
@@ -1214,7 +1268,7 @@
       </div>
       <p class="cmp-note">The bars are the same work. Threading does not make any single step
         faster — it stops them queueing. The pale block at the start of the lower bar is the
-        <b>45 seconds</b> that cannot be split: reading the story and writing the scenarios.
+        <b>first minute</b> that cannot be split: reading the story and writing the scenarios.
       </p>
     </div>
   </section>
@@ -1244,8 +1298,9 @@
         </tr>
         <tr>
           <td class="mono">stoponstagnation</td>
-          <td>Abandons a scenario whose repair scored no
-            better than the first attempt.</td>
+          <td>Abandons a scenario whose repair improved neither the
+            score nor the passing count. Either way the best reviewed
+            round is what ships.</td>
           <td class="num">on</td>
         </tr>
         <tr>
@@ -1265,6 +1320,42 @@
   </section>
 
   <section>
+    <h2><span class="n">GROUNDING</span>Two optional settings that keep the domain language right</h2>
+    <p class="sub">Both are optional — leave them empty and nothing changes. Set them once per
+      story family and two whole classes of wrong output disappear.</p>
+    <div class="scroller">
+      <table>
+        <tr>
+          <th>Setting</th>
+          <th>What it does</th>
+          <th>Simple example</th>
+        </tr>
+        <tr>
+          <td class="mono">domainhints</td>
+          <td>A one-line glossary handed to all three agents, telling them what each business
+            term maps to. The agents must use these mappings exactly, and the reviewer fails any
+            test case that contradicts them.</td>
+          <td class="mono">Eligibility Date = Loop 2000 DTP*356. Assessment Date = Loop 2300
+            HD03. Maintenance Date = Loop 2000 DTP*303.</td>
+        </tr>
+        <tr>
+          <td class="mono">bannedterms</td>
+          <td>Words that must never appear in the output. The tool checks this itself —
+            no model judgement — and a hit fails the batch before review. Whole-token match, so
+            banning <span class="mono">DTP03</span> never fires inside
+            <span class="mono">DTP*303</span>.</td>
+          <td class="mono">["DTP01", "DTP02", "DTP03"]</td>
+        </tr>
+      </table>
+    </div>
+    <p class="sub" style="margin-top:14px">Why they exist: an early run invented element names
+      like "Loop 2000 DTP01" for dates the story never describes that way. The hints teach the
+      right names; the banned list mechanically blocks the wrong ones. In a later run the
+      reviewer used the hints to catch a test case calling DTP*348 the "Effective Date" — a real
+      mapping defect, quoted and flagged for a human.</p>
+  </section>
+
+  <section>
     <h2><span class="n">RESULT</span>What came out</h2>
     <div class="scroller">
       <table>
@@ -1276,59 +1367,61 @@
           <th>Finished</th>
         </tr>
         <tr>
-          <td class="mono">TS_001</td>
+          <td class="mono">TS_002</td>
           <td class="num">1</td>
-          <td class="num">95</td>
-          <td><span class="pill p-ok">3 of 3 ready</span></td>
-          <td class="num">2:24</td>
-        </tr>
-        <tr>
-          <td class="mono">TS_006</td>
-          <td class="num">1</td>
-          <td class="num">95</td>
-          <td><span class="pill p-ok">3 of 3 ready</span></td>
-          <td class="num">2:24</td>
+          <td class="num">92</td>
+          <td><span class="pill p-ok">2 of 2 ready</span></td>
+          <td class="num">2:23</td>
         </tr>
         <tr>
           <td class="mono">TS_007</td>
           <td class="num">1</td>
-          <td class="num">95</td>
+          <td class="num">96</td>
           <td><span class="pill p-ok">3 of 3 ready</span></td>
-          <td class="num">2:44</td>
+          <td class="num">2:43</td>
         </tr>
         <tr>
-          <td class="mono">TS_005</td>
+          <td class="mono">TS_006</td>
           <td class="num">1</td>
-          <td class="num">100</td>
-          <td><span class="pill p-ok">3 of 3 ready</span></td>
-          <td class="num">2:45</td>
+          <td class="num">92</td>
+          <td><span class="pill p-ok">6 of 6 ready</span></td>
+          <td class="num">3:03</td>
+        </tr>
+        <tr>
+          <td class="mono">TS_001</td>
+          <td class="num">2</td>
+          <td class="num">85 → 85</td>
+          <td><span class="pill p-bad">2 flagged</span></td>
+          <td class="num">3:40</td>
         </tr>
         <tr>
           <td class="mono">TS_003</td>
           <td class="num">2</td>
-          <td class="num">85 → 85</td>
-          <td><span class="pill p-bad">1 flagged</span></td>
-          <td class="num">4:04</td>
+          <td class="num">85 → 92</td>
+          <td><span class="pill p-ok">2 of 2 ready</span></td>
+          <td class="num">3:40</td>
         </tr>
         <tr>
           <td class="mono">TS_004</td>
-          <td class="num">2</td>
-          <td class="num">85 → 85</td>
-          <td><span class="pill p-ok">3 of 3 ready</span></td>
-          <td class="num">5:07</td>
+          <td class="num">3</td>
+          <td class="num">85</td>
+          <td><span class="pill p-bad">1 flagged</span></td>
+          <td class="num">3:50</td>
         </tr>
         <tr>
-          <td class="mono">TS_002</td>
+          <td class="mono">TS_005</td>
           <td class="num">2</td>
           <td class="num">85 → 95</td>
-          <td><span class="pill p-ok">3 of 3 ready</span></td>
-          <td class="num">5:24</td>
+          <td><span class="pill p-ok">6 of 6 ready</span></td>
+          <td class="num">5:14</td>
         </tr>
       </table>
     </div>
-    <p class="sub" style="margin-top:18px"><strong>20 of 21 test cases ready to use.</strong> The one
-      flagged test case is still in the output, with the reviewer's reason attached:
-      <span class="mono">wrong status for a negative-path test</span>.
+    <p class="sub" style="margin-top:18px"><strong>19 of 22 test cases ready to use.</strong> The
+      flagged ones are still in the output with the reviewer's reason attached — TS_001's two call
+      <span class="mono">DTP*348</span> the "Effective Date" where the domain hints say Eligibility
+      Date, and TS_004's one is marked
+      <span class="mono">missing test cases for the listed condition</span>.
     </p>
   </section>
 
@@ -1346,39 +1439,52 @@
     </details>
 
     <details>
-      <summary>Why does nothing happen for the first 45 seconds?</summary>
+      <summary>Why does nothing happen for the first 63 seconds?</summary>
       <p>Two jobs have to finish before there is anything to split up: reading the story from Azure
-        DevOps (under a second), and turning it into seven scenarios (44 seconds). Only then does the
-        work fan out. That 45 seconds is the same whether you ask for two scenarios or ten.</p>
+        DevOps (under a second), and turning it into seven scenarios, each with its numbered
+        conditions list (about a minute). Only then does the work fan out. That first minute is the
+        same whether you ask for two scenarios or ten.</p>
     </details>
 
     <details>
       <summary>What is a repair round?</summary>
-      <p>The reviewer said one of the three test cases was not good enough, so the thread writes them
-        again — this time it is told exactly what was wrong. Three of the seven threads needed one.
-        Two of those came back better and passed. <b>A repair costs about two more minutes</b>, which
-        is why the lanes that needed one finish so much later.</p>
+      <p>The reviewer said one or more of the scenario's test cases were not good enough, so the
+        thread writes them again — this time it is told exactly what was wrong. In the measured run,
+        four of the seven threads needed one. Two came back better and passed (85→92, 85→95); two
+        did not and shipped flagged. <b>A repair costs one to two more minutes</b>, which is why
+        the lanes that needed one finish so much later.</p>
     </details>
 
     <details>
       <summary>One lane scored 85, then 85 again, and stopped. Why?</summary>
-      <p>If a repair does not improve the score, trying a third time almost never helps — the
-        generator has already seen the feedback and produced the same thing. So the thread gives up
-        instead of spending another two minutes. <b>Its test cases are still in the output</b>, marked
-        for someone to look at.</p>
+      <p>Any failing test case pins the batch score at 85, so the score alone says little — the
+        thread also counts how many cases <em>pass</em> each round. If neither number improves,
+        trying a third time almost never helps, so the thread gives up instead of spending another
+        two minutes. <b>Its test cases are still in the output</b>, marked for someone to look at.</p>
     </details>
 
     <details>
-      <summary>"20 of 21 ready" — is the other one missing?</summary>
-      <p>No. <b>You always get all 21.</b> "Ready" means the reviewer had no objection and you can
-        hand it to a tester as it is. The one that is not ready is in the same file, with a note saying
-        what the reviewer did not like — in this run, <span class="mono">wrong status for a
-          negative-path test</span>. It is a second opinion, not a filter.</p>
+      <summary>What if a repair makes things worse?</summary>
+      <p>It happens — a regeneration can come back with fewer passing cases than the round it was
+        meant to fix. The thread keeps a snapshot of its best reviewed round and ships that one,
+        logging <span class="mono">step=keptbest</span>. A repair round can waste two minutes, but
+        it can never destroy work. The same rule covers a final round that errors outright: the
+        scenario ends "unhealed" with its best table intact, never empty.</p>
+    </details>
+
+    <details>
+      <summary>"19 of 22 ready" — are the other three missing?</summary>
+      <p>No. <b>You always get all 22.</b> "Ready" means the reviewer had no objection and you can
+        hand it to a tester as it is. The three that are not ready are in the same file, each with a
+        note saying what the reviewer did not like — in this run, two call
+        <span class="mono">DTP*348</span> the "Effective Date" where the domain hints say
+        Eligibility Date, and one covers too few of its scenario's listed conditions. It is a
+        second opinion, not a filter.</p>
     </details>
 
     <details>
       <summary>Why is the review bar so much shorter than the writing bar?</summary>
-      <p>Writing three test cases with fifteen steps each takes a while — 85 to 145 seconds. Reading
+      <p>Writing a scenario's test cases takes a while — 63 to 145 seconds. Reading
         them and giving a verdict takes 15 to 26. Writing is where nearly all the time goes, which is
         also why the threads matter: it is the writing that runs seven ways at once.</p>
     </details>
@@ -1393,7 +1499,8 @@
 
   <section>
     <h2><span class="n">THE BILL</span>Where the tokens went</h2>
-    <p class="sub">About <strong>408,000 tokens</strong> for 21 test cases — roughly 19,400 each.
+    <p class="sub">From an earlier 21-test-case measured run of the same story — roughly
+      <strong>408,000 tokens</strong>, 19,400 per test case.
       The surprise is which agent costs the most.</p>
     <div class="tbar">
       <div class="tk-rev" style="width:50%">reviewer 204k</div>
@@ -1492,44 +1599,50 @@
   </section>
 
   <footer class="wrap" style="padding-left:0;padding-right:0">
-    Every number on this page is read from one run of story 640764 — 7 scenarios, 21 test cases,
-    324 seconds. Bars are drawn from the <span class="mono">[ORCH]</span> log's own timestamps and
-    durations.
+    Every number on this page is read from real runs of story 640764 — the timeline, counts and
+    results from run <span class="mono">640764_085802</span> (7 scenarios, 22 test cases, 314
+    seconds), the token bill from an earlier 21-case run. Bars are drawn from the
+    <span class="mono">[ORCH]</span> log's own timestamps and durations.
     <br><br>
     <b style="color:var(--ink)">Jaydeep</b> · 18 August 2026
   </footer>
 </div>
 
 <script>
-  /* The default 7 x 3 x 13 is the run that was actually measured, so those lanes use its real
-     segment times. Change any number and the lanes are MODELLED from the same measurements:
-     ~1,689 characters per table row, the generator emitting 57% of that as nested JSON at
-     ~145 tokens/second, plus ~20s of retrieval before it starts writing. The badge says which
-     you are looking at. */
-  const REAL = { scen: 7, tc: 3, step: 13 };
+  /* The default 7 x 3 x 9 is run 640764_085802 (25 Aug 2026), so those lanes use its real
+     segment times AND its real per-scenario test case counts — 2/2/2/1/6/6/3, set by each
+     scenario's "Conditions to cover" list, not by the knob. Change any number and the lanes
+     are MODELLED from the same measurements (~1,400 characters per table row, the generator
+     emitting nested JSON at ~145 tokens/second, ~20s of retrieval first); modelled lanes reuse
+     the measured per-scenario counts, cycled — there is no cases knob, because the count is not
+     a setting. The badge says which you are looking at. */
+  const REAL = { scen: 7, step: 9 };
   const MEASURED = [
-    { id: "TS_001", gen: 84.5, rev: 15.3, heal: null, ok: true, score: "95" },
-    { id: "TS_006", gen: 84.7, rev: 15.2, heal: null, ok: true, score: "95" },
-    { id: "TS_007", gen: 105.1, rev: 14.7, heal: null, ok: true, score: "95" },
-    { id: "TS_005", gen: 105.2, rev: 14.8, heal: null, ok: true, score: "100" },
-    { id: "TS_003", gen: 84.8, rev: 15.1, heal: [84.6, 14.6], ok: false, score: "85→85" },
-    { id: "TS_004", gen: 105.3, rev: 26.3, heal: [104.8, 26.3], ok: true, score: "85→85" },
-    { id: "TS_002", gen: 105.2, rev: 14.5, heal: [145.3, 14.8], ok: true, score: "85→95" }
+    { id: "TS_002", tc: 2, rows: 19, gen: 64.6, rev: 14.5, heal: null, ok: true, score: "92" },
+    { id: "TS_007", tc: 3, rows: 26, gen: 84.9, rev: 14.4, heal: null, ok: true, score: "96" },
+    { id: "TS_006", tc: 6, rows: 50, gen: 104.6, rev: 14.8, heal: null, ok: true, score: "92" },
+    { id: "TS_001", tc: 2, rows: 21, gen: 64.2, rev: 14.2, heal: [63.8, 14.2], ok: false, score: "85→85" },
+    { id: "TS_003", tc: 2, rows: 19, gen: 64.7, rev: 14.6, heal: [63.5, 14.4], ok: true, score: "85→92" },
+    { id: "TS_004", tc: 1, rows: 10, gen: 64.7, rev: 14.6, heal: [87.0, 0.4], ok: false, score: "85" },
+    { id: "TS_005", tc: 6, rows: 44, gen: 105.4, rev: 26.0, heal: [104.7, 14.2], ok: true, score: "85→95" }
   ];
-  const SHARED_END = 45;
-  const CHARS_PER_ROW = 1689;
+  const SHARED_END = 63;
+  const CHARS_PER_ROW = 1400;
   const genSecs = (tc, st) => 20 + (tc * st * CHARS_PER_ROW * 0.57 / 4) / 145;
   const revSecs = (tc, st) => 14 + (tc * st * CHARS_PER_ROW / 4) / 3000;
 
-  let CFG = { scen: 7, tc: 3, step: 13 }, RUN = [], TOTAL = 324;
+  let CFG = { scen: 7, step: 9 }, RUN = [], TOTAL = 314;
 
   function build() {
-    const real = CFG.scen === REAL.scen && CFG.tc === REAL.tc && CFG.step === REAL.step;
+    const real = CFG.scen === REAL.scen && CFG.step === REAL.step;
     RUN = [];
     for (let i = 0; i < CFG.scen; i++) {
       const m = real ? MEASURED[i] : null;
-      const g = m ? m.gen : genSecs(CFG.tc, CFG.step) * (i % 3 === 0 ? 1 : i % 3 === 1 ? 1.24 : 1.05);
-      const r = m ? m.rev : revSecs(CFG.tc, CFG.step);
+      // Projections have no cases knob: counts are not a setting, so modelled lanes reuse
+      // the measured run's spread (2/3/6/2/2/1/6), cycled to the scenario count.
+      const ptc = MEASURED[i % MEASURED.length].tc;
+      const g = m ? m.gen : genSecs(ptc, CFG.step) * (i % 3 === 0 ? 1 : i % 3 === 1 ? 1.24 : 1.05);
+      const r = m ? m.rev : revSecs(ptc, CFG.step);
       const heals = m ? m.heal : (i % 5 === 2 || i % 5 === 4 ? [g * 1.05, r] : null);
       const ok = m ? m.ok : !(i % 5 === 2);
       const segs = [[SHARED_END, g, "gen", "generate " + Math.round(g) + "s"]];
@@ -1544,14 +1657,18 @@
       }
       RUN.push({
         id: m ? m.id : "TS_" + String(i + 1).padStart(3, "0"),
+        tc: m ? m.tc : ptc, rows: m ? m.rows : ptc * CFG.step,
         segs, end: Math.round(t), ok, score: m ? m.score : (heals ? (ok ? "85→95" : "85→85") : "95")
       });
     }
     TOTAL = Math.max(...RUN.map(r => r.end));
     document.getElementById("cBadge").textContent = real ? "measured run" : "projected";
     document.getElementById("cBadge").className = "badge " + (real ? "b-real" : "b-proj");
-    document.getElementById("cEq").textContent =
-      "= " + (CFG.scen * CFG.tc) + " test cases · " + (CFG.scen * CFG.tc * CFG.step) + " rows";
+    const tcSum = RUN.reduce((a, r) => a + r.tc, 0), rowSum = RUN.reduce((a, r) => a + r.rows, 0);
+    document.getElementById("cEq").textContent = real
+      ? "= " + tcSum + " test cases · " + rowSum + " rows (varies per scenario: " +
+        RUN.map(r => r.tc).join("/") + ")"
+      : "= ~" + tcSum + " test cases · ~" + rowSum + " rows (counts follow the measured spread)";
     document.getElementById("scrub").max = TOTAL;
     draw();
   }
@@ -1571,7 +1688,7 @@
 
     const sharedEl = document.getElementById("shared");
     sharedEl.innerHTML = '<div class="lname" style="position:absolute;left:-118px;top:8px"><b>shared</b></div>';
-    [[0, 1, "read the story"], [1, 44, "write " + CFG.scen + " scenarios · 44s"]].forEach(([s, d, label]) => {
+    [[0, 1, "read the story"], [1, SHARED_END - 1, "write " + CFG.scen + " scenarios · " + (SHARED_END - 1) + "s"]].forEach(([s, d, label]) => {
       const b = document.createElement("div");
       b.className = "bar b-gen on"; b.style.left = pct(s); b.style.width = pct(d); b.style.top = "8px";
       b.textContent = label; sharedEl.appendChild(b);
@@ -1579,13 +1696,12 @@
 
     const lanes = document.getElementById("lanes"); lanes.innerHTML = "";
     bars = []; caps = []; counters = [];
-    const rowsEach = CFG.tc * CFG.step;
     RUN.forEach(r => {
       const lane = document.createElement("div"); lane.className = "lane";
       const nm = document.createElement("div"); nm.className = "lname";
-      nm.innerHTML = '<b>' + r.id + '</b><span class="lcount"><b>0</b>/' + CFG.tc + ' tc</span>';
+      nm.innerHTML = '<b>' + r.id + '</b><span class="lcount"><b>0</b>/' + r.tc + ' tc</span>';
       lane.appendChild(nm);
-      counters.push({ el: nm.querySelector(".lcount"), at: r.end, tc: CFG.tc, rows: rowsEach });
+      counters.push({ el: nm.querySelector(".lcount"), at: r.end, tc: r.tc, rows: r.rows });
       const track = document.createElement("div"); track.className = "track";
       r.segs.forEach(([s, d, k, label]) => {
         const b = document.createElement("div");
@@ -1594,7 +1710,7 @@
       });
       const cap = document.createElement("div");
       cap.className = "cap " + (r.ok ? "ok" : "bad"); cap.style.left = "calc(" + pct(r.end) + " + 8px)";
-      cap.textContent = r.ok ? rowsEach + " rows ready" : "flagged";
+      cap.textContent = r.ok ? r.rows + " rows ready" : "flagged";
       track.appendChild(cap); caps.push({ el: cap, at: r.end, ok: r.ok });
       lane.appendChild(track); lanes.appendChild(lane);
     });
@@ -1619,7 +1735,7 @@
       const cnt = counters[i];
       if (on) {
         doneN++;
-        const got = c.ok ? cnt.tc : cnt.tc - 1;
+        const got = c.ok ? cnt.tc : 0;
         ready += got; rows += cnt.rows;
         cnt.el.innerHTML = '<b>' + cnt.tc + '</b>/' + cnt.tc + ' tc';
         cnt.el.classList.add("done");
@@ -1647,10 +1763,10 @@
   };
   document.getElementById("reset").onclick = () => { running = false; t = 0; play.textContent = "▶ Play"; render(); };
   scrub.oninput = () => { running = false; play.textContent = "▶ Play"; t = +scrub.value; render(); };
-  ["cScen", "cTc", "cStep"].forEach(id => document.getElementById(id).oninput = () => {
+  ["cScen", "cStep"].forEach(id => document.getElementById(id).oninput = () => {
     const v = id => Math.max(+document.getElementById(id).min,
       Math.min(+document.getElementById(id).max, +document.getElementById(id).value || 1));
-    CFG = { scen: v("cScen"), tc: v("cTc"), step: v("cStep") };
+    CFG = { scen: v("cScen"), step: v("cStep") };
     running = false; t = 0; play.textContent = "▶ Play"; build();
   });
   addEventListener("resize", render);
