@@ -1,0 +1,64 @@
+[ORCH] ts=2026-08-27T08:13:47Z step=start story=640764 maxscenarios=7 tcper=6 steps=7-18 rounds=3 workers=7 pass_=95/50 judge=653 deadline=630s
+[ORCH] ts=2026-08-27T08:13:48Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=367
+[ORCH] ts=2026-08-27T08:14:51Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=63445
+[ORCH] ts=2026-08-27T08:15:34Z step=generate scenario=TS_003 round=1 tc=1 ids=TC_001 chars=18702 ms=43389
+[ORCH] ts=2026-08-27T08:15:49Z step=review scenario=TS_003 round=1 score=85 passed=0/1 failing=TC_001 ms=14270
+[ORCH] ts=2026-08-27T08:15:55Z step=generate scenario=TS_001 round=1 tc=3 ids=TC_001,TC_002,TC_003 chars=34575 ms=63863
+[ORCH] ts=2026-08-27T08:15:55Z step=generate scenario=TS_002 round=1 tc=1 ids=TC_001 chars=17322 ms=64114
+[ORCH] ts=2026-08-27T08:15:55Z step=generate scenario=TS_004 round=1 tc=1 ids=TC_001 chars=20179 ms=64168
+[ORCH] ts=2026-08-27T08:16:09Z step=review scenario=TS_001 round=1 score=92 passed=2/3 failing=TC_001 ms=14217
+[ORCH] ts=2026-08-27T08:16:09Z step=review scenario=TS_004 round=1 score=85 passed=0/1 failing=TC_001 ms=14159
+[ORCH] ts=2026-08-27T08:16:10Z step=review scenario=TS_002 round=1 score=85 passed=0/1 failing=TC_001 ms=14377
+[ORCH] ts=2026-08-27T08:16:16Z step=generate scenario=TS_007 round=1 tc=4 ids=TC_001,TC_002,TC_003,TC_004 chars=48698 ms=84507
+[ORCH] ts=2026-08-27T08:16:30Z step=review scenario=TS_007 round=1 score=98 passed=4/4 ms=14423
+[ORCH] ts=2026-08-27T08:16:30Z step=result scenario=TS_007 status=approved scores=[98] rounds=1 tc=4 ms=98935
+[ORCH] ts=2026-08-27T08:16:32Z step=generate scenario=TS_003 round=2 error=response is a single JSON test case object; return the complete JSON array of ALL test cases for the scenario, with the  raw={ "id" : "TC_001", "name" : "Verify AR PASSE current eligibility change uses the changed Assessment Date as the transaction effective date", "description" : "Verify that for an AR PASSE inbound 834 up
+[ORCH] ts=2026-08-27T08:16:36Z step=generate scenario=TS_005 round=1 tc=6 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 chars=69091 ms=104911
+[ORCH] ts=2026-08-27T08:16:53Z step=generate scenario=TS_002 round=2 error=response is a single JSON test case object; return the complete JSON array of ALL test cases for the scenario, with the  raw={ "id" : "TC_001", "name" : "Verify AR PASSE new enrollment uses Eligibility Date as transaction effective date when eligibility span has not yet begun", "description" : "Verify that an AR PASSE inbou
+[ORCH] ts=2026-08-27T08:16:56Z step=generate scenario=TS_006 round=1 tc=6 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 chars=78745 ms=124777
+[ORCH] ts=2026-08-27T08:17:02Z step=review scenario=TS_005 round=1 score=85 passed=1/6 failing=TC_001,TC_002,TC_003,TC_004,TC_005 ms=25907
+[ORCH] ts=2026-08-27T08:17:10Z step=review scenario=TS_006 round=1 score=85 passed=5/6 failing=TC_001 ms=14207
+[ORCH] ts=2026-08-27T08:17:13Z step=generate scenario=TS_004 round=2 error=response is a single JSON test case object; return the complete JSON array of ALL test cases for the scenario, with the  raw={ "id" : "TC_001", "name" : "Verify AR PASSE inbound 834 uses the Assessment Date as the transaction effective date when relevant fields remain unchanged", "description" : "Validate that an AR PASSE i
+[ORCH] ts=2026-08-27T08:17:15Z step=generate scenario=TS_003 round=3 error=response is a single JSON test case object; return the complete JSON array of ALL test cases for the scenario, with the  raw={ "id" : "TC_001", "name" : "Verify AR PASSE inbound 834 for current eligibility uses the changed Assessment Date as the transaction effective date", "description" : "Verify that for an AR PASSE inbou
+[ORCH] ts=2026-08-27T08:17:15Z step=result scenario=TS_003 status=unhealed scores=[85] rounds=3 tc=1 ms=143674
+[ORCH] ts=2026-08-27T08:17:33Z step=generate scenario=TS_001 round=2 tc=3 ids=TC_001,TC_002,TC_003 chars=39492 ms=83473 regen=1
+[ORCH] ts=2026-08-27T08:17:33Z step=pregate scenario=TS_001 round=2 failed=1 first=the banned term 'DTP03' appears in the output; replace it with the correct domain terminol
+[ORCH] ts=2026-08-27T08:17:36Z step=generate scenario=TS_002 round=3 error=response is a single JSON test case object; return the complete JSON array of ALL test cases for the scenario, with the  raw={ "id" : "TC_001", "name" : "Verify AR PASSE new enrollment uses Eligibility Date as the transaction effective date when eligibility has not started", "description" : "Verify that an AR PASSE inbound 
+[ORCH] ts=2026-08-27T08:17:36Z step=result scenario=TS_002 status=unhealed scores=[85] rounds=3 tc=1 ms=165134
+[ORCH] ts=2026-08-27T08:18:16Z step=generate scenario=TS_004 round=3 error=response is a single JSON test case object; return the complete JSON array of ALL test cases for the scenario, with the  raw={ "id" : "TC_001", "name" : "Verify AR PASSE inbound 834 uses the changed Assessment Date as the transaction effective date when all relevant fields remain unchanged", "description" : "Verify that for
+[ORCH] ts=2026-08-27T08:18:16Z step=result scenario=TS_004 status=unhealed scores=[85] rounds=3 tc=1 ms=205036
+[ORCH] ts=2026-08-27T08:18:26Z step=generate scenario=TS_005 round=2 tc=6 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 chars=54134 ms=83813 regen=5
+[ORCH] ts=2026-08-27T08:18:36Z step=generate scenario=TS_001 round=3 tc=3 ids=TC_001,TC_002,TC_003 chars=39701 ms=63287 regen=1
+[ORCH] ts=2026-08-27T08:18:50Z step=review scenario=TS_001 round=3 score=92 passed=0/3 failing=TC_001,TC_002,TC_003 ms=14529
+[ORCH] ts=2026-08-27T08:18:50Z step=stagnant scenario=TS_001 round=3 scores=[92, 92] passed=[2, 0]
+[ORCH] ts=2026-08-27T08:18:50Z step=keptbest scenario=TS_001 round=1 passed=2 note=later round was worse, shipping the best reviewed round
+[ORCH] ts=2026-08-27T08:18:50Z step=result scenario=TS_001 status=stagnant scores=[92, 92] rounds=3 tc=3 ms=239381
+[ORCH] ts=2026-08-27T08:18:52Z step=review scenario=TS_005 round=2 score=92 passed=1/6 failing=TC_001,TC_002,TC_003,TC_004,TC_005 ms=25813
+[ORCH] ts=2026-08-27T08:18:54Z step=generate scenario=TS_006 round=2 tc=6 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 chars=76373 ms=103963 regen=1
+[ORCH] ts=2026-08-27T08:19:37Z step=review scenario=TS_006 round=2 score=85 passed=0/6 failing=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 ms=43312
+[ORCH] ts=2026-08-27T08:19:37Z step=stagnant scenario=TS_006 round=2 scores=[85, 85] passed=[5, 0]
+[ORCH] ts=2026-08-27T08:19:37Z step=keptbest scenario=TS_006 round=1 passed=5 note=later round was worse, shipping the best reviewed round
+[ORCH] ts=2026-08-27T08:19:37Z step=result scenario=TS_006 status=stagnant scores=[85, 85] rounds=2 tc=6 ms=286275
+[ORCH] ts=2026-08-27T08:20:36Z step=generate scenario=TS_005 round=3 tc=6 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 chars=75761 ms=104349 regen=5
+[ORCH] ts=2026-08-27T08:21:02Z step=review scenario=TS_005 round=3 score=85 passed=1/6 failing=TC_001,TC_002,TC_003,TC_004,TC_005 ms=25930
+[ORCH] ts=2026-08-27T08:21:02Z step=stagnant scenario=TS_005 round=3 scores=[85, 92, 85] passed=[1, 1, 1]
+[ORCH] ts=2026-08-27T08:21:02Z step=result scenario=TS_005 status=stagnant scores=[85, 92, 85] rounds=3 tc=6 ms=370745
+[ORCH] ts=2026-08-27T08:21:02Z step=renumber scenario=TS_002 ids=TC_001>TC_004
+[ORCH] ts=2026-08-27T08:21:02Z step=renumber scenario=TS_003 ids=TC_001>TC_005
+[ORCH] ts=2026-08-27T08:21:02Z step=renumber scenario=TS_004 ids=TC_001>TC_006
+[ORCH] ts=2026-08-27T08:21:02Z step=renumber scenario=TS_005 ids=TC_001>TC_007,TC_002>TC_008,TC_003>TC_009,TC_004>TC_010,TC_005>TC_011,TC_006>TC_012
+[ORCH] ts=2026-08-27T08:21:02Z step=renumber scenario=TS_006 ids=TC_001>TC_013,TC_002>TC_014,TC_003>TC_015,TC_004>TC_016,TC_005>TC_017,TC_006>TC_018
+[ORCH] ts=2026-08-27T08:21:02Z step=renumber scenario=TS_007 ids=TC_001>TC_019,TC_002>TC_020,TC_003>TC_021,TC_004>TC_022
+[ORCH] ts=2026-08-27T08:21:02Z step=done approved=1 unreviewed=0 unhealed=3 stagnant=3 hardstop=0 failed=0 skipped=0 testcases=22 agentcalls=30 ms=434576
+[ORCH] ts=2026-08-27T08:21:02Z step=outcome story=640764 ready=12/22 testcases flagged=10 scenarios=7 elapsed=7m14s
+[ORCH] ts=2026-08-27T08:21:02Z step=flagged tc=TC_001 scenario=TS_001 why=missing Effective Date coverage
+[ORCH] ts=2026-08-27T08:21:02Z step=flagged tc=TC_004 scenario=TS_002 why=missing five scenario test cases
+[ORCH] ts=2026-08-27T08:21:02Z step=flagged tc=TC_005 scenario=TS_003 why=missing scenario condition coverage
+[ORCH] ts=2026-08-27T08:21:02Z step=flagged tc=TC_006 scenario=TS_004 why=missing test cases for listed scenario count
+[ORCH] ts=2026-08-27T08:21:02Z step=flagged tc=TC_007 scenario=TS_005 why=duplicate of other field-change cases
+[ORCH] ts=2026-08-27T08:21:02Z step=flagged tc=TC_008 scenario=TS_005 why=duplicate of other field-change cases
+[ORCH] ts=2026-08-27T08:21:02Z step=flagged tc=TC_009 scenario=TS_005 why=duplicate of other field-change cases
+[ORCH] ts=2026-08-27T08:21:02Z step=flagged tc=TC_010 scenario=TS_005 why=duplicate of other field-change cases
+[ORCH] ts=2026-08-27T08:21:02Z step=flagged tc=TC_011 scenario=TS_005 why=duplicate of other field-change cases
+[ORCH] ts=2026-08-27T08:21:02Z step=flagged tc=TC_013 scenario=TS_006 why=duplicate end-to-end flow
+[ORCH] ts=2026-08-27T08:21:02Z step=detail calls=30 rounds=18 scoreboard=TS_001:stagnant(92>92)  TS_002:unhealed(85)  TS_003:unhealed(85)  TS_004:unhealed(85)  TS_005:stagnant(85>92>85)  TS_006:stagnant(85>85)  TS_007:approved(98)
