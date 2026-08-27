@@ -125,7 +125,7 @@ Flat, lowercase, no separators.
   "maxscenarios": 7,
   "testcasesperscenario": 6,
   "stepsmin": 7,
-  "stepsmax": 18,
+  "stepsmax": 24,
   "maxhealrounds": 3,
   "passscore": 90,
   "hardstopscore": 50,

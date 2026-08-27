@@ -602,6 +602,35 @@ check("a heal-round bare object still cannot replace an existing table",
       r4e["testcasecount"] == 3 and r4e["status"] == "unhealed",
       f"status={r4e['status']} tc={r4e['testcasecount']}")
 
+# Run 640764_082102: TS_002/003/004 each held a ONE-case table, and every heal round came
+# back as a bare object — rejected all three rounds, three scenarios unhealed. With exactly
+# one case in hand a bare object can clobber nothing but the case it replaces, so accept it.
+onecase = {"gen": 0}
+
+
+def onecase_then_bareobj_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        onecase["gen"] += 1
+        return (build_table(1, 3) if onecase["gen"] == 1 else single_obj), 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    return json.dumps({"scenarioid": "x",
+                       "scores": [{"id": i, "score": 85, "pass": False,
+                                   "gaps": ["scenario also requires more coverage"]}
+                                  for i in ids],
+                       "batchscore": 85, "batchpass": False}), 10
+
+
+T.exec_agent = onecase_then_bareobj_exec
+res4f = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=6, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=3, stoponstagnation=False, deadlineseconds=120))))
+r4f = res4f["scenarios"][0]
+check("a heal-round bare object IS accepted when the table holds exactly one case",
+      len(r4f["scorehistory"]) == 3 and r4f.get("error") is None,
+      f"status={r4f['status']} scores={r4f['scorehistory']} err={r4f.get('error')}")
+
 # mocks stay installed; section 11 restores them
 
 

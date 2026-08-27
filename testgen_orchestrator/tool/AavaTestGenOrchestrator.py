@@ -51,10 +51,12 @@ DEF_ADO_BASE = "https://dev.azure.com"
 # (6 field permutations); run 640764_073418 showed anything higher gets padded to. The
 # clamp still allows up to 12 for stories with bigger enumerations.
 DEF_TESTCASESPERSCENARIO = 6
-# The domain experts' reference output (640764_edi_834.xlsx) is front-loaded: one ~18-step
-# foundation case, then 7-step variants that compress the shared plumbing. 7 admits that shape.
+# The domain experts' reference output (640764_edi_834.xlsx) is front-loaded: one deep
+# foundation case (baseline ~20 steps since the 2026-08-27 file-naming/canonical/Facets-client
+# additions; the manual reference cases run 23), then ~7-step variants that compress the
+# shared plumbing. 7 admits that shape; 24 gives the foundation case room.
 DEF_STEPSMIN = 7
-DEF_STEPSMAX = 18
+DEF_STEPSMAX = 24
 DEF_MAXHEALROUNDS = 3
 DEF_PASSSCORE = 90
 DEF_HARDSTOPSCORE = 50        # below this, healing does not help; stop and report
@@ -758,9 +760,13 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             try:
                 raw, gen_ms = exec_agent(cfg["testcaseagentid"], gen_inputs, cfg, token,
                                          budget, log, f"generate:{sid}")
-                # A bare single object is recoverable only while no table exists to clobber.
+                # A bare single object is recoverable while there is nothing it can clobber:
+                # no table yet, or a table holding exactly ONE case (which the object
+                # replaces anyway — 640764_082102 burned three scenarios' heal rounds on
+                # rejecting exactly that).
                 parsed = read_testcases(raw, cfg["stepsmin"], cfg["stepsmax"],
-                                        allow_single=not rec["table"])
+                                        allow_single=not rec["table"]
+                                        or rec["testcasecount"] == 1)
             except Exception as e:
                 # Log the head of what the agent actually sent. Run 640764_084112 failed
                 # 7/7 with "test case array is empty" and the log carried no way to tell

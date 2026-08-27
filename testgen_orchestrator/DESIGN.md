@@ -451,9 +451,24 @@ one case per genuinely distinct condition; scenarios that support fewer produce 
 `maxworkers` is no longer an input — one thread per scenario — and `maxagentcalls` sizes
 itself as `3 + maxscenarios × 2 × maxhealrounds` unless overridden. Step depth is
 **front-loaded** (2026-08-25, taken from the domain experts' 26-case reference for story
-640764): the scenario's primary case walks the full flow near `stepsmax` (18); variant cases
-compress shared plumbing into 3–4 steps and sit near `stepsmin` (now 7, was 15). The
-reviewer's step-depth-consistency check is retired accordingly.
+640764): the scenario's primary case walks the full flow near `stepsmax` (24 since
+2026-08-27, when the EDI team's file-naming, canonical-validation and Facets-client steps
+grew the baseline to ~20 steps); variant cases compress shared plumbing into 3–4 steps and
+sit near `stepsmin` (now 7, was 15). The reviewer's step-depth-consistency check is retired
+accordingly.
+
+**EDI-team feedback round (2026-08-27).** Two new KBs attached to the generator:
+`kb_file_naming_edi_834` (literal inbound file names from Program/Group ID) and
+`kb_edi_834_canonical_indicator` (canonical file location, GUID, indicators). New baseline
+steps: resolved file name (1a), pinned SSN eligibility query verbatim (9a), canonical
+file/GUID validation (9b), TM UI terminal statuses (9c), DB-72 login detail (10), Citrix/
+Facets thick-client lookup (10a–10d). Same round hardened the loop: the reviewer may never
+read the ceiling as a quota (list length = expected count), per-value field families are
+never duplicates, a bare single-object regen response is accepted when at most one case is
+in hand, a transient round error no longer lingers in the envelope, and agent 01 maximizes
+POSITIVE conditions within the traceability bound. The team's 95/4/1 distribution ratio and
+uniform-depth mandates were evaluated against the run evidence and not adopted (unrecordable
+in the 15-column format, condition-determined, padding-inducing).
 
 **Grounding inputs.** All three agents receive `{{domainhints}}` (an authoritative
 segment/date glossary; business terms in names, segment notation only in step text), and the

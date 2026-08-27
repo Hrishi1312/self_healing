@@ -252,7 +252,7 @@ def main():
                     help="backstop ceiling: the count comes from each scenario's declared "
                          "'Conditions to cover' list, one case per condition")
     ap.add_argument("--stepsmin", type=int, default=d("stepsmin", 7, int))
-    ap.add_argument("--stepsmax", type=int, default=d("stepsmax", 18, int))
+    ap.add_argument("--stepsmax", type=int, default=d("stepsmax", 24, int))
     ap.add_argument("--rounds", type=int, default=d("maxhealrounds", 2, int))
     ap.add_argument("--no-heal", action="store_true", help="single pass, no regeneration")
     ap.add_argument("--no-judge", action="store_true", help="pre gate only, no reviewer")

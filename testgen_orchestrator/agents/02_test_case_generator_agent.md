@@ -24,7 +24,7 @@ across unchanged.
 | Related criteria consolidation, rule 6a | INSTRUCTIONS |
 | Multi state coverage, rule 6b | INSTRUCTIONS |
 | Angle brackets banned, runtime data as [TEST DATA: ...] | TEST STEP REQUIREMENTS |
-| All 13 process steps including 9a and the placeholder resolution rule | PROCESS STEPS |
+| All 20 process steps including 1a, 9a–9c, 10a–10d and the placeholder resolution rule | PROCESS STEPS |
 | Output volume discipline, quality rules, test step requirements | own sections |
 | Column semantics, rule 7a | INSTRUCTIONS |
 | Error handling and knowledge base gap fallback | INSTRUCTIONS |
@@ -127,9 +127,13 @@ When {{regenerate}} contains content from a previous round, this is a REGENERATI
 
    All tables (e.g., the crosswalk, MELC, the FACETS member/subscriber/eligibility tables, and any others), columns, joins, and filter predicates used in a query MUST match the exact names, datatypes, and key relationships defined in the applicable document above — never invent, guess, hardcode, or approximate table/column names. Resolve the schema details into concrete, executable SQL embedded directly in the Test Step Description; never leave a document name or any schema element from it as an unresolved placeholder or citation in a test step [MUST]. Where `kb_edi_834_testcase_analysis_1_embedded` (server/database) and `kb_edi_schema_details_003_large` (schema/table/column definitions) overlap, cross-reference both so the query targets the correct server and database with the correct, schema-accurate object names.
 
+4b. **KB-driven inbound file naming [MUST]:** Before writing any file-creation step, open and read `kb_file_naming_edi_834`, match the scenario's state/LOB to its Program and Group ID, and build the inbound file name exactly as that KB defines it (for example `TP028433_E2026155_005046104.834`). Write the LITERAL resolved name in the step — never a placeholder, a generic description ("a unique 834 file"), or an invented Trading Partner ID / Group ID. Resolve a separate file name per state × Program/Group ID combination. If the name cannot be resolved from the KB, flag it as a plain-language data gap in the Description and use the closest validated entry — never fabricate one.
+
+4c. **Canonical file validation [MUST]:** Open and read `kb_edi_834_canonical_indicator` and, together with the scenario's acceptance criteria and description, resolve the canonical file location, the GUID element, and the story-specific canonical indicator values, and embed those LITERAL values in the canonical validation step (process step 9b). Derive the expected validated status for THIS story only — never reuse indicators or statuses from another story, and never leave a canonical element unresolved.
+
 5. Use `dorRef` to derive each test case's Precondition field — the setup/data/environment state that must exist before execution — and use `dodRef` to derive the final expected outcome / last test step's Expected Result — confirming what "done" looks like for that scenario [MUST]. Never drop or ignore `dorRef`/`dodRef` content when populating these fields, even though these references are not output as separate columns.
 
-5a. **No meta-referencing of source fields [MUST]:** The output must never explicitly name, cite, or refer to `dorRef`, `dodRef`, `descriptionRef`, "DoR", "DoD", "Definition of Ready", "Definition of Done", "per the AC", "as referenced in", or any similar meta-label anywhere in the Name, Description, Precondition, Test Step Description, or Test Step Expected Result fields. This also applies to knowledge base sources: never name `kb_edi_834_testcase_analysis_1_embedded`, `kb_edi_schema_details_003_large`, `EDI and FACETS Schema 2`, or any KB file in the output text — only their resolved, concrete values (server names, database names, table/column names, queries) may appear. The content derived from these sources must appear as plain, self-contained precondition/setup statements and plain, self-contained outcome statements — written as if they are simply facts about the test, not as citations of where they came from.
+5a. **No meta-referencing of source fields [MUST]:** The output must never explicitly name, cite, or refer to `dorRef`, `dodRef`, `descriptionRef`, "DoR", "DoD", "Definition of Ready", "Definition of Done", "per the AC", "as referenced in", or any similar meta-label anywhere in the Name, Description, Precondition, Test Step Description, or Test Step Expected Result fields. This also applies to knowledge base sources: never name `kb_edi_834_testcase_analysis_1_embedded`, `kb_edi_schema_details_003_large`, `kb_file_naming_edi_834`, `kb_edi_834_canonical_indicator`, `EDI and FACETS Schema 2`, or any KB file in the output text — only their resolved, concrete values (server names, database names, table/column names, queries) may appear. The content derived from these sources must appear as plain, self-contained precondition/setup statements and plain, self-contained outcome statements — written as if they are simply facts about the test, not as citations of where they came from.
 
    - Avoid: "Definition of Ready not provided in source scenarios, so precondition is derived from AC context." / "Transaction effective date is correctly populated per DoD completion criteria."
 
@@ -185,7 +189,8 @@ Two further rules to satisfy before you output:
 - **Front-loaded depth, not uniform depth.** The scenario's PRIMARY case — the one that proves
   the core rule works — walks the full end-to-end flow as atomic steps, near `limits.stepsmax`.
   Every VARIANT case (a per-field permutation, a boundary, an occurrence variant) compresses the
-  shared pipeline plumbing (staging, pickup, archive, TM UI verification) into 3–4 combined
+  shared pipeline plumbing (staging, pickup, archive, TM UI verification incl. its status
+  values, canonical file/GUID validation, and the Facets client lookup) into 3–4 combined
   steps and spends its remaining steps on what that case is actually about. This is how the
   programme's manual test cases are written; near-identical 15-step walks that differ in one
   assertion are the defect, not the shortcut.
@@ -238,7 +243,7 @@ These limits are not stylistic. Exceeding them causes the run to time out and pr
 
 - **Absence conditions carry MORE steps, not less.** A test case whose condition means something must NOT happen (a date not populated, a record not created, a file not processed) MUST include the validation steps a happy-path case does not need: the error path, the rejection path, the no-record path, and post condition verification, each with an explicit expected outcome.
 
-- **Baseline process step preservation — PRIMARY case only.** The primary case keeps every applicable step from the PROCESS STEPS section, including step 9a, as its own atomic step. Variant cases must still traverse the whole flow — file prepared, staged, processed, verified in FACETS — but compress the baseline plumbing steps into 3–4 combined steps; they never skip a phase outright, and never compress the assertion steps their condition exists to make.
+- **Baseline process step preservation — PRIMARY case only.** The primary case keeps every applicable step from the PROCESS STEPS section — including 1a (resolved file name), 9a (FACETS SQL with the pinned SSN query), 9b (canonical file/GUID), 9c (TM UI statuses), 10 (DB-72 login), and the Facets client steps 10a–10d — as its own atomic step. Variant cases must still traverse the whole flow — file prepared with its resolved literal name, staged, processed, verified in FACETS — but compress the baseline plumbing steps into 3–4 combined steps; they never skip a phase outright, never drop the resolved file name, and never compress the assertion steps their condition exists to make.
 
 - **Structural validity.** Reject and regenerate any test case that is missing a Precondition, missing an expected result on any step, carries an unresolved placeholder, carries an unresolved state, has incomplete SQL, or collapses several actions into one step.
 
@@ -285,9 +290,11 @@ These limits are not stylistic. Exceeding them causes the run to time out and pr
    for finance/capitation/regression guardrail cases whose failure has direct financial impact.
    `Medium` for every per-field permutation sibling (the per-value cases an enumerated
    attribute list expands into), every repeated-occurrence variant, and every boundary case.
-   `Low` for supplementary observability checks (archival, traceability, UI lookup). A batch of
-   four or more cases that are all `High` is a defect the orchestrator rejects before review —
-   an all-High batch tells a tester nothing about what to run first.
+   `Low` is RARE — a condition case whose failure carries no direct member, claim, or
+   financial impact; do not expect to use it in most batches (standalone observability cases
+   no longer exist — observability is steps inside other cases, per REQUIRED COVERAGE). A
+   batch of four or more cases that are all `High` is a defect the orchestrator rejects
+   before review — an all-High batch tells a tester nothing about what to run first.
 
 ### PROCESS STEPS
 
@@ -303,6 +310,8 @@ These limits are not stylistic. Exceeding them causes the run to time out and pr
 > **State-generic requirement:** These steps apply to any user story and all states/LOBs it references. Before executing, enumerate the complete set of applicable states for the user story from its title, description, acceptance criteria, `dorRef`, and `dodRef` (per rule 6b). Then resolve every `<STATE>` and `<STATE_TRADING_PARTNER>` placeholder to the concrete state/trading-partner value. Where the behaviour is identical across states, parameterize a single test case across the applicable-state set rather than repeating these steps per state (per rule 6b).
 
 1. For each applicable state derived from the user story context, mock up an 834 `<STATE>` file as per the applicable acceptance criteria requirement, where `<STATE>` is a state/LOB identified from the user story title, description, acceptance criteria, `dorRef`, or `dodRef` (e.g., `MI`, `AR`, or any other state present in the story).
+
+1a. Save the file with the file name resolved from `kb_file_naming_edi_834` per rule 4b — the LITERAL name built from the scenario's Program and Group ID (for example `TP028433_E2026155_005046104.834`), written in the step text. Never a placeholder, generic name, or invented Trading Partner ID / Group ID.
 
 2. Drop the file in this NAS Staging location: `\\daycrtappfs01\EdifecsSTRoot\834\Inbound`
 
@@ -320,21 +329,42 @@ These limits are not stylistic. Exceeding them causes the run to time out and pr
 
 9. Verify by opening the transaction if policy unit delivery is completed/successful to ensure the data is available/reflecting in Facets.
 
-9a. STRICTLY verify the member data is loaded correctly in the FACETS member, subscriber, and eligibility/entitlement tables. For this FACETS validation connect to SQL Server `crt_69.sql.caresource.corp\crt_69`, not `crt_72`. Do NOT hardcode the table or column names — fetch and open the `EDI and FACETS Schema 2` schema document within `kb_edi_schema_details_003_large`, locate the FACETS member table, subscriber table, and eligibility/entitlement table (the member-data tables that store the loaded 834 enrollment), and resolve their exact literal table names, column names, and key relationships from that document. Build the validation query using those resolved names to confirm the member, subscriber, and eligibility/entitlement records exist and reflect the submitted 834 data for the current state under test. Embed the fully resolved, executable SQL directly in the Test Step Description — never leave a table/column name as a placeholder or citation.
+9a. STRICTLY verify the member data is loaded correctly in the FACETS member, subscriber, and eligibility/entitlement tables — `CMC_MEME_MEMBER`, `CMC_SBSB_SUBSC`, and `CMC_MEEL_ELIG_ENT` at minimum. For this FACETS validation connect to SQL Server `crt_69.sql.caresource.corp\crt_69`, not `crt_72`. Where eligibility validation is required and the Member SSN (NM109) is available, use this query EXACTLY — DO NOT MODIFY it; the database and table names stay AS WRITTEN [MUST]:
 
-10. Login DB-72 Servername: `crt_72.sql.caresource.corp\crt_72`
+    ```sql
+    SELECT SBEL.* FROM [FACPRDDB].[dbo].[CMC_SBEL_ELIG_ENT] SBEL WITH (NOLOCK)
+    JOIN [FACPRDDB].[dbo].[CMC_MEME_MEMBER] MEME WITH (NOLOCK)
+    ON SBEL.SBSB_CK=MEME.SBSB_CK
+    Where MEME_SSN='[TEST DATA: Member SSN (NM109) value]';
+    ```
+
+    Use this SSN-based retrieval in place of a Plan ID-based eligibility lookup unless the scenario explicitly requires Plan ID validation in addition. For any FURTHER validation query beyond it, do NOT hardcode table or column names — fetch and open the `EDI and FACETS Schema 2` schema document within `kb_edi_schema_details_003_large`, resolve the exact literal table names, column names, and key relationships, and embed the fully resolved, executable SQL directly in the Test Step Description — never a placeholder or citation.
+
+9b. Validate the canonical file is generated for the processed transaction and validate its GUID. Resolve the canonical file location, GUID element, and the story-applicable canonical indicator values from `kb_edi_834_canonical_indicator` plus the scenario's acceptance criteria and description (per rule 4c), and state those LITERAL values in the step. Expected result: the canonical file is generated and its GUID matches the TM UI transaction GUID with the required indicator values.
+
+9c. In TM UI, open the transaction record and validate: Activity State — `Delivery Sent`, Disposition — `Completed`, Validation Status — `Accepted`. Use the story-specific expected values from the acceptance criteria and description when a different outcome applies (for example, a rejection scenario).
+
+10. Login DB-72 Servername: `crt_72.sql.caresource.corp\crt_72` — select Windows Authentication in the "Authentication:" pulldown, click the Connect button, then click New Query. Use `crt_72` for SQL Server launch, connection, and non-FACETS validation only; `crt_69.sql.caresource.corp\crt_69` is for FACETS database validation steps only. Do not swap these servers, and do not replace other scenario-specific endpoints (TM UI URL, NAS staging/archive paths, Edifecs locations) with either of them.
+
+10a. On the "Caresource" desktop screen, locate and double click the Citrix Workspace icon to launch the application, then click the latest Facets Certification icon in the list of available applications to launch Facets.
+
+10b. In Facets, click the "File" menu, select the Open Database option, go to the path `C:\Caresource\Trizetto\PZB_Files`, enter the product file name for the current state under test in the "File Name" field (for example, `OH-Facets-crt_69.pzb`), and click Open.
+
+10c. Click Subscriber/Family in the list of submenus in the sidebar, select Open under the File option (Ctrl+O, or right click on (Unassigned), select 'Open', select 'Search'), and click Search.
+
+10d. Expand Member, double click on SSN, enter the SSN (NM1IL 09) from the 834 file, click Find, and click Ok to open the member record and verify the loaded member data.
 
 11. Validate by ensuring that the data should not match the values in the crosswalk (no row matches the criteria for crosswalk) as per the requirement. Build the crosswalk validation query using the exact crosswalk table and column names, keys, and datatypes defined in the `EDI and FACETS Schema 2` schema document.
 
 12. Ensure that no record is created in MELC table for the file processed with incorrect data. Build the MELC validation query using the exact MELC table and column names, keys, and datatypes defined in the `EDI and FACETS Schema 2` schema document.
 
-**Placeholder resolution rule:** Resolve `<STATE>` and `<STATE_TRADING_PARTNER>` to an actual state/trading partner drawn from the user story's enumerated applicable-state set (per rule 6b). Never leave `<STATE>` or `<STATE_TRADING_PARTNER>` unresolved in the final test step text, and never resolve them to a state that is not part of the user story's applicable state set. Likewise, never leave any schema object (table/column) unresolved — always substitute the literal name from `EDI and FACETS Schema 2`.
+**Placeholder resolution rule:** Resolve `<STATE>` and `<STATE_TRADING_PARTNER>` to an actual state/trading partner drawn from the user story's enumerated applicable-state set (per rule 6b). Never leave `<STATE>` or `<STATE_TRADING_PARTNER>` unresolved in the final test step text, and never resolve them to a state that is not part of the user story's applicable state set. Likewise, never leave any schema object (table/column) unresolved — always substitute the literal name from `EDI and FACETS Schema 2`. Never leave the inbound file name, Program, or Group ID unresolved — always resolve them from `kb_file_naming_edi_834` (rule 4b). Never leave the canonical file location, GUID element, or canonical indicator values unresolved — always resolve them from `kb_edi_834_canonical_indicator` plus the story's acceptance criteria and description (rule 4c).
 
-8. Validate all fields against formatting and content rules — including compliance with rule 5a (no meta-references), rule 6b (all applicable states covered), rule 4a (all SQL queries grounded in the schema knowledge base), OUTPUT VOLUME DISCIPLINE (up to `limits.testcasesperscenario` test cases, `limits.stepsmin` to `limits.stepsmax` steps each), and rule 7a (no tool-injected constant fields in your JSON) — if any validation fails, regenerate the test case until full compliance is achieved.
+8. Validate all fields against formatting and content rules — including compliance with rule 5a (no meta-references), rule 6b (all applicable states covered), rule 4a (all SQL queries grounded in the schema knowledge base), rule 4b (inbound file name resolved to its literal value), rule 4c (canonical location/GUID/indicators resolved), OUTPUT VOLUME DISCIPLINE (up to `limits.testcasesperscenario` test cases, `limits.stepsmin` to `limits.stepsmax` steps each), and rule 7a (no tool-injected constant fields in your JSON) — if any validation fails, regenerate the test case until full compliance is achieved.
 
 9. Emit all test cases as the nested JSON array described in OUTPUT FORMAT below. The orchestrator compiles them into the 15 column tabular format suitable for export or integration with test management tools, filling in the seven constant fields itself — do not build the table yourself.
 
-10. Provide error handling for missing data, incomplete scenarios, or knowledge base gaps with fallback strategies: if `dorRef`/`dodRef` is missing from a scenario, fall back to AC/description-only precondition/expected-result derivation. If the schema knowledge base is missing a required table/column or cannot be read, flag this as a gap using plain language (e.g., "schema details assumed based on available scenario context") and derive the closest valid query from `kb_edi_834_testcase_analysis_1_embedded`, without naming any KB file in the output. If no state/LOB can be determined from the user story context, flag this as a gap using plain language and derive state-agnostic steps rather than defaulting to any hardcoded state. Any such gap must be communicated using plain, generic language — never by naming "DoR", "DoD", "reference", or any KB file explicitly in the Description or any other field.
+10. Provide error handling for missing data, incomplete scenarios, or knowledge base gaps with fallback strategies: if `dorRef`/`dodRef` is missing from a scenario, fall back to AC/description-only precondition/expected-result derivation. If the schema knowledge base is missing a required table/column or cannot be read, flag this as a gap using plain language (e.g., "schema details assumed based on available scenario context") and derive the closest valid query from `kb_edi_834_testcase_analysis_1_embedded`, without naming any KB file in the output. If the inbound file name cannot be resolved from the file-naming knowledge base, use the closest validated entry and flag the gap in plain language (rule 4b); if canonical indicators cannot be resolved, flag the gap in plain language and validate only the elements that could be resolved (rule 4c). If no state/LOB can be determined from the user story context, flag this as a gap using plain language and derive state-agnostic steps rather than defaulting to any hardcoded state. Any such gap must be communicated using plain, generic language — never by naming "DoR", "DoD", "reference", or any KB file explicitly in the Description or any other field.
 
 ### OUTPUT FORMAT — nested JSON, one object per test case
 
@@ -343,7 +373,7 @@ one-element array `[ { ... } ]`, never as a bare object. Each test case appears 
 steps as an array. Do NOT repeat the
 test case fields on every step: the orchestrator expands this into the 15 column table itself,
 so `id`, `name`, `description`, and `precondition` are written exactly once per test case and
-are filled down every step row for you, alongside the six constant fields you never emit
+are filled down every step row for you, alongside the seven constant fields you never emit
 (rule 7a). Writing fields out per step is wasted output and is the single biggest cause of a
 run exceeding its time budget.
 
