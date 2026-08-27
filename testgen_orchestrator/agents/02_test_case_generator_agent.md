@@ -439,8 +439,10 @@ merely different), and its Expected Results assert what that specific input actu
 
 ## Tool Attachment
 
-**No tool.** Pure LLM. Knowledge bases attached: `kb_edi_834_testcase_analysis_1_embedded`
-and `kb_edi_schema_details_003_large`.
+**No tool.** Pure LLM. Knowledge bases attached: `kb_edi_834_testcase_analysis_1_embedded`,
+`kb_edi_schema_details_003_large`, `kb_file_naming_edi_834` (2026-08-27, inbound file names
+from Program/Group ID), and `kb_edi_834_canonical_indicator` (2026-08-27, canonical file
+location / GUID / indicators).
 
 ## Called by
 
