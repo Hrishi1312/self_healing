@@ -635,6 +635,152 @@ check("a heal-round bare object IS accepted when the table holds exactly one cas
 
 
 # ────────────────────────────────────────────────────────────────────────────
+section("9b. CONDITION-CHUNKED GENERATION  (the single-completion budget wall)")
+
+# Run 640764_145552: at 18-40 step depth no single completion could carry more than ~4
+# cases — big condition lists came back as [] or truncated. Scenarios whose description
+# carries a "Conditions to cover:" list are generated in chunks of at most 3 conditions,
+# one agent call each, merged by the tool.
+
+check("parse_conditions extracts a numbered list",
+      T.parse_conditions("intro text. Conditions to cover: 1) Alpha changes. "
+                         "2) Beta changes. 3) All fields together.")
+      == ["Alpha changes", "Beta changes", "All fields together"])
+check("parse_conditions returns [] when there is no list",
+      T.parse_conditions("a plain description") == [])
+
+chunk_scen = json.dumps([{
+    "scenarioId": "TS_001", "title": "quadrant", "descriptionRef": "d",
+    "acceptanceCriteriaRef": "ac", "dorRef": "", "dodRef": "", "type": "Positive",
+    "description": ("Rule matrix quadrant. Conditions to cover: 1) Alpha changes. "
+                    "2) Beta changes. 3) Gamma changes. 4) Delta changes. "
+                    "5) Epsilon changes. 6) Zeta changes. "
+                    "7) All relevant fields change together."),
+    "priority": "High"}])
+
+ck = {"gen": []}
+
+
+def chunked_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return chunk_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        ck["gen"].append(json.loads(userinputs["scenario"])["description"])
+        return build_table(3, 2), 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    return json.dumps({"scenarioid": "x",
+                       "scores": [{"id": i, "score": 95, "pass": True, "gaps": []}
+                                  for i in ids],
+                       "batchscore": 95, "batchpass": True}), 10
+
+
+T.exec_agent = chunked_exec
+res_c = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=10, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=2, deadlineseconds=120, maxagentcalls=60))))
+r_c = res_c["scenarios"][0]
+check("a 7-condition list generates in ceil(7/3)=3 chunk calls",
+      len(ck["gen"]) == 3, f"calls={len(ck['gen'])}")
+check("each chunk call carries ONLY its own conditions, renumbered",
+      len(ck["gen"]) == 3
+      and "Alpha changes" in ck["gen"][0] and "Delta" not in ck["gen"][0]
+      and "1) Delta changes" in ck["gen"][1] and "Alpha" not in ck["gen"][1]
+      and "All relevant fields" in ck["gen"][2] and "Beta" not in ck["gen"][2])
+check("chunk results merge with unique sequential ids and approve",
+      r_c["status"] == "approved" and r_c["testcasecount"] == 9,
+      f"status={r_c['status']} tc={r_c['testcasecount']}")
+
+# heal isolation: one failing case regenerates only its own chunk
+hz = {"gen": 0, "rev": 0}
+
+
+def chunkheal_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return chunk_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        hz["gen"] += 1
+        return build_table(3, 2), 10
+    hz["rev"] += 1
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    scores = [{"id": i,
+               "score": 85 if (hz["rev"] == 1 and i == "TC_005") else 95,
+               "pass": not (hz["rev"] == 1 and i == "TC_005"),
+               "gaps": ["fix it"] if (hz["rev"] == 1 and i == "TC_005") else []}
+              for i in ids]
+    return json.dumps({"scenarioid": "x", "scores": scores,
+                       "batchscore": min(s["score"] for s in scores),
+                       "batchpass": all(s["pass"] for s in scores)}), 10
+
+
+T.exec_agent = chunkheal_exec
+res_h = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=10, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=2, deadlineseconds=120, maxagentcalls=60))))
+r_h = res_h["scenarios"][0]
+check("healing a failing case regenerates ONLY its chunk (3+1 calls)",
+      hz["gen"] == 4 and r_h["status"] == "approved",
+      f"gen={hz['gen']} status={r_h['status']}")
+
+# a [] on one chunk must not kill the scenario; the chunk is retried next round
+bz = {"gen": 0}
+
+
+def chunkempty_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return chunk_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        bz["gen"] += 1
+        return ("[]" if bz["gen"] == 2 else build_table(3, 2)), 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    return json.dumps({"scenarioid": "x",
+                       "scores": [{"id": i, "score": 95, "pass": True, "gaps": []}
+                                  for i in ids],
+                       "batchscore": 95, "batchpass": True}), 10
+
+
+T.exec_agent = chunkempty_exec
+res_e = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=10, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=2, deadlineseconds=120, maxagentcalls=60))))
+r_e = res_e["scenarios"][0]
+check("an empty chunk is retried, not fatal: scenario completes with all 9 cases",
+      r_e["status"] == "approved" and r_e["testcasecount"] == 9 and bz["gen"] == 4,
+      f"status={r_e['status']} tc={r_e['testcasecount']} gen={bz['gen']}")
+
+# the ceiling trims the condition list before chunking
+tz = {"gen": 0}
+big_scen = json.dumps([{
+    "scenarioId": "TS_001", "title": "big", "descriptionRef": "d",
+    "acceptanceCriteriaRef": "ac", "dorRef": "", "dodRef": "", "type": "Positive",
+    "description": "Big list. Conditions to cover: " + " ".join(
+        f"{i}) Condition {i}." for i in range(1, 14)),
+    "priority": "High"}])
+
+
+def chunktrim_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return big_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        tz["gen"] += 1
+        return build_table(2, 2), 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    return json.dumps({"scenarioid": "x",
+                       "scores": [{"id": i, "score": 95, "pass": True, "gaps": []}
+                                  for i in ids],
+                       "batchscore": 95, "batchpass": True}), 10
+
+
+T.exec_agent = chunktrim_exec
+res_t = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=10, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=2, deadlineseconds=120, maxagentcalls=60))))
+check("a 13-condition list is trimmed to the ceiling before chunking (4 calls, not 5)",
+      tz["gen"] == 4, f"calls={tz['gen']}")
+
+# mocks stay installed; section 11 restores them
+
+
+# ────────────────────────────────────────────────────────────────────────────
 section("10. PLACEHOLDER WIRING  (the failure that produces confident nonsense)")
 
 # AAVA binds a sub agent's input by substituting {{name}} into its Description. A userInputs

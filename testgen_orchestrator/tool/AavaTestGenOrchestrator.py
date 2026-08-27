@@ -708,6 +708,76 @@ def pregate(parsed: Dict[str, Any], bannedterms: List[str] = None,
 
 
 # ── one scenario, start to finish, on its own thread ────────────────────────
+# ── condition-chunked generation ────────────────────────────────────────────
+# Run 640764_145552: at 18-40 step depth no single completion carried more than ~4 cases —
+# big condition lists came back as [] or truncated, and heal rounds could not add cases
+# because the complete-array contract exceeded the model's output budget. Scenarios whose
+# description ends in agent 01's numbered "Conditions to cover:" list are therefore
+# generated in chunks of at most CHUNK_CONDITIONS conditions, one agent call each, and the
+# tool merges the results. A chunk that fails ([] or parse error) costs one call, not the
+# scenario; a heal round regenerates only the chunks holding failing cases.
+
+CHUNK_CONDITIONS = 3
+
+_COND_HEAD = re.compile(r"Conditions to cover:\s*", re.I)
+_COND_ITEM = re.compile(r"\d+\)\s*")
+
+
+def parse_conditions(description: str) -> List[str]:
+    """The numbered condition list from a scenario description, or [] when absent."""
+    m = _COND_HEAD.search(description or "")
+    if not m:
+        return []
+    items = _COND_ITEM.split(description[m.end():])
+    return [i.strip().rstrip(".").strip() for i in items if i.strip()]
+
+
+def chunk_scenario(scenario: Dict[str, Any], conds: List[str]) -> Dict[str, Any]:
+    """A copy of the scenario whose description lists ONLY the given conditions,
+    renumbered from 1 — so agent 02's count-equals-list rule yields exactly this chunk."""
+    s = dict(scenario)
+    desc = scenario.get("description") or ""
+    m = _COND_HEAD.search(desc)
+    head = desc[:m.start()] if m else desc + " "
+    s["description"] = (head + "Conditions to cover: "
+                        + " ".join(f"{i}) {c}." for i, c in enumerate(conds, 1)))
+    return s
+
+
+def merge_chunks(parts: List[Optional[Dict[str, Any]]], idchunk: Dict[str, int],
+                 idlocal: Dict[str, str]) -> Dict[str, Any]:
+    """Merge per-chunk parse results into one parsed table with sequential unique ids.
+    idchunk maps merged id -> chunk index and idlocal maps merged id -> the id the chunk's
+    own output used, so heal feedback can reference ids the chunk agent recognises."""
+    idchunk.clear()
+    idlocal.clear()
+    cases: Dict[str, List[List[str]]] = {}
+    ids: List[str] = []
+    rowsout: List[List[str]] = []
+    n = 0
+    for ci, p in enumerate(parts):
+        if not p:
+            continue
+        for tid in p["ids"]:
+            n += 1
+            nid = f"TC_{n:03d}"
+            rws = []
+            for r in p["cases"][tid]:
+                r2 = list(r)
+                r2[0] = nid
+                rws.append(r2)
+            cases[nid] = rws
+            ids.append(nid)
+            idchunk[nid] = ci
+            idlocal[nid] = tid
+            rowsout.extend(rws)
+    table = "\n".join(["| " + " | ".join(COLUMNS) + " |", "|" + "---|" * len(COLUMNS)]
+                      + ["| " + " | ".join(r) + " |" for r in rowsout])
+    # Same shape as parse_testcases returns, so pregate/review consume either untouched.
+    return {"header": list(COLUMNS), "rows": rowsout, "cases": cases, "table": table,
+            "chars": len(table), "ids": ids}
+
+
 def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[str, Any],
                      token: str, budget: _Budget, log: _Log) -> Dict[str, Any]:
     """Generate, review and heal one scenario. Never raises: every failure becomes a record
@@ -725,7 +795,22 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
     t0 = time.monotonic()
     passscore = cfg["passscore"]
     parsed: Optional[Dict[str, Any]] = None
-    regenerate: List[Dict[str, Any]] = []
+    # Condition-chunked generation: a scenario with a "Conditions to cover:" list is
+    # generated CHUNK_CONDITIONS conditions at a time (see the helpers above). A scenario
+    # without a list is one chunk of None — the legacy whole-scenario call.
+    conds = parse_conditions(scenario.get("description") or "")
+    if len(conds) > cfg["testcasesperscenario"]:
+        log.line("condtrim", scenario=sid, listed=len(conds),
+                 kept=cfg["testcasesperscenario"])
+        conds = conds[:cfg["testcasesperscenario"]]
+    chunks: List[Optional[List[str]]] = (
+        [conds[i:i + CHUNK_CONDITIONS] for i in range(0, len(conds), CHUNK_CONDITIONS)]
+        if conds else [None])
+    chunkparsed: List[Optional[Dict[str, Any]]] = [None] * len(chunks)
+    chunkgaps: Dict[int, List[Dict[str, Any]]] = {}
+    needwork = set(range(len(chunks)))
+    idchunk: Dict[str, int] = {}
+    idlocal: Dict[str, str] = {}
     # Best reviewed round so far. Run 640764_064825: two scenarios went from 7 cases
     # passing to 0 after a heal round, and the last (worst) table was shipped. A heal
     # round must never lose work, so the best round is kept and restored after the loop.
@@ -745,51 +830,76 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                 break
             rec["rounds"] = rnd
 
-            gen_inputs = {
-                "scenario": _j(scenario),
-                "storytitle": story["title"],
-                "limits": _j({"testcasesperscenario": cfg["testcasesperscenario"],
-                                          "stepsmin": cfg["stepsmin"], "stepsmax": cfg["stepsmax"]}),
-                # Always present, even empty: an unbound {{variable}} arrives as its own
-                # literal name in the agent's prompt.
-                "domainhints": cfg["domainhints"] or "none",
-            }
-            if regenerate:
-                gen_inputs["regenerate"] = _j(regenerate)   # omitted on the first round
-            raw = ""
-            try:
-                raw, gen_ms = exec_agent(cfg["testcaseagentid"], gen_inputs, cfg, token,
-                                         budget, log, f"generate:{sid}")
-                # A bare single object is recoverable while there is nothing it can clobber:
-                # no table yet, or a table holding exactly ONE case (which the object
-                # replaces anyway — 640764_082102 burned three scenarios' heal rounds on
-                # rejecting exactly that).
-                parsed = read_testcases(raw, cfg["stepsmin"], cfg["stepsmax"],
-                                        allow_single=not rec["table"]
-                                        or rec["testcasecount"] == 1)
-            except Exception as e:
-                # Log the head of what the agent actually sent. Run 640764_084112 failed
-                # 7/7 with "test case array is empty" and the log carried no way to tell
-                # whether the model wrote [], the prompt was broken, or the platform
-                # truncated the output. Empty when exec_agent itself raised.
-                log.line("generate", scenario=sid, round=rnd, error=str(e)[:120],
-                         raw=_WS.sub(" ", raw)[:200] or None)
-                regenerate = [{"id": "all", "gaps": [f"previous attempt was rejected: {e}"]}]
-                rec["error"] = str(e)[:300]
-                continue
+            for ci in sorted(needwork):
+                csc = scenario if chunks[ci] is None else chunk_scenario(scenario, chunks[ci])
+                gen_inputs = {
+                    "scenario": _j(csc),
+                    "storytitle": story["title"],
+                    "limits": _j({"testcasesperscenario": cfg["testcasesperscenario"],
+                                              "stepsmin": cfg["stepsmin"],
+                                              "stepsmax": cfg["stepsmax"]}),
+                    # Always present, even empty: an unbound {{variable}} arrives as its
+                    # own literal name in the agent's prompt.
+                    "domainhints": cfg["domainhints"] or "none",
+                }
+                regen_list = chunkgaps.get(ci)
+                if regen_list:
+                    gen_inputs["regenerate"] = _j(regen_list)   # omitted on the first round
+                raw = ""
+                try:
+                    raw, gen_ms = exec_agent(cfg["testcaseagentid"], gen_inputs, cfg, token,
+                                             budget, log, f"generate:{sid}")
+                    # A bare single object is recoverable while there is nothing it can
+                    # clobber: no result for this chunk yet, or one holding a single case
+                    # (which the object replaces anyway — 640764_082102 burned three
+                    # scenarios' heal rounds on rejecting exactly that).
+                    prior = chunkparsed[ci]
+                    if chunks[ci] is None:
+                        allow = not rec["table"] or rec["testcasecount"] == 1
+                    else:
+                        allow = (len(chunks[ci]) == 1 or prior is None
+                                 or len(prior["ids"]) <= 1)
+                    p = read_testcases(raw, cfg["stepsmin"], cfg["stepsmax"],
+                                       allow_single=allow)
+                    chunkparsed[ci] = p
+                    chunkgaps.pop(ci, None)
+                    log.line("generate", scenario=sid, round=rnd,
+                             chunk=(f"{ci + 1}/{len(chunks)}" if chunks[ci] is not None
+                                    else None),
+                             tc=len(p["ids"]), ids=",".join(p["ids"]), chars=p["chars"],
+                             ms=gen_ms, regen=len(regen_list or []) or None)
+                except Exception as e:
+                    # Log the head of what the agent actually sent. Run 640764_084112
+                    # failed 7/7 with "test case array is empty" and the log carried no
+                    # way to tell whether the model wrote [], the prompt was broken, or
+                    # the platform truncated the output. Empty when exec_agent raised.
+                    log.line("generate", scenario=sid, round=rnd,
+                             chunk=(f"{ci + 1}/{len(chunks)}" if chunks[ci] is not None
+                                    else None),
+                             error=str(e)[:120], raw=_WS.sub(" ", raw)[:200] or None)
+                    chunkgaps[ci] = [{"id": "all",
+                                      "gaps": [f"previous attempt was rejected: {e}"]}]
+                    rec["error"] = str(e)[:300]
 
+            if not any(p is not None for p in chunkparsed):
+                continue    # nothing parseable this round; next round retries every chunk
+
+            if chunks == [None]:
+                parsed = chunkparsed[0]
+                idchunk = {tid: 0 for tid in parsed["ids"]}
+                idlocal = {tid: tid for tid in parsed["ids"]}
+            else:
+                parsed = merge_chunks(chunkparsed, idchunk, idlocal)
             rec["table"] = parsed["table"]
             rec["chars"] = parsed["chars"]
             rec["testcasecount"] = len(parsed["ids"])
             tablernd = rnd
-            # A parse success supersedes any earlier round's error: the envelope's error
-            # field reports only what ended the scenario, never a transient a later round
-            # recovered from (640764_080233 showed "test case array is empty" beside six
-            # healthy shipped cases).
-            rec["error"] = None
-            log.line("generate", scenario=sid, round=rnd, tc=len(parsed["ids"]),
-                     ids=",".join(parsed["ids"]), chars=parsed["chars"], ms=gen_ms,
-                     regen=len(regenerate) or None)
+            # A full parse success supersedes any earlier round's error: the envelope's
+            # error field reports only what ended the scenario, never a transient a later
+            # round recovered from (640764_080233 showed "test case array is empty"
+            # beside six healthy shipped cases).
+            if all(p is not None for p in chunkparsed):
+                rec["error"] = None
 
             # Re-enabled 2026-08-19: the 640764 comparison run shipped meta labels ("DoD"
             # in 5 preconditions) that this gate catches for free. Disabling it (2026-08-18)
@@ -803,7 +913,9 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                 rec["status"] = "unhealed"
                 if rnd >= passes:
                     break
-                regenerate = [{"id": "all", "gaps": problems}]
+                chunkgaps = {ci: [{"id": "all", "gaps": problems}]
+                             for ci in range(len(chunks))}
+                needwork = set(range(len(chunks)))
                 continue
 
             if not reviewing:
@@ -863,13 +975,23 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                         "gaps": rec["gaps"], "flagged": rec["flagged"],
                         "finalscore": batchscore}
 
-            if not failing:
+            if not failing and all(p is not None for p in chunkparsed):
                 rec["status"] = "approved"
                 # A failed earlier round leaves its message in rec["error"]; keeping it on an
                 # approved scenario (640764_141324, TS_003: approved yet error="no markdown
                 # table found") misleads any consumer that keys off error != None.
                 rec["error"] = None
                 break
+
+            if not failing:
+                # Review passed everything that exists, but a chunk never parsed — its
+                # conditions are silently missing. Retry just that chunk; approval requires
+                # every chunk in hand.
+                if rnd >= passes:
+                    rec["status"] = "unhealed"
+                    break
+                needwork = {ci for ci, p in enumerate(chunkparsed) if p is None}
+                continue
 
             # Hard stop: this far below the bar the output is wrong, not rough, and another
             # round spends budget to arrive at the same place. Report it for a human instead.
@@ -896,8 +1018,20 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                 rec["status"] = "unhealed"
                 break
 
-            # Targeted repair: only the test cases that failed, with their quoted gaps.
-            regenerate = [{"id": s["id"], "gaps": s.get("gaps") or []} for s in failing]
+            # Targeted repair: only the chunks holding failing cases are regenerated, and
+            # the feedback names the ids the chunk's own output used, not the merged ids.
+            newgaps: Dict[int, List[Dict[str, Any]]] = {}
+            for s in failing:
+                ci = idchunk.get(s["id"], 0)
+                newgaps.setdefault(ci, []).append(
+                    {"id": idlocal.get(s["id"], s["id"]), "gaps": s.get("gaps") or []})
+            for ci, p in enumerate(chunkparsed):
+                if p is None:
+                    newgaps.setdefault(ci, chunkgaps.get(ci)
+                                       or [{"id": "all",
+                                            "gaps": ["previous attempt produced nothing"]}])
+            chunkgaps = newgaps
+            needwork = set(newgaps)
 
     except Exception as e:                                   # defensive: never escape a thread
         rec["status"] = "failed"
