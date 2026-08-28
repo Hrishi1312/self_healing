@@ -1,0 +1,339 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "640764",
+    "title": "(ENR SUCC) DEV & TEST - 834E/U AR PASSE Transaction Effective Date Logic Update - EDI"
+  },
+  "summary": {
+    "scenarios": 7,
+    "approved": 2,
+    "unreviewed": 0,
+    "unhealed": 1,
+    "stagnant": 4,
+    "hardstop": 0,
+    "failed": 0,
+    "skipped": 0,
+    "testcases": 31,
+    "totalrounds": 14,
+    "agentcalls": 41,
+    "elapsedms": 825155
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "Existing functionality identifies all inbound business dates for downstream transaction effective date selection",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_002",
+          "why": "too few steps for required flow"
+        },
+        {
+          "id": "TC_003",
+          "why": "too few steps for required flow"
+        },
+        {
+          "id": "TC_004",
+          "why": "domain mapping conflicts with hints"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        1,
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 4,
+      "chars": 119359,
+      "elapsedms": 406545,
+      "gaps": [
+        "TC_002 has 18 steps, but the authoritative hint says \"Every test case walks the complete end-to-end flow at full atomic depth - file creation with the resolved literal file name, staging, pickup, archive, TM UI verification with status values, canonical file and GUID validation, FACETS SQL validation, and the Facets client lookup - at 18 steps minimum; do not compress the flow in any case.\" The compressed step text is \"Place TP028433_E2026031_123456789.834 in \\\\daycrtappfs01\\EdifecsSTRoot\\834\\Inbound and verify it is picked up and archived to \\\\daycrtappfs01\\EdifecsSTArchive\\834\\Inbound\\AR.\" in Step Description.",
+        "TC_003 has 18 steps, but the authoritative hint says \"Every test case walks the complete end-to-end flow at full atomic depth - file creation with the resolved literal file name, staging, pickup, archive, TM UI verification with status values, canonical file and GUID validation, FACETS SQL validation, and the Facets client lookup - at 18 steps minimum; do not compress the flow in any case.\" The compressed step text is \"Place TP028433_E2026031_123456789.834 in \\\\daycrtappfs01\\EdifecsSTRoot\\834\\Inbound and verify the file is automatically picked and archived to \\\\daycrtappfs01\\EdifecsSTArchive\\834\\Inbound\\AR.\" in Step Description.",
+        "Pre-condition contains \"The tester must have access to \\daycrtappfs01\\EdifecsSTArchive\\834\\Inbound\\State_of_AR\" and Step 6 Expected Result contains \"TP028433_E2026031_123456789.834 is present in \\\\daycrtappfs01\\EdifecsSTArchive\\834\\Inbound\\State_of_AR.\" but related cases use the AR archive path \"\\\\daycrtappfs01\\EdifecsSTArchive\\834\\Inbound\\AR\" for the same scenario flow, creating a contradiction against the scenario description \"through the standard inbound flow checkpoints of file staging, pickup, archive, TM UI, canonical/GUID, FACETS SQL, and Facets client lookup.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "New enrollment or future eligibility uses Eligibility Date as transaction effective date regardless of Assessment Date",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_006",
+          "why": "duplicate of TC_001's end-to-end intent"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        1,
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 60486,
+      "elapsedms": 209951,
+      "gaps": [
+        "Semantic duplicate: Test Case Id 'TC_002' shares the same business intent as 'TC_001' \u2014 both validate that for a member whose eligibility span has not yet begun, the transaction effective date loaded in Facets is the Eligibility Date through the same end-to-end flow. Evidence from TC_001 Test Case Name: 'Verify AR PASSE new enrollment with future Eligibility Date uses the Eligibility Date as the transaction effective date when Assessment Date is earlier'; evidence from TC_002 Test Case Name: 'Verify AR PASSE future eligibility transaction with no other business changes still uses the Eligibility Date as the transaction effective date'"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "Current eligibility with Assessment Date changed uses Assessment Date as transaction effective date",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        85,
+        96
+      ],
+      "passedhistory": [
+        1,
+        2
+      ],
+      "finalscore": 96,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 56058,
+      "elapsedms": 219044,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Future eligibility with Assessment Date unchanged and relevant-field changes uses Eligibility Date",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        85,
+        90
+      ],
+      "passedhistory": [
+        2,
+        8
+      ],
+      "finalscore": 90,
+      "rounds": 2,
+      "testcasecount": 8,
+      "chars": 242504,
+      "elapsedms": 760655,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "Current eligibility with Assessment Date unchanged and relevant-field changes uses Maintenance Date",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_018",
+          "why": "too few steps"
+        },
+        {
+          "id": "TC_019",
+          "why": "too few steps"
+        },
+        {
+          "id": "TC_021",
+          "why": "too few steps"
+        },
+        {
+          "id": "TC_022",
+          "why": "too few steps"
+        },
+        {
+          "id": "TC_024",
+          "why": "too few steps"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        2,
+        3
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 8,
+      "chars": 246053,
+      "elapsedms": 637847,
+      "gaps": [
+        "Test Case Id 'TC_002' has 18 steps, but the authoritative hint says \"Every test case walks the complete end-to-end flow at full atomic depth - file creation with the resolved literal file name, staging, pickup, archive, TM UI verification with status values, canonical file and GUID validation, FACETS SQL validation, and the Facets client lookup - at 18 steps minimum; do not compress the flow in any case.\" The table text shows compressed flow in Step Description: \"Confirm that TP028433_E2026031_123456789.834 is automatically picked up from \\\\daycrtappfs01\\EdifecsSTRoot\\834\\Inbound and then archived to \\\\daycrtappfs01\\EdifecsSTArchive\\834\\Inbound\\State_of_AR.\" (Step Description, step 3)",
+        "Test Case Id 'TC_002' also compresses multiple required validations into one step contrary to the hint \"do not compress the flow in any case.\" The table text shows: \"Validate TM status values for TP028433_E2026031_123456789.834 and verify the canonical attachment is present with a GUID matching the TM transaction GUID.\" (Step Description, step 5)",
+        "Test Case Id 'TC_003' has 18 steps, but the authoritative hint says \"Every test case walks the complete end-to-end flow at full atomic depth - file creation with the resolved literal file name, staging, pickup, archive, TM UI verification with status values, canonical file and GUID validation, FACETS SQL validation, and the Facets client lookup - at 18 steps minimum; do not compress the flow in any case.\" The table text shows compressed flow in Step Description: \"Confirm that TP028433_E2026031_123456789.834 is automatically picked up from \\\\daycrtappfs01\\EdifecsSTRoot\\834\\Inbound and then archived to \\\\daycrtappfs01\\EdifecsSTArchive\\834\\Inbound\\State_of_AR.\" (Step Description, step 3)",
+        "Test Case Id 'TC_003' also compresses multiple required validations into one step contrary to the hint \"do not compress the flow in any case.\" The table text shows: \"Validate TM status values and canonical generation for the processed AR PASSE file.\" (Step Description, step 5)",
+        "Test Case Id 'TC_005' has 18 steps, but the authoritative hint says \"Every test case walks the complete end-to-end flow at full atomic depth - file creation with the resolved literal file name, staging, pickup, archive, TM UI verification with status values, canonical file and GUID validation, FACETS SQL validation, and the Facets client lookup - at 18 steps minimum; do not compress the flow in any case.\" The table text shows compressed flow in Step Description: \"Place TP028433_E2026031_123456789.834 into \\\\daycrtappfs01\\EdifecsSTRoot\\834\\Inbound and verify pickup and archive in \\\\daycrtappfs01\\EdifecsSTArchive\\834\\Inbound\\AR.\" (Step Description, step 4)",
+        "Test Case Id 'TC_005' also compresses multiple required validations into one step contrary to the hint \"do not compress the flow in any case.\" The table text shows: \"Validate TM UI processing results for the opened transmission and confirm policy unit delivery completed successfully.\" (Step Description, step 6)",
+        "Test Case Id 'TC_006' has 18 steps, but the authoritative hint says \"Every test case walks the complete end-to-end flow at full atomic depth - file creation with the resolved literal file name, staging, pickup, archive, TM UI verification with status values, canonical file and GUID validation, FACETS SQL validation, and the Facets client lookup - at 18 steps minimum; do not compress the flow in any case.\" The table text shows compressed flow in Step Description: \"Place TP028433_E2026031_123456789.834 into \\\\daycrtappfs01\\EdifecsSTRoot\\834\\Inbound, confirm automatic pickup, and confirm the archive copy is present in \\\\daycrtappfs01\\EdifecsSTArchive\\834\\Inbound\\AR.\" (Step Description, step 4)",
+        "Test Case Id 'TC_006' also compresses multiple required validations into one step contrary to the hint \"do not compress the flow in any case.\" The table text shows: \"Validate the transaction statuses and delivery result in TM UI for the opened record.\" (Step Description, step 6)",
+        "Test Case Id 'TC_008' has 18 steps, but the authoritative hint says \"Every test case walks the complete end-to-end flow at full atomic depth - file creation with the resolved literal file name, staging, pickup, archive, TM UI verification with status values, canonical file and GUID validation, FACETS SQL validation, and the Facets client lookup - at 18 steps minimum; do not compress the flow in any case.\" The table text shows compressed flow in Step Description: \"Place TP028433_E2026031_123456789.834 in \\\\daycrtappfs01\\EdifecsSTRoot\\834\\Inbound, confirm automatic pickup, and verify archive placement in \\\\daycrtappfs01\\EdifecsSTArchive\\834\\Inbound\\AR.\" (Step Description, step 3)",
+        "Test Case Id 'TC_008' also compresses multiple required validations into one step contrary to the hint \"do not compress the flow in any case.\" The table text shows: \"Review TM UI transaction details, including processing statuses and attachments, and compare the canonical attachment GUID to the TM UI transaction GUID.\" (Step Description, step 5)"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_006",
+      "title": "Maintenance Date is not used outside the explicitly allowed current-eligibility relevant-field rule",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_027",
+          "why": "missing multi-field condition coverage"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        2,
+        1
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 86221,
+      "elapsedms": 283227,
+      "gaps": [
+        "Coverage gap for TC_003: scenario description field says \"Conditions to cover: 1) New enrollment or future eligibility does not use Maintenance Date as the transaction effective date. 2) Current eligibility with Assessment Date changed does not use Maintenance Date as the transaction effective date. 3) Future eligibility with Assessment Date unchanged and a qualifying field change does not use Maintenance Date as the transaction effective date.\", and domain hint says \"Coverage follows the programme's manual matrix for this story: (Assessment Date changed vs not changed) x (existing member vs future eligibility) x relevant-field variations - including MULTI-FIELD COMBINATIONS as their own conditions (e.g. Assessment Number + Tier + Division together, and an All Relevant Fields Updated condition per quadrant).\" TC_003 also requires \"MULTI-FIELD COMBINATIONS as their own conditions (e.g. Assessment Number + Tier + Division together, and an All Relevant Fields Updated condition per quadrant)\"; add a dedicated test case for it"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_007",
+      "title": "Regression of mixed inbound combinations confirms correct transaction effective date routing and no finance-impacting deviation",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_029",
+          "why": "missing multi-field combination coverage"
+        },
+        {
+          "id": "TC_030",
+          "why": "missing no-rule-path negative coverage"
+        },
+        {
+          "id": "TC_031",
+          "why": "wrong archive path and TM URL"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        1,
+        1
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 4,
+      "chars": 144401,
+      "elapsedms": 452712,
+      "gaps": [
+        "TC_002 is the closest related case, but scenario description also requires \"including MULTI-FIELD COMBINATIONS as their own conditions (e.g. Assessment Number + Tier + Division together, and an All Relevant Fields Updated condition per quadrant)\"; add a dedicated test case for it",
+        "TC_003 is the closest related case, but scenario description also requires \"4) No qualifying rule path causes transaction effective date selection inconsistent with Requirements 1-5.\"; add a dedicated test case for it",
+        "Pre-condition contains \"\\\\daycrtappfs01\\EdifecsSTArchive\\834\\Inbound\\AR\" but TC_001/TC_002/TC_003 use the Arkansas archive path \"\\\\daycrtappfs01\\EdifecsSTArchive\\834\\Inbound\\State_of_AR\"",
+        "Step Description contains \"https://edifecstmenr-crt.caresource.corp:8443/tm/logon/logon.jsp\" but TC_001/TC_002/TC_003 use \"https://edifecstm-crt.caresource.corp:8443/tm/logon/logon.jsp\""
+      ],
+      "error": null
+    }
+  ],
+  "warnings": [],
+  "testcases": {
+    "rows": 637,
+    "chars": 953198,
+    "scenarios": 7,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-08-28T07:09:45Z step=start story=640764 maxscenarios=7 tcper=10 steps=18-40 rounds=2 workers=7 pass_=90/50 judge=653 deadline=1200s",
+    "[ORCH] ts=2026-08-28T07:09:46Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=191",
+    "[ORCH] ts=2026-08-28T07:10:50Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=64279",
+    "[ORCH] ts=2026-08-28T07:12:15Z step=generate scenario=TS_002 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=60486 ms=84707",
+    "[ORCH] ts=2026-08-28T07:12:15Z step=generate scenario=TS_003 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=63735 ms=85352",
+    "[ORCH] ts=2026-08-28T07:12:29Z step=review scenario=TS_002 round=1 score=85 passed=1/2 failing=TC_002 ms=14723",
+    "[ORCH] ts=2026-08-28T07:12:30Z step=review scenario=TS_003 round=1 score=85 passed=1/2 failing=TC_002 ms=14387",
+    "[ORCH] ts=2026-08-28T07:12:35Z step=generate scenario=TS_001 round=1 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=80213 ms=104887",
+    "[ORCH] ts=2026-08-28T07:12:36Z step=generate scenario=TS_004 round=1 chunk=1/3 tc=3 ids=TC_001,TC_002,TC_003 chars=74933 ms=106176",
+    "[ORCH] ts=2026-08-28T07:12:36Z step=generate scenario=TS_005 round=1 chunk=1/3 tc=3 ids=TC_001,TC_002,TC_003 chars=83823 ms=106430",
+    "[ORCH] ts=2026-08-28T07:12:57Z step=generate scenario=TS_007 round=1 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=93125 ms=126810",
+    "[ORCH] ts=2026-08-28T07:12:57Z step=generate scenario=TS_006 round=1 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=86221 ms=126962",
+    "[ORCH] ts=2026-08-28T07:13:20Z step=generate scenario=TS_005 round=1 chunk=2/3 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-08-28T07:13:23Z step=review scenario=TS_006 round=1 score=85 passed=2/3 failing=TC_003 ms=26024",
+    "[ORCH] ts=2026-08-28T07:13:39Z step=generate scenario=TS_001 round=1 chunk=2/2 tc=1 ids=TC_001 chars=39460 ms=63851",
+    "[ORCH] ts=2026-08-28T07:13:54Z step=generate scenario=TS_002 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=83530 ms=84326 regen=1",
+    "[ORCH] ts=2026-08-28T07:14:04Z step=review scenario=TS_001 round=1 score=85 passed=1/4 failing=TC_002,TC_003,TC_004 ms=25932",
+    "[ORCH] ts=2026-08-28T07:14:14Z step=generate scenario=TS_003 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=56058 ms=104753 regen=1",
+    "[ORCH] ts=2026-08-28T07:14:20Z step=review scenario=TS_002 round=2 score=85 passed=0/2 failing=TC_001,TC_002 ms=26136",
+    "[ORCH] ts=2026-08-28T07:14:20Z step=stagnant scenario=TS_002 round=2 scores=[85, 85] passed=[1, 0]",
+    "[ORCH] ts=2026-08-28T07:14:20Z step=keptbest scenario=TS_002 round=1 passed=1 note=later round was worse, shipping the best reviewed round",
+    "[ORCH] ts=2026-08-28T07:14:20Z step=result scenario=TS_002 status=stagnant scores=[85, 85] rounds=2 tc=2 ms=209951",
+    "[ORCH] ts=2026-08-28T07:14:21Z step=generate scenario=TS_007 round=1 chunk=2/2 tc=1 ids=TC_001 chars=38605 ms=84397",
+    "[ORCH] ts=2026-08-28T07:14:29Z step=review scenario=TS_003 round=2 score=96 passed=2/2 ms=14541",
+    "[ORCH] ts=2026-08-28T07:14:29Z step=result scenario=TS_003 status=approved scores=[85, 96] rounds=2 tc=2 ms=219044",
+    "[ORCH] ts=2026-08-28T07:14:41Z step=generate scenario=TS_004 round=1 chunk=2/3 tc=3 ids=TC_001,TC_002,TC_003 chars=78271 ms=124980",
+    "[ORCH] ts=2026-08-28T07:14:44Z step=generate scenario=TS_005 round=1 chunk=3/3 tc=2 ids=TC_001,TC_002 chars=64549 ms=83933",
+    "[ORCH] ts=2026-08-28T07:14:48Z step=review scenario=TS_007 round=1 score=85 passed=1/4 failing=TC_002,TC_003,TC_004 ms=26514",
+    "[ORCH] ts=2026-08-28T07:15:07Z step=generate scenario=TS_006 round=2 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=79937 ms=104358 regen=1",
+    "[ORCH] ts=2026-08-28T07:15:10Z step=review scenario=TS_005 round=1 score=85 passed=2/5 failing=TC_002,TC_003,TC_005 ms=26056",
+    "[ORCH] ts=2026-08-28T07:15:33Z step=review scenario=TS_006 round=2 score=85 passed=1/3 failing=TC_001,TC_002 ms=25866",
+    "[ORCH] ts=2026-08-28T07:15:33Z step=stagnant scenario=TS_006 round=2 scores=[85, 85] passed=[2, 1]",
+    "[ORCH] ts=2026-08-28T07:15:33Z step=keptbest scenario=TS_006 round=1 passed=2 note=later round was worse, shipping the best reviewed round",
+    "[ORCH] ts=2026-08-28T07:15:33Z step=result scenario=TS_006 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=283227",
+    "[ORCH] ts=2026-08-28T07:15:49Z step=generate scenario=TS_001 round=2 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=100037 ms=104360 regen=2",
+    "[ORCH] ts=2026-08-28T07:16:32Z step=generate scenario=TS_007 round=2 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=99141 ms=104448 regen=2",
+    "[ORCH] ts=2026-08-28T07:16:46Z step=generate scenario=TS_004 round=1 chunk=3/3 tc=2 ids=TC_001,TC_002 chars=85701 ms=124944",
+    "[ORCH] ts=2026-08-28T07:16:53Z step=generate scenario=TS_001 round=2 chunk=2/2 tc=1 ids=TC_001 chars=50190 ms=64059 regen=1",
+    "[ORCH] ts=2026-08-28T07:17:14Z step=generate scenario=TS_005 round=2 chunk=1/3 tc=3 ids=TC_001,TC_002,TC_003 chars=90670 ms=124811 regen=2",
+    "[ORCH] ts=2026-08-28T07:17:30Z step=review scenario=TS_004 round=1 score=85 passed=2/8 failing=TC_002,TC_003,TC_005,TC_006,TC_007,TC_008 ms=43739",
+    "[ORCH] ts=2026-08-28T07:17:36Z step=review scenario=TS_001 round=2 score=85 passed=0/4 failing=TC_001,TC_002,TC_003,TC_004 ms=43411",
+    "[ORCH] ts=2026-08-28T07:17:36Z step=stagnant scenario=TS_001 round=2 scores=[85, 85] passed=[1, 0]",
+    "[ORCH] ts=2026-08-28T07:17:36Z step=keptbest scenario=TS_001 round=1 passed=1 note=later round was worse, shipping the best reviewed round",
+    "[ORCH] ts=2026-08-28T07:17:36Z step=result scenario=TS_001 status=stagnant scores=[85, 85] rounds=2 tc=4 ms=406545",
+    "[ORCH] ts=2026-08-28T07:17:56Z step=generate scenario=TS_007 round=2 chunk=2/2 tc=1 ids=TC_001 chars=45574 ms=84344 regen=1",
+    "[ORCH] ts=2026-08-28T07:18:23Z step=review scenario=TS_007 round=2 score=85 passed=1/4 failing=TC_002,TC_003,TC_004 ms=26168",
+    "[ORCH] ts=2026-08-28T07:18:23Z step=stagnant scenario=TS_007 round=2 scores=[85, 85] passed=[1, 1]",
+    "[ORCH] ts=2026-08-28T07:18:23Z step=result scenario=TS_007 status=stagnant scores=[85, 85] rounds=2 tc=4 ms=452712",
+    "[ORCH] ts=2026-08-28T07:18:59Z step=generate scenario=TS_005 round=2 chunk=2/3 tc=3 ids=TC_001,TC_002,TC_003 chars=86166 ms=104648 regen=1",
+    "[ORCH] ts=2026-08-28T07:19:14Z step=generate scenario=TS_004 round=2 chunk=1/3 tc=3 ids=TC_001,TC_002,TC_003 chars=85865 ms=104526 regen=2",
+    "[ORCH] ts=2026-08-28T07:20:44Z step=generate scenario=TS_005 round=2 chunk=3/3 tc=2 ids=TC_001,TC_002 chars=69845 ms=104628 regen=1",
+    "[ORCH] ts=2026-08-28T07:21:19Z step=generate scenario=TS_004 round=2 chunk=2/3 tc=3 ids=TC_001,TC_002,TC_003 chars=97217 ms=125044 regen=2",
+    "[ORCH] ts=2026-08-28T07:21:28Z step=review scenario=TS_005 round=2 score=85 passed=3/8 failing=TC_002,TC_003,TC_005,TC_006,TC_008 ms=43820",
+    "[ORCH] ts=2026-08-28T07:21:28Z step=result scenario=TS_005 status=unhealed scores=[85, 85] rounds=2 tc=8 ms=637847",
+    "[ORCH] ts=2026-08-28T07:23:04Z step=generate scenario=TS_004 round=2 chunk=3/3 tc=2 ids=TC_001,TC_002 chars=60050 ms=104672 regen=2",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=review scenario=TS_004 round=2 score=90 passed=8/8 ms=26536",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=result scenario=TS_004 status=approved scores=[85, 90] rounds=2 tc=8 ms=760655",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=renumber scenario=TS_002 ids=TC_001>TC_005,TC_002>TC_006",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=renumber scenario=TS_003 ids=TC_001>TC_007,TC_002>TC_008",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=renumber scenario=TS_004 ids=TC_001>TC_009,TC_002>TC_010,TC_003>TC_011,TC_004>TC_012,TC_005>TC_013,TC_006>TC_014,TC_007>TC_015,TC_008>TC_016",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=renumber scenario=TS_005 ids=TC_001>TC_017,TC_002>TC_018,TC_003>TC_019,TC_004>TC_020,TC_005>TC_021,TC_006>TC_022,TC_007>TC_023,TC_008>TC_024",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=renumber scenario=TS_006 ids=TC_001>TC_025,TC_002>TC_026,TC_003>TC_027",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=renumber scenario=TS_007 ids=TC_001>TC_028,TC_002>TC_029,TC_003>TC_030,TC_004>TC_031",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=done approved=2 unreviewed=0 unhealed=1 stagnant=4 hardstop=0 failed=0 skipped=0 testcases=31 agentcalls=41 ms=825155",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=outcome story=640764 ready=18/31 testcases flagged=13 scenarios=7 elapsed=13m45s",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=flagged tc=TC_002 scenario=TS_001 why=too few steps for required flow",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=flagged tc=TC_003 scenario=TS_001 why=too few steps for required flow",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=flagged tc=TC_004 scenario=TS_001 why=domain mapping conflicts with hints",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=flagged tc=TC_006 scenario=TS_002 why=duplicate of TC_001's end-to-end intent",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=flagged tc=TC_018 scenario=TS_005 why=too few steps",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=flagged tc=TC_019 scenario=TS_005 why=too few steps",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=flagged tc=TC_021 scenario=TS_005 why=too few steps",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=flagged tc=TC_022 scenario=TS_005 why=too few steps",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=flagged tc=TC_024 scenario=TS_005 why=too few steps",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=flagged tc=TC_027 scenario=TS_006 why=missing multi-field condition coverage",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=flagged tc=TC_029 scenario=TS_007 why=missing multi-field combination coverage",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=flagged tc=TC_030 scenario=TS_007 why=missing no-rule-path negative coverage",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=flagged tc=TC_031 scenario=TS_007 why=wrong archive path and TM URL",
+    "[ORCH] ts=2026-08-28T07:23:30Z step=detail calls=41 rounds=14 scoreboard=TS_001:stagnant(85>85)  TS_002:stagnant(85>85)  TS_003:approved(85>96)  TS_004:approved(85>90)  TS_005:unhealed(85>85)  TS_006:stagnant(85>85)  TS_007:stagnant(85>85)"
+  ]
+}
