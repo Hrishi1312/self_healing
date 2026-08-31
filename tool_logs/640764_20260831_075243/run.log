@@ -1,0 +1,58 @@
+[ORCH] ts=2026-08-31T07:32:43Z step=start story=640764 maxscenarios=7 tcper=10 steps=18-40 rounds=2 workers=7 pass_=90/50 judge=653 deadline=1200s
+[ORCH] ts=2026-08-31T07:32:43Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=177
+[ORCH] ts=2026-08-31T07:36:50Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=247282
+[ORCH] ts=2026-08-31T07:38:15Z step=generate scenario=TS_004 round=1 chunk=1/3 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:39:38Z step=generate scenario=TS_002 round=1 chunk=1/1 tc=1 ids=TC_001 chars=50405 ms=167636
+[ORCH] ts=2026-08-31T07:39:57Z step=generate scenario=TS_007 round=1 chunk=1/2 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:40:04Z step=review scenario=TS_002 round=1 score=92 passed=1/1 ms=26640
+[ORCH] ts=2026-08-31T07:40:04Z step=result scenario=TS_002 status=approved scores=[92] rounds=1 tc=1 ms=194283
+[ORCH] ts=2026-08-31T07:40:19Z step=generate scenario=TS_003 round=1 chunk=1/1 tc=1 ids=TC_001 chars=33395 ms=208302
+[ORCH] ts=2026-08-31T07:40:33Z step=review scenario=TS_003 round=1 score=97 passed=1/1 ms=14654
+[ORCH] ts=2026-08-31T07:40:33Z step=result scenario=TS_003 status=approved scores=[97] rounds=1 tc=1 ms=222960
+[ORCH] ts=2026-08-31T07:40:58Z step=agenterror label=generate:TS_005 agentid=652 phase=poll status=FAILED execution=360783fa-17b4-47ed-ae9b-4dee8517cb9b ms=247896 why={"executionId": "360783fa-17b4-47ed-ae9b-4dee8517cb9b", "agentId": 652, "output": null, "agentName": "EDI 834 Inbound Test Case Generation", "executedBy": "Hrishikesh.Rode@caresource.com", "createdAt"
+[ORCH] ts=2026-08-31T07:40:58Z step=generate scenario=TS_005 round=1 chunk=1/3 error=generate:TS_005: agent 652 finished FAILED (execution 360783fa-17b4-47ed-ae9b-4dee8517cb9b)
+[ORCH] ts=2026-08-31T07:40:58Z step=agenterror label=generate:TS_001 agentid=652 phase=poll status=FAILED execution=e44932a2-0e48-4a2d-ab17-b698fea05a7d ms=247943 why={"executionId": "e44932a2-0e48-4a2d-ab17-b698fea05a7d", "agentId": 652, "output": null, "agentName": "EDI 834 Inbound Test Case Generation", "executedBy": "Hrishikesh.Rode@caresource.com", "createdAt"
+[ORCH] ts=2026-08-31T07:40:58Z step=generate scenario=TS_001 round=1 chunk=1/2 error=generate:TS_001: agent 652 finished FAILED (execution e44932a2-0e48-4a2d-ab17-b698fea05a7d)
+[ORCH] ts=2026-08-31T07:40:58Z step=agenterror label=generate:TS_006 agentid=652 phase=poll status=FAILED execution=c821a1e9-2186-48e8-aac4-97c99c00ce40 ms=248082 why={"executionId": "c821a1e9-2186-48e8-aac4-97c99c00ce40", "agentId": 652, "output": null, "agentName": "EDI 834 Inbound Test Case Generation", "executedBy": "Hrishikesh.Rode@caresource.com", "createdAt"
+[ORCH] ts=2026-08-31T07:40:58Z step=generate scenario=TS_006 round=1 chunk=1/1 error=generate:TS_006: agent 652 finished FAILED (execution c821a1e9-2186-48e8-aac4-97c99c00ce40)
+[ORCH] ts=2026-08-31T07:42:23Z step=generate scenario=TS_004 round=1 chunk=2/3 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:43:23Z step=generate scenario=TS_007 round=1 chunk=2/2 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:44:25Z step=generate scenario=TS_001 round=1 chunk=2/2 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:44:45Z step=generate scenario=TS_005 round=1 chunk=2/3 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:44:45Z step=generate scenario=TS_006 round=2 chunk=1/1 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:44:45Z step=result scenario=TS_006 status=failed scores=[] rounds=2 tc=0 ms=474945
+[ORCH] ts=2026-08-31T07:45:50Z step=generate scenario=TS_004 round=1 chunk=3/3 tc=2 ids=TC_001,TC_002 chars=58587 ms=206881
+[ORCH] ts=2026-08-31T07:46:04Z step=review scenario=TS_004 round=1 score=85 passed=0/2 failing=TC_001,TC_002 ms=14546
+[ORCH] ts=2026-08-31T07:47:32Z step=agenterror label=generate:TS_007 agentid=652 phase=poll status=FAILED execution=ada2528c-e974-40f0-a69b-7ed4671a8a68 ms=248422 why={"executionId": "ada2528c-e974-40f0-a69b-7ed4671a8a68", "agentId": 652, "output": null, "agentName": "EDI 834 Inbound Test Case Generation", "executedBy": "Hrishikesh.Rode@caresource.com", "createdAt"
+[ORCH] ts=2026-08-31T07:47:32Z step=generate scenario=TS_007 round=2 chunk=1/2 error=generate:TS_007: agent 652 finished FAILED (execution ada2528c-e974-40f0-a69b-7ed4671a8a68)
+[ORCH] ts=2026-08-31T07:48:12Z step=generate scenario=TS_001 round=2 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=68884 ms=227643 regen=1
+[ORCH] ts=2026-08-31T07:48:13Z step=generate scenario=TS_005 round=1 chunk=3/3 tc=2 ids=TC_001,TC_002 chars=58125 ms=207439
+[ORCH] ts=2026-08-31T07:48:27Z step=review scenario=TS_005 round=1 score=85 passed=1/2 failing=TC_001 ms=14620
+[ORCH] ts=2026-08-31T07:49:51Z step=generate scenario=TS_004 round=2 chunk=1/3 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:51:19Z step=generate scenario=TS_001 round=2 chunk=2/2 tc=1 ids=TC_001 chars=33817 ms=186822 regen=1
+[ORCH] ts=2026-08-31T07:51:19Z step=pregate scenario=TS_001 round=2 failed=1 first=the banned term 'DTP03' appears in the output; replace it with the correct domain terminol
+[ORCH] ts=2026-08-31T07:51:19Z step=result scenario=TS_001 status=unhealed scores=[] rounds=2 tc=4 ms=869081
+[ORCH] ts=2026-08-31T07:51:40Z step=agenterror label=generate:TS_007 agentid=652 phase=poll status=FAILED execution=e70d8a4d-d447-430b-b069-a59262f044ad ms=248257 why={"executionId": "e70d8a4d-d447-430b-b069-a59262f044ad", "agentId": 652, "output": null, "agentName": "EDI 834 Inbound Test Case Generation", "executedBy": "Hrishikesh.Rode@caresource.com", "createdAt"
+[ORCH] ts=2026-08-31T07:51:40Z step=generate scenario=TS_007 round=2 chunk=2/2 error=generate:TS_007: agent 652 finished FAILED (execution e70d8a4d-d447-430b-b069-a59262f044ad)
+[ORCH] ts=2026-08-31T07:51:40Z step=result scenario=TS_007 status=failed scores=[] rounds=2 tc=0 ms=889822
+[ORCH] ts=2026-08-31T07:51:54Z step=generate scenario=TS_005 round=2 chunk=1/3 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:52:43Z step=generate scenario=TS_004 round=2 chunk=2/3 error=generate:TS_004: agent 652 still IN_PROGRESS when the budget ran out (execution 0dc97c70-2057-43da-b3f2-2dc5be76bf6e)
+[ORCH] ts=2026-08-31T07:52:43Z step=generate scenario=TS_004 round=2 chunk=3/3 error=budget exhausted before call
+[ORCH] ts=2026-08-31T07:52:43Z step=review scenario=TS_004 round=2 error=budget exhausted before call
+[ORCH] ts=2026-08-31T07:52:43Z step=keptbest scenario=TS_004 round=1 passed=0 note=later round was worse, shipping the best reviewed round
+[ORCH] ts=2026-08-31T07:52:43Z step=result scenario=TS_004 status=unhealed scores=[85] rounds=2 tc=2 ms=952939
+[ORCH] ts=2026-08-31T07:52:43Z step=generate scenario=TS_005 round=2 chunk=2/3 error=generate:TS_005: agent 652 still IN_PROGRESS when the budget ran out (execution c2c2c363-38b2-4546-a97b-485f5a7f0f8a)
+[ORCH] ts=2026-08-31T07:52:43Z step=generate scenario=TS_005 round=2 chunk=3/3 error=budget exhausted before call
+[ORCH] ts=2026-08-31T07:52:43Z step=review scenario=TS_005 round=2 error=budget exhausted before call
+[ORCH] ts=2026-08-31T07:52:43Z step=keptbest scenario=TS_005 round=1 passed=1 note=later round was worse, shipping the best reviewed round
+[ORCH] ts=2026-08-31T07:52:43Z step=result scenario=TS_005 status=unhealed scores=[85] rounds=2 tc=2 ms=952963
+[ORCH] ts=2026-08-31T07:52:43Z step=renumber scenario=TS_002 ids=TC_001>TC_005
+[ORCH] ts=2026-08-31T07:52:43Z step=renumber scenario=TS_003 ids=TC_001>TC_006
+[ORCH] ts=2026-08-31T07:52:43Z step=renumber scenario=TS_004 ids=TC_001>TC_007,TC_002>TC_008
+[ORCH] ts=2026-08-31T07:52:43Z step=renumber scenario=TS_005 ids=TC_001>TC_009,TC_002>TC_010
+[ORCH] ts=2026-08-31T07:52:43Z step=done approved=2 unreviewed=0 unhealed=3 stagnant=0 hardstop=0 failed=2 skipped=0 testcases=10 agentcalls=27 ms=1200442
+[ORCH] ts=2026-08-31T07:52:43Z step=outcome story=640764 ready=7/10 testcases flagged=3 scenarios=7 elapsed=20m00s warnings=2
+[ORCH] ts=2026-08-31T07:52:43Z step=flagged tc=TC_007 scenario=TS_004 why=missing required scenario conditions
+[ORCH] ts=2026-08-31T07:52:43Z step=flagged tc=TC_008 scenario=TS_004 why=missing required scenario conditions
+[ORCH] ts=2026-08-31T07:52:43Z step=flagged tc=TC_009 scenario=TS_005 why=missing scenario conditions
+[ORCH] ts=2026-08-31T07:52:43Z step=detail calls=27 rounds=12 scoreboard=TS_001:unhealed  TS_002:approved(92)  TS_003:approved(97)  TS_004:unhealed(85)  TS_005:unhealed(85)  TS_006:failed  TS_007:failed
