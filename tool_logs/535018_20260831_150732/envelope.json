@@ -1,0 +1,188 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "535018",
+    "title": "TEST| Inbound 834| WI HIX ON EXC | Member Enrollment via CMS 834 - EDI"
+  },
+  "summary": {
+    "scenarios": 5,
+    "approved": 3,
+    "unreviewed": 0,
+    "unhealed": 0,
+    "stagnant": 2,
+    "hardstop": 0,
+    "failed": 0,
+    "skipped": 0,
+    "testcases": 8,
+    "totalrounds": 8,
+    "agentcalls": 17,
+    "elapsedms": 242961
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "CMS WI member 834 file is ingested and loaded to EDIStageArchive",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        92
+      ],
+      "passedhistory": [
+        2
+      ],
+      "finalscore": 92,
+      "rounds": 1,
+      "testcasecount": 2,
+      "chars": 36601,
+      "elapsedms": 99271,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "CMS WI member 834 processing creates canonical on TM",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_003",
+          "why": "overlaps another case's same flow"
+        },
+        {
+          "id": "TC_004",
+          "why": "duplicates the first case's same flow"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 36713,
+      "elapsedms": 179216,
+      "gaps": [
+        "Duplicate intent with TC_002: both validate canonical creation/correspondence for the same CMS WI inbound 834 end-to-end flow. TC_001 Description: \"Verify that a CMS inbound 834 file containing WI On-Exchange member enrollment data is accepted from the inbound NAS location, processed through the ENR and TM flow, archived under the WI inbound archive folder, displayed in TM with accepted completion statuses, and results in a canonical record for the processed transaction.\" TC_002 Description: \"Verify that the canonical generated on TM for a processed CMS WI On-Exchange inbound 834 transaction corresponds to the exact processed file instance by matching transaction traceability across TM, archive, staging records, and FACETS member data for the member carried in the file.\"",
+        "Duplicate intent with TC_001: both validate canonical creation/correspondence for the same CMS WI inbound 834 end-to-end flow. TC_002 Description: \"Verify that the canonical generated on TM for a processed CMS WI On-Exchange inbound 834 transaction corresponds to the exact processed file instance by matching transaction traceability across TM, archive, staging records, and FACETS member data for the member carried in the file.\" TC_001 Description: \"Verify that a CMS inbound 834 file containing WI On-Exchange member enrollment data is accepted from the inbound NAS location, processed through the ENR and TM flow, archived under the WI inbound archive folder, displayed in TM with accepted completion statuses, and results in a canonical record for the processed transaction.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "A 999 acknowledgement is sent back to CMS for each CMS WI file",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        85,
+        100
+      ],
+      "passedhistory": [
+        1,
+        2
+      ],
+      "finalscore": 100,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 42118,
+      "elapsedms": 199121,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "HealthSherpa Off Exchange file is rejected for SNIP 1 and SNIP 2 failures",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        92
+      ],
+      "passedhistory": [
+        1
+      ],
+      "finalscore": 92,
+      "rounds": 1,
+      "testcasecount": 1,
+      "chars": 27535,
+      "elapsedms": 78520,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "HealthSherpa Off Exchange file with SNIP 2 rejection only is loaded to EDIStageArchive",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_008",
+          "why": "missing SNIP 1 and 2 rejection coverage"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 1,
+      "chars": 21782,
+      "elapsedms": 157444,
+      "gaps": [
+        "Scenario TS_005 also requires \"Then: validate that the transaction is rejected due to SNIP 1 and 2 and then only SNIP 2 rejected transaction is loaded into EDIStageArchive.\"; add a dedicated test case for it"
+      ],
+      "error": null
+    }
+  ],
+  "warnings": [],
+  "testcases": {
+    "rows": 104,
+    "chars": 163493,
+    "scenarios": 5,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-08-31T15:03:29Z step=start story=535018 maxscenarios=7 tcper=10 steps=10-40 rounds=2 workers=7 pass_=90/50 judge=653 deadline=1200s",
+    "[ORCH] ts=2026-08-31T15:03:30Z step=fetch story=535018 titlechars=70 descchars=683 acchars=1300 ms=184",
+    "[ORCH] ts=2026-08-31T15:04:13Z step=scenarios count=5 ids=TS_001,TS_002,TS_003,TS_004,TS_005 ms=43642",
+    "[ORCH] ts=2026-08-31T15:05:17Z step=generate scenario=TS_004 round=1 chunk=1/1 tc=1 ids=TC_001 chars=27535 ms=64042",
+    "[ORCH] ts=2026-08-31T15:05:17Z step=generate scenario=TS_005 round=1 chunk=1/1 tc=1 ids=TC_001 chars=27272 ms=64233",
+    "[ORCH] ts=2026-08-31T15:05:32Z step=review scenario=TS_004 round=1 score=92 passed=1/1 ms=14475",
+    "[ORCH] ts=2026-08-31T15:05:32Z step=result scenario=TS_004 status=approved scores=[92] rounds=1 tc=1 ms=78520",
+    "[ORCH] ts=2026-08-31T15:05:32Z step=review scenario=TS_005 round=1 score=85 passed=0/1 failing=TC_001 ms=14837",
+    "[ORCH] ts=2026-08-31T15:05:38Z step=generate scenario=TS_003 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=40670 ms=84642",
+    "[ORCH] ts=2026-08-31T15:05:38Z step=generate scenario=TS_001 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=36601 ms=84891",
+    "[ORCH] ts=2026-08-31T15:05:38Z step=generate scenario=TS_002 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=36881 ms=84906",
+    "[ORCH] ts=2026-08-31T15:05:53Z step=review scenario=TS_001 round=1 score=92 passed=2/2 ms=14376",
+    "[ORCH] ts=2026-08-31T15:05:53Z step=result scenario=TS_001 status=approved scores=[92] rounds=1 tc=2 ms=99271",
+    "[ORCH] ts=2026-08-31T15:05:53Z step=review scenario=TS_003 round=1 score=85 passed=1/2 failing=TC_002 ms=14731",
+    "[ORCH] ts=2026-08-31T15:05:53Z step=review scenario=TS_002 round=1 score=85 passed=0/2 failing=TC_001,TC_002 ms=14659",
+    "[ORCH] ts=2026-08-31T15:06:36Z step=generate scenario=TS_005 round=2 chunk=1/1 tc=1 ids=TC_001 chars=21782 ms=63766 regen=1",
+    "[ORCH] ts=2026-08-31T15:06:51Z step=review scenario=TS_005 round=2 score=85 passed=0/1 failing=TC_001 ms=14601",
+    "[ORCH] ts=2026-08-31T15:06:51Z step=stagnant scenario=TS_005 round=2 scores=[85, 85] passed=[0, 0]",
+    "[ORCH] ts=2026-08-31T15:06:51Z step=result scenario=TS_005 status=stagnant scores=[85, 85] rounds=2 tc=1 ms=157444",
+    "[ORCH] ts=2026-08-31T15:06:58Z step=generate scenario=TS_002 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=36713 ms=64705 regen=2",
+    "[ORCH] ts=2026-08-31T15:07:12Z step=review scenario=TS_002 round=2 score=85 passed=0/2 failing=TC_001,TC_002 ms=14938",
+    "[ORCH] ts=2026-08-31T15:07:12Z step=stagnant scenario=TS_002 round=2 scores=[85, 85] passed=[0, 0]",
+    "[ORCH] ts=2026-08-31T15:07:12Z step=result scenario=TS_002 status=stagnant scores=[85, 85] rounds=2 tc=2 ms=179216",
+    "[ORCH] ts=2026-08-31T15:07:18Z step=generate scenario=TS_003 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=42118 ms=85024 regen=1",
+    "[ORCH] ts=2026-08-31T15:07:32Z step=review scenario=TS_003 round=2 score=100 passed=2/2 ms=14714",
+    "[ORCH] ts=2026-08-31T15:07:32Z step=result scenario=TS_003 status=approved scores=[85, 100] rounds=2 tc=2 ms=199121",
+    "[ORCH] ts=2026-08-31T15:07:32Z step=renumber scenario=TS_002 ids=TC_001>TC_003,TC_002>TC_004",
+    "[ORCH] ts=2026-08-31T15:07:32Z step=renumber scenario=TS_003 ids=TC_001>TC_005,TC_002>TC_006",
+    "[ORCH] ts=2026-08-31T15:07:32Z step=renumber scenario=TS_004 ids=TC_001>TC_007",
+    "[ORCH] ts=2026-08-31T15:07:32Z step=renumber scenario=TS_005 ids=TC_001>TC_008",
+    "[ORCH] ts=2026-08-31T15:07:32Z step=done approved=3 unreviewed=0 unhealed=0 stagnant=2 hardstop=0 failed=0 skipped=0 testcases=8 agentcalls=17 ms=242961",
+    "[ORCH] ts=2026-08-31T15:07:32Z step=outcome story=535018 ready=5/8 testcases flagged=3 scenarios=5 elapsed=4m02s",
+    "[ORCH] ts=2026-08-31T15:07:32Z step=flagged tc=TC_003 scenario=TS_002 why=overlaps another case's same flow",
+    "[ORCH] ts=2026-08-31T15:07:32Z step=flagged tc=TC_004 scenario=TS_002 why=duplicates the first case's same flow",
+    "[ORCH] ts=2026-08-31T15:07:32Z step=flagged tc=TC_008 scenario=TS_005 why=missing SNIP 1 and 2 rejection coverage",
+    "[ORCH] ts=2026-08-31T15:07:32Z step=detail calls=17 rounds=8 scoreboard=TS_001:approved(92)  TS_002:stagnant(85>85)  TS_003:approved(85>100)  TS_004:approved(92)  TS_005:stagnant(85>85)"
+  ]
+}
