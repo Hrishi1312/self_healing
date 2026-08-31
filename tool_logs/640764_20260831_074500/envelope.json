@@ -1,0 +1,244 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "640764",
+    "title": "(ENR SUCC) DEV & TEST - 834E/U AR PASSE Transaction Effective Date Logic Update - EDI"
+  },
+  "summary": {
+    "scenarios": 7,
+    "approved": 0,
+    "unreviewed": 0,
+    "unhealed": 3,
+    "stagnant": 0,
+    "hardstop": 0,
+    "failed": 4,
+    "skipped": 0,
+    "testcases": 9,
+    "totalrounds": 7,
+    "agentcalls": 17,
+    "elapsedms": 914815
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "Existing date identification and selectable population remain available for inbound 834 processing",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 1,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 474664,
+      "gaps": [],
+      "error": "test case array is empty"
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "Future eligibility uses Eligibility Date as transaction effective date regardless of Assessment Date",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_001",
+          "why": "mentions DoD in expected result"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 1,
+      "testcasecount": 1,
+      "chars": 44041,
+      "elapsedms": 253494,
+      "gaps": [
+        "Expected Result contains \"unit and integration processing evidence is present in TM and SQL\" in step 26, which cites DoD content from \"Unit and integration tests have passed.\"",
+        "Expected Result contains \"the transaction is fully processed and validated\" in step 26, which cites DoD content from \"All functionality detailed in the feature has been developed, implemented, and tested in Production.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "Current eligibility with changed Assessment Date uses Assessment Date while relevant fields remain unchanged",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 1,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 207451,
+      "gaps": [],
+      "error": "test case array is empty"
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Future eligibility with unchanged Assessment Date and relevant field changes uses Eligibility Date",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 1,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 640946,
+      "gaps": [],
+      "error": "test case array is empty"
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "Current eligibility with unchanged Assessment Date and relevant field changes uses Maintenance Date",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_002",
+          "why": "bad SQL step and missing coverage gap"
+        },
+        {
+          "id": "TC_003",
+          "why": "missing coverage gap"
+        },
+        {
+          "id": "TC_004",
+          "why": "missing coverage gap"
+        },
+        {
+          "id": "TC_005",
+          "why": "wrong Facets product and extra bad check"
+        },
+        {
+          "id": "TC_006",
+          "why": "too few cases for listed conditions"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 1,
+      "testcasecount": 5,
+      "chars": 146406,
+      "elapsedms": 667171,
+      "gaps": [
+        "Step Description field: \"On SQL Server crt_72.sql.caresource.corp\\crt_72, run a crosswalk validation query using available crosswalk schema context: SELECT * FROM NRTCUSTOMDB.Facets.AuxiliarySpanLookup WITH (NOLOCK) WHERE KEY_ID = 47 AND KEY_ID IS NULL;\"",
+        "Scenario description field requires: \"4) Aid Category changes while Assessment Date is unchanged.\"; add a dedicated test case for it",
+        "Scenario description field requires: \"5) Rate Cell changes while Assessment Date is unchanged.\"; add a dedicated test case for it",
+        "Scenario description field requires: \"6) Pregnancy changes while Assessment Date is unchanged.\"; add a dedicated test case for it",
+        "Pre-condition field: \"Facets Certification with product file OH-Facets-crt_69.pzb.\" contradicts hint: \"Every test case walks the complete end-to-end flow at full atomic depth - file creation with the resolved literal file name, staging, pickup, archive, TM UI verification with status values, canonical file and GUID validation, FACETS SQL validation, and the Facets client lookup - at 18 steps minimum; do not compress the flow in any case.\" and TC_004 Step Description field: \"Launch Facets through Citrix Workspace, open the product database file from C:\\Caresource\\Trizetto\\PZB_Files for Arkansas certification\"",
+        "Expected Result field: \"The query returns rows for the member and confirms only the intended assessment-related values were updated for this file while no unrelated attribute change is introduced by this test condition.\" while Step Description field queries only \"KEY_ID in (20,23,37,46,47,73)\"",
+        "Scenario description field lists conditions: \"1) Assessment Number changes while Assessment Date is unchanged. 2) Assessment Tier changes while Assessment Date is unchanged. 3) Assessment Division changes while Assessment Date is unchanged. 4) Aid Category changes while Assessment Date is unchanged. 5) Rate Cell changes while Assessment Date is unchanged. 6) Pregnancy changes while Assessment Date is unchanged. 7) Assessment Number, Assessment Tier, and Assessment Division change together while Assessment Date is unchanged. 8) All relevant fields change together while Assessment Date is unchanged.\" but table has only test case ids \"TC_001\", \"TC_002\", \"TC_003\", \"TC_004\", \"TC_005\""
+      ],
+      "error": "generate:TS_005: agent 652 finished FAILED (execution f18765f4-4bd5-4f50-b1ff-bf277314e6c2)"
+    },
+    {
+      "scenarioid": "TS_006",
+      "title": "Maintenance Date is not used outside the explicitly allowed current-eligibility unchanged-Assessment-Date field-change path",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 1,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 227538,
+      "gaps": [],
+      "error": "test case array is empty"
+    },
+    {
+      "scenarioid": "TS_007",
+      "title": "Regression coverage confirms corrected transaction date logic does not impact capitation or finance reporting",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_008",
+          "why": "missing current eligibility relevant-fields case"
+        },
+        {
+          "id": "TC_009",
+          "why": "missing finance-only coverage case"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        1
+      ],
+      "finalscore": 85,
+      "rounds": 1,
+      "testcasecount": 3,
+      "chars": 94960,
+      "elapsedms": 509782,
+      "gaps": [
+        "TC_002 is the closest related case, but scenario description also requires \"4) Combination set covering current eligibility with unchanged Assessment Date and relevant field changes confirms correct transaction effective date population.\" Add a dedicated test case for it.",
+        "TC_003 is the closest related case, but scenario description also requires \"6) Finance reporting remains accurate after corrected transaction effective date selection.\" Add a dedicated test case for it."
+      ],
+      "error": "generate:TS_007: agent 652 finished FAILED (execution 87e8be0f-d578-4dd3-9759-792c6279ee66)"
+    }
+  ],
+  "warnings": [
+    "TS_001 produced no test cases",
+    "TS_003 produced no test cases",
+    "TS_004 produced no test cases",
+    "TS_006 produced no test cases"
+  ],
+  "testcases": {
+    "rows": 178,
+    "chars": 284779,
+    "scenarios": 7,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-08-31T07:29:45Z step=start story=640764 maxscenarios=7 tcper=10 steps=18-40 rounds=0 workers=7 pass_=90/50 judge=653 deadline=1200s",
+    "[ORCH] ts=2026-08-31T07:29:45Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=174",
+    "[ORCH] ts=2026-08-31T07:33:53Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=247453",
+    "[ORCH] ts=2026-08-31T07:37:19Z step=generate scenario=TS_004 round=1 chunk=1/3 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-08-31T07:37:20Z step=generate scenario=TS_003 round=1 chunk=1/1 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-08-31T07:37:20Z step=result scenario=TS_003 status=failed scores=[] rounds=1 tc=0 ms=207451",
+    "[ORCH] ts=2026-08-31T07:37:40Z step=generate scenario=TS_006 round=1 chunk=1/1 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-08-31T07:37:40Z step=result scenario=TS_006 status=failed scores=[] rounds=1 tc=0 ms=227538",
+    "[ORCH] ts=2026-08-31T07:37:40Z step=generate scenario=TS_002 round=1 chunk=1/1 tc=1 ids=TC_001 chars=44041 ms=227601",
+    "[ORCH] ts=2026-08-31T07:38:00Z step=generate scenario=TS_001 round=1 chunk=1/2 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-08-31T07:38:00Z step=generate scenario=TS_007 round=1 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=94960 ms=247684",
+    "[ORCH] ts=2026-08-31T07:38:01Z step=generate scenario=TS_005 round=1 chunk=1/3 tc=3 ids=TC_001,TC_002,TC_003 chars=84206 ms=248860",
+    "[ORCH] ts=2026-08-31T07:38:06Z step=review scenario=TS_002 round=1 score=85 passed=0/1 failing=TC_001 ms=25889",
+    "[ORCH] ts=2026-08-31T07:38:06Z step=result scenario=TS_002 status=unhealed scores=[85] rounds=1 tc=1 ms=253494",
+    "[ORCH] ts=2026-08-31T07:41:06Z step=generate scenario=TS_004 round=1 chunk=2/3 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-08-31T07:41:47Z step=generate scenario=TS_001 round=1 chunk=2/2 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-08-31T07:41:47Z step=result scenario=TS_001 status=failed scores=[] rounds=1 tc=0 ms=474664",
+    "[ORCH] ts=2026-08-31T07:42:08Z step=agenterror label=generate:TS_007 agentid=652 phase=poll status=FAILED execution=87e8be0f-d578-4dd3-9759-792c6279ee66 ms=247364 why={\"executionId\": \"87e8be0f-d578-4dd3-9759-792c6279ee66\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-08-31T07:42:08Z step=generate scenario=TS_007 round=1 chunk=2/2 error=generate:TS_007: agent 652 finished FAILED (execution 87e8be0f-d578-4dd3-9759-792c6279ee66)",
+    "[ORCH] ts=2026-08-31T07:42:08Z step=agenterror label=generate:TS_005 agentid=652 phase=poll status=FAILED execution=f18765f4-4bd5-4f50-b1ff-bf277314e6c2 ms=246610 why={\"executionId\": \"f18765f4-4bd5-4f50-b1ff-bf277314e6c2\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-08-31T07:42:08Z step=generate scenario=TS_005 round=1 chunk=2/3 error=generate:TS_005: agent 652 finished FAILED (execution f18765f4-4bd5-4f50-b1ff-bf277314e6c2)",
+    "[ORCH] ts=2026-08-31T07:42:22Z step=review scenario=TS_007 round=1 score=85 passed=1/3 failing=TC_002,TC_003 ms=14726",
+    "[ORCH] ts=2026-08-31T07:42:22Z step=result scenario=TS_007 status=unhealed scores=[85] rounds=1 tc=3 ms=509782",
+    "[ORCH] ts=2026-08-31T07:44:34Z step=generate scenario=TS_004 round=1 chunk=3/3 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-08-31T07:44:34Z step=result scenario=TS_004 status=failed scores=[] rounds=1 tc=0 ms=640946",
+    "[ORCH] ts=2026-08-31T07:44:34Z step=generate scenario=TS_005 round=1 chunk=3/3 tc=2 ids=TC_001,TC_002 chars=62514 ms=145478",
+    "[ORCH] ts=2026-08-31T07:45:00Z step=review scenario=TS_005 round=1 score=85 passed=0/5 failing=TC_001,TC_002,TC_003,TC_004,TC_005 ms=26209",
+    "[ORCH] ts=2026-08-31T07:45:00Z step=result scenario=TS_005 status=unhealed scores=[85] rounds=1 tc=5 ms=667171",
+    "[ORCH] ts=2026-08-31T07:45:00Z step=renumber scenario=TS_005 ids=TC_001>TC_002,TC_002>TC_003,TC_003>TC_004,TC_004>TC_005,TC_005>TC_006",
+    "[ORCH] ts=2026-08-31T07:45:00Z step=renumber scenario=TS_007 ids=TC_001>TC_007,TC_002>TC_008,TC_003>TC_009",
+    "[ORCH] ts=2026-08-31T07:45:00Z step=done approved=0 unreviewed=0 unhealed=3 stagnant=0 hardstop=0 failed=4 skipped=0 testcases=9 agentcalls=17 ms=914815",
+    "[ORCH] ts=2026-08-31T07:45:00Z step=outcome story=640764 ready=1/9 testcases flagged=8 scenarios=7 elapsed=15m14s warnings=4",
+    "[ORCH] ts=2026-08-31T07:45:00Z step=flagged tc=TC_001 scenario=TS_002 why=mentions DoD in expected result",
+    "[ORCH] ts=2026-08-31T07:45:00Z step=flagged tc=TC_002 scenario=TS_005 why=bad SQL step and missing coverage gap",
+    "[ORCH] ts=2026-08-31T07:45:00Z step=flagged tc=TC_003 scenario=TS_005 why=missing coverage gap",
+    "[ORCH] ts=2026-08-31T07:45:00Z step=flagged tc=TC_004 scenario=TS_005 why=missing coverage gap",
+    "[ORCH] ts=2026-08-31T07:45:00Z step=flagged tc=TC_005 scenario=TS_005 why=wrong Facets product and extra bad check",
+    "[ORCH] ts=2026-08-31T07:45:00Z step=flagged tc=TC_006 scenario=TS_005 why=too few cases for listed conditions",
+    "[ORCH] ts=2026-08-31T07:45:00Z step=flagged tc=TC_008 scenario=TS_007 why=missing current eligibility relevant-fields case",
+    "[ORCH] ts=2026-08-31T07:45:00Z step=flagged tc=TC_009 scenario=TS_007 why=missing finance-only coverage case",
+    "[ORCH] ts=2026-08-31T07:45:00Z step=detail calls=17 rounds=7 scoreboard=TS_001:failed  TS_002:unhealed(85)  TS_003:failed  TS_004:failed  TS_005:unhealed(85)  TS_006:failed  TS_007:unhealed(85)"
+  ]
+}
