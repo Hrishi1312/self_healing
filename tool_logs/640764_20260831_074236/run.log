@@ -1,0 +1,64 @@
+[ORCH] ts=2026-08-31T07:22:35Z step=start story=640764 maxscenarios=7 tcper=10 steps=18-40 rounds=2 workers=7 pass_=90/50 judge=653 deadline=1200s
+[ORCH] ts=2026-08-31T07:22:35Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=167
+[ORCH] ts=2026-08-31T07:26:42Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=246298
+[ORCH] ts=2026-08-31T07:28:47Z step=generate scenario=TS_003 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=63030 ms=125291
+[ORCH] ts=2026-08-31T07:29:02Z step=review scenario=TS_003 round=1 score=85 passed=1/2 failing=TC_002 ms=14676
+[ORCH] ts=2026-08-31T07:29:48Z step=generate scenario=TS_001 round=1 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=73646 ms=186387
+[ORCH] ts=2026-08-31T07:30:08Z step=generate scenario=TS_004 round=1 chunk=1/3 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:30:09Z step=generate scenario=TS_007 round=1 chunk=1/1 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:30:09Z step=generate scenario=TS_005 round=1 chunk=1/3 tc=3 ids=TC_001,TC_002,TC_003 chars=67649 ms=207400
+[ORCH] ts=2026-08-31T07:30:09Z step=generate scenario=TS_002 round=1 chunk=1/1 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:30:28Z step=generate scenario=TS_006 round=1 chunk=1/2 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:32:08Z step=generate scenario=TS_003 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=63550 ms=186581 regen=1
+[ORCH] ts=2026-08-31T07:32:13Z step=generate scenario=TS_001 round=1 chunk=2/2 tc=3 ids=TC_001,TC_002,TC_003 chars=77765 ms=145323
+[ORCH] ts=2026-08-31T07:32:14Z step=generate scenario=TS_002 round=2 chunk=1/1 tc=1 ids=TC_001 chars=27857 ms=124943 regen=1
+[ORCH] ts=2026-08-31T07:32:24Z step=review scenario=TS_003 round=2 score=85 passed=1/2 failing=TC_002 ms=15400
+[ORCH] ts=2026-08-31T07:32:24Z step=stagnant scenario=TS_003 round=2 scores=[85, 85] passed=[1, 1]
+[ORCH] ts=2026-08-31T07:32:24Z step=result scenario=TS_003 status=stagnant scores=[85, 85] rounds=2 tc=2 ms=341960
+[ORCH] ts=2026-08-31T07:32:29Z step=review scenario=TS_002 round=2 score=92 passed=1/1 ms=14739
+[ORCH] ts=2026-08-31T07:32:29Z step=result scenario=TS_002 status=approved scores=[92] rounds=2 tc=1 ms=347295
+[ORCH] ts=2026-08-31T07:32:40Z step=review scenario=TS_001 round=1 score=85 passed=0/6 failing=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 ms=26580
+[ORCH] ts=2026-08-31T07:33:15Z step=generate scenario=TS_006 round=1 chunk=2/2 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:33:35Z step=generate scenario=TS_007 round=2 chunk=1/1 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:33:35Z step=result scenario=TS_007 status=failed scores=[] rounds=2 tc=0 ms=413547
+[ORCH] ts=2026-08-31T07:33:35Z step=generate scenario=TS_005 round=1 chunk=2/3 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:33:55Z step=generate scenario=TS_004 round=1 chunk=2/3 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:35:46Z step=generate scenario=TS_001 round=2 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=78162 ms=186125 regen=3
+[ORCH] ts=2026-08-31T07:36:41Z step=generate scenario=TS_006 round=2 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=86781 ms=206314 regen=1
+[ORCH] ts=2026-08-31T07:37:02Z step=generate scenario=TS_005 round=1 chunk=3/3 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:37:42Z step=generate scenario=TS_004 round=1 chunk=3/3 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:37:46Z step=agenterror label=review:TS_005 agentid=653 phase=poll status=FAILED execution=08edbed2-11e8-40c9-9c2e-3ca235cdfb99 ms=43740 why={"executionId": "08edbed2-11e8-40c9-9c2e-3ca235cdfb99", "agentId": 653, "output": null, "agentName": "Independent QA Test Case Review and Scoring Agent", "executedBy": "Hrishikesh.Rode@caresource.com"
+[ORCH] ts=2026-08-31T07:37:46Z step=review scenario=TS_005 round=1 error=review:TS_005: agent 653 finished FAILED (execution 08edbed2-11e8-40c9-9c2e-3ca235cdfb99)
+[ORCH] ts=2026-08-31T07:38:46Z step=generate scenario=TS_006 round=2 chunk=2/2 tc=1 ids=TC_001 chars=39383 ms=125338 regen=1
+[ORCH] ts=2026-08-31T07:39:30Z step=generate scenario=TS_005 round=2 chunk=1/3 tc=3 ids=TC_001,TC_002,TC_003 chars=88462 ms=104546
+[ORCH] ts=2026-08-31T07:39:50Z step=review scenario=TS_006 round=2 score=85 passed=1/4 failing=TC_001,TC_002,TC_004 ms=63983
+[ORCH] ts=2026-08-31T07:39:50Z step=result scenario=TS_006 status=unhealed scores=[85] rounds=2 tc=4 ms=788614
+[ORCH] ts=2026-08-31T07:39:53Z step=generate scenario=TS_001 round=2 chunk=2/2 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:40:20Z step=review scenario=TS_001 round=2 score=85 passed=0/6 failing=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006 ms=26413
+[ORCH] ts=2026-08-31T07:40:20Z step=stagnant scenario=TS_001 round=2 scores=[85, 85] passed=[0, 0]
+[ORCH] ts=2026-08-31T07:40:20Z step=result scenario=TS_001 status=stagnant scores=[85, 85] rounds=2 tc=6 ms=818210
+[ORCH] ts=2026-08-31T07:41:29Z step=generate scenario=TS_004 round=2 chunk=1/3 error=test case array is empty raw=[]
+[ORCH] ts=2026-08-31T07:42:35Z step=generate scenario=TS_005 round=2 chunk=2/3 error=generate:TS_005: agent 652 still IN_PROGRESS when the budget ran out (execution 9be794dc-6227-429a-bc8f-3a881fb5061f)
+[ORCH] ts=2026-08-31T07:42:35Z step=generate scenario=TS_005 round=2 chunk=3/3 error=budget exhausted before call
+[ORCH] ts=2026-08-31T07:42:35Z step=review scenario=TS_005 round=2 error=budget exhausted before call
+[ORCH] ts=2026-08-31T07:42:35Z step=result scenario=TS_005 status=failed scores=[] rounds=2 tc=3 ms=953838
+[ORCH] ts=2026-08-31T07:42:35Z step=generate scenario=TS_004 round=2 chunk=2/3 error=generate:TS_004: agent 652 still IN_PROGRESS when the budget ran out (execution f2984db4-9c7a-47a6-9c53-ce9f8f085820)
+[ORCH] ts=2026-08-31T07:42:35Z step=generate scenario=TS_004 round=2 chunk=3/3 error=budget exhausted before call
+[ORCH] ts=2026-08-31T07:42:35Z step=result scenario=TS_004 status=failed scores=[] rounds=2 tc=0 ms=953875
+[ORCH] ts=2026-08-31T07:42:35Z step=renumber scenario=TS_002 ids=TC_001>TC_007
+[ORCH] ts=2026-08-31T07:42:35Z step=renumber scenario=TS_003 ids=TC_001>TC_008,TC_002>TC_009
+[ORCH] ts=2026-08-31T07:42:35Z step=renumber scenario=TS_005 ids=TC_001>TC_010,TC_002>TC_011,TC_003>TC_012
+[ORCH] ts=2026-08-31T07:42:35Z step=renumber scenario=TS_006 ids=TC_001>TC_013,TC_002>TC_014,TC_003>TC_015,TC_004>TC_016
+[ORCH] ts=2026-08-31T07:42:35Z step=done approved=1 unreviewed=0 unhealed=1 stagnant=2 hardstop=0 failed=3 skipped=0 testcases=16 agentcalls=32 ms=1200358
+[ORCH] ts=2026-08-31T07:42:35Z step=outcome story=640764 ready=6/16 testcases flagged=10 scenarios=7 elapsed=20m00s warnings=2
+[ORCH] ts=2026-08-31T07:42:35Z step=flagged tc=TC_001 scenario=TS_001 why=file name is not resolved
+[ORCH] ts=2026-08-31T07:42:35Z step=flagged tc=TC_002 scenario=TS_001 why=file name is not resolved
+[ORCH] ts=2026-08-31T07:42:35Z step=flagged tc=TC_003 scenario=TS_001 why=file name is not resolved
+[ORCH] ts=2026-08-31T07:42:35Z step=flagged tc=TC_004 scenario=TS_001 why=duplicate of another first-date case
+[ORCH] ts=2026-08-31T07:42:35Z step=flagged tc=TC_005 scenario=TS_001 why=duplicate of another first-date case
+[ORCH] ts=2026-08-31T07:42:35Z step=flagged tc=TC_006 scenario=TS_001 why=duplicate of another first-date case
+[ORCH] ts=2026-08-31T07:42:35Z step=flagged tc=TC_009 scenario=TS_003 why=same intent as another test case
+[ORCH] ts=2026-08-31T07:42:35Z step=flagged tc=TC_013 scenario=TS_006 why=missing multi-field coverage
+[ORCH] ts=2026-08-31T07:42:35Z step=flagged tc=TC_014 scenario=TS_006 why=missing no-field-change condition
+[ORCH] ts=2026-08-31T07:42:35Z step=flagged tc=TC_016 scenario=TS_006 why=archive path contradicts other cases
+[ORCH] ts=2026-08-31T07:42:35Z step=detail calls=32 rounds=14 scoreboard=TS_001:stagnant(85>85)  TS_002:approved(92)  TS_003:stagnant(85>85)  TS_004:failed  TS_005:failed  TS_006:unhealed(85)  TS_007:failed
