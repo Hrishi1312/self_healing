@@ -12,4 +12,5 @@ testgen_orchestrator/agents/runinputs.sample.json
 # local run config and output
 testgen_orchestrator/tool/.env
 *.DS_Store
+.venv
 
