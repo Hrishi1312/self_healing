@@ -1,0 +1,40 @@
+[ORCH] ts=2026-09-01T16:36:49Z step=start story=535018 maxscenarios=7 tcper=10 steps=18-40 rounds=2 workers=7 pass_=90/50 judge=672 deadline=1200s
+[ORCH] ts=2026-09-01T16:36:50Z step=fetch story=535018 titlechars=70 descchars=683 acchars=1300 ms=655
+[ORCH] ts=2026-09-01T16:37:34Z step=scenarios count=5 ids=TS_001,TS_002,TS_003,TS_004,TS_005 ms=43748
+[ORCH] ts=2026-09-01T16:38:18Z step=generate scenario=TS_002 round=1 chunk=1/1 tc=1 ids=TC_001 chars=31304 ms=44103
+[ORCH] ts=2026-09-01T16:38:33Z step=review scenario=TS_002 round=1 score=85 passed=0/1 failing=TC_001 ms=14604
+[ORCH] ts=2026-09-01T16:38:38Z step=generate scenario=TS_001 round=1 chunk=1/1 tc=1 ids=TC_001 chars=43786 ms=64475
+[ORCH] ts=2026-09-01T16:38:39Z step=generate scenario=TS_003 round=1 chunk=1/1 tc=1 ids=TC_001 chars=34478 ms=64679
+[ORCH] ts=2026-09-01T16:38:53Z step=review scenario=TS_001 round=1 score=85 passed=0/1 failing=TC_001 ms=14856
+[ORCH] ts=2026-09-01T16:38:54Z step=review scenario=TS_003 round=1 score=85 passed=0/1 failing=TC_001 ms=15125
+[ORCH] ts=2026-09-01T16:38:59Z step=generate scenario=TS_004 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=77345 ms=84766
+[ORCH] ts=2026-09-01T16:39:13Z step=review scenario=TS_004 round=1 score=85 passed=0/2 failing=TC_001,TC_002 ms=14629
+[ORCH] ts=2026-09-01T16:39:19Z step=generate scenario=TS_005 round=1 chunk=1/1 tc=1 ids=TC_001 chars=47291 ms=104909
+[ORCH] ts=2026-09-01T16:39:34Z step=review scenario=TS_005 round=1 score=85 passed=0/1 failing=TC_001 ms=14698
+[ORCH] ts=2026-09-01T16:39:57Z step=generate scenario=TS_001 round=2 chunk=1/1 tc=1 ids=TC_001 chars=25376 ms=64024 regen=1
+[ORCH] ts=2026-09-01T16:40:12Z step=review scenario=TS_001 round=2 score=92 passed=1/1 ms=14855
+[ORCH] ts=2026-09-01T16:40:12Z step=result scenario=TS_001 status=approved scores=[85, 92] rounds=2 tc=1 ms=158220
+[ORCH] ts=2026-09-01T16:40:17Z step=generate scenario=TS_002 round=2 chunk=1/1 tc=1 ids=TC_001 chars=30911 ms=104822 regen=1
+[ORCH] ts=2026-09-01T16:40:18Z step=generate scenario=TS_003 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=66115 ms=84268 regen=1
+[ORCH] ts=2026-09-01T16:40:32Z step=review scenario=TS_002 round=2 score=85 passed=0/1 failing=TC_001 ms=14707
+[ORCH] ts=2026-09-01T16:40:32Z step=stagnant scenario=TS_002 round=2 scores=[85, 85] passed=[0, 0]
+[ORCH] ts=2026-09-01T16:40:32Z step=result scenario=TS_002 status=stagnant scores=[85, 85] rounds=2 tc=1 ms=178240
+[ORCH] ts=2026-09-01T16:40:33Z step=review scenario=TS_003 round=2 score=85 passed=1/2 failing=TC_002 ms=14667
+[ORCH] ts=2026-09-01T16:40:33Z step=result scenario=TS_003 status=unhealed scores=[85, 85] rounds=2 tc=2 ms=178745
+[ORCH] ts=2026-09-01T16:40:58Z step=generate scenario=TS_005 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=65638 ms=84253 regen=1
+[ORCH] ts=2026-09-01T16:41:12Z step=review scenario=TS_005 round=2 score=85 passed=1/2 failing=TC_002 ms=14684
+[ORCH] ts=2026-09-01T16:41:12Z step=result scenario=TS_005 status=unhealed scores=[85, 85] rounds=2 tc=2 ms=218549
+[ORCH] ts=2026-09-01T16:41:39Z step=generate scenario=TS_004 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=70017 ms=145316 regen=2
+[ORCH] ts=2026-09-01T16:42:05Z step=review scenario=TS_004 round=2 score=85 passed=1/2 failing=TC_001 ms=26416
+[ORCH] ts=2026-09-01T16:42:05Z step=result scenario=TS_004 status=unhealed scores=[85, 85] rounds=2 tc=2 ms=271134
+[ORCH] ts=2026-09-01T16:42:05Z step=renumber scenario=TS_002 ids=TC_001>TC_002
+[ORCH] ts=2026-09-01T16:42:05Z step=renumber scenario=TS_003 ids=TC_001>TC_003,TC_002>TC_004
+[ORCH] ts=2026-09-01T16:42:05Z step=renumber scenario=TS_004 ids=TC_001>TC_005,TC_002>TC_006
+[ORCH] ts=2026-09-01T16:42:05Z step=renumber scenario=TS_005 ids=TC_001>TC_007,TC_002>TC_008
+[ORCH] ts=2026-09-01T16:42:05Z step=done approved=1 unreviewed=0 unhealed=3 stagnant=1 hardstop=0 failed=0 skipped=0 testcases=8 agentcalls=21 ms=315553
+[ORCH] ts=2026-09-01T16:42:05Z step=outcome story=535018 ready=4/8 testcases flagged=4 scenarios=5 elapsed=5m15s
+[ORCH] ts=2026-09-01T16:42:05Z step=flagged tc=TC_002 scenario=TS_002 why=has too many steps
+[ORCH] ts=2026-09-01T16:42:05Z step=flagged tc=TC_004 scenario=TS_003 why=duplicate of the SNIP 1 flow
+[ORCH] ts=2026-09-01T16:42:05Z step=flagged tc=TC_005 scenario=TS_004 why=adds out-of-scope validations
+[ORCH] ts=2026-09-01T16:42:05Z step=flagged tc=TC_008 scenario=TS_005 why=too few steps
+[ORCH] ts=2026-09-01T16:42:05Z step=detail calls=21 rounds=10 scoreboard=TS_001:approved(85>92)  TS_002:stagnant(85>85)  TS_003:unhealed(85>85)  TS_004:unhealed(85>85)  TS_005:unhealed(85>85)
