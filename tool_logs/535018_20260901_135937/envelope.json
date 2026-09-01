@@ -1,0 +1,294 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "535018",
+    "title": "TEST| Inbound 834| WI HIX ON EXC | Member Enrollment via CMS 834 - EDI"
+  },
+  "summary": {
+    "scenarios": 7,
+    "approved": 2,
+    "unreviewed": 0,
+    "unhealed": 2,
+    "stagnant": 3,
+    "hardstop": 0,
+    "failed": 0,
+    "skipped": 0,
+    "testcases": 11,
+    "totalrounds": 14,
+    "agentcalls": 29,
+    "elapsedms": 327547
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "CMS WI On-Exchange file processes from Edifecs NAS and creates TM canonical",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        85,
+        92
+      ],
+      "passedhistory": [
+        0,
+        1
+      ],
+      "finalscore": 92,
+      "rounds": 2,
+      "testcasecount": 1,
+      "chars": 24662,
+      "elapsedms": 231421,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "EDIStageArchive persistence for story-required inbound rule paths",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_003",
+          "why": "missing one scenario condition"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        1
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 61127,
+      "elapsedms": 251226,
+      "gaps": [
+        "TC_002 is the closest related case, but scenario description also requires \"1) A CMS file with WI members included is dropped in the Edifecs NAS Location and its processed data is loaded into EDIStageArchive. 2) A HealthSherpa file for an Off Exchange Member is rejected due to SNIP 2 and the SNIP-2-rejected transaction is loaded into EDIStageArchive.\"; add a dedicated test case for it"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "999 acknowledgment is returned to CMS for each inbound CMS WI file",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_004",
+          "why": "contains out-of-scope FACETS validation"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 1,
+      "chars": 26638,
+      "elapsedms": 159338,
+      "gaps": [
+        "Step Description step 17 quotes out-of-scope text: \"Launch Microsoft SQL Server Management Studio and connect to Database Engine on server crt_69.sql.caresource.corp\\crt_69 using Windows Authentication for FACETS validation.\"",
+        "Step Description step 18 quotes out-of-scope text: \"Run the mandated SSN-based eligibility lookup against FACPRDDB using the member SSN from NM109: SELECT SBEL.* FROM [FACPRDDB].[dbo].[CMC_SBEL_ELIG_ENT] SBEL WITH (NOLOCK) JOIN [FACPRDDB].[dbo].[CMC_MEME_MEMBER] MEME WITH (NOLOCK) ON SBEL.SBSB_CK=MEME.SBSB_CK WHERE MEME_SSN='[TEST DATA: Member SSN (NM109) value]';\"",
+        "Step Description step 19 quotes out-of-scope text: \"Run a member verification query in FACPRDDB on crt_69.sql.caresource.corp\\crt_69: SELECT * FROM [FACPRDDB].[dbo].[CMC_MEME_MEMBER] WITH (NOLOCK) WHERE MEME_SSN='[TEST DATA: Member SSN (NM109) value]';\"",
+        "Step Description step 20 quotes out-of-scope text: \"Run a subscriber verification query in FACPRDDB on crt_69.sql.caresource.corp\\crt_69: SELECT SBSB.* FROM [FACPRDDB].[dbo].[CMC_SBSB_SUBSC] SBSB WITH (NOLOCK) JOIN [FACPRDDB].[dbo].[CMC_MEME_MEMBER] MEME WITH (NOLOCK) ON SBSB.SBSB_CK = MEME.SBSB_CK WHERE MEME.MEME_SSN='[TEST DATA: Member SSN (NM109) value]';\"",
+        "Domain hint contradicts those steps: \"No loop/segment/element mappings, date fields, plan codes, or crosswalk tables were supplied in the work item, so do not invent DTP/loop references, plan codes, or SQL crosswalk validations beyond EDIStageArchive and the TM canonical check - validate only what AC1-AC4 literally state.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Multiple CMS WI inbound files each receive their own 999 acknowledgment",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_006",
+          "why": "duplicate of first-file case"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        1
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 37618,
+      "elapsedms": 230569,
+      "gaps": [
+        "Semantic duplicate with TC_001: both validate the same business intent that \"a 999 is sent for each file back to the CMS\"; TC_001 already covers the per-file acknowledgment flow and TC_002 repeats it for another file without a different business rule. Shared intent evidence from Test Case Name/Description: \"Verify the first CMS Wisconsin On-Exchange inbound 834 file receives its own 999 acknowledgment\" and \"Verify the second separately received CMS Wisconsin On-Exchange inbound 834 file receives its own 999 acknowledgment\"."
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "HealthSherpa Off-Exchange file is rejected at SNIP 1 and does not load to EDIStageArchive",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        85,
+        96
+      ],
+      "passedhistory": [
+        0,
+        1
+      ],
+      "finalscore": 96,
+      "rounds": 2,
+      "testcasecount": 1,
+      "chars": 35068,
+      "elapsedms": 238914,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_006",
+      "title": "HealthSherpa Off-Exchange file is rejected at SNIP 2 and still loads to EDIStageArchive",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_008",
+          "why": "adds out-of-scope FACETS verification"
+        },
+        {
+          "id": "TC_009",
+          "why": "duplicates an out-of-scope SNIP 1 case"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 69828,
+      "elapsedms": 231372,
+      "gaps": [
+        "Step Description contains out-of-scope verification in step 26: \"Close the crt_72 query window and connect to crt_69.sql.caresource.corp\\crt_69 for FACETS verification. Run SELECT SBEL.* FROM [FACPRDDB].[dbo].[CMC_SBEL_ELIG_ENT] SBEL WITH (NOLOCK) JOIN [FACPRDDB].[dbo].[CMC_MEME_MEMBER] MEME WITH (NOLOCK) ON SBEL.SBSB_CK=MEME.SBSB_CK Where MEME_SSN='[TEST DATA: Member SSN (NM109) value]';\"",
+        "Expected Result contains out-of-scope verification in step 26: \"The query executes on crt_69.sql.caresource.corp\\crt_69 and any returned rows can be reviewed, but the SNIP 2 case remains identified as rejected in TM while still being present in EDIStageArchive.\"",
+        "Description contains unsupported breadth beyond literal AC4 in field Description: \"Verify that a HealthSherpa Off-Exchange Wisconsin inbound 834 file containing a SNIP 2 validation failure is rejected in TM, archived under the Wisconsin inbound archive folder, and still loads the rejected transaction into all required EDIStageArchive tables without being treated as the CMS Wisconsin On-Exchange population.\"",
+        "Coverage completeness gap attached here: scenario TS_006 description only lists \"1) A HealthSherpa Off Exchange member file fails SNIP 2 validation and the rejected transaction is loaded into EDIStageArchive.\" Add a dedicated test case for it; this case instead covers \"Verify HealthSherpa Wisconsin Off-Exchange 834 rejected at SNIP 1 is not loaded to EDIStageArchive\"",
+        "Test Case Name is outside this scenario's condition list: \"Verify HealthSherpa Wisconsin Off-Exchange 834 rejected at SNIP 1 is not loaded to EDIStageArchive\"",
+        "Description is outside this scenario's condition list: \"Verify that a HealthSherpa Off-Exchange Wisconsin inbound 834 file containing a SNIP 1 validation failure is rejected in TM and does not load to EDIStageArchive, keeping this rejection path separate from the CMS Wisconsin On-Exchange processing path.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_007",
+      "title": "CMS WI On-Exchange processing remains separate from HealthSherpa Off-Exchange SNIP validation",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_010",
+          "why": "adds out-of-scope SQL validations"
+        },
+        {
+          "id": "TC_011",
+          "why": "adds out-of-scope SQL validations"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 65461,
+      "elapsedms": 263050,
+      "gaps": [
+        "Step Description quotes out-of-scope SQL validation beyond supplied scope: \"Run the query on crt_72.sql.caresource.corp\\crt_72: SELECT * FROM EDIStageArchive.dbo.FunctionalGroup WITH (NOLOCK) WHERE InterchangeID = [TEST DATA: InterchangeID returned from the Interchange query];\"",
+        "Step Description quotes out-of-scope SQL validation beyond supplied scope: \"Run the query on crt_72.sql.caresource.corp\\crt_72: SELECT * FROM EDIStageArchive.dbo.TransactionSet WITH (NOLOCK) WHERE InterchangeID = [TEST DATA: InterchangeID returned from the Interchange query];\"",
+        "Domain hint contradicts those added validations: \"No loop/segment/element mappings, date fields, plan codes, or crosswalk tables were supplied in the work item, so do not invent DTP/loop references, plan codes, or SQL crosswalk validations beyond EDIStageArchive and the TM canonical check - validate only what AC1-AC4 literally state.\"",
+        "Step Description quotes out-of-scope SQL validation beyond supplied scope: \"Run the query on crt_72.sql.caresource.corp\\crt_72: SELECT * FROM EDIStageArchive.dbo.HealthCoverage WITH (NOLOCK) WHERE InterchangeID = [TEST DATA: InterchangeID returned from the Interchange query];\"",
+        "Step Description quotes out-of-scope SQL validation beyond supplied scope: \"Run the query on crt_72.sql.caresource.corp\\crt_72: SELECT * FROM EDIStageArchive.dbo.MemberSupplementalIdentifiers WITH (NOLOCK) WHERE InterchangeID = [TEST DATA: InterchangeID returned from the Interchange query];\"",
+        "Step Description quotes out-of-scope SQL validation beyond supplied scope: \"Run the query on crt_72.sql.caresource.corp\\crt_72: SELECT * FROM EDIStageArchive.dbo.Address WITH (NOLOCK) WHERE InterchangeID = [TEST DATA: InterchangeID returned from the Interchange query];\"",
+        "Domain hint contradicts those added validations: \"No loop/segment/element mappings, date fields, plan codes, or crosswalk tables were supplied in the work item, so do not invent DTP/loop references, plan codes, or SQL crosswalk validations beyond EDIStageArchive and the TM canonical check - validate only what AC1-AC4 literally state.\""
+      ],
+      "error": null
+    }
+  ],
+  "warnings": [],
+  "testcases": {
+    "rows": 245,
+    "chars": 318518,
+    "scenarios": 7,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-09-01T13:54:10Z step=start story=535018 maxscenarios=20 tcper=10 steps=18-40 rounds=2 workers=20 pass_=90/50 judge=672 deadline=1200s",
+    "[ORCH] ts=2026-09-01T13:54:10Z step=fetch story=535018 titlechars=70 descchars=683 acchars=1300 ms=193",
+    "[ORCH] ts=2026-09-01T13:55:14Z step=scenarios count=7 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007 ms=64282",
+    "[ORCH] ts=2026-09-01T13:56:20Z step=generate scenario=TS_003 round=1 chunk=1/1 tc=1 ids=TC_001 chars=37516 ms=65136",
+    "[ORCH] ts=2026-09-01T13:56:34Z step=review scenario=TS_003 round=1 score=85 passed=0/1 failing=TC_001 ms=14570",
+    "[ORCH] ts=2026-09-01T13:56:59Z step=generate scenario=TS_002 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=65503 ms=104750",
+    "[ORCH] ts=2026-09-01T13:56:59Z step=generate scenario=TS_004 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=60249 ms=104855",
+    "[ORCH] ts=2026-09-01T13:57:00Z step=generate scenario=TS_007 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=69550 ms=105609",
+    "[ORCH] ts=2026-09-01T13:57:00Z step=generate scenario=TS_001 round=1 chunk=1/1 tc=1 ids=TC_001 chars=52220 ms=105693",
+    "[ORCH] ts=2026-09-01T13:57:00Z step=generate scenario=TS_006 round=1 chunk=1/1 tc=1 ids=TC_001 chars=44052 ms=105764",
+    "[ORCH] ts=2026-09-01T13:57:15Z step=review scenario=TS_006 round=1 score=85 passed=0/1 failing=TC_001 ms=14843",
+    "[ORCH] ts=2026-09-01T13:57:26Z step=review scenario=TS_004 round=1 score=85 passed=0/2 failing=TC_001,TC_002 ms=26597",
+    "[ORCH] ts=2026-09-01T13:57:26Z step=review scenario=TS_002 round=1 score=85 passed=0/2 failing=TC_001,TC_002 ms=26731",
+    "[ORCH] ts=2026-09-01T13:57:27Z step=review scenario=TS_007 round=1 score=85 passed=0/2 failing=TC_001,TC_002 ms=26698",
+    "[ORCH] ts=2026-09-01T13:57:27Z step=review scenario=TS_001 round=1 score=85 passed=0/1 failing=TC_001 ms=26660",
+    "[ORCH] ts=2026-09-01T13:57:39Z step=generate scenario=TS_003 round=2 chunk=1/1 tc=1 ids=TC_001 chars=26638 ms=64944 regen=1",
+    "[ORCH] ts=2026-09-01T13:57:40Z step=generate scenario=TS_005 round=1 chunk=1/1 tc=1 ids=TC_001 chars=41892 ms=145752",
+    "[ORCH] ts=2026-09-01T13:57:54Z step=review scenario=TS_003 round=2 score=85 passed=0/1 failing=TC_001 ms=14683",
+    "[ORCH] ts=2026-09-01T13:57:54Z step=stagnant scenario=TS_003 round=2 scores=[85, 85] passed=[0, 0]",
+    "[ORCH] ts=2026-09-01T13:57:54Z step=result scenario=TS_003 status=stagnant scores=[85, 85] rounds=2 tc=1 ms=159338",
+    "[ORCH] ts=2026-09-01T13:57:55Z step=review scenario=TS_005 round=1 score=85 passed=0/1 failing=TC_001 ms=14637",
+    "[ORCH] ts=2026-09-01T13:58:39Z step=generate scenario=TS_006 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=69828 ms=84267 regen=1",
+    "[ORCH] ts=2026-09-01T13:58:50Z step=generate scenario=TS_004 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=37618 ms=84358 regen=2",
+    "[ORCH] ts=2026-09-01T13:58:51Z step=generate scenario=TS_001 round=2 chunk=1/1 tc=1 ids=TC_001 chars=24662 ms=84432 regen=1",
+    "[ORCH] ts=2026-09-01T13:58:59Z step=generate scenario=TS_005 round=2 chunk=1/1 tc=1 ids=TC_001 chars=35068 ms=63890 regen=1",
+    "[ORCH] ts=2026-09-01T13:59:05Z step=review scenario=TS_004 round=2 score=85 passed=1/2 failing=TC_002 ms=14755",
+    "[ORCH] ts=2026-09-01T13:59:05Z step=result scenario=TS_004 status=unhealed scores=[85, 85] rounds=2 tc=2 ms=230569",
+    "[ORCH] ts=2026-09-01T13:59:06Z step=review scenario=TS_006 round=2 score=85 passed=0/2 failing=TC_001,TC_002 ms=26488",
+    "[ORCH] ts=2026-09-01T13:59:06Z step=stagnant scenario=TS_006 round=2 scores=[85, 85] passed=[0, 0]",
+    "[ORCH] ts=2026-09-01T13:59:06Z step=result scenario=TS_006 status=stagnant scores=[85, 85] rounds=2 tc=2 ms=231372",
+    "[ORCH] ts=2026-09-01T13:59:06Z step=review scenario=TS_001 round=2 score=92 passed=1/1 ms=14632",
+    "[ORCH] ts=2026-09-01T13:59:06Z step=result scenario=TS_001 status=approved scores=[85, 92] rounds=2 tc=1 ms=231421",
+    "[ORCH] ts=2026-09-01T13:59:11Z step=generate scenario=TS_002 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=61127 ms=104850 regen=2",
+    "[ORCH] ts=2026-09-01T13:59:11Z step=generate scenario=TS_007 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=65461 ms=104512 regen=2",
+    "[ORCH] ts=2026-09-01T13:59:13Z step=review scenario=TS_005 round=2 score=96 passed=1/1 ms=14631",
+    "[ORCH] ts=2026-09-01T13:59:13Z step=result scenario=TS_005 status=approved scores=[85, 96] rounds=2 tc=1 ms=238914",
+    "[ORCH] ts=2026-09-01T13:59:26Z step=review scenario=TS_002 round=2 score=85 passed=1/2 failing=TC_002 ms=14889",
+    "[ORCH] ts=2026-09-01T13:59:26Z step=result scenario=TS_002 status=unhealed scores=[85, 85] rounds=2 tc=2 ms=251226",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=review scenario=TS_007 round=2 score=85 passed=0/2 failing=TC_001,TC_002 ms=26226",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=stagnant scenario=TS_007 round=2 scores=[85, 85] passed=[0, 0]",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=result scenario=TS_007 status=stagnant scores=[85, 85] rounds=2 tc=2 ms=263050",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=renumber scenario=TS_002 ids=TC_001>TC_002,TC_002>TC_003",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=renumber scenario=TS_003 ids=TC_001>TC_004",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=renumber scenario=TS_004 ids=TC_001>TC_005,TC_002>TC_006",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=renumber scenario=TS_005 ids=TC_001>TC_007",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=renumber scenario=TS_006 ids=TC_001>TC_008,TC_002>TC_009",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=renumber scenario=TS_007 ids=TC_001>TC_010,TC_002>TC_011",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=done approved=2 unreviewed=0 unhealed=2 stagnant=3 hardstop=0 failed=0 skipped=0 testcases=11 agentcalls=29 ms=327547",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=outcome story=535018 ready=4/11 testcases flagged=7 scenarios=7 elapsed=5m27s",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=flagged tc=TC_003 scenario=TS_002 why=missing one scenario condition",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=flagged tc=TC_004 scenario=TS_003 why=contains out-of-scope FACETS validation",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=flagged tc=TC_006 scenario=TS_004 why=duplicate of first-file case",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=flagged tc=TC_008 scenario=TS_006 why=adds out-of-scope FACETS verification",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=flagged tc=TC_009 scenario=TS_006 why=duplicates an out-of-scope SNIP 1 case",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=flagged tc=TC_010 scenario=TS_007 why=adds out-of-scope SQL validations",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=flagged tc=TC_011 scenario=TS_007 why=adds out-of-scope SQL validations",
+    "[ORCH] ts=2026-09-01T13:59:37Z step=detail calls=29 rounds=14 scoreboard=TS_001:approved(85>92)  TS_002:unhealed(85>85)  TS_003:stagnant(85>85)  TS_004:unhealed(85>85)  TS_005:approved(85>96)  TS_006:stagnant(85>85)  TS_007:stagnant(85>85)"
+  ]
+}
