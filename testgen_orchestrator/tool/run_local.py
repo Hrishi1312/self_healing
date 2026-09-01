@@ -209,6 +209,28 @@ def probe(cfg):
     return 0 if hit else 1
 
 
+def _write_xlsx(md_path):
+    """Best effort: also save testcases.md as an .xlsx workbook, next to it.
+
+    Never raises: a missing openpyxl or an empty table should not change the run's outcome
+    or exit code, only skip this one convenience file.
+    """
+    try:
+        sys.path.insert(0, os.path.abspath(os.path.join(HERE, "..", "..")))
+        import md_table_to_excel as mx
+    except ImportError:
+        return None, "openpyxl not installed (pip install openpyxl)"
+    try:
+        rows = mx.parse_table(open(md_path, encoding="utf-8").read())
+        if not rows:
+            return None, None
+        xlsx_path = os.path.splitext(md_path)[0] + ".xlsx"
+        mx.write_xlsx(rows, xlsx_path)
+        return xlsx_path, None
+    except Exception as e:
+        return None, str(e)
+
+
 def _files(tee, rundir):
     """Name what was written and put stdout back. Called on every exit path, so a failed run
     still leaves a complete folder."""
@@ -221,6 +243,11 @@ def _files(tee, rundir):
             print("   %-15s %s" % (n, what))
     sys.stdout = sys.__stdout__
     tee.close()
+    xlsx_path, xlsx_note = _write_xlsx(tee.tblpath)
+    if xlsx_path:
+        print("   %-15s %s" % ("testcases.xlsx", "the assembled table, as a workbook"))
+    elif xlsx_note:
+        print("   testcases.xlsx  skipped: %s" % xlsx_note)
 
 
 def main():
@@ -361,8 +388,8 @@ def main():
                 print("     %-16s %s" % (f["id"], f["why"]))
     for w in res["warnings"]:
         print("  warning:", w)
-    print(f"\n  All {total} test cases are in testcases.md. envelope.json carries the "
-          f"reviewer's full reasoning.")
+    print(f"\n  All {total} test cases are in testcases.md (and testcases.xlsx if openpyxl "
+          f"is installed). envelope.json carries the reviewer's full reasoning.")
     pub = res.get("published")
     if pub:
         print("  published: %s" % (pub.get("error")

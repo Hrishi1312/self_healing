@@ -1402,14 +1402,14 @@ check("publish off makes no github call and adds no envelope field",
 res18 = json.loads(tool._run(runinputs=json.dumps(dict(
     _gh_base, publish=True, githubtoken=_ghtoken))))
 names = [u.split("/")[-1] for _, u, _, _ in _puts]
-check("publish on PUTs exactly the four run files",
-      len(_puts) == 4 and set(names) == {"run.log", "testcases.md", "envelope.json",
-                                         "runinputs.json"}, str(names))
+check("publish on PUTs exactly the five run files",
+      len(_puts) == 5 and set(names) == {"run.log", "testcases.md", "envelope.json",
+                                         "runinputs.json", "testcases.xlsx"}, str(names))
 check("files go to the contents api of the configured repo",
       all(u.startswith("https://api.github.com/repos/Hrishi1312/self_healing/contents/"
                        "tool_logs/640764_") for _, u, _, _ in _puts),
       _puts[0][1] if _puts else "no calls")
-check("all four files share one run folder",
+check("all five files share one run folder",
       len({u.rsplit("/", 1)[0] for _, u, _, _ in _puts}) == 1)
 check("the body carries branch and base64 content",
       all(b.get("branch") == "main" and b.get("content") for _, _, _, b in _puts))
@@ -1422,7 +1422,7 @@ check("published runinputs.json blanks all three credentials",
 check("the github token never reaches a log line",
       _ghtoken not in "\n".join(res18["log"]))
 check("the envelope reports what was published",
-      res18.get("published", {}).get("files") == 4
+      res18.get("published", {}).get("files") == 5
       and res18["published"]["repo"] == "Hrishi1312/self_healing")
 check("the run is still completed", res18.get("status") == "completed")
 

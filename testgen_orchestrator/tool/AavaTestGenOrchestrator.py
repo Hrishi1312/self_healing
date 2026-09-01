@@ -38,6 +38,11 @@ try:
 except ImportError:
     AVASecret = None  # type: ignore
 
+try:
+    import pandas as pd
+except ImportError:
+    pd = None  # type: ignore
+
 
 # ── defaults ────────────────────────────────────────────────────────────────
 DEF_AAVA_BASE = ("https://aava-core-api-agents-svc"
@@ -1128,13 +1133,55 @@ def cross_batch_check(records: List[Dict[str, Any]], scenarios: List[Dict[str, A
     return warnings
 
 
+# ── xlsx rendering, best effort, no hard dependency ─────────────────────────
+def build_xlsx(table: str) -> Optional[bytes]:
+    """Render the assembled markdown table as an .xlsx workbook, in memory.
+
+    Same design as the platform's own working Excel conversion tool (agent 394 / tool 53):
+    pandas.DataFrame.to_excel(engine="openpyxl"), with no `import openpyxl` of our own — only
+    pandas needs to be on the container, and it resolves the engine itself. Returns None,
+    never raises, if pandas is unavailable or the table is empty: the workbook is a
+    convenience, not something a run can fail over.
+    """
+    if not pd or not table:
+        return None
+    try:
+        import io
+        rows = []
+        for line in table.split("\n"):
+            stripped = line.strip()
+            if not stripped.startswith("|"):
+                continue
+            cells = [c.strip() for c in stripped.strip("|").split("|")]
+            if set("".join(cells)) <= {"-", ":", ""}:
+                continue  # the "|---|---|" separator row
+            rows.append(cells)
+        if len(rows) < 2:
+            return None
+        width = max(len(r) for r in rows)
+        padded = [(r + [""] * (width - len(r)))[:width] for r in rows]
+        df = pd.DataFrame(padded[1:], columns=padded[0])
+
+        buf = io.BytesIO()
+        with pd.ExcelWriter(buf, engine="openpyxl") as writer:
+            df.to_excel(writer, index=False, sheet_name="Test Cases")
+            ws = writer.sheets["Test Cases"]
+            ws.freeze_panes = "A2"
+            ws.auto_filter.ref = ws.dimensions
+        return buf.getvalue()
+    except Exception:
+        return None
+
+
 # ── github publish, opt in ──────────────────────────────────────────────────
 def publish_run(cfg: Dict[str, Any], log: _Log,
-                files: List[Tuple[str, str]]) -> Dict[str, Any]:
+                files: List[Tuple[str, Any]]) -> Dict[str, Any]:
     """Push the run's files to GitHub via the contents API, one PUT per file.
 
     A failure is logged and reported in the returned dict, never raised: publishing is a
-    convenience and can never fail the run that produced the thing being published.
+    convenience and can never fail the run that produced the thing being published. Content
+    is text for the logs/tables and raw bytes for the xlsx workbook; both go through the
+    same base64 upload.
     """
     import base64
     token = cfg.get("githubtoken") or ""
@@ -1147,14 +1194,15 @@ def publish_run(cfg: Dict[str, Any], log: _Log,
     headers = {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"}
     ok, err = 0, None
     for name, content in files:
+        raw = content if isinstance(content, bytes) else content.encode("utf-8")
         status, body = _http(
             "PUT", f"{GITHUB_API}/repos/{repo}/contents/{folder}/{name}", log, headers,
             json_body={"message": f"run log {cfg['adostoryid']}: {name}",
-                       "content": base64.b64encode(content.encode("utf-8")).decode(),
+                       "content": base64.b64encode(raw).decode(),
                        "branch": branch})
         if status in (200, 201):
             ok += 1
-            log.line("publish", file=name, chars=len(content))
+            log.line("publish", file=name, bytes=len(raw))
         else:
             err = f"{name}: http {status} {_err_detail(body, 120)}".strip()
             log.line("publish", file=name, status=status, error=_err_detail(body, 120))
@@ -1457,12 +1505,18 @@ class AavaTestGenOrchestrator(BaseTool):
 
         if cfg["publish"]:
             blanked = dict(cfg, adopat="", aavatoken="", githubtoken="")
-            envelope["published"] = publish_run(cfg, log, [
+            files: List[Tuple[str, Any]] = [
                 ("run.log", "\n".join(log.dump()) + "\n"),
                 ("testcases.md", table),
                 ("envelope.json", json.dumps(envelope, indent=2)),
                 ("runinputs.json", json.dumps(blanked, indent=2)),
-            ])
+            ]
+            xlsx = build_xlsx(table)
+            if xlsx:
+                files.append(("testcases.xlsx", xlsx))
+            else:
+                log.line("publish", file="testcases.xlsx", skipped="openpyxl unavailable or empty table")
+            envelope["published"] = publish_run(cfg, log, files)
             envelope["log"] = log.dump()      # pick up the publish lines themselves
 
         return json.dumps(envelope)
