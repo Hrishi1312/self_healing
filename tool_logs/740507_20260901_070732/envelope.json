@@ -1,0 +1,652 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "740507",
+    "title": "[co] Dev and Test | 834 | Inbound | Michigan Medicaid | Update the current crosswalk to add new Plans for Behavioral health"
+  },
+  "summary": {
+    "scenarios": 18,
+    "approved": 4,
+    "unreviewed": 0,
+    "unhealed": 9,
+    "stagnant": 1,
+    "hardstop": 0,
+    "failed": 4,
+    "skipped": 0,
+    "testcases": 51,
+    "totalrounds": 33,
+    "agentcalls": 70,
+    "elapsedms": 1200850
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "Validate Behavioral Health rows are added to EE_PlanMapping",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_001",
+          "why": "duplicate of row-and-column match case"
+        },
+        {
+          "id": "TC_002",
+          "why": "duplicate of count-verification case"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 23473,
+      "elapsedms": 214068,
+      "gaps": [
+        "Semantic duplicate with TC_002: TC_001 Expected Result 'The query returns BehavioralHealthRowCount = 25.' and TC_002 Expected Result 'Exactly 25 Behavioral Health rows are returned from NRTCUSTOMDB.EDI.EE_PlanMapping.' share the same intent of validating the 25 new Behavioral Health rows exist in NRTCUSTOMDB.EDI.EE_PlanMapping.",
+        "Semantic duplicate with TC_001: TC_002 Expected Result 'Exactly 25 Behavioral Health rows are returned from NRTCUSTOMDB.EDI.EE_PlanMapping.' and TC_001 Expected Result 'The query returns BehavioralHealthRowCount = 25.' share the same intent of validating the 25 new Behavioral Health rows exist in NRTCUSTOMDB.EDI.EE_PlanMapping."
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "Validate Behavioral Health crosswalk row and column data integrity",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 76006,
+      "gaps": [],
+      "error": "generate:TS_002: agent 652 finished FAILED (execution 46450bad-dbcf-4a13-a8b6-ef2284ce2bce)"
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "Validate 001/33 transaction type ignore flag is enabled for processing",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        92
+      ],
+      "passedhistory": [
+        1
+      ],
+      "finalscore": 92,
+      "rounds": 1,
+      "testcasecount": 1,
+      "chars": 13089,
+      "elapsedms": 123087,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Validate BH plan derivation uses COB02 BH-Cover and MemberEligibilityType-aware crosswalk lookup",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_007",
+          "why": "uses wrong Facets product database"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        3
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 4,
+      "chars": 42873,
+      "elapsedms": 260544,
+      "gaps": [
+        "Step Description contains \"open the product database file OH-Facets-crt_69.pzb\" in field \"Step Description\"",
+        "Contradicts domain hint line \"FACETS: eligibility spans live in CMC_SBEL_ELIG_ENT / CMC_SBEL_ELIG_EVT with event codes SL (select), CH (change) and TM (term); a new member must populate SBEL, SBSG, SBSB, MEME, SBAD, SBCS, MEPR, MECM, MECD, MEIA, MEST and MELC. Plan codes for this story: MCMIZMAE / MCMIZDAE non-BH, MCMIZMAJ BH, MCMIZMHE and MCMIZMHJ the HMP variants; HD04 values MHPCMCFMAMC and MHPCMCFMAHMPMC.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "Validate 001/33 updates existing member demographics in Facets",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_014",
+          "why": "archive path contradicts earlier cases"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        7
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 8,
+      "chars": 106418,
+      "elapsedms": 427011,
+      "gaps": [
+        "Step Description field: \"Validate the processed file archive location in Windows Explorer by checking \\\\daycrtappfs01\\EdifecsSTArchive\\834\\Inbound\\State_of_MI for 5790.260812.0710.04lq0q9t and 4976.260726.1709.257d0y0k.\" contradicts Step Description field in other test cases for the same scenario: \"Verify archive creation for both files under \\\\daycrtappfs01\\EdifecsSTArchive\\834\\Inbound\\MI and confirm the exact processed file names match 5790.260812.0710.04lq0q9t and 4976.260726.1709.257d0y0k.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_006",
+      "title": "Validate new member creation from 001/33 and required Facets table population",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_016",
+          "why": "wrong scenario coverage bundled here"
+        },
+        {
+          "id": "TC_022",
+          "why": "wrong table names contradict hints"
+        },
+        {
+          "id": "TC_025",
+          "why": "wrong table names contradict hints"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        7
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 128913,
+      "elapsedms": 751172,
+      "gaps": [
+        "Description: \"Verify that a member not already present in Facets is created as a new member when a Michigan Medicaid inbound 834 change file contains the 001/33 transaction combination and the Behavioral Health plan mapping is processed end to end.\" \u2014 TC_001 also requires dedicated coverage for scenario clause \"2) SBEL is populated. 3) SBSG is populated. 4) SBSB is populated. 5) MEME is populated. 6) SBAD is populated. 7) SBCS is populated. 8) MEPR is populated. 9) MECM is populated. 10) MECD is populated. 11) MEIA is populated. 12) MEST is populated. 13) MELC is populated.\"; add a dedicated test case for it",
+        "Step Description: \"SELECT MEME.MEME_CK, MEME.SBSB_CK, SBSB.SBSB_CK AS SBSB_KEY, SBSG.SGSG_CK, SBAD.SBAD_ADDR1, MECD.MECD_EFF_DT, MEIA.MEIA_CK, MEST.MEST_CK, MELC.MELC_CK FROM FACPRDDB.dbo.CMC_MEME_MEMBER MEME WITH (NOLOCK) JOIN FACPRDDB.dbo.CMC_SBSB_SUBSC SBSB WITH (NOLOCK) ON MEME.SBSB_CK = SBSB.SBSB_CK LEFT JOIN FACPRDDB.dbo.CMC_SBSG_SUB_GROUP SBSG WITH (NOLOCK) ON SBSB.SBSB_CK = SBSG.SBSB_CK LEFT JOIN FACPRDDB.dbo.CMC_SBAD_ADDRESS SBAD WITH (NOLOCK) ON SBSB.SBSB_CK = SBAD.SBSB_CK LEFT JOIN FACPRDDB.dbo.CMC_MECD_CONTACT_DT MECD WITH (NOLOCK) ON MEME.MEME_CK = MECD.MEME_CK LEFT JOIN FACPRDDB.dbo.CMC_MEIA_IDENT_AUX MEIA WITH (NOLOCK) ON MEME.MEME_CK = MEIA.MEME_CK LEFT JOIN FACPRDDB.dbo.CMC_MEST_STATUS MEST WITH (NOLOCK) ON MEME.MEME_CK = MEST.MEME_CK LEFT JOIN FACPRDDB.dbo.CMC_MELC_LSTY_CD MELC WITH (NOLOCK) ON MEME.MEME_CK = MELC.MEME_CK WHERE MEME.MEME_SSN='[TEST DATA: member SSN used in the mocked 834 file]';\" contradicts domain hint \"FACETS: eligibility spans live in CMC_SBEL_ELIG_ENT / CMC_SBEL_ELIG_EVT with event codes SL (select), CH (change) and TM (term); a new member must populate SBEL, SBSG, SBSB, MEME, SBAD, SBCS, MEPR, MECM, MECD, MEIA, MEST and MELC.\" because it validates different table names than the hinted Facets tables for SBAD/MECD/MEIA/MEST",
+        "Step Description: \"SELECT SBSG.* FROM FACPRDDB.dbo.CMC_SBSG_RELATION SBSG WITH (NOLOCK) JOIN FACPRDDB.dbo.CMC_MEME_MEMBER MEME WITH (NOLOCK) ON SBSG.SBSB_CK = MEME.SBSB_CK WHERE MEME.MEME_SSN = '[TEST DATA: member SSN used in the mocked 834 file]'; SELECT SBAD.* FROM FACPRDDB.dbo.CMC_SBAD_ADDRESS SBAD WITH (NOLOCK) JOIN FACPRDDB.dbo.CMC_SBSB_SUBSC SBSB WITH (NOLOCK) ON SBAD.SBSB_CK = SBSB.SBSB_CK JOIN FACPRDDB.dbo.CMC_MEME_MEMBER MEME WITH (NOLOCK) ON MEME.SBSB_CK = SBSB.SBSB_CK WHERE MEME.MEME_SSN = '[TEST DATA: member SSN used in the mocked 834 file]'; SELECT SBCS.* FROM FACPRDDB.dbo.CMC_SBCS_COV_SEL SBCS WITH (NOLOCK) JOIN FACPRDDB.dbo.CMC_SBSB_SUBSC SBSB WITH (NOLOCK) ON SBCS.SBSB_CK = SBSB.SBSB_CK JOIN FACPRDDB.dbo.CMC_MEME_MEMBER MEME WITH (NOLOCK) ON MEME.SBSB_CK = SBSB.SBSB_CK WHERE MEME.MEME_SSN = '[TEST DATA: member SSN used in the mocked 834 file]'; SELECT MEPR.* FROM FACPRDDB.dbo.CMC_MEPR_PERSONAL MEPR WITH (NOLOCK) JOIN FACPRDDB.dbo.CMC_MEME_MEMBER MEME WITH (NOLOCK) ON MEPR.MEME_CK = MEME.MEME_CK WHERE MEME.MEME_SSN = '[TEST DATA: member SSN used in the mocked 834 file]'; SELECT MECM.* FROM FACPRDDB.dbo.CMC_MECM_COMMUNICATION MECM WITH (NOLOCK) JOIN FACPRDDB.dbo.CMC_MEME_MEMBER MEME WITH (NOLOCK) ON MECM.MEME_CK = MEME.MEME_CK WHERE MEME.MEME_SSN = '[TEST DATA: member SSN used in the mocked 834 file]'; SELECT MEIA.* FROM FACPRDDB.dbo.CMC_MEIA_IDENTIFIERS MEIA WITH (NOLOCK) JOIN FACPRDDB.dbo.CMC_MEME_MEMBER MEME WITH (NOLOCK) ON MEIA.MEME_CK = MEME.MEME_CK WHERE MEME.MEME_SSN = '[TEST DATA: member SSN used in the mocked 834 file]'; SELECT MEST.* FROM FACPRDDB.dbo.CMC_MEST_MEMBER_STATUS MEST WITH (NOLOCK) JOIN FACPRDDB.dbo.CMC_MEME_MEMBER MEME WITH (NOLOCK) ON MEST.MEME_CK = MEME.MEME_CK WHERE MEME.MEME_SSN = '[TEST DATA: member SSN used in the mocked 834 file]'; SELECT MELC.* FROM FACPRDDB.dbo.CMC_MELC_LSTY_CD MELC WITH (NOLOCK) JOIN FACPRDDB.dbo.CMC_MEME_MEMBER MEME WITH (NOLOCK) ON MELC.MEME_CK = MEME.MEME_CK WHERE MEME.MEME_SSN = '[TEST DATA: member SSN used in the mocked 834 file]';\" contradicts domain hint \"FACETS: eligibility spans live in CMC_SBEL_ELIG_ENT / CMC_SBEL_ELIG_EVT with event codes SL (select), CH (change) and TM (term); a new member must populate SBEL, SBSG, SBSB, MEME, SBAD, SBCS, MEPR, MECM, MECD, MEIA, MEST and MELC.\" because it validates different table names than the hinted Facets tables for SBSG/SBAD/SBCS/MEPR/MECM/MEIA/MEST"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_007",
+      "title": "Validate new member split spans when member eligibility begin and BH coverage start both predate 10/01/2026",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_026",
+          "why": "wrong crosswalk key and duplicate flow"
+        },
+        {
+          "id": "TC_029",
+          "why": "wrong crosswalk key"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        2
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 4,
+      "chars": 53667,
+      "elapsedms": 330190,
+      "gaps": [
+        "Step Description contains \"SELECT * FROM NRTCUSTOMDB.EDI.EE_PlanMapping WITH (NOLOCK) WHERE PlanCoverageDescription = 'MHPCMCFMAMC' AND MemberEligibilityType = 'BH-Cover';\" which contradicts hint \"EE_PlanMapping receives 25 new Behavioral Health rows and is keyed on PlanCoverageDescription + CSHCSIndicator + MemberEligibilityType\"",
+        "Expected Result contains \"The 001/33 transaction type mapping row exists with the Third Party Liability ignore flag set to N, and the plan mapping returns a Behavioral Health mapping row for PlanCoverageDescription MHPCMCFMAMC.\" which does not cover the scenario clause \"4) No TM event is asserted for this no-gap split condition.\"; TS_007 also requires \"4) No TM event is asserted for this no-gap split condition.\"; add a dedicated test case for it",
+        "TC_001 and TC_004 share the same end-to-end observability intent for the same 06/01/2026 + 08/01/2026 new-member split flow; TC_004 already covers the no-TM assertion and end-to-end processing, making TC_001 a duplicate observability case",
+        "Step Description contains \"SELECT * FROM NRTCUSTOMDB.EDI.EE_PlanMapping WITH (NOLOCK) WHERE PlanCoverageDescription = 'MHPCMCFMAMC' AND (CSHCSIndicator = 'N' OR CSHCSIndicator IS NULL) AND MemberEligibilityType = 'M';\" and Expected Result contains \"A Behavioral Health crosswalk row exists for PlanCoverageDescription MHPCMCFMAMC with CSHCS indicator N or null and member eligibility type M.\" which contradict hint \"Logic to derive the plan is updated. Moving forward if there is the COB loop with COB02 = BH-Cover then the crosswalk should also look into the field \"MemberEligibilityType\" as consider the COB02 = BH-Cover in the EDI file as the indicator = BH in this field for the crosswalk usage.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_008",
+      "title": "Validate new member BH-only assignment when member eligibility begin is on or after 10/01/2026 and BH coverage start predates it",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 75439,
+      "gaps": [],
+      "error": "generate:TS_008: agent 652 finished FAILED (execution b8b803e8-d413-4d2b-b961-ffe9899e8347)"
+    },
+    {
+      "scenarioid": "TS_009",
+      "title": "Validate new member split-span matrix for post-10/01/2026 and BH-only derived-date outcomes",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_030",
+          "why": "duplicate of the TM-event case"
+        },
+        {
+          "id": "TC_031",
+          "why": "duplicate of the split-span case"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        1
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 36555,
+      "elapsedms": 138469,
+      "gaps": [
+        "Duplicate intent with TC_002: TC_001 Expected Result says \"The event set contains SL for 11/01/2026 on the non-BH span and CH for 12/01/2026 on the BH span. There is no TM event for the no-gap split.\" and TC_002 Expected Result says \"Only the expected SL and CH events are returned for the member. No row exists where SBEL_EVENT_CD = 'TM' for the no-gap split condition.\"",
+        "Duplicate intent with TC_001: TC_002 Expected Result says \"Only the expected SL and CH events are returned for the member. No row exists where SBEL_EVENT_CD = 'TM' for the no-gap split condition.\" and TC_001 Expected Result says \"The event set contains SL for 11/01/2026 on the non-BH span and CH for 12/01/2026 on the BH span. There is no TM event for the no-gap split.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_010",
+      "title": "Validate existing member HMP update matrix when BH coverage is added in a subsequent file",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_034",
+          "why": "missing crosswalk validation steps"
+        },
+        {
+          "id": "TC_035",
+          "why": "missing full end-to-end depth"
+        },
+        {
+          "id": "TC_036",
+          "why": "wrong transaction mapping query"
+        },
+        {
+          "id": "TC_037",
+          "why": "missing no-TM assertion"
+        },
+        {
+          "id": "TC_038",
+          "why": "missing date-matrix condition"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        1
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 6,
+      "chars": 77350,
+      "elapsedms": 525237,
+      "gaps": [
+        "TC_002 has 5 steps, but the scenario description requires condition \"5) Demographic fields allowed by 001/33 are updated for the existing member during the BH add scenario. 6) No TM event is asserted for these no-gap HMP update conditions.\" and the authoritative hint says \"Every test case walks the complete end-to-end flow at full atomic depth - file creation with the resolved literal file name, staging, Edifecs pickup, archive, TM UI verification with status values, EDIStageArchive SQL validation including MemberCOB, crosswalk SQL validation, and Facets SBEL span validation - at 5 steps minimum; do not compress the flow in any case.\" No TC_002 step quotes any crosswalk SQL validation such as \"NRTCUSTOMDB.EDI.EE_PlanMapping\" or \"EE_TransactionTypeMapping\" in Step Description.",
+        "TC_003 has 5 steps, but the authoritative hint says \"Every test case walks the complete end-to-end flow at full atomic depth - file creation with the resolved literal file name, staging, Edifecs pickup, archive, TM UI verification with status values, EDIStageArchive SQL validation including MemberCOB, crosswalk SQL validation, and Facets SBEL span validation - at 5 steps minimum; do not compress the flow in any case.\" In TC_003 Step Description text, no step quotes any crosswalk SQL validation such as \"NRTCUSTOMDB.EDI.EE_PlanMapping\" or \"EE_TransactionTypeMapping\".",
+        "Step Description quotes \"SELECT * FROM NRTCUSTOMDB.EDI.EE_TransactionTypeMapping WITH (NOLOCK) WHERE TransactionType = '001' AND MaintenanceReasonCode = '33';\" in field Step Description, which contradicts the authoritative hint \"EE_TransactionTypeMapping has the 001/33 Third Party Liability ignore flag set to \\\"N\\\".\" and the other cases' mapping usage \"TransactionMaintenanceTypeCode = '001' AND TransactionMaintenanceReasonCode = '33'\" in field Step Description.",
+        "TC_005 is the most closely related case to the scenario clause \"6) No TM event is asserted for these no-gap HMP update conditions.\" but no Step Description or Expected Result in TC_005 quotes any TM-event check. The case text only quotes demographic validation such as \"Each allowed demographic field matches the incoming 001/33 file value for the processed member.\" in field Expected Result.",
+        "TC_006 is the most closely related case to the missing scenario condition \"4) Loop 2000 member eligibility begin = 12/01/2026 and Loop 2320 BH coverage start = 11/01/2026 create HMP BH from 11/01/2026 per the acceptance criteria text.\" TC_006 Step Description only says \"Create 5790.261201.0710.04lq0q9t for an existing Michigan Medicaid member with 001/33, COB02 BH-Cover, REF*ZZ*BH-Cover, and HD04 MHPCMCFMAHMPMC in a no-gap update condition.\" in field Step Description, which does not quote the required DTP*348 12/01/2026 and DTP*344 11/01/2026 matrix values."
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_011",
+      "title": "Validate BH plan term with member still active moves member to non-BH next month",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_039",
+          "why": "duplicate of the TM-event case"
+        },
+        {
+          "id": "TC_040",
+          "why": "duplicate of the main transition case"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 29206,
+      "elapsedms": 163308,
+      "gaps": [
+        "TC_001 and TC_002 are semantic duplicates: both validate the same BH-termed/member-active 001/33 no-gap transition from MCMIZMAJ to MCMIZMAE with no TM event. Evidence from TC_001 Test Case Name: \"Verify BH coverage term moves an active Michigan Medicaid member from BH plan MCMIZMAJ to non-BH plan MCMIZMAE effective 01/01/2027\" and TC_002 Test Case Name: \"Verify no TM event is created for the no-gap BH to non-BH transition when the member remains active\"",
+        "TC_002 and TC_001 are semantic duplicates: both validate the same BH-termed/member-active 001/33 no-gap transition from MCMIZMAJ to MCMIZMAE with no TM event. Evidence from TC_002 Description: \"Verify that when BH coverage ends on 12/31/2026 while member eligibility remains open, processing does not create a TM eligibility event for the no-gap transition from BH coverage to non-BH coverage.\" and TC_001 Description: \"Verify that an existing Michigan Medicaid member remains active when the BH coverage end date is 12/31/2026 and the member eligibility end date stays open, and that processing the 001/33 inbound 834 ends the BH plan MCMIZMAJ at month end and starts the non-BH plan MCMIZMAE on 01/01/2027.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_012",
+      "title": "Validate full member term while on BH coverage",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 1,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 1034337,
+      "gaps": [],
+      "error": "budget exhausted"
+    },
+    {
+      "scenarioid": "TS_013",
+      "title": "Validate all COB loops are archived to MemberCOB",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 76016,
+      "gaps": [],
+      "error": "generate:TS_013: agent 652 finished FAILED (execution 0bb6e349-1ccc-4ed7-814a-0ee2d20f3cb9)"
+    },
+    {
+      "scenarioid": "TS_014",
+      "title": "Validate first-of-month roll-forward for non-first-day effective dates on BH-related transactions",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        100
+      ],
+      "passedhistory": [
+        3
+      ],
+      "finalscore": 100,
+      "rounds": 1,
+      "testcasecount": 3,
+      "chars": 48892,
+      "elapsedms": 184021,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_015",
+      "title": "Validate BH plan start-date floor at 10/01/2026 across pre-threshold derived dates",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        85,
+        92
+      ],
+      "passedhistory": [
+        0,
+        2
+      ],
+      "finalscore": 92,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 36951,
+      "elapsedms": 286343,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_016",
+      "title": "Validate no-BH regression for plan assignment and derived-date logic",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        92
+      ],
+      "passedhistory": [
+        2
+      ],
+      "finalscore": 92,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 29338,
+      "elapsedms": 149054,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_017",
+      "title": "Validate end-to-end processing trace for Behavioral Health 001/33 change and audit files",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_048",
+          "why": "wrong file name for the change flow"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        1
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 32179,
+      "elapsedms": 144082,
+      "gaps": [
+        "Description field contains \"literal file name 5790.250911.1451.06c567nh\" but scenario descriptionRef states \"Test file name: 4976T.250911.1451.06c567nh\"",
+        "Pre-condition field contains \"The file 5790.250911.1451.06c567nh is available for execution from \\\\daycrtappfs01\\projects\\StateofMichigan\\To_CareSource\" but scenario descriptionRef states \"Test file name: 4976T.250911.1451.06c567nh\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_018",
+      "title": "Validate BH sample COB loop data is recognized and persisted correctly",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_050",
+          "why": "duplicates another case's flow"
+        },
+        {
+          "id": "TC_051",
+          "why": "missing five-loop archive condition"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 24624,
+      "elapsedms": 148705,
+      "gaps": [
+        "Semantic duplicate: TC_001 and TC_002 both validate BH-Cover data persisted to EDIStageArchive.dbo.MemberCOB after Edifecs processing; TC_002 already covers the same flow with date persistence. Evidence from TC_001 Description: \"Verify that a Michigan Medicaid inbound 834 change file containing five Loop 2320 COB occurrences with COB*U*BH-Cover, REF*ZZ*BH-Cover, Behavioral Health coverage start, and Behavioral Health coverage end is processed end to end and each Behavioral Health COB occurrence is persisted in EDIStageArchive.dbo.MemberCOB as a separate row for the same member.\" Evidence from TC_002 Description: \"Verify that a Michigan Medicaid inbound 834 carrying Loop 2320 COB*U*BH-Cover with REF*ZZ*BH-Cover persists the Behavioral Health coverage start from Loop 2320 DTP*344 to COBBeginDate and the Behavioral Health coverage end from Loop 2320 DTP*345 to COBEndDate in EDIStageArchive.dbo.MemberCOB.\"",
+        "TS_018 also requires \"Given: a multiple COB loop is received (check with 5 at least by mocking up a file, only on COB loop with BH-Cover though) in the EDI 834 file\"; add a dedicated test case for it"
+      ],
+      "error": null
+    }
+  ],
+  "warnings": [
+    "TS_002 produced no test cases",
+    "TS_008 produced no test cases",
+    "TS_012 produced no test cases",
+    "TS_013 produced no test cases"
+  ],
+  "testcases": {
+    "rows": 429,
+    "chars": 679446,
+    "scenarios": 18,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-09-01T06:47:31Z step=start story=740507 maxscenarios=20 tcper=10 steps=5-40 rounds=2 workers=20 pass_=90/50 judge=653 deadline=1200s",
+    "[ORCH] ts=2026-09-01T06:47:31Z step=fetch story=740507 titlechars=123 descchars=4308 acchars=14298 ms=166",
+    "[ORCH] ts=2026-09-01T06:50:17Z step=scenarios count=18 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007,TS_008,TS_009,TS_010,TS_011,TS_012,TS_013,TS_014,TS_015,TS_016,TS_017,TS_018 ms=166292",
+    "[ORCH] ts=2026-09-01T06:50:17Z step=condtrim scenario=TS_006 listed=13 kept=10",
+    "[ORCH] ts=2026-09-01T06:50:54Z step=agenterror label=generate:TS_002 agentid=652 phase=poll status=FAILED execution=158a05ac-85a5-4a0d-81e4-2e0e9c752e0c ms=37165 why={\"executionId\": \"158a05ac-85a5-4a0d-81e4-2e0e9c752e0c\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:50:54Z step=generate scenario=TS_002 round=1 chunk=1/1 error=generate:TS_002: agent 652 finished FAILED (execution 158a05ac-85a5-4a0d-81e4-2e0e9c752e0c)",
+    "[ORCH] ts=2026-09-01T06:50:54Z step=agenterror label=generate:TS_006 agentid=652 phase=poll status=FAILED execution=19ba3efd-523c-4265-bfc0-79d810eea009 ms=37198 why={\"executionId\": \"19ba3efd-523c-4265-bfc0-79d810eea009\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=generate scenario=TS_006 round=1 chunk=1/4 error=generate:TS_006: agent 652 finished FAILED (execution 19ba3efd-523c-4265-bfc0-79d810eea009)",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=agenterror label=generate:TS_007 agentid=652 phase=poll status=FAILED execution=bdc04c10-fb8f-438a-b262-2f4a2bff368d ms=37324 why={\"executionId\": \"bdc04c10-fb8f-438a-b262-2f4a2bff368d\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=generate scenario=TS_007 round=1 chunk=1/2 error=generate:TS_007: agent 652 finished FAILED (execution bdc04c10-fb8f-438a-b262-2f4a2bff368d)",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=agenterror label=generate:TS_008 agentid=652 phase=poll status=FAILED execution=2707d6f3-ede3-42f6-b500-2be516438428 ms=37355 why={\"executionId\": \"2707d6f3-ede3-42f6-b500-2be516438428\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=generate scenario=TS_008 round=1 chunk=1/1 error=generate:TS_008: agent 652 finished FAILED (execution 2707d6f3-ede3-42f6-b500-2be516438428)",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=agenterror label=generate:TS_011 agentid=652 phase=poll status=FAILED execution=35777f33-7112-4f0e-bd44-be8d7e501f42 ms=37379 why={\"executionId\": \"35777f33-7112-4f0e-bd44-be8d7e501f42\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=generate scenario=TS_011 round=1 chunk=1/1 error=generate:TS_011: agent 652 finished FAILED (execution 35777f33-7112-4f0e-bd44-be8d7e501f42)",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=agenterror label=generate:TS_017 agentid=652 phase=poll status=FAILED execution=61bded0a-9c62-4546-b326-8b406e0f6af8 ms=37369 why={\"executionId\": \"61bded0a-9c62-4546-b326-8b406e0f6af8\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=generate scenario=TS_017 round=1 chunk=1/1 error=generate:TS_017: agent 652 finished FAILED (execution 61bded0a-9c62-4546-b326-8b406e0f6af8)",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=agenterror label=generate:TS_005 agentid=652 phase=poll status=FAILED execution=b73de438-aac0-416c-bc8f-f2618517eec4 ms=37566 why={\"executionId\": \"b73de438-aac0-416c-bc8f-f2618517eec4\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=generate scenario=TS_005 round=1 chunk=1/3 error=generate:TS_005: agent 652 finished FAILED (execution b73de438-aac0-416c-bc8f-f2618517eec4)",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=agenterror label=generate:TS_018 agentid=652 phase=poll status=FAILED execution=39cdfb83-adbb-40ce-9057-1a0a88036660 ms=37631 why={\"executionId\": \"39cdfb83-adbb-40ce-9057-1a0a88036660\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=generate scenario=TS_018 round=1 chunk=1/1 error=generate:TS_018: agent 652 finished FAILED (execution 39cdfb83-adbb-40ce-9057-1a0a88036660)",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=agenterror label=generate:TS_004 agentid=652 phase=poll status=FAILED execution=9f46bed6-09cc-4e63-af86-abdf09724536 ms=37782 why={\"executionId\": \"9f46bed6-09cc-4e63-af86-abdf09724536\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=generate scenario=TS_004 round=1 chunk=1/2 error=generate:TS_004: agent 652 finished FAILED (execution 9f46bed6-09cc-4e63-af86-abdf09724536)",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=agenterror label=generate:TS_016 agentid=652 phase=poll status=FAILED execution=79eb027e-a304-4317-8121-f27a4e074c82 ms=37779 why={\"executionId\": \"79eb027e-a304-4317-8121-f27a4e074c82\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=generate scenario=TS_016 round=1 chunk=1/1 error=generate:TS_016: agent 652 finished FAILED (execution 79eb027e-a304-4317-8121-f27a4e074c82)",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=agenterror label=generate:TS_013 agentid=652 phase=poll status=FAILED execution=6e5c41dd-b7bf-42cf-8b4e-065a37c40a1a ms=37793 why={\"executionId\": \"6e5c41dd-b7bf-42cf-8b4e-065a37c40a1a\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=generate scenario=TS_013 round=1 chunk=1/1 error=generate:TS_013: agent 652 finished FAILED (execution 6e5c41dd-b7bf-42cf-8b4e-065a37c40a1a)",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=agenterror label=generate:TS_009 agentid=652 phase=poll status=FAILED execution=d52d138d-1d66-4fa4-bd4e-a875b70dfdbd ms=37928 why={\"executionId\": \"d52d138d-1d66-4fa4-bd4e-a875b70dfdbd\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:50:55Z step=generate scenario=TS_009 round=1 chunk=1/1 error=generate:TS_009: agent 652 finished FAILED (execution d52d138d-1d66-4fa4-bd4e-a875b70dfdbd)",
+    "[ORCH] ts=2026-09-01T06:51:33Z step=agenterror label=generate:TS_008 agentid=652 phase=poll status=FAILED execution=b8b803e8-d413-4d2b-b961-ffe9899e8347 ms=38083 why={\"executionId\": \"b8b803e8-d413-4d2b-b961-ffe9899e8347\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:51:33Z step=generate scenario=TS_008 round=2 chunk=1/1 error=generate:TS_008: agent 652 finished FAILED (execution b8b803e8-d413-4d2b-b961-ffe9899e8347)",
+    "[ORCH] ts=2026-09-01T06:51:33Z step=result scenario=TS_008 status=failed scores=[] rounds=2 tc=0 ms=75439",
+    "[ORCH] ts=2026-09-01T06:51:33Z step=agenterror label=generate:TS_005 agentid=652 phase=poll status=FAILED execution=538fc556-0847-4483-a069-1ab4330548bb ms=38191 why={\"executionId\": \"538fc556-0847-4483-a069-1ab4330548bb\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:51:33Z step=generate scenario=TS_005 round=1 chunk=2/3 error=generate:TS_005: agent 652 finished FAILED (execution 538fc556-0847-4483-a069-1ab4330548bb)",
+    "[ORCH] ts=2026-09-01T06:51:33Z step=agenterror label=generate:TS_006 agentid=652 phase=poll status=FAILED execution=0b5779d3-6f39-48df-a25d-d9508b645098 ms=38589 why={\"executionId\": \"0b5779d3-6f39-48df-a25d-d9508b645098\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:51:33Z step=generate scenario=TS_006 round=1 chunk=2/4 error=generate:TS_006: agent 652 finished FAILED (execution 0b5779d3-6f39-48df-a25d-d9508b645098)",
+    "[ORCH] ts=2026-09-01T06:51:33Z step=agenterror label=generate:TS_004 agentid=652 phase=poll status=FAILED execution=241c3644-cfe6-48e9-80aa-b7ee9d416198 ms=38056 why={\"executionId\": \"241c3644-cfe6-48e9-80aa-b7ee9d416198\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:51:33Z step=generate scenario=TS_004 round=1 chunk=2/2 error=generate:TS_004: agent 652 finished FAILED (execution 241c3644-cfe6-48e9-80aa-b7ee9d416198)",
+    "[ORCH] ts=2026-09-01T06:51:33Z step=agenterror label=generate:TS_002 agentid=652 phase=poll status=FAILED execution=46450bad-dbcf-4a13-a8b6-ef2284ce2bce ms=38840 why={\"executionId\": \"46450bad-dbcf-4a13-a8b6-ef2284ce2bce\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:51:33Z step=generate scenario=TS_002 round=2 chunk=1/1 error=generate:TS_002: agent 652 finished FAILED (execution 46450bad-dbcf-4a13-a8b6-ef2284ce2bce)",
+    "[ORCH] ts=2026-09-01T06:51:33Z step=result scenario=TS_002 status=failed scores=[] rounds=2 tc=0 ms=76006",
+    "[ORCH] ts=2026-09-01T06:51:33Z step=agenterror label=generate:TS_013 agentid=652 phase=poll status=FAILED execution=0bb6e349-1ccc-4ed7-814a-0ee2d20f3cb9 ms=38221 why={\"executionId\": \"0bb6e349-1ccc-4ed7-814a-0ee2d20f3cb9\", \"agentId\": 652, \"output\": null, \"agentName\": \"EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\", \"createdAt\"",
+    "[ORCH] ts=2026-09-01T06:51:33Z step=generate scenario=TS_013 round=2 chunk=1/1 error=generate:TS_013: agent 652 finished FAILED (execution 0bb6e349-1ccc-4ed7-814a-0ee2d20f3cb9)",
+    "[ORCH] ts=2026-09-01T06:51:33Z step=result scenario=TS_013 status=failed scores=[] rounds=2 tc=0 ms=76016",
+    "[ORCH] ts=2026-09-01T06:51:54Z step=generate scenario=TS_010 round=1 chunk=1/2 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-09-01T06:52:06Z step=generate scenario=TS_003 round=1 chunk=1/1 tc=1 ids=TC_001 chars=13089 ms=108470",
+    "[ORCH] ts=2026-09-01T06:52:17Z step=generate scenario=TS_001 round=1 chunk=1/1 tc=1 ids=TC_001 chars=21980 ms=119928",
+    "[ORCH] ts=2026-09-01T06:52:17Z step=generate scenario=TS_007 round=1 chunk=2/2 tc=1 ids=TC_001 chars=18026 ms=82733",
+    "[ORCH] ts=2026-09-01T06:52:20Z step=generate scenario=TS_009 round=2 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=36555 ms=85012 regen=1",
+    "[ORCH] ts=2026-09-01T06:52:20Z step=review scenario=TS_003 round=1 score=92 passed=1/1 ms=14614",
+    "[ORCH] ts=2026-09-01T06:52:20Z step=result scenario=TS_003 status=approved scores=[92] rounds=1 tc=1 ms=123087",
+    "[ORCH] ts=2026-09-01T06:52:26Z step=generate scenario=TS_017 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=32179 ms=91478 regen=1",
+    "[ORCH] ts=2026-09-01T06:52:32Z step=generate scenario=TS_016 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=29338 ms=96494 regen=1",
+    "[ORCH] ts=2026-09-01T06:52:32Z step=generate scenario=TS_018 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=24624 ms=96605 regen=1",
+    "[ORCH] ts=2026-09-01T06:52:32Z step=review scenario=TS_001 round=1 score=85 passed=0/1 failing=TC_001 ms=15050",
+    "[ORCH] ts=2026-09-01T06:52:32Z step=review scenario=TS_007 round=1 score=85 passed=0/1 failing=TC_001 ms=15034",
+    "[ORCH] ts=2026-09-01T06:52:36Z step=review scenario=TS_009 round=2 score=85 passed=1/3 failing=TC_001,TC_002 ms=15513",
+    "[ORCH] ts=2026-09-01T06:52:36Z step=result scenario=TS_009 status=unhealed scores=[85] rounds=2 tc=3 ms=138469",
+    "[ORCH] ts=2026-09-01T06:52:38Z step=generate scenario=TS_005 round=1 chunk=3/3 tc=2 ids=TC_001,TC_002 chars=34130 ms=64488",
+    "[ORCH] ts=2026-09-01T06:52:38Z step=generate scenario=TS_015 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=40070 ms=140578",
+    "[ORCH] ts=2026-09-01T06:52:41Z step=review scenario=TS_017 round=2 score=85 passed=1/2 failing=TC_001 ms=15222",
+    "[ORCH] ts=2026-09-01T06:52:41Z step=result scenario=TS_017 status=unhealed scores=[85] rounds=2 tc=2 ms=144082",
+    "[ORCH] ts=2026-09-01T06:52:46Z step=generate scenario=TS_011 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=29206 ms=110858 regen=1",
+    "[ORCH] ts=2026-09-01T06:52:46Z step=review scenario=TS_018 round=2 score=85 passed=0/2 failing=TC_001,TC_002 ms=14464",
+    "[ORCH] ts=2026-09-01T06:52:46Z step=result scenario=TS_018 status=unhealed scores=[85] rounds=2 tc=2 ms=148705",
+    "[ORCH] ts=2026-09-01T06:52:46Z step=review scenario=TS_016 round=2 score=92 passed=2/2 ms=14773",
+    "[ORCH] ts=2026-09-01T06:52:46Z step=result scenario=TS_016 status=approved scores=[92] rounds=2 tc=2 ms=149054",
+    "[ORCH] ts=2026-09-01T06:52:59Z step=generate scenario=TS_004 round=2 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=30324 ms=85923 regen=1",
+    "[ORCH] ts=2026-09-01T06:53:01Z step=review scenario=TS_011 round=2 score=85 passed=0/2 failing=TC_001,TC_002 ms=15066",
+    "[ORCH] ts=2026-09-01T06:53:01Z step=result scenario=TS_011 status=unhealed scores=[85] rounds=2 tc=2 ms=163308",
+    "[ORCH] ts=2026-09-01T06:53:04Z step=review scenario=TS_005 round=1 score=85 passed=0/2 failing=TC_001,TC_002 ms=26820",
+    "[ORCH] ts=2026-09-01T06:53:04Z step=review scenario=TS_015 round=1 score=85 passed=0/2 failing=TC_001,TC_002 ms=26524",
+    "[ORCH] ts=2026-09-01T06:53:07Z step=generate scenario=TS_014 round=1 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=48892 ms=169462",
+    "[ORCH] ts=2026-09-01T06:53:21Z step=review scenario=TS_014 round=1 score=100 passed=3/3 ms=14553",
+    "[ORCH] ts=2026-09-01T06:53:21Z step=result scenario=TS_014 status=approved scores=[100] rounds=1 tc=3 ms=184021",
+    "[ORCH] ts=2026-09-01T06:53:37Z step=generate scenario=TS_001 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=23473 ms=64612 regen=1",
+    "[ORCH] ts=2026-09-01T06:53:38Z step=generate scenario=TS_006 round=1 chunk=3/4 tc=3 ids=TC_001,TC_002,TC_003 chars=37400 ms=125036",
+    "[ORCH] ts=2026-09-01T06:53:40Z step=generate scenario=TS_010 round=1 chunk=2/2 tc=3 ids=TC_001,TC_002,TC_003 chars=32871 ms=105813",
+    "[ORCH] ts=2026-09-01T06:53:51Z step=review scenario=TS_001 round=2 score=85 passed=0/2 failing=TC_001,TC_002 ms=14470",
+    "[ORCH] ts=2026-09-01T06:53:51Z step=stagnant scenario=TS_001 round=2 scores=[85, 85] passed=[0, 0]",
+    "[ORCH] ts=2026-09-01T06:53:51Z step=result scenario=TS_001 status=stagnant scores=[85, 85] rounds=2 tc=2 ms=214068",
+    "[ORCH] ts=2026-09-01T06:54:06Z step=review scenario=TS_010 round=1 score=85 passed=0/3 failing=TC_001,TC_002,TC_003 ms=26710",
+    "[ORCH] ts=2026-09-01T06:54:18Z step=generate scenario=TS_007 round=2 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=35678 ms=105156 regen=1",
+    "[ORCH] ts=2026-09-01T06:54:23Z step=generate scenario=TS_004 round=2 chunk=2/2 tc=1 ids=TC_001 chars=12863 ms=84206 regen=1",
+    "[ORCH] ts=2026-09-01T06:54:29Z step=generate scenario=TS_005 round=2 chunk=1/3 tc=3 ids=TC_001,TC_002,TC_003 chars=41962 ms=84231 regen=1",
+    "[ORCH] ts=2026-09-01T06:54:38Z step=review scenario=TS_004 round=2 score=85 passed=3/4 failing=TC_004 ms=14570",
+    "[ORCH] ts=2026-09-01T06:54:38Z step=result scenario=TS_004 status=unhealed scores=[85] rounds=2 tc=4 ms=260544",
+    "[ORCH] ts=2026-09-01T06:54:42Z step=generate scenario=TS_006 round=1 chunk=4/4 tc=1 ids=TC_001 chars=19705 ms=64327",
+    "[ORCH] ts=2026-09-01T06:54:49Z step=generate scenario=TS_015 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=36951 ms=104602 regen=2",
+    "[ORCH] ts=2026-09-01T06:55:04Z step=review scenario=TS_015 round=2 score=92 passed=2/2 ms=14629",
+    "[ORCH] ts=2026-09-01T06:55:04Z step=result scenario=TS_015 status=approved scores=[85, 92] rounds=2 tc=2 ms=286343",
+    "[ORCH] ts=2026-09-01T06:55:21Z step=generate scenario=TS_007 round=2 chunk=2/2 tc=1 ids=TC_001 chars=18303 ms=63807 regen=1",
+    "[ORCH] ts=2026-09-01T06:55:26Z step=review scenario=TS_006 round=1 score=85 passed=0/4 failing=TC_001,TC_002,TC_003,TC_004 ms=43967",
+    "[ORCH] ts=2026-09-01T06:55:47Z step=review scenario=TS_007 round=2 score=85 passed=2/4 failing=TC_001,TC_004 ms=26124",
+    "[ORCH] ts=2026-09-01T06:55:47Z step=result scenario=TS_007 status=unhealed scores=[85, 85] rounds=2 tc=4 ms=330190",
+    "[ORCH] ts=2026-09-01T06:55:54Z step=generate scenario=TS_005 round=2 chunk=2/3 tc=3 ids=TC_001,TC_002,TC_003 chars=41122 ms=85004 regen=1",
+    "[ORCH] ts=2026-09-01T06:56:31Z step=generate scenario=TS_010 round=2 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=40783 ms=144829 regen=1",
+    "[ORCH] ts=2026-09-01T06:56:51Z step=generate scenario=TS_006 round=2 chunk=1/4 tc=3 ids=TC_001,TC_002,TC_003 chars=32696 ms=84231 regen=1",
+    "[ORCH] ts=2026-09-01T06:56:57Z step=generate scenario=TS_005 round=2 chunk=3/3 tc=2 ids=TC_001,TC_002 chars=23962 ms=63595 regen=2",
+    "[ORCH] ts=2026-09-01T06:57:24Z step=review scenario=TS_005 round=2 score=85 passed=7/8 failing=TC_007 ms=27088",
+    "[ORCH] ts=2026-09-01T06:57:24Z step=result scenario=TS_005 status=unhealed scores=[85, 85] rounds=2 tc=8 ms=427011",
+    "[ORCH] ts=2026-09-01T06:58:15Z step=generate scenario=TS_006 round=2 chunk=2/4 tc=3 ids=TC_001,TC_002,TC_003 chars=31512 ms=84722 regen=1",
+    "[ORCH] ts=2026-09-01T06:58:36Z step=generate scenario=TS_010 round=2 chunk=2/2 tc=3 ids=TC_001,TC_002,TC_003 chars=36881 ms=125159 regen=3",
+    "[ORCH] ts=2026-09-01T06:59:03Z step=review scenario=TS_010 round=2 score=85 passed=1/6 failing=TC_002,TC_003,TC_004,TC_005,TC_006 ms=26046",
+    "[ORCH] ts=2026-09-01T06:59:03Z step=result scenario=TS_010 status=unhealed scores=[85, 85] rounds=2 tc=6 ms=525237",
+    "[ORCH] ts=2026-09-01T07:00:20Z step=generate scenario=TS_006 round=2 chunk=3/4 tc=3 ids=TC_001,TC_002,TC_003 chars=38427 ms=124786 regen=3",
+    "[ORCH] ts=2026-09-01T07:02:05Z step=generate scenario=TS_006 round=2 chunk=4/4 tc=1 ids=TC_001 chars=27220 ms=104661 regen=1",
+    "[ORCH] ts=2026-09-01T07:02:48Z step=review scenario=TS_006 round=2 score=85 passed=7/10 failing=TC_001,TC_007,TC_010 ms=43621",
+    "[ORCH] ts=2026-09-01T07:02:48Z step=result scenario=TS_006 status=unhealed scores=[85, 85] rounds=2 tc=10 ms=751172",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=generate scenario=TS_012 round=1 chunk=1/1 error=generate:TS_012: agent 652 still running when the budget ran out (execution 4a2cb9e0-00eb-497d-af94-3f5193b1dd4f)",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=budget scenario=TS_012 round=2 note=stopped, budget low",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=result scenario=TS_012 status=failed scores=[] rounds=1 tc=0 ms=1034337",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=renumber scenario=TS_003 ids=TC_001>TC_003",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=renumber scenario=TS_004 ids=TC_001>TC_004,TC_002>TC_005,TC_003>TC_006,TC_004>TC_007",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=renumber scenario=TS_005 ids=TC_001>TC_008,TC_002>TC_009,TC_003>TC_010,TC_004>TC_011,TC_005>TC_012,TC_006>TC_013,TC_007>TC_014,TC_008>TC_015",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=renumber scenario=TS_006 ids=TC_001>TC_016,TC_002>TC_017,TC_003>TC_018,TC_004>TC_019,TC_005>TC_020,TC_006>TC_021,TC_007>TC_022,TC_008>TC_023,TC_009>TC_024,TC_010>TC_025",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=renumber scenario=TS_007 ids=TC_001>TC_026,TC_002>TC_027,TC_003>TC_028,TC_004>TC_029",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=renumber scenario=TS_009 ids=TC_001>TC_030,TC_002>TC_031,TC_003>TC_032",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=renumber scenario=TS_010 ids=TC_001>TC_033,TC_002>TC_034,TC_003>TC_035,TC_004>TC_036,TC_005>TC_037,TC_006>TC_038",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=renumber scenario=TS_011 ids=TC_001>TC_039,TC_002>TC_040",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=renumber scenario=TS_014 ids=TC_001>TC_041,TC_002>TC_042,TC_003>TC_043",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=renumber scenario=TS_015 ids=TC_001>TC_044,TC_002>TC_045",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=renumber scenario=TS_016 ids=TC_001>TC_046,TC_002>TC_047",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=renumber scenario=TS_017 ids=TC_001>TC_048,TC_002>TC_049",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=renumber scenario=TS_018 ids=TC_001>TC_050,TC_002>TC_051",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=done approved=4 unreviewed=0 unhealed=9 stagnant=1 hardstop=0 failed=4 skipped=0 testcases=51 agentcalls=70 ms=1200850",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=outcome story=740507 ready=30/51 testcases flagged=21 scenarios=18 elapsed=20m00s warnings=4",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_001 scenario=TS_001 why=duplicate of row-and-column match case",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_002 scenario=TS_001 why=duplicate of count-verification case",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_007 scenario=TS_004 why=uses wrong Facets product database",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_014 scenario=TS_005 why=archive path contradicts earlier cases",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_016 scenario=TS_006 why=wrong scenario coverage bundled here",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_022 scenario=TS_006 why=wrong table names contradict hints",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_025 scenario=TS_006 why=wrong table names contradict hints",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_026 scenario=TS_007 why=wrong crosswalk key and duplicate flow",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_029 scenario=TS_007 why=wrong crosswalk key",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_030 scenario=TS_009 why=duplicate of the TM-event case",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_031 scenario=TS_009 why=duplicate of the split-span case",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_034 scenario=TS_010 why=missing crosswalk validation steps",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_035 scenario=TS_010 why=missing full end-to-end depth",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_036 scenario=TS_010 why=wrong transaction mapping query",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_037 scenario=TS_010 why=missing no-TM assertion",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_038 scenario=TS_010 why=missing date-matrix condition",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_039 scenario=TS_011 why=duplicate of the TM-event case",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_040 scenario=TS_011 why=duplicate of the main transition case",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_048 scenario=TS_017 why=wrong file name for the change flow",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_050 scenario=TS_018 why=duplicates another case's flow",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=flagged tc=TC_051 scenario=TS_018 why=missing five-loop archive condition",
+    "[ORCH] ts=2026-09-01T07:07:32Z step=detail calls=70 rounds=33 scoreboard=TS_001:stagnant(85>85)  TS_002:failed  TS_003:approved(92)  TS_004:unhealed(85)  TS_005:unhealed(85>85)  TS_006:unhealed(85>85)  TS_007:unhealed(85>85)  TS_008:failed  TS_009:unhealed(85)  TS_010:unhealed(85>85)  TS_011:unhealed(85)  TS_012:failed  TS_013:failed  TS_014:approved(100)  TS_015:approved(85>92)  TS_016:approved(92)  TS_017:unhealed(85)  TS_018:unhealed(85)"
+  ]
+}
