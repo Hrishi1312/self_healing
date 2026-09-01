@@ -1,0 +1,214 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "535018",
+    "title": "TEST| Inbound 834| WI HIX ON EXC | Member Enrollment via CMS 834 - EDI"
+  },
+  "summary": {
+    "scenarios": 5,
+    "approved": 1,
+    "unreviewed": 0,
+    "unhealed": 3,
+    "stagnant": 1,
+    "hardstop": 0,
+    "failed": 0,
+    "skipped": 0,
+    "testcases": 8,
+    "totalrounds": 10,
+    "agentcalls": 21,
+    "elapsedms": 315553
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "CMS WI On-Exchange inbound 834 creates TM canonical",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        85,
+        92
+      ],
+      "passedhistory": [
+        0,
+        1
+      ],
+      "finalscore": 92,
+      "rounds": 2,
+      "testcasecount": 1,
+      "chars": 25376,
+      "elapsedms": 158220,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "CMS WI On-Exchange inbound 834 returns 999 for each file",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_002",
+          "why": "has too many steps"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 1,
+      "chars": 30911,
+      "elapsedms": 178240,
+      "gaps": [
+        "Test case 'TC_001' has 20 steps, which exceeds stepsmax 40? No. Measured issue is none for check 8.",
+        "Coverage completeness gap attached here: scenario description requires \"1) One CMS file with WI members is received and a 999 is sent back to CMS for that file.\" and no dedicated separate test case exists beyond TC_001; add a dedicated test case for it"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "HealthSherpa Off-Exchange file rejects at SNIP 1 and does not load to EDIStageArchive",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_004",
+          "why": "duplicate of the SNIP 1 flow"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        1
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 66115,
+      "elapsedms": 178745,
+      "gaps": [
+        "TC_002 duplicates TC_001 on the same business intent: both execute the HealthSherpa Off-Exchange NAS drop, TM review, and EDIStageArchive validation for a rejected file; TC_001 already covers the flow in \"Verify HealthSherpa Wisconsin Off-Exchange inbound 834 rejected at SNIP 1 is not loaded into EDIStageArchive\" and TC_002 repeats it in \"Verify HealthSherpa Wisconsin Off-Exchange inbound 834 rejected at SNIP 2 is loaded into EDIStageArchive only as a rejected transaction\"."
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Staging validation for EDIStageArchive persistence",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_005",
+          "why": "adds out-of-scope validations"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        1
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 70017,
+      "elapsedms": 271134,
+      "gaps": [
+        "Description field contains out-of-scope text not in this scenario's conditions: \"archived, visible in TM with accepted status, and persisted in EDIStageArchive across the required staging tables for the interchange.\"",
+        "Step Description field contains out-of-scope text: \"Verify the processed CMS Wisconsin On-Exchange file is archived under the Wisconsin archive path \\\\daycrtappfs01\\EdifecsSTArchive\\834\\Inbound\\WI.\"",
+        "Step Description field contains out-of-scope text: \"Validate the TM status values on the opened CMS Wisconsin On-Exchange transmission record.\"",
+        "Expected Result field contains out-of-scope text: \"Activity State is Delivery Sent, Disposition is Completed, and Validation Status is Accepted.\"",
+        "Step Description field contains out-of-scope text: \"Open the transaction attachments or related transaction detail in TM and verify that a canonical file was generated for the CMS Wisconsin On-Exchange transaction.\"",
+        "Expected Result field contains out-of-scope text: \"A canonical file is present for the processed CMS Wisconsin On-Exchange transaction.\"",
+        "Step Description field contains out-of-scope text: \"Capture the TM transaction GUID from the opened CMS Wisconsin On-Exchange record and compare it to the GUID inside the generated canonical file [TEST DATA: canonical file location for this execution was not supplied and must be taken from the TM attachment path shown at runtime].\"",
+        "Expected Result field contains out-of-scope text: \"The GUID stored in the canonical file matches the TM transaction GUID for the CMS Wisconsin On-Exchange transaction.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "HealthSherpa Off-Exchange file rejects at SNIP 2 and still loads to EDIStageArchive",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_008",
+          "why": "too few steps"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        1
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 65638,
+      "elapsedms": 218549,
+      "gaps": [
+        "TC_002 has 21 steps, which is outside the allowed range for this batch only if fewer than 18 or more than 40; however this count is compliant, so no step-count gap applies.",
+        "Duplicate intent with TC_001: both validate the same AC4 SNIP rejection flow in HealthSherpa Off-Exchange with EDIStageArchive outcome, differing only by SNIP level; shared intent: validate rejected HealthSherpa Off-Exchange file handling and EDIStageArchive load behavior."
+      ],
+      "error": null
+    }
+  ],
+  "warnings": [],
+  "testcases": {
+    "rows": 186,
+    "chars": 256801,
+    "scenarios": 5,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-09-01T16:36:49Z step=start story=535018 maxscenarios=7 tcper=10 steps=18-40 rounds=2 workers=7 pass_=90/50 judge=672 deadline=1200s",
+    "[ORCH] ts=2026-09-01T16:36:50Z step=fetch story=535018 titlechars=70 descchars=683 acchars=1300 ms=655",
+    "[ORCH] ts=2026-09-01T16:37:34Z step=scenarios count=5 ids=TS_001,TS_002,TS_003,TS_004,TS_005 ms=43748",
+    "[ORCH] ts=2026-09-01T16:38:18Z step=generate scenario=TS_002 round=1 chunk=1/1 tc=1 ids=TC_001 chars=31304 ms=44103",
+    "[ORCH] ts=2026-09-01T16:38:33Z step=review scenario=TS_002 round=1 score=85 passed=0/1 failing=TC_001 ms=14604",
+    "[ORCH] ts=2026-09-01T16:38:38Z step=generate scenario=TS_001 round=1 chunk=1/1 tc=1 ids=TC_001 chars=43786 ms=64475",
+    "[ORCH] ts=2026-09-01T16:38:39Z step=generate scenario=TS_003 round=1 chunk=1/1 tc=1 ids=TC_001 chars=34478 ms=64679",
+    "[ORCH] ts=2026-09-01T16:38:53Z step=review scenario=TS_001 round=1 score=85 passed=0/1 failing=TC_001 ms=14856",
+    "[ORCH] ts=2026-09-01T16:38:54Z step=review scenario=TS_003 round=1 score=85 passed=0/1 failing=TC_001 ms=15125",
+    "[ORCH] ts=2026-09-01T16:38:59Z step=generate scenario=TS_004 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=77345 ms=84766",
+    "[ORCH] ts=2026-09-01T16:39:13Z step=review scenario=TS_004 round=1 score=85 passed=0/2 failing=TC_001,TC_002 ms=14629",
+    "[ORCH] ts=2026-09-01T16:39:19Z step=generate scenario=TS_005 round=1 chunk=1/1 tc=1 ids=TC_001 chars=47291 ms=104909",
+    "[ORCH] ts=2026-09-01T16:39:34Z step=review scenario=TS_005 round=1 score=85 passed=0/1 failing=TC_001 ms=14698",
+    "[ORCH] ts=2026-09-01T16:39:57Z step=generate scenario=TS_001 round=2 chunk=1/1 tc=1 ids=TC_001 chars=25376 ms=64024 regen=1",
+    "[ORCH] ts=2026-09-01T16:40:12Z step=review scenario=TS_001 round=2 score=92 passed=1/1 ms=14855",
+    "[ORCH] ts=2026-09-01T16:40:12Z step=result scenario=TS_001 status=approved scores=[85, 92] rounds=2 tc=1 ms=158220",
+    "[ORCH] ts=2026-09-01T16:40:17Z step=generate scenario=TS_002 round=2 chunk=1/1 tc=1 ids=TC_001 chars=30911 ms=104822 regen=1",
+    "[ORCH] ts=2026-09-01T16:40:18Z step=generate scenario=TS_003 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=66115 ms=84268 regen=1",
+    "[ORCH] ts=2026-09-01T16:40:32Z step=review scenario=TS_002 round=2 score=85 passed=0/1 failing=TC_001 ms=14707",
+    "[ORCH] ts=2026-09-01T16:40:32Z step=stagnant scenario=TS_002 round=2 scores=[85, 85] passed=[0, 0]",
+    "[ORCH] ts=2026-09-01T16:40:32Z step=result scenario=TS_002 status=stagnant scores=[85, 85] rounds=2 tc=1 ms=178240",
+    "[ORCH] ts=2026-09-01T16:40:33Z step=review scenario=TS_003 round=2 score=85 passed=1/2 failing=TC_002 ms=14667",
+    "[ORCH] ts=2026-09-01T16:40:33Z step=result scenario=TS_003 status=unhealed scores=[85, 85] rounds=2 tc=2 ms=178745",
+    "[ORCH] ts=2026-09-01T16:40:58Z step=generate scenario=TS_005 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=65638 ms=84253 regen=1",
+    "[ORCH] ts=2026-09-01T16:41:12Z step=review scenario=TS_005 round=2 score=85 passed=1/2 failing=TC_002 ms=14684",
+    "[ORCH] ts=2026-09-01T16:41:12Z step=result scenario=TS_005 status=unhealed scores=[85, 85] rounds=2 tc=2 ms=218549",
+    "[ORCH] ts=2026-09-01T16:41:39Z step=generate scenario=TS_004 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=70017 ms=145316 regen=2",
+    "[ORCH] ts=2026-09-01T16:42:05Z step=review scenario=TS_004 round=2 score=85 passed=1/2 failing=TC_001 ms=26416",
+    "[ORCH] ts=2026-09-01T16:42:05Z step=result scenario=TS_004 status=unhealed scores=[85, 85] rounds=2 tc=2 ms=271134",
+    "[ORCH] ts=2026-09-01T16:42:05Z step=renumber scenario=TS_002 ids=TC_001>TC_002",
+    "[ORCH] ts=2026-09-01T16:42:05Z step=renumber scenario=TS_003 ids=TC_001>TC_003,TC_002>TC_004",
+    "[ORCH] ts=2026-09-01T16:42:05Z step=renumber scenario=TS_004 ids=TC_001>TC_005,TC_002>TC_006",
+    "[ORCH] ts=2026-09-01T16:42:05Z step=renumber scenario=TS_005 ids=TC_001>TC_007,TC_002>TC_008",
+    "[ORCH] ts=2026-09-01T16:42:05Z step=done approved=1 unreviewed=0 unhealed=3 stagnant=1 hardstop=0 failed=0 skipped=0 testcases=8 agentcalls=21 ms=315553",
+    "[ORCH] ts=2026-09-01T16:42:05Z step=outcome story=535018 ready=4/8 testcases flagged=4 scenarios=5 elapsed=5m15s",
+    "[ORCH] ts=2026-09-01T16:42:05Z step=flagged tc=TC_002 scenario=TS_002 why=has too many steps",
+    "[ORCH] ts=2026-09-01T16:42:05Z step=flagged tc=TC_004 scenario=TS_003 why=duplicate of the SNIP 1 flow",
+    "[ORCH] ts=2026-09-01T16:42:05Z step=flagged tc=TC_005 scenario=TS_004 why=adds out-of-scope validations",
+    "[ORCH] ts=2026-09-01T16:42:05Z step=flagged tc=TC_008 scenario=TS_005 why=too few steps",
+    "[ORCH] ts=2026-09-01T16:42:05Z step=detail calls=21 rounds=10 scoreboard=TS_001:approved(85>92)  TS_002:stagnant(85>85)  TS_003:unhealed(85>85)  TS_004:unhealed(85>85)  TS_005:unhealed(85>85)"
+  ]
+}
