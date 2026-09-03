@@ -1,0 +1,1076 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "750331",
+    "title": "Dev and Test | Outbound | 834| MADUAL | ADD CCA LOB in the existing CareSource 834, update the file naming and add additional data elements for ClarestHealth/CS"
+  },
+  "summary": {
+    "scenarios": 20,
+    "approved": 0,
+    "unreviewed": 0,
+    "unhealed": 14,
+    "stagnant": 1,
+    "hardstop": 0,
+    "failed": 5,
+    "skipped": 0,
+    "testcases": 142,
+    "totalrounds": 37,
+    "agentcalls": 53,
+    "elapsedms": 1200437
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "Process separate MADUAL change proprietary file through ClarestHealth Map",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_001",
+          "why": "wrong file source location"
+        },
+        {
+          "id": "TC_002",
+          "why": "not the scenario's change file"
+        },
+        {
+          "id": "TC_003",
+          "why": "covers both files not change only"
+        },
+        {
+          "id": "TC_004",
+          "why": "tests member id mapping, not scenario"
+        },
+        {
+          "id": "TC_005",
+          "why": "tests net-new id mapping only"
+        },
+        {
+          "id": "TC_006",
+          "why": "tests death date negative only"
+        },
+        {
+          "id": "TC_007",
+          "why": "tests mtm loop negative only"
+        },
+        {
+          "id": "TC_008",
+          "why": "tests naming contract, not scenario"
+        },
+        {
+          "id": "TC_009",
+          "why": "tests snip1 rejection path only"
+        },
+        {
+          "id": "TC_010",
+          "why": "tests snip2 rejection path only"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 209627,
+      "elapsedms": 427235,
+      "gaps": [
+        "Pre-condition contains unresolved angle-bracket placeholder in path: \"\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\" contradicts hint line \"source share is \\\\day<>appfs01\\<>_applications\\Applications\\VendorExtractUtility\\CSSHealth\" and leaves the AC-2 source path unresolved to the authoritative form; field: Pre-condition",
+        "TC_001 also requires \"Then validate that the new file is picked up and processed by ClarestHealth Map.\" and the scenario description \"Validate that a MADUAL-only change proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\"; add a dedicated test case for it",
+        "Test Case Name and Description are for full-file flow, not the scenario's change-file flow: \"Verify MADUAL full proprietary file is picked up, mapped, validated, and delivered as a ClarestHealth full 834 file\"; field: Test Case Name",
+        "TC_002 also requires \"Then validate that the new file is picked up and processed by ClarestHealth Map.\" and the scenario description \"Validate that a MADUAL-only change proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\"; add a dedicated test case for it",
+        "Test Case Name broadens beyond the scenario's single change-file intent: \"Verify both MADUAL change and full proprietary files are processed separately and create separate ClarestHealth outbound files\"; field: Test Case Name",
+        "TC_003 also requires \"Then validate that the new file is picked up and processed by ClarestHealth Map.\" and the scenario description \"Validate that a MADUAL-only change proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\"; add a dedicated test case for it",
+        "Test Case Name is a different business intent than the scenario: \"Verify Plan Year 2026 migrated member identifier maps to REF01 = 0F with 10-digit CCA member ID in ClarestHealth 834\"; field: Test Case Name",
+        "TC_004 also requires \"Then validate that the new file is picked up and processed by ClarestHealth Map.\" and the scenario description \"Validate that a MADUAL-only change proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\"; add a dedicated test case for it",
+        "Test Case Name is a different business intent than the scenario: \"Verify Plan Year 2026 net-new member identifier maps to REF01 = 0F with 11-digit CareSource member ID in ClarestHealth 834\"; field: Test Case Name",
+        "TC_005 also requires \"Then validate that the new file is picked up and processed by ClarestHealth Map.\" and the scenario description \"Validate that a MADUAL-only change proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\"; add a dedicated test case for it",
+        "Test Case Name is a different business intent than the scenario: \"Verify INS12 is omitted when Death_Date is null in the MADUAL ClarestHealth outbound 834\"; field: Test Case Name",
+        "TC_006 also requires \"Then validate that the new file is picked up and processed by ClarestHealth Map.\" and the scenario description \"Validate that a MADUAL-only change proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\"; add a dedicated test case for it",
+        "Test Case Name is a different business intent than the scenario: \"Verify 2750 MTM opt-out loop is not created when MTM_OPT_OUT_INDICATOR is empty in the MADUAL ClarestHealth outbound 834\"; field: Test Case Name",
+        "TC_007 also requires \"Then validate that the new file is picked up and processed by ClarestHealth Map.\" and the scenario description \"Validate that a MADUAL-only change proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\"; add a dedicated test case for it",
+        "Test Case Name is a different business intent than the scenario: \"Verify outbound file naming uses the T environment qualifier and drops the legacy GUID for MADUAL ClarestHealth files\"; field: Test Case Name",
+        "TC_008 also requires \"Then validate that the new file is picked up and processed by ClarestHealth Map.\" and the scenario description \"Validate that a MADUAL-only change proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\"; add a dedicated test case for it",
+        "Test Case Name is a different business intent than the scenario: \"Verify SNIP 1 rejection handling for a MADUAL change file while good records still generate for ClarestHealth\"; field: Test Case Name",
+        "TC_009 also requires \"Then validate that the new file is picked up and processed by ClarestHealth Map.\" and the scenario description \"Validate that a MADUAL-only change proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\"; add a dedicated test case for it",
+        "Test Case Name is a different business intent than the scenario: \"Verify SNIP 2 rejection handling for a MADUAL change file while good records still generate for ClarestHealth\"; field: Test Case Name",
+        "TC_010 also requires \"Then validate that the new file is picked up and processed by ClarestHealth Map.\" and the scenario description \"Validate that a MADUAL-only change proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\"; add a dedicated test case for it"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "Process separate MADUAL full proprietary file through ClarestHealth Map",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_011",
+          "why": "duplicate of full-file flow case"
+        },
+        {
+          "id": "TC_012",
+          "why": "not about the full-file scenario"
+        },
+        {
+          "id": "TC_013",
+          "why": "not about the full-file scenario"
+        },
+        {
+          "id": "TC_014",
+          "why": "not about the full-file scenario"
+        },
+        {
+          "id": "TC_015",
+          "why": "not about the full-file scenario"
+        },
+        {
+          "id": "TC_016",
+          "why": "not about the full-file scenario"
+        },
+        {
+          "id": "TC_017",
+          "why": "not about the full-file scenario"
+        },
+        {
+          "id": "TC_018",
+          "why": "not about the full-file scenario"
+        },
+        {
+          "id": "TC_019",
+          "why": "not about the full-file scenario"
+        },
+        {
+          "id": "TC_020",
+          "why": "not about the full-file scenario"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 202632,
+      "elapsedms": 469604,
+      "gaps": [
+        "Duplicate intent with field Test Case Name \"Verify Tidal file masking update supports separate MADUAL full and change pickup\" in TC_007; shared intent: both validate separate MADUAL full-file pickup and successful processing through ClarestHealth for the same flow.",
+        "Scenario description field requires \"Validate that a MADUAL-only full proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\", but Test Case Name is \"Verify MADUAL change proprietary file is picked up separately and generates the expected ClarestHealth outbound 834 incremental file\".",
+        "Scenario description field requires \"Validate that a MADUAL-only full proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\", but Test Case Name is \"Verify new outbound naming convention is applied for MADUAL full and change files with test and production qualifiers\".",
+        "Scenario description field requires \"Validate that a MADUAL-only full proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\", but Test Case Name is \"Verify member identifier mapping in REF segment for migrated and net-new Plan Year 2026 members in MADUAL outbound processing\".",
+        "Scenario description field requires \"Validate that a MADUAL-only full proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\", but Test Case Name is \"Verify INS04 maintenance reason and INS12 death date mapping for MADUAL members including null death date handling\".",
+        "Scenario description field requires \"Validate that a MADUAL-only full proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\", but Test Case Name is \"Verify 2750 loop creation for MTM opt-out indicator and suppression when indicator is blank in MADUAL outbound processing\".",
+        "Unresolved placeholder in field Step Description step 15: \"REF*ZZ*<indicator value>~\".",
+        "Scenario description field requires \"Validate that a MADUAL-only full proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\", but Test Case Name is \"Verify Tidal file masking update supports separate MADUAL full and change pickup\".",
+        "Scenario description field requires \"Validate that a MADUAL-only full proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\", but Test Case Name is \"Verify rejected processing for invalid SNIP 2 MADUAL full file while valid members still generate a good outbound file\".",
+        "Scenario description field requires \"Validate that a MADUAL-only full proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\", but Test Case Name is \"Verify file is not processed when MADUAL proprietary file name does not match the required full or change mask\".",
+        "Scenario description field requires \"Validate that a MADUAL-only full proprietary file is picked up as a separate feed and processed through Edifecs ST and the ClarestHealth Map into the CSSHealth / Claresthealth outbound 834 flow for the in-scope CCA LOB.\", but Test Case Name is \"Verify complete delivery, vendor approval, and business approval for MADUAL full and change outbound files after successful processing\"."
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "Accept MADUAL change proprietary file only when sourced with the required naming convention and file mask",
+      "status": "unhealed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 163418,
+      "elapsedms": 203669,
+      "gaps": [
+        "all 10 test cases are High priority; only the scenario's primary flow and finance/regression guardrail cases are High \u2014 per-field permutation, repeated-occurrence and boundary variants are Medium"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Accept MADUAL full proprietary file only when sourced with the required naming convention and file mask",
+      "status": "unhealed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 230385,
+      "elapsedms": 244873,
+      "gaps": [
+        "all 10 test cases are High priority; only the scenario's primary flow and finance/regression guardrail cases are High \u2014 per-field permutation, repeated-occurrence and boundary variants are Medium"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "Do not process a MADUAL proprietary file that does not match the required change or full file mask",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 286280,
+      "gaps": [],
+      "error": "generate:TS_005: agent 691 finished FAILED (execution e693c57c-15be-4a33-9877-0c933acd505e)"
+    },
+    {
+      "scenarioid": "TS_006",
+      "title": "Validate outbound segment compliance against the approved mapping workbook",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 1,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 1116140,
+      "gaps": [],
+      "error": "budget exhausted"
+    },
+    {
+      "scenarioid": "TS_007",
+      "title": "Generate both full and change outbound 834 files as applicable for MADUAL enrollment activity",
+      "status": "unhealed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 207311,
+      "elapsedms": 613708,
+      "gaps": [
+        "all 10 test cases are High priority; only the scenario's primary flow and finance/regression guardrail cases are High \u2014 per-field permutation, repeated-occurrence and boundary variants are Medium"
+      ],
+      "error": "review:TS_007: agent 672 finished FAILED (execution 0faf61f5-22be-4a07-8426-10499bc84d5b)"
+    },
+    {
+      "scenarioid": "TS_009",
+      "title": "Pass SNIP 1 and SNIP 2 validation for the generated MADUAL outbound 834",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 1,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 1116178,
+      "gaps": [],
+      "error": "budget exhausted"
+    },
+    {
+      "scenarioid": "TS_010",
+      "title": "Use the new MADUAL incremental outbound file naming convention",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_052",
+          "why": "off-topic full file case"
+        },
+        {
+          "id": "TC_053",
+          "why": "test qualifier case is off-topic"
+        },
+        {
+          "id": "TC_054",
+          "why": "off-topic full test case"
+        },
+        {
+          "id": "TC_058",
+          "why": "timestamp boundary case is off-topic"
+        },
+        {
+          "id": "TC_059",
+          "why": "no-output case is off-topic"
+        },
+        {
+          "id": "TC_060",
+          "why": "observability duplicate case"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        4
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 144756,
+      "elapsedms": 227627,
+      "gaps": [
+        "Test Case Name field contains off-scenario content: \"Verify CRT generates the MADUAL full ClarestHealth outbound 834 with the new production naming convention\"; scenario description is \"Validate that the MADUAL incremental outbound 834 file uses the new CS_MADUAL_CLAREST_P_INCR_834_YYYYMMDDhhmmss.edi naming standard defined by the acceptance criteria rather than the older CARESOURCE_CSSHEALTH format with trailing GUID.\"",
+        "Test Case Name field contains off-scenario content: \"Verify the test environment qualifier uses T in the MADUAL incremental ClarestHealth outbound file name\"; scenario acceptanceCriteriaRef is \"CS_MADUAL_CLAREST_P_INCR_834_YYYYMMDDhhmmss.edi\" and scenario description is \"Validate that the MADUAL incremental outbound 834 file uses the new CS_MADUAL_CLAREST_P_INCR_834_YYYYMMDDhhmmss.edi naming standard defined by the acceptance criteria rather than the older CARESOURCE_CSSHEALTH format with trailing GUID.\"",
+        "Test Case Name field contains off-scenario content: \"Verify the test environment qualifier uses T in the MADUAL full ClarestHealth outbound file name\"; scenario description is \"Validate that the MADUAL incremental outbound 834 file uses the new CS_MADUAL_CLAREST_P_INCR_834_YYYYMMDDhhmmss.edi naming standard defined by the acceptance criteria rather than the older CARESOURCE_CSSHEALTH format with trailing GUID.\"",
+        "Test Case Name field contains off-scenario content: \"Verify the MADUAL incremental outbound file name uses a 14-digit timestamp boundary correctly\"; scenario description is \"Validate that the MADUAL incremental outbound 834 file uses the new CS_MADUAL_CLAREST_P_INCR_834_YYYYMMDDhhmmss.edi naming standard defined by the acceptance criteria rather than the older CARESOURCE_CSSHEALTH format with trailing GUID.\"",
+        "Test Case Name field contains off-scenario content: \"Verify no outbound file is delivered under the new MADUAL naming standard when no 834 is generated\"; scenario acceptanceCriteriaRef is \"Given an outbound EDI 834 file is generated\" and scenario description is \"Validate that the MADUAL incremental outbound 834 file uses the new CS_MADUAL_CLAREST_P_INCR_834_YYYYMMDDhhmmss.edi naming standard defined by the acceptance criteria rather than the older CARESOURCE_CSSHEALTH format with trailing GUID.\"",
+        "TC_010 is a semantic duplicate of TC_001: both validate the same business intent that the generated MADUAL incremental production file keeps the compliant filename through delivery. TC_010 Test Case Name: \"Verify delivery evidence preserves the new MADUAL incremental production filename through vendor handoff preparation\"; TC_001 already covers generation, TM verification, delivery location, and filename preservation with step 16 \"Navigate to the outbound delivery location \\\\daycrtappfs01\\Projects\\CSSHEALTH\\From_CareSource and locate the generated file.\" and expected result \"The file CS_MADUAL_CLAREST_P_INCR_834_20260413191651.edi is present in the vendor delivery location.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_011",
+      "title": "Use the new MADUAL full outbound file naming convention",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_061",
+          "why": "duplicate end-to-end naming case"
+        },
+        {
+          "id": "TC_062",
+          "why": "scenario adds out-of-scope test case"
+        },
+        {
+          "id": "TC_063",
+          "why": "scenario adds out-of-scope test case"
+        },
+        {
+          "id": "TC_064",
+          "why": "duplicate full naming intent"
+        },
+        {
+          "id": "TC_065",
+          "why": "duplicate guid-removal intent"
+        },
+        {
+          "id": "TC_066",
+          "why": "duplicate end-to-end full flow"
+        },
+        {
+          "id": "TC_067",
+          "why": "duplicate repeated full naming flow"
+        },
+        {
+          "id": "TC_068",
+          "why": "duplicate delivery observability case"
+        },
+        {
+          "id": "TC_069",
+          "why": "duplicate archive review case"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        1
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 165961,
+      "elapsedms": 449274,
+      "gaps": [
+        "Test Case Name \"Verify MADUAL full outbound 834 file is generated with the new production naming convention\" duplicates the same business intent already covered by Test Case Id \"TC_011_010\" Test Case Name \"Verify MADUAL full outbound naming stays compliant when a naming-focused regression run is executed after the development change\"; shared intent: validate the MADUAL full outbound file uses the new \"CS_MADUAL_CLAREST_P_FULL_834_YYYYMMDDhhmmss.edi\" naming standard end to end.",
+        "Test Case Name \"Verify MADUAL full outbound 834 file is generated with the new test naming convention\" is out of scope for scenario description \"Validate that the MADUAL full outbound 834 file uses the new CS_MADUAL_CLAREST_P_FULL_834_YYYYMMDDhhmmss.edi naming standard defined by the acceptance criteria rather than the older CARESOURCE_CSSHEALTH format with trailing GUID.\"",
+        "Test Case Name \"Verify MADUAL incremental outbound 834 file keeps the INCR pattern distinct from FULL naming\" is out of scope for scenario description \"Validate that the MADUAL full outbound 834 file uses the new CS_MADUAL_CLAREST_P_FULL_834_YYYYMMDDhhmmss.edi naming standard defined by the acceptance criteria rather than the older CARESOURCE_CSSHEALTH format with trailing GUID.\"",
+        "Test Case Name \"Verify a full MADUAL outbound file name never retains the retired CARESOURCE_CSSHEALTH prefix\" duplicates the same business intent already covered by Test Case Id \"TC_011_001\" step 16 Step Description \"Verify the generated file name does not contain the retired prefix CARESOURCE_CSSHEALTH and does not append any GUID after the timestamp.\"; shared intent: validate the full outbound file does not use the retired CARESOURCE_CSSHEALTH naming pattern.",
+        "Test Case Name \"Verify a full MADUAL outbound file name never appends a GUID after the timestamp\" duplicates the same business intent already covered by Test Case Id \"TC_011_001\" step 16 Step Description \"Verify the generated file name does not contain the retired prefix CARESOURCE_CSSHEALTH and does not append any GUID after the timestamp.\"; shared intent: validate the full outbound file name has no trailing GUID.",
+        "Test Case Name \"Verify MADUAL full outbound naming remains correct when the proprietary full file is picked up through the full-file mask\" duplicates the same business intent already covered by Test Case Id \"TC_011_001\"; shared intent: validate end-to-end that a MADUAL full file produces the correctly named full outbound file.",
+        "Test Case Name \"Verify MADUAL full outbound naming continues to be correct when multiple full files are processed on the same day\" duplicates the same business intent already covered by Test Case Id \"TC_011_001\"; shared intent: validate end-to-end that MADUAL full outbound files use the updated full naming standard.",
+        "Test Case Name \"Verify naming validation remains successful after delivery of the MADUAL full outbound file to the vendor test location\" is a standalone observability/delivery case duplicate of Test Case Id \"TC_011_001\", which already executes the same flow through step 19 Step Description \"Copy the validated file to \\\\daycrtappfs01\\Projects\\CSSHEALTH\\From_CareSource for vendor testing delivery.\" and asserts the naming result earlier in steps 14-16.",
+        "Test Case Name \"Verify MADUAL full outbound naming remains correct when the generated file is reviewed from the HOLD and X12 processing flow\" is a standalone observability case duplicate of Test Case Id \"TC_011_001\", which already executes the same end-to-end flow and verifies the generated file in Step Description \"Open the generated outbound X12 location \\\\daycrtappfs01\\EdifecsSTArchive\\834\\Outbound\\BatchFiles\\CSSHealth\\X12\\20260413.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_013",
+      "title": "Populate Loop 2000 REF01 = 0F with the 10-digit CCA-assigned Member ID for migrated members in Plan Year 2026",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_071",
+          "why": "wrong source path placeholder remains"
+        },
+        {
+          "id": "TC_072",
+          "why": "wrong source path placeholder remains"
+        },
+        {
+          "id": "TC_073",
+          "why": "missing migrated-only scenario focus"
+        },
+        {
+          "id": "TC_074",
+          "why": "scenario type conflicts with negative case"
+        },
+        {
+          "id": "TC_075",
+          "why": "scenario type conflicts with negative case"
+        },
+        {
+          "id": "TC_079",
+          "why": "duplicate naming-only observability flow"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        4
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 222114,
+      "elapsedms": 288937,
+      "gaps": [
+        "Pre-condition/Step Description contains unresolved angle-bracket placeholder from authoritative hint path: \"\\\\day<>appfs01\\<>_applications\\Applications\\VendorExtractUtility\\CSSHealth\"; scenario also requires \"\\\\day<>appfs01\\<>_applications\\Applications\\VendorExtractUtility\\CSSHealth\" resolved to a concrete value; add a dedicated test case for it",
+        "Pre-condition/Step Description contains unresolved angle-bracket placeholder from authoritative hint path: \"\\\\day<>appfs01\\<>_applications\\Applications\\VendorExtractUtility\\CSSHealth\"; scenario also requires \"\\\\day<>appfs01\\<>_applications\\Applications\\VendorExtractUtility\\CSSHealth\" resolved to a concrete value; add a dedicated test case for it",
+        "TC_TS013_003 covers mixed members: \"containing one migrated CCA MADUAL member and one net-new CCA MADUAL member for Plan Year 2026\" but scenario description is \"Validate that for Plan Year 2026 migrated MADUAL members, the outbound 834 populates Loop 2000 REF01 = 0F with the 10-digit CCA-assigned Member ID.\"",
+        "Scenario type is \"Positive\" but TC_TS013_004 name is negative: \"Verify file fails the migrated-member REF*0F requirement when a non-10-digit CCA Member ID is supplied for a migrated CCA MADUAL member\"",
+        "Scenario type is \"Positive\" but TC_TS013_005 name is negative: \"Verify rejected-path handling when REF*0F validation is exercised with an accompanying SNIP 2 invalid DOB on a migrated CCA MADUAL member\"",
+        "Semantic duplicate with TC_TS013_001: both execute the same migrated incremental outbound flow and validate REF*0F; TC_TS013_009 adds only file-naming intent already covered by \"locate the generated outbound file CS_MADUAL_CLAREST_T_INCR_834_20260115091530.edi\" in TC_TS013_001."
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_014",
+      "title": "Populate Loop 2000 REF01 = 0F with the 11-digit CareSource Member ID for net-new members in Plan Year 2026",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 1,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 1116172,
+      "gaps": [],
+      "error": "budget exhausted"
+    },
+    {
+      "scenarioid": "TS_015",
+      "title": "Map proprietary MAINTENANCE_CODE to INS04 in Loop 2000",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_081",
+          "why": "not focused on this scenario only"
+        },
+        {
+          "id": "TC_082",
+          "why": "not focused on this scenario only"
+        },
+        {
+          "id": "TC_084",
+          "why": "wrong validation level for scenario"
+        },
+        {
+          "id": "TC_086",
+          "why": "duplicates separate-file scenario intent"
+        },
+        {
+          "id": "TC_087",
+          "why": "observability duplicate of core flow"
+        },
+        {
+          "id": "TC_088",
+          "why": "mixed with file naming scenario"
+        },
+        {
+          "id": "TC_089",
+          "why": "mixes volume and envelope checks"
+        },
+        {
+          "id": "TC_090",
+          "why": "mixes delivery approval scenario"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        2
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 188885,
+      "elapsedms": 329995,
+      "gaps": [
+        "Description includes out-of-scope intent for this scenario in field Description: \"processed through the ClarestHealth map, and generates a single outbound 834 file\"; scenario acceptanceCriteriaRef is only \"Then the value is mapped to INS04 in the INS segment within Loop 2000.\"",
+        "Description includes out-of-scope intent for this scenario in field Description: \"is processed separately from change files and generates a single full outbound 834 file\"; scenario acceptanceCriteriaRef is only \"Then the value is mapped to INS04 in the INS segment within Loop 2000.\"",
+        "Step Description includes unrelated validation objective in field Step Description: \"member 2 has MAINTENANCE_CODE 24 but an invalid ZIP value 00000 to trigger a SNIP 5 rejection.\"; scenario acceptanceCriteriaRef is only \"Then the value is mapped to INS04 in the INS segment within Loop 2000.\"",
+        "Duplicate shared intent with TC_TS_015_002: both validate separate/full processing plus INS04 mapping. Evidence in TC_TS_015_006 Test Case Name: \"Validate MADUAL change and full files are processed separately and each preserves INS04 mapping from proprietary MAINTENANCE_CODE\" and in TC_TS_015_002 Test Case Name: \"Validate MADUAL full file maps proprietary MAINTENANCE_CODE to INS04 for multiple members in the ClarestHealth outbound 834\"",
+        "Duplicate shared intent with TC_TS_015_001: TM/archive evidence only repeats the same end-to-end flow already executed there. Evidence in TC_TS_015_007 Test Case Name: \"Validate TM UI and outbound archive evidence for INS04 mapping after MADUAL ClarestHealth processing\" and in TC_TS_015_001 Test Case Name: \"Validate MADUAL change file maps proprietary MAINTENANCE_CODE to INS04 for a single disenrollment member in the ClarestHealth outbound 834\"",
+        "Test Case Name mixes another scenario into this one in field Test Case Name: \"Validate file naming qualifier and INS04 mapping for MADUAL ClarestHealth test output\"; scenario acceptanceCriteriaRef is only \"Then the value is mapped to INS04 in the INS segment within Loop 2000.\"",
+        "Test Case Name mixes other validation goals into this scenario in field Test Case Name: \"Validate large member-volume MADUAL full file still maps INS04 correctly with a single ST/SE pair\"; scenario acceptanceCriteriaRef is only \"Then the value is mapped to INS04 in the INS segment within Loop 2000.\"",
+        "Test Case Name mixes delivery/approval into this scenario in field Test Case Name: \"Validate end-to-end MADUAL ClarestHealth delivery evidence after successful INS04 mapping implementation\"; scenario acceptanceCriteriaRef is only \"Then the value is mapped to INS04 in the INS segment within Loop 2000.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_016",
+      "title": "Populate INS12 from Death_Date when the proprietary death date is present",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 286158,
+      "gaps": [],
+      "error": "generate:TS_016: agent 691 finished FAILED (execution 348f936b-680e-4839-a74d-c391c83d050a)"
+    },
+    {
+      "scenarioid": "TS_018",
+      "title": "Create and populate the 2750 loop when MTM_OPT_OUT_INDICATOR has a value",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_091",
+          "why": "duplicate of another loop-value case"
+        },
+        {
+          "id": "TC_092",
+          "why": "duplicate of another loop-value case"
+        },
+        {
+          "id": "TC_100",
+          "why": "duplicate observability-only delivery case"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        7
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 241979,
+      "elapsedms": 271330,
+      "gaps": [
+        "Semantic duplicate with \"TC_TS018_002\": both validate that when \"MTM_OPT_OUT_INDICATOR\" has a value, the outbound 834 creates and populates the 2750 loop; differing only by source value \"N\" vs \"Y\" does not change the shared intent.",
+        "Semantic duplicate with \"TC_TS018_001\": both validate that when \"MTM_OPT_OUT_INDICATOR\" has a value, the outbound 834 creates and populates the 2750 loop; differing only by source value \"Y\" vs \"N\" does not change the shared intent.",
+        "Semantic duplicate with \"TC_TS018_001\": \"TC_TS018_010\" only re-checks archive presence, TM processed status, SNIP pass, delivery, and approval evidence for a file already executed and asserted end to end in \"TC_TS018_001\"."
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_020",
+      "title": "Deliver validated test files and capture vendor and business approvals",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_101",
+          "why": "not enough test cases for the scenario"
+        },
+        {
+          "id": "TC_102",
+          "why": "not enough test cases for the scenario"
+        },
+        {
+          "id": "TC_103",
+          "why": "wrong scenario type included"
+        },
+        {
+          "id": "TC_104",
+          "why": "wrong scenario type included"
+        },
+        {
+          "id": "TC_105",
+          "why": "wrong scenario type included"
+        },
+        {
+          "id": "TC_106",
+          "why": "wrong scenario type included"
+        },
+        {
+          "id": "TC_107",
+          "why": "wrong scenario type included"
+        },
+        {
+          "id": "TC_108",
+          "why": "not enough test cases for the scenario"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 8,
+      "chars": 184127,
+      "elapsedms": 250427,
+      "gaps": [
+        "Coverage completeness: scenario description has no numbered 'Conditions to cover:' list, so fallback scope is the scenario acceptance criteria. Missing dedicated scenario-level condition quoted from acceptanceCriteriaRef: \"Then the test files are delivered to the following location:\\n\\\\daycrtappfs01\\Projects\\CSSHEALTH\\From_CareSource\"; add a dedicated test case for it",
+        "Coverage completeness: scenario description has no numbered 'Conditions to cover:' list, so fallback scope is the scenario acceptance criteria. Missing dedicated scenario-level condition quoted from acceptanceCriteriaRef: \"The Project Manager (Glowacki, Lynn) is requested to formally notify the vendor of the test file delivery\"; add a dedicated test case for it",
+        "On-topic mismatch: Test Case Name field contains \"Verify vendor delivery is blocked when MADUAL outbound file has not passed SNIP validation\" while scenario type is \"Positive\" in the scenario object",
+        "On-topic mismatch: Test Case Name field contains \"Verify vendor receipt approval gap prevents completion of MADUAL test-file delivery workflow\" while scenario type is \"Positive\" in the scenario object",
+        "On-topic mismatch: Test Case Name field contains \"Verify business approval gap prevents completion after MADUAL file delivery and vendor approval\" while scenario type is \"Positive\" in the scenario object",
+        "On-topic mismatch: Test Case Name field contains \"Verify incorrect vendor delivery path is not accepted for MADUAL test-file completion\" while scenario type is \"Positive\" in the scenario object",
+        "On-topic mismatch: Test Case Name field contains \"Verify incorrect outbound test filename prevents MADUAL delivery completion\" while scenario type is \"Positive\" in the scenario object",
+        "Coverage completeness: scenario description has no numbered 'Conditions to cover:' list, so fallback scope is the scenario acceptance criteria. Missing dedicated scenario-level condition quoted from acceptanceCriteriaRef: \"Then business approval is obtained from the Business Owner: Alison Watson and documented.\"; add a dedicated test case for it"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_008",
+      "title": "Preserve a single ST/SE pair in the generated MADUAL outbound 834",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_109",
+          "why": "contains unresolved placeholder text"
+        },
+        {
+          "id": "TC_110",
+          "why": "missing change-file coverage"
+        },
+        {
+          "id": "TC_111",
+          "why": "contains unresolved placeholder text"
+        },
+        {
+          "id": "TC_112",
+          "why": "contains unresolved placeholder text"
+        },
+        {
+          "id": "TC_113",
+          "why": "contains unresolved placeholder text"
+        },
+        {
+          "id": "TC_114",
+          "why": "contains unresolved placeholder text"
+        },
+        {
+          "id": "TC_115",
+          "why": "too few steps"
+        },
+        {
+          "id": "TC_116",
+          "why": "contains unresolved placeholder text"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 8,
+      "chars": 151263,
+      "elapsedms": 228292,
+      "gaps": [
+        "Step Description contains unresolved angle-bracket placeholder: \"Search the outbound file for the SE segment and count all occurrences of the SE segment that closes the 834 transaction.\" paired with domain-hint sample placeholder in table text: \"REF*ZZ*<indicator value>~\" in TC_TS_008_006 Step 16 Step Description",
+        "TC_TS_008_001 also requires \"Then both Full and Change (Incremental) EDI 834 files are generated as applicable\"; add a dedicated test case for it",
+        "TC_TS_008_002 also requires \"Then both Full and Change (Incremental) EDI 834 files are generated as applicable\"; add a dedicated test case for it",
+        "Step Description contains unresolved angle-bracket placeholder: \"Search the outbound file for the SE segment and count all occurrences of the SE segment that closes the 834 transaction.\" paired with domain-hint sample placeholder in table text: \"REF*ZZ*<indicator value>~\" in TC_TS_008_006 Step 16 Step Description",
+        "Step Description contains unresolved angle-bracket placeholder: \"Search the outbound file for the SE segment and count all occurrences of the SE segment that closes the 834 transaction.\" paired with domain-hint sample placeholder in table text: \"REF*ZZ*<indicator value>~\" in TC_TS_008_006 Step 16 Step Description",
+        "Step Description contains unresolved angle-bracket placeholder: \"Search the outbound file for the SE segment and count all occurrences of the SE segment that closes the 834 transaction.\" paired with domain-hint sample placeholder in table text: \"REF*ZZ*<indicator value>~\" in TC_TS_008_006 Step 16 Step Description",
+        "Step Description field contains unresolved angle-bracket placeholder: \"REF*ZZ*<indicator value>~\"",
+        "TC_TS_008_007 has 18 steps measured? No gap for step count.",
+        "Step Description contains unresolved angle-bracket placeholder: \"Search the outbound file for the SE segment and count all occurrences of the SE segment that closes the 834 transaction.\" paired with domain-hint sample placeholder in table text: \"REF*ZZ*<indicator value>~\" in TC_TS_008_006 Step 16 Step Description"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_012",
+      "title": "Support environment qualifier usage in the MADUAL outbound naming convention",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_119",
+          "why": "missing full production qualifier coverage"
+        },
+        {
+          "id": "TC_120",
+          "why": "duplicate of another production case"
+        },
+        {
+          "id": "TC_121",
+          "why": "duplicate legacy rejection coverage"
+        },
+        {
+          "id": "TC_122",
+          "why": "duplicate legacy rejection coverage"
+        },
+        {
+          "id": "TC_123",
+          "why": "not the scenario's naming focus"
+        },
+        {
+          "id": "TC_124",
+          "why": "not the scenario's naming focus"
+        },
+        {
+          "id": "TC_125",
+          "why": "duplicate timestamp naming coverage"
+        },
+        {
+          "id": "TC_126",
+          "why": "duplicate timestamp naming coverage"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        2
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 194042,
+      "elapsedms": 247882,
+      "gaps": [
+        "TC_TS012_003 is missing scenario coverage for acceptanceCriteriaRef clause \"CS_MADUAL_CLAREST_P_FULL_834_YYYYMMDDhhmmss.edi (P is for production and T for test in the file naming convention)\"; add a dedicated test case for it",
+        "Semantic duplicate: \"TC_TS012_004\" and \"TC_TS012_003\" share the same intent of validating production qualifier P support without production release execution; shared intent: validate P qualifier support as a naming-rule artifact in non-production execution",
+        "Semantic duplicate: \"TC_TS012_005\" and \"TC_TS012_001\" share the same intent of validating the incremental test outbound naming pattern with no trailing GUID; shared intent: verify incremental T-qualified MADUAL file naming produced in test flow",
+        "Semantic duplicate: \"TC_TS012_006\" and \"TC_TS012_002\" share the same intent of validating the full test outbound naming pattern with no trailing GUID; shared intent: verify full T-qualified MADUAL file naming produced in test flow",
+        "On-topic failure in Test Case Name: \"Verify incremental outbound naming remains valid when bad records are rejected and good records still generate\" is centered on rejected records/SNIP error handling rather than the scenario focus on environment qualifier usage in the outbound naming convention",
+        "On-topic failure in Test Case Name: \"Verify full outbound naming remains valid when bad records are rejected and good records still generate\" is centered on rejected records/SNIP error handling rather than the scenario focus on environment qualifier usage in the outbound naming convention",
+        "Semantic duplicate: \"TC_TS012_009\" and \"TC_TS012_001\" share the same intent of validating the incremental test outbound file name structure including a resolved 14-digit timestamp and no extra suffix; shared intent: verify incremental T-qualified MADUAL file naming pattern in test flow",
+        "Semantic duplicate: \"TC_TS012_010\" and \"TC_TS012_002\" share the same intent of validating the full test outbound file name structure including a resolved 14-digit timestamp and no extra suffix; shared intent: verify full T-qualified MADUAL file naming pattern in test flow"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_017",
+      "title": "Do not populate INS12 when Death_Date is null in the proprietary file",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_127",
+          "why": "duplicate observability flow"
+        },
+        {
+          "id": "TC_128",
+          "why": "duplicate business approval flow"
+        },
+        {
+          "id": "TC_134",
+          "why": "duplicate observability flow"
+        },
+        {
+          "id": "TC_135",
+          "why": "duplicate vendor approval flow"
+        },
+        {
+          "id": "TC_136",
+          "why": "duplicate business approval flow"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        4,
+        5
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 190150,
+      "elapsedms": 459085,
+      "gaps": [
+        "Semantic duplicate with TC_TS017_009: both validate the same null-Death_Date outbound generation and vendor receipt/processing approval flow; TC_TS017_009 already covers that shared intent.",
+        "Semantic duplicate with TC_TS017_010: both validate the same full-file null-Death_Date outbound generation plus final business approval from Alison Watson; TC_TS017_010 already covers that shared intent.",
+        "Semantic duplicate with TC_TS017_001: both validate the same null-Death_Date end-to-end processing flow with TM/archive observability; TC_TS017_001 already executes and asserts that flow.",
+        "Semantic duplicate with TC_TS017_001: both validate the same null-Death_Date outbound generation and vendor receipt/processing approval flow; TC_TS017_001 already covers that shared intent.",
+        "Semantic duplicate with TC_TS017_002: both validate the same full-file null-Death_Date outbound generation plus final business approval from Alison Watson; TC_TS017_002 already covers that shared intent."
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_019",
+      "title": "Do not create the 2750 loop when MTM_OPT_OUT_INDICATOR is empty",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_137",
+          "why": "has unresolved placeholder text"
+        },
+        {
+          "id": "TC_138",
+          "why": "has unresolved placeholder text"
+        },
+        {
+          "id": "TC_139",
+          "why": "has unresolved placeholder text"
+        },
+        {
+          "id": "TC_140",
+          "why": "has unresolved placeholder text"
+        },
+        {
+          "id": "TC_141",
+          "why": "has unresolved placeholder text"
+        },
+        {
+          "id": "TC_142",
+          "why": "has unresolved placeholder text"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 6,
+      "chars": 131039,
+      "elapsedms": 556401,
+      "gaps": [
+        "Step Description contains unresolved angle-bracket placeholder: \"\\\\daycrtappfs01\\<_applications>\\Applications\\VendorExtractUtility\\CSSHealth\"",
+        "Step Description contains duplicate-observability intent already covered by another case: \"Request formal vendor notification and receipt confirmation for the delivered test file through Glowacki, Lynn, and capture the approval evidence.\" shares the same end-to-end omission-and-delivery intent as TC_TS019_003",
+        "Step Description contains unresolved angle-bracket placeholder: \"\\\\daycrtappfs01\\<_applications>\\Applications\\VendorExtractUtility\\CSSHealth\"",
+        "Step Description contains duplicate-observability intent already covered by another case: \"Request formal vendor notification and receipt confirmation for the delivered test file through Glowacki, Lynn, and capture the approval evidence.\" shares the same end-to-end omission-and-delivery intent as TC_TS019_005",
+        "Step Description contains unresolved angle-bracket placeholder: \"\\\\daycrtappfs01\\<_applications>\\Applications\\VendorExtractUtility\\CSSHealth\"",
+        "Step Description contains unresolved angle-bracket placeholder: \"\\\\daycrtappfs01\\<_applications>\\Applications\\VendorExtractUtility\\CSSHealth\"",
+        "Step Description contains unresolved angle-bracket placeholder: \"\\\\daycrtappfs01\\<_applications>\\Applications\\VendorExtractUtility\\CSSHealth\"",
+        "Description contains duplicate-observability intent already covered by another case: \"including successful omission of the 2750 MTM loop and successful delivery of the generated 834 to the CSSHEALTH vendor review location.\" shares the same end-to-end omission-and-delivery intent as TC_TS019_002",
+        "Step Description contains unresolved angle-bracket placeholder: \"\\\\daycrtappfs01\\<_applications>\\Applications\\VendorExtractUtility\\CSSHealth\"",
+        "Description contains duplicate-observability intent already covered by another case: \"omits the 2750 MTM loop and still passes SNIP 1 and SNIP 2 validation without errors.\" shares the same omission-plus-SNIP intent as TC_TS019_001",
+        "TC_TS019_006 also requires a dedicated test case for the full-file negative path because the scenario description requires \"the 2750 loop is not created in the MADUAL outbound 834 when MTM_OPT_OUT_INDICATOR is empty in the proprietary file.\" and this case covers only change output"
+      ],
+      "error": null
+    }
+  ],
+  "warnings": [
+    "TS_005 produced no test cases",
+    "TS_006 produced no test cases",
+    "TS_009 produced no test cases",
+    "TS_014 produced no test cases",
+    "TS_016 produced no test cases"
+  ],
+  "testcases": {
+    "rows": 3008,
+    "chars": 2809929,
+    "scenarios": 20,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-09-03T08:16:38Z step=start story=750331 maxscenarios=20 tcper=10 steps=18-40 rounds=2 workers=20 pass_=90/50 judge=672 deadline=1200s",
+    "[ORCH] ts=2026-09-03T08:16:38Z step=fetch story=750331 titlechars=160 descchars=3521 acchars=4659 ms=206",
+    "[ORCH] ts=2026-09-03T08:18:02Z step=scenarios count=20 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007,TS_009,TS_010,TS_011,TS_013,TS_014,TS_015,TS_016,TS_018,TS_020,TS_008,TS_012,TS_017,TS_019 ms=83935",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=agenterror label=generate:TS_015 agentid=691 phase=poll status=FAILED execution=bde62ada-3328-4609-8f56-6a566bb19711 ms=37105 why={\"executionId\": \"bde62ada-3328-4609-8f56-6a566bb19711\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=generate scenario=TS_015 round=1 error=generate:TS_015: agent 691 finished FAILED (execution bde62ada-3328-4609-8f56-6a566bb19711)",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=agenterror label=generate:TS_004 agentid=691 phase=poll status=FAILED execution=9ce7a073-14dd-463e-95e3-294dbfc41c70 ms=37173 why={\"executionId\": \"9ce7a073-14dd-463e-95e3-294dbfc41c70\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=generate scenario=TS_004 round=1 error=generate:TS_004: agent 691 finished FAILED (execution 9ce7a073-14dd-463e-95e3-294dbfc41c70)",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=agenterror label=generate:TS_012 agentid=691 phase=poll status=FAILED execution=45bb696a-756e-43e5-baf2-967328e4955f ms=37258 why={\"executionId\": \"45bb696a-756e-43e5-baf2-967328e4955f\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=generate scenario=TS_012 round=1 error=generate:TS_012: agent 691 finished FAILED (execution 45bb696a-756e-43e5-baf2-967328e4955f)",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=agenterror label=generate:TS_003 agentid=691 phase=poll status=FAILED execution=c60c0d22-adf2-46eb-802b-53741856f26a ms=37319 why={\"executionId\": \"c60c0d22-adf2-46eb-802b-53741856f26a\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=generate scenario=TS_003 round=1 error=generate:TS_003: agent 691 finished FAILED (execution c60c0d22-adf2-46eb-802b-53741856f26a)",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=agenterror label=generate:TS_013 agentid=691 phase=poll status=FAILED execution=1c4b7455-4681-4f78-9669-92a7054501ad ms=37361 why={\"executionId\": \"1c4b7455-4681-4f78-9669-92a7054501ad\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=generate scenario=TS_013 round=1 error=generate:TS_013: agent 691 finished FAILED (execution 1c4b7455-4681-4f78-9669-92a7054501ad)",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=agenterror label=generate:TS_018 agentid=691 phase=poll status=FAILED execution=f4f2eb7f-5498-46b2-b408-1b6a25042502 ms=37374 why={\"executionId\": \"f4f2eb7f-5498-46b2-b408-1b6a25042502\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=generate scenario=TS_018 round=1 error=generate:TS_018: agent 691 finished FAILED (execution f4f2eb7f-5498-46b2-b408-1b6a25042502)",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=agenterror label=generate:TS_016 agentid=691 phase=poll status=FAILED execution=2b63f49f-e057-4f34-a6a1-6cac59d2af77 ms=37405 why={\"executionId\": \"2b63f49f-e057-4f34-a6a1-6cac59d2af77\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=generate scenario=TS_016 round=1 error=generate:TS_016: agent 691 finished FAILED (execution 2b63f49f-e057-4f34-a6a1-6cac59d2af77)",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=agenterror label=generate:TS_008 agentid=691 phase=poll status=FAILED execution=9801558e-b4d1-484a-aa94-64dce122e474 ms=37413 why={\"executionId\": \"9801558e-b4d1-484a-aa94-64dce122e474\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=generate scenario=TS_008 round=1 error=generate:TS_008: agent 691 finished FAILED (execution 9801558e-b4d1-484a-aa94-64dce122e474)",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=agenterror label=generate:TS_020 agentid=691 phase=poll status=FAILED execution=e64e1bc8-9a0b-4065-bd28-1208e9bf693f ms=37428 why={\"executionId\": \"e64e1bc8-9a0b-4065-bd28-1208e9bf693f\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=generate scenario=TS_020 round=1 error=generate:TS_020: agent 691 finished FAILED (execution e64e1bc8-9a0b-4065-bd28-1208e9bf693f)",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=agenterror label=generate:TS_005 agentid=691 phase=poll status=FAILED execution=71034660-586b-48e6-b34d-f844bb96d680 ms=37518 why={\"executionId\": \"71034660-586b-48e6-b34d-f844bb96d680\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=generate scenario=TS_005 round=1 error=generate:TS_005: agent 691 finished FAILED (execution 71034660-586b-48e6-b34d-f844bb96d680)",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=agenterror label=generate:TS_010 agentid=691 phase=poll status=FAILED execution=27639fd6-2dbc-425d-92d9-23bae470b03c ms=37573 why={\"executionId\": \"27639fd6-2dbc-425d-92d9-23bae470b03c\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T08:18:39Z step=generate scenario=TS_010 round=1 error=generate:TS_010: agent 691 finished FAILED (execution 27639fd6-2dbc-425d-92d9-23bae470b03c)",
+    "[ORCH] ts=2026-09-03T08:21:05Z step=generate scenario=TS_010 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=144756 ms=145895 regen=1",
+    "[ORCH] ts=2026-09-03T08:21:05Z step=generate scenario=TS_008 round=2 tc=8 ids=TC_TS_008_001,TC_TS_008_002,TC_TS_008_003,TC_TS_008_004,TC_TS_008_005,TC_TS_008_006,TC_TS_008_007,TC_TS_008_008 chars=151263 ms=146310 regen=1",
+    "[ORCH] ts=2026-09-03T08:21:18Z step=generate scenario=TS_001 round=1 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=202319 ms=196619",
+    "[ORCH] ts=2026-09-03T08:21:19Z step=pregate scenario=TS_001 round=1 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi",
+    "[ORCH] ts=2026-09-03T08:21:25Z step=generate scenario=TS_003 round=2 tc=10 ids=TC_TS003_001,TC_TS003_002,TC_TS003_003,TC_TS003_004,TC_TS003_005,TC_TS003_006,TC_TS003_007,TC_TS003_008,TC_TS003_009,TC_TS003_010 chars=163418 ms=166312 regen=1",
+    "[ORCH] ts=2026-09-03T08:21:25Z step=pregate scenario=TS_003 round=2 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi",
+    "[ORCH] ts=2026-09-03T08:21:25Z step=result scenario=TS_003 status=unhealed scores=[] rounds=2 tc=10 ms=203669",
+    "[ORCH] ts=2026-09-03T08:21:26Z step=generate scenario=TS_012 round=2 tc=10 ids=TC_TS012_001,TC_TS012_002,TC_TS012_003,TC_TS012_004,TC_TS012_005,TC_TS012_006,TC_TS012_007,TC_TS012_008,TC_TS012_009,TC_TS012_010 chars=194042 ms=166611 regen=1",
+    "[ORCH] ts=2026-09-03T08:21:26Z step=generate scenario=TS_020 round=2 tc=8 ids=TC_TS020_001,TC_TS020_002,TC_TS020_003,TC_TS020_004,TC_TS020_005,TC_TS020_006,TC_TS020_007,TC_TS020_008 chars=184127 ms=166759 regen=1",
+    "[ORCH] ts=2026-09-03T08:21:40Z step=generate scenario=TS_017 round=1 tc=10 ids=TC_TS017_001,TC_TS017_002,TC_TS017_003,TC_TS017_004,TC_TS017_005,TC_TS017_006,TC_TS017_007,TC_TS017_008,TC_TS017_009,TC_TS017_010 chars=165456 ms=218075",
+    "[ORCH] ts=2026-09-03T08:21:41Z step=generate scenario=TS_002 round=1 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=202632 ms=219170",
+    "[ORCH] ts=2026-09-03T08:21:49Z step=review scenario=TS_010 round=2 score=85 passed=4/10 failing=TC_002,TC_003,TC_004,TC_008,TC_009,TC_010 ms=44141",
+    "[ORCH] ts=2026-09-03T08:21:49Z step=result scenario=TS_010 status=unhealed scores=[85] rounds=2 tc=10 ms=227627",
+    "[ORCH] ts=2026-09-03T08:21:50Z step=review scenario=TS_008 round=2 score=85 passed=0/8 failing=TC_TS_008_001,TC_TS_008_002,TC_TS_008_003,TC_TS_008_004,TC_TS_008_005,TC_TS_008_006,TC_TS_008_007,TC_TS_008_008 ms=44548",
+    "[ORCH] ts=2026-09-03T08:21:50Z step=result scenario=TS_008 status=unhealed scores=[85] rounds=2 tc=8 ms=228292",
+    "[ORCH] ts=2026-09-03T08:22:00Z step=generate scenario=TS_019 round=1 tc=10 ids=TC_TS019_001,TC_TS019_002,TC_TS019_003,TC_TS019_004,TC_TS019_005,TC_TS019_006,TC_TS019_007,TC_TS019_008,TC_TS019_009,TC_TS019_010 chars=241063 ms=238418",
+    "[ORCH] ts=2026-09-03T08:22:01Z step=generate scenario=TS_011 round=1 tc=10 ids=TC_TS_011_001,TC_TS_011_002,TC_TS_011_003,TC_TS_011_004,TC_TS_011_005,TC_TS_011_006,TC_TS_011_007,TC_TS_011_008,TC_TS_011_009,TC_TS_011_010 chars=187859 ms=239009",
+    "[ORCH] ts=2026-09-03T08:22:01Z step=pregate scenario=TS_011 round=1 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi",
+    "[ORCH] ts=2026-09-03T08:22:01Z step=generate scenario=TS_007 round=1 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=253904 ms=239445",
+    "[ORCH] ts=2026-09-03T08:22:01Z step=pregate scenario=TS_007 round=1 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi",
+    "[ORCH] ts=2026-09-03T08:22:07Z step=generate scenario=TS_004 round=2 tc=10 ids=TC_TS_004_001,TC_TS_004_002,TC_TS_004_003,TC_TS_004_004,TC_TS_004_005,TC_TS_004_006,TC_TS_004_007,TC_TS_004_008,TC_TS_004_009,TC_TS_004_010 chars=230385 ms=207660 regen=1",
+    "[ORCH] ts=2026-09-03T08:22:07Z step=pregate scenario=TS_004 round=2 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi",
+    "[ORCH] ts=2026-09-03T08:22:07Z step=result scenario=TS_004 status=unhealed scores=[] rounds=2 tc=10 ms=244873",
+    "[ORCH] ts=2026-09-03T08:22:07Z step=generate scenario=TS_013 round=2 tc=10 ids=TC_TS013_001,TC_TS013_002,TC_TS013_003,TC_TS013_004,TC_TS013_005,TC_TS013_006,TC_TS013_007,TC_TS013_008,TC_TS013_009,TC_TS013_010 chars=222114 ms=207484 regen=1",
+    "[ORCH] ts=2026-09-03T08:22:07Z step=generate scenario=TS_018 round=2 tc=10 ids=TC_TS018_001,TC_TS018_002,TC_TS018_003,TC_TS018_004,TC_TS018_005,TC_TS018_006,TC_TS018_007,TC_TS018_008,TC_TS018_009,TC_TS018_010 chars=241979 ms=207507 regen=1",
+    "[ORCH] ts=2026-09-03T08:22:07Z step=review scenario=TS_017 round=1 score=85 passed=4/10 failing=TC_TS017_001,TC_TS017_002,TC_TS017_003,TC_TS017_004,TC_TS017_005,TC_TS017_010 ms=27446",
+    "[ORCH] ts=2026-09-03T08:22:10Z step=review scenario=TS_012 round=2 score=85 passed=2/10 failing=TC_TS012_003,TC_TS012_004,TC_TS012_005,TC_TS012_006,TC_TS012_007,TC_TS012_008,TC_TS012_009,TC_TS012_010 ms=43988",
+    "[ORCH] ts=2026-09-03T08:22:10Z step=result scenario=TS_012 status=unhealed scores=[85] rounds=2 tc=10 ms=247882",
+    "[ORCH] ts=2026-09-03T08:22:12Z step=review scenario=TS_020 round=2 score=85 passed=0/8 failing=TC_TS020_001,TC_TS020_002,TC_TS020_003,TC_TS020_004,TC_TS020_005,TC_TS020_006,TC_TS020_007,TC_TS020_008 ms=46215",
+    "[ORCH] ts=2026-09-03T08:22:12Z step=result scenario=TS_020 status=unhealed scores=[85] rounds=2 tc=8 ms=250427",
+    "[ORCH] ts=2026-09-03T08:22:24Z step=review scenario=TS_002 round=1 score=85 passed=0/10 failing=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 ms=43547",
+    "[ORCH] ts=2026-09-03T08:22:33Z step=review scenario=TS_018 round=2 score=85 passed=7/10 failing=TC_TS018_001,TC_TS018_002,TC_TS018_010 ms=26385",
+    "[ORCH] ts=2026-09-03T08:22:33Z step=result scenario=TS_018 status=unhealed scores=[85] rounds=2 tc=10 ms=271330",
+    "[ORCH] ts=2026-09-03T08:22:48Z step=generate scenario=TS_015 round=2 tc=10 ids=TC_TS_015_001,TC_TS_015_002,TC_TS_015_003,TC_TS_015_004,TC_TS_015_005,TC_TS_015_006,TC_TS_015_007,TC_TS_015_008,TC_TS_015_009,TC_TS_015_010 chars=188885 ms=248836 regen=1",
+    "[ORCH] ts=2026-09-03T08:22:48Z step=agenterror label=generate:TS_016 agentid=691 phase=poll status=FAILED execution=348f936b-680e-4839-a74d-c391c83d050a ms=248752 why={\"executionId\": \"348f936b-680e-4839-a74d-c391c83d050a\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T08:22:48Z step=generate scenario=TS_016 round=2 error=generate:TS_016: agent 691 finished FAILED (execution 348f936b-680e-4839-a74d-c391c83d050a)",
+    "[ORCH] ts=2026-09-03T08:22:48Z step=result scenario=TS_016 status=failed scores=[] rounds=2 tc=0 ms=286158",
+    "[ORCH] ts=2026-09-03T08:22:48Z step=agenterror label=generate:TS_005 agentid=691 phase=poll status=FAILED execution=e693c57c-15be-4a33-9877-0c933acd505e ms=248760 why={\"executionId\": \"e693c57c-15be-4a33-9877-0c933acd505e\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T08:22:48Z step=generate scenario=TS_005 round=2 error=generate:TS_005: agent 691 finished FAILED (execution e693c57c-15be-4a33-9877-0c933acd505e)",
+    "[ORCH] ts=2026-09-03T08:22:48Z step=result scenario=TS_005 status=failed scores=[] rounds=2 tc=0 ms=286280",
+    "[ORCH] ts=2026-09-03T08:22:51Z step=review scenario=TS_013 round=2 score=85 passed=4/10 failing=TC_TS013_001,TC_TS013_002,TC_TS013_003,TC_TS013_004,TC_TS013_005,TC_TS013_009 ms=44035",
+    "[ORCH] ts=2026-09-03T08:22:51Z step=result scenario=TS_013 status=unhealed scores=[85] rounds=2 tc=10 ms=288937",
+    "[ORCH] ts=2026-09-03T08:23:05Z step=review scenario=TS_019 round=1 score=85 passed=0/10 failing=TC_TS019_001,TC_TS019_002,TC_TS019_003,TC_TS019_004,TC_TS019_005,TC_TS019_006,TC_TS019_007,TC_TS019_008,TC_TS019_009,TC_TS019_010 ms=64958",
+    "[ORCH] ts=2026-09-03T08:23:32Z step=review scenario=TS_015 round=2 score=85 passed=2/10 failing=TC_TS_015_001,TC_TS_015_002,TC_TS_015_004,TC_TS_015_006,TC_TS_015_007,TC_TS_015_008,TC_TS_015_009,TC_TS_015_010 ms=44015",
+    "[ORCH] ts=2026-09-03T08:23:32Z step=result scenario=TS_015 status=unhealed scores=[85] rounds=2 tc=10 ms=329995",
+    "[ORCH] ts=2026-09-03T08:24:25Z step=generate scenario=TS_001 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=209627 ms=186595 regen=1",
+    "[ORCH] ts=2026-09-03T08:24:47Z step=generate scenario=TS_011 round=2 tc=10 ids=TC_011_001,TC_011_002,TC_011_003,TC_011_004,TC_011_005,TC_011_006,TC_011_007,TC_011_008,TC_011_009,TC_011_010 chars=165961 ms=166505 regen=1",
+    "[ORCH] ts=2026-09-03T08:25:09Z step=review scenario=TS_001 round=2 score=85 passed=0/10 failing=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 ms=43620",
+    "[ORCH] ts=2026-09-03T08:25:09Z step=result scenario=TS_001 status=unhealed scores=[85] rounds=2 tc=10 ms=427235",
+    "[ORCH] ts=2026-09-03T08:25:14Z step=generate scenario=TS_017 round=2 tc=10 ids=TC_TS017_001,TC_TS017_002,TC_TS017_003,TC_TS017_004,TC_TS017_005,TC_TS017_006,TC_TS017_007,TC_TS017_008,TC_TS017_009,TC_TS017_010 chars=190150 ms=187119 regen=6",
+    "[ORCH] ts=2026-09-03T08:25:29Z step=generate scenario=TS_007 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=207311 ms=208236 regen=1",
+    "[ORCH] ts=2026-09-03T08:25:31Z step=review scenario=TS_011 round=2 score=85 passed=1/10 failing=TC_011_001,TC_011_002,TC_011_003,TC_011_004,TC_011_005,TC_011_006,TC_011_007,TC_011_008,TC_011_009 ms=43722",
+    "[ORCH] ts=2026-09-03T08:25:31Z step=result scenario=TS_011 status=unhealed scores=[85] rounds=2 tc=10 ms=449274",
+    "[ORCH] ts=2026-09-03T08:25:41Z step=review scenario=TS_017 round=2 score=85 passed=5/10 failing=TC_TS017_001,TC_TS017_002,TC_TS017_008,TC_TS017_009,TC_TS017_010 ms=26395",
+    "[ORCH] ts=2026-09-03T08:25:41Z step=result scenario=TS_017 status=unhealed scores=[85, 85] rounds=2 tc=10 ms=459085",
+    "[ORCH] ts=2026-09-03T08:25:51Z step=generate scenario=TS_002 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=220789 ms=206841 regen=10",
+    "[ORCH] ts=2026-09-03T08:25:51Z step=pregate scenario=TS_002 round=2 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi",
+    "[ORCH] ts=2026-09-03T08:25:51Z step=keptbest scenario=TS_002 round=1 passed=0 note=later round was worse, shipping the best reviewed round",
+    "[ORCH] ts=2026-09-03T08:25:51Z step=result scenario=TS_002 status=unhealed scores=[85] rounds=2 tc=10 ms=469604",
+    "[ORCH] ts=2026-09-03T08:26:52Z step=generate scenario=TS_019 round=2 tc=6 ids=TC_TS019_001,TC_TS019_002,TC_TS019_003,TC_TS019_004,TC_TS019_005,TC_TS019_006 chars=131039 ms=226668 regen=10",
+    "[ORCH] ts=2026-09-03T08:27:18Z step=review scenario=TS_019 round=2 score=85 passed=0/6 failing=TC_TS019_001,TC_TS019_002,TC_TS019_003,TC_TS019_004,TC_TS019_005,TC_TS019_006 ms=26315",
+    "[ORCH] ts=2026-09-03T08:27:18Z step=stagnant scenario=TS_019 round=2 scores=[85, 85] passed=[0, 0]",
+    "[ORCH] ts=2026-09-03T08:27:18Z step=result scenario=TS_019 status=stagnant scores=[85, 85] rounds=2 tc=6 ms=556401",
+    "[ORCH] ts=2026-09-03T08:28:15Z step=agenterror label=review:TS_007 agentid=672 phase=poll status=FAILED execution=0faf61f5-22be-4a07-8426-10499bc84d5b ms=165976 why={\"executionId\": \"0faf61f5-22be-4a07-8426-10499bc84d5b\", \"agentId\": 672, \"output\": null, \"agentName\": \"Independent QA Test Case Review and Scoring Agent\", \"executedBy\": \"Archana.Bhaskar@caresource.com\"",
+    "[ORCH] ts=2026-09-03T08:28:15Z step=review scenario=TS_007 round=2 error=review:TS_007: agent 672 finished FAILED (execution 0faf61f5-22be-4a07-8426-10499bc84d5b)",
+    "[ORCH] ts=2026-09-03T08:28:15Z step=result scenario=TS_007 status=unhealed scores=[] rounds=2 tc=10 ms=613708",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=generate scenario=TS_006 round=1 error=generate:TS_006: agent 691 still running when the budget ran out (execution 157ada06-7d3f-49b7-b6a9-a3a09ced3cc4)",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=budget scenario=TS_006 round=2 note=stopped, budget low",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=result scenario=TS_006 status=failed scores=[] rounds=1 tc=0 ms=1116140",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=generate scenario=TS_009 round=1 error=generate:TS_009: agent 691 still running when the budget ran out (execution 1f1872c3-92e8-4e4f-bdb9-5de5d89dca45)",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=budget scenario=TS_009 round=2 note=stopped, budget low",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=result scenario=TS_009 status=failed scores=[] rounds=1 tc=0 ms=1116178",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=generate scenario=TS_014 round=1 error=generate:TS_014: agent 691 still running when the budget ran out (execution 62348353-1a58-4dac-905e-fc95cf6d533e)",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=budget scenario=TS_014 round=2 note=stopped, budget low",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=result scenario=TS_014 status=failed scores=[] rounds=1 tc=0 ms=1116172",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=renumber scenario=TS_002 ids=TC_001>TC_011,TC_002>TC_012,TC_003>TC_013,TC_004>TC_014,TC_005>TC_015,TC_006>TC_016,TC_007>TC_017,TC_008>TC_018,TC_009>TC_019,TC_010>TC_020",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=renumber scenario=TS_003 ids=TC_TS003_001>TC_021,TC_TS003_002>TC_022,TC_TS003_003>TC_023,TC_TS003_004>TC_024,TC_TS003_005>TC_025,TC_TS003_006>TC_026,TC_TS003_007>TC_027,TC_TS003_008>TC_028,TC_TS003_009>TC_029,TC_TS003_010>TC_030",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=renumber scenario=TS_004 ids=TC_TS_004_001>TC_031,TC_TS_004_002>TC_032,TC_TS_004_003>TC_033,TC_TS_004_004>TC_034,TC_TS_004_005>TC_035,TC_TS_004_006>TC_036,TC_TS_004_007>TC_037,TC_TS_004_008>TC_038,TC_TS_004_009>TC_039,TC_TS_004_010>TC_040",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=renumber scenario=TS_007 ids=TC_001>TC_041,TC_002>TC_042,TC_003>TC_043,TC_004>TC_044,TC_005>TC_045,TC_006>TC_046,TC_007>TC_047,TC_008>TC_048,TC_009>TC_049,TC_010>TC_050",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=renumber scenario=TS_010 ids=TC_001>TC_051,TC_002>TC_052,TC_003>TC_053,TC_004>TC_054,TC_005>TC_055,TC_006>TC_056,TC_007>TC_057,TC_008>TC_058,TC_009>TC_059,TC_010>TC_060",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=renumber scenario=TS_011 ids=TC_011_001>TC_061,TC_011_002>TC_062,TC_011_003>TC_063,TC_011_004>TC_064,TC_011_005>TC_065,TC_011_006>TC_066,TC_011_007>TC_067,TC_011_008>TC_068,TC_011_009>TC_069,TC_011_010>TC_070",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=renumber scenario=TS_013 ids=TC_TS013_001>TC_071,TC_TS013_002>TC_072,TC_TS013_003>TC_073,TC_TS013_004>TC_074,TC_TS013_005>TC_075,TC_TS013_006>TC_076,TC_TS013_007>TC_077,TC_TS013_008>TC_078,TC_TS013_009>TC_079,TC_TS013_010>TC_080",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=renumber scenario=TS_015 ids=TC_TS_015_001>TC_081,TC_TS_015_002>TC_082,TC_TS_015_003>TC_083,TC_TS_015_004>TC_084,TC_TS_015_005>TC_085,TC_TS_015_006>TC_086,TC_TS_015_007>TC_087,TC_TS_015_008>TC_088,TC_TS_015_009>TC_089,TC_TS_015_010>TC_090",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=renumber scenario=TS_018 ids=TC_TS018_001>TC_091,TC_TS018_002>TC_092,TC_TS018_003>TC_093,TC_TS018_004>TC_094,TC_TS018_005>TC_095,TC_TS018_006>TC_096,TC_TS018_007>TC_097,TC_TS018_008>TC_098,TC_TS018_009>TC_099,TC_TS018_010>TC_100",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=renumber scenario=TS_020 ids=TC_TS020_001>TC_101,TC_TS020_002>TC_102,TC_TS020_003>TC_103,TC_TS020_004>TC_104,TC_TS020_005>TC_105,TC_TS020_006>TC_106,TC_TS020_007>TC_107,TC_TS020_008>TC_108",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=renumber scenario=TS_008 ids=TC_TS_008_001>TC_109,TC_TS_008_002>TC_110,TC_TS_008_003>TC_111,TC_TS_008_004>TC_112,TC_TS_008_005>TC_113,TC_TS_008_006>TC_114,TC_TS_008_007>TC_115,TC_TS_008_008>TC_116",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=renumber scenario=TS_012 ids=TC_TS012_001>TC_117,TC_TS012_002>TC_118,TC_TS012_003>TC_119,TC_TS012_004>TC_120,TC_TS012_005>TC_121,TC_TS012_006>TC_122,TC_TS012_007>TC_123,TC_TS012_008>TC_124,TC_TS012_009>TC_125,TC_TS012_010>TC_126",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=renumber scenario=TS_017 ids=TC_TS017_001>TC_127,TC_TS017_002>TC_128,TC_TS017_003>TC_129,TC_TS017_004>TC_130,TC_TS017_005>TC_131,TC_TS017_006>TC_132,TC_TS017_007>TC_133,TC_TS017_008>TC_134,TC_TS017_009>TC_135,TC_TS017_010>TC_136",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=renumber scenario=TS_019 ids=TC_TS019_001>TC_137,TC_TS019_002>TC_138,TC_TS019_003>TC_139,TC_TS019_004>TC_140,TC_TS019_005>TC_141,TC_TS019_006>TC_142",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=done approved=0 unreviewed=0 unhealed=14 stagnant=1 hardstop=0 failed=5 skipped=0 testcases=142 agentcalls=53 ms=1200437",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=outcome story=750331 ready=55/142 testcases flagged=87 scenarios=20 elapsed=20m00s warnings=5",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_001 scenario=TS_001 why=wrong file source location",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_002 scenario=TS_001 why=not the scenario's change file",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_003 scenario=TS_001 why=covers both files not change only",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_004 scenario=TS_001 why=tests member id mapping, not scenario",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_005 scenario=TS_001 why=tests net-new id mapping only",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_006 scenario=TS_001 why=tests death date negative only",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_007 scenario=TS_001 why=tests mtm loop negative only",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_008 scenario=TS_001 why=tests naming contract, not scenario",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_009 scenario=TS_001 why=tests snip1 rejection path only",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_010 scenario=TS_001 why=tests snip2 rejection path only",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_011 scenario=TS_002 why=duplicate of full-file flow case",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_012 scenario=TS_002 why=not about the full-file scenario",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_013 scenario=TS_002 why=not about the full-file scenario",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_014 scenario=TS_002 why=not about the full-file scenario",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_015 scenario=TS_002 why=not about the full-file scenario",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_016 scenario=TS_002 why=not about the full-file scenario",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_017 scenario=TS_002 why=not about the full-file scenario",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_018 scenario=TS_002 why=not about the full-file scenario",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_019 scenario=TS_002 why=not about the full-file scenario",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_020 scenario=TS_002 why=not about the full-file scenario",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_052 scenario=TS_010 why=off-topic full file case",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_053 scenario=TS_010 why=test qualifier case is off-topic",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_054 scenario=TS_010 why=off-topic full test case",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_058 scenario=TS_010 why=timestamp boundary case is off-topic",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_059 scenario=TS_010 why=no-output case is off-topic",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_060 scenario=TS_010 why=observability duplicate case",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_061 scenario=TS_011 why=duplicate end-to-end naming case",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_062 scenario=TS_011 why=scenario adds out-of-scope test case",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_063 scenario=TS_011 why=scenario adds out-of-scope test case",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_064 scenario=TS_011 why=duplicate full naming intent",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_065 scenario=TS_011 why=duplicate guid-removal intent",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_066 scenario=TS_011 why=duplicate end-to-end full flow",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_067 scenario=TS_011 why=duplicate repeated full naming flow",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_068 scenario=TS_011 why=duplicate delivery observability case",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_069 scenario=TS_011 why=duplicate archive review case",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_071 scenario=TS_013 why=wrong source path placeholder remains",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_072 scenario=TS_013 why=wrong source path placeholder remains",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_073 scenario=TS_013 why=missing migrated-only scenario focus",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_074 scenario=TS_013 why=scenario type conflicts with negative case",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_075 scenario=TS_013 why=scenario type conflicts with negative case",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_079 scenario=TS_013 why=duplicate naming-only observability flow",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_081 scenario=TS_015 why=not focused on this scenario only",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_082 scenario=TS_015 why=not focused on this scenario only",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_084 scenario=TS_015 why=wrong validation level for scenario",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_086 scenario=TS_015 why=duplicates separate-file scenario intent",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_087 scenario=TS_015 why=observability duplicate of core flow",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_088 scenario=TS_015 why=mixed with file naming scenario",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_089 scenario=TS_015 why=mixes volume and envelope checks",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_090 scenario=TS_015 why=mixes delivery approval scenario",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_091 scenario=TS_018 why=duplicate of another loop-value case",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_092 scenario=TS_018 why=duplicate of another loop-value case",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_100 scenario=TS_018 why=duplicate observability-only delivery case",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_101 scenario=TS_020 why=not enough test cases for the scenario",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_102 scenario=TS_020 why=not enough test cases for the scenario",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_103 scenario=TS_020 why=wrong scenario type included",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_104 scenario=TS_020 why=wrong scenario type included",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_105 scenario=TS_020 why=wrong scenario type included",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_106 scenario=TS_020 why=wrong scenario type included",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_107 scenario=TS_020 why=wrong scenario type included",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_108 scenario=TS_020 why=not enough test cases for the scenario",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_109 scenario=TS_008 why=contains unresolved placeholder text",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_110 scenario=TS_008 why=missing change-file coverage",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_111 scenario=TS_008 why=contains unresolved placeholder text",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_112 scenario=TS_008 why=contains unresolved placeholder text",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_113 scenario=TS_008 why=contains unresolved placeholder text",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_114 scenario=TS_008 why=contains unresolved placeholder text",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_115 scenario=TS_008 why=too few steps",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_116 scenario=TS_008 why=contains unresolved placeholder text",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_119 scenario=TS_012 why=missing full production qualifier coverage",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_120 scenario=TS_012 why=duplicate of another production case",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_121 scenario=TS_012 why=duplicate legacy rejection coverage",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_122 scenario=TS_012 why=duplicate legacy rejection coverage",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_123 scenario=TS_012 why=not the scenario's naming focus",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_124 scenario=TS_012 why=not the scenario's naming focus",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_125 scenario=TS_012 why=duplicate timestamp naming coverage",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_126 scenario=TS_012 why=duplicate timestamp naming coverage",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_127 scenario=TS_017 why=duplicate observability flow",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_128 scenario=TS_017 why=duplicate business approval flow",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_134 scenario=TS_017 why=duplicate observability flow",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_135 scenario=TS_017 why=duplicate vendor approval flow",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_136 scenario=TS_017 why=duplicate business approval flow",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_137 scenario=TS_019 why=has unresolved placeholder text",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_138 scenario=TS_019 why=has unresolved placeholder text",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_139 scenario=TS_019 why=has unresolved placeholder text",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_140 scenario=TS_019 why=has unresolved placeholder text",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_141 scenario=TS_019 why=has unresolved placeholder text",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=flagged tc=TC_142 scenario=TS_019 why=has unresolved placeholder text",
+    "[ORCH] ts=2026-09-03T08:36:38Z step=detail calls=53 rounds=37 scoreboard=TS_001:unhealed(85)  TS_002:unhealed(85)  TS_003:unhealed  TS_004:unhealed  TS_005:failed  TS_006:failed  TS_007:unhealed  TS_009:failed  TS_010:unhealed(85)  TS_011:unhealed(85)  TS_013:unhealed(85)  TS_014:failed  TS_015:unhealed(85)  TS_016:failed  TS_018:unhealed(85)  TS_020:unhealed(85)  TS_008:unhealed(85)  TS_012:unhealed(85)  TS_017:unhealed(85>85)  TS_019:stagnant(85>85)"
+  ]
+}

@@ -1,0 +1,1034 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "750331",
+    "title": "Dev and Test | Outbound | 834| MADUAL | ADD CCA LOB in the existing CareSource 834, update the file naming and add additional data elements for ClarestHealth/CS"
+  },
+  "summary": {
+    "scenarios": 20,
+    "approved": 0,
+    "unreviewed": 0,
+    "unhealed": 12,
+    "stagnant": 1,
+    "hardstop": 0,
+    "failed": 7,
+    "skipped": 0,
+    "testcases": 109,
+    "totalrounds": 38,
+    "agentcalls": 51,
+    "elapsedms": 1200461
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "Process MADUAL change proprietary file through ClarestHealth map",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 1,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 1095789,
+      "gaps": [],
+      "error": "budget exhausted"
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "Process MADUAL full proprietary file through ClarestHealth map",
+      "status": "unhealed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 193163,
+      "elapsedms": 229899,
+      "gaps": [
+        "all 10 test cases are High priority; only the scenario's primary flow and finance/regression guardrail cases are High \u2014 per-field permutation, repeated-occurrence and boundary variants are Medium"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "Accept change proprietary file only when MADUAL mask and source path match",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_011",
+          "why": "has unresolved placeholders"
+        },
+        {
+          "id": "TC_012",
+          "why": "has unresolved placeholders"
+        },
+        {
+          "id": "TC_013",
+          "why": "clearly unrelated to scenario"
+        },
+        {
+          "id": "TC_014",
+          "why": "has unresolved placeholders"
+        },
+        {
+          "id": "TC_015",
+          "why": "has unresolved placeholders"
+        },
+        {
+          "id": "TC_016",
+          "why": "clearly unrelated to scenario"
+        },
+        {
+          "id": "TC_017",
+          "why": "clearly unrelated to scenario"
+        },
+        {
+          "id": "TC_018",
+          "why": "clearly unrelated to scenario"
+        },
+        {
+          "id": "TC_019",
+          "why": "clearly unrelated to scenario"
+        },
+        {
+          "id": "TC_020",
+          "why": "clearly unrelated to scenario"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        0,
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 205695,
+      "elapsedms": 482190,
+      "gaps": [
+        "Description contains unresolved placeholders: \"\\day<>appfs01\\<>_applications\\Applications\\VendorExtractUtility\\CSSHealth\"",
+        "Expected Result contains unresolved placeholders: \"\\day<>appfs01\\<>_applications\\Applications\\VendorExtractUtility\\CSSHealth\"",
+        "Test Case Name contains unresolved placeholders: \"\\day<>appfs01\\<>_applications\\Applications\\VendorExtractUtility\\CSSHealth\"",
+        "Description contains unresolved placeholders: \"\\day<>appfs01\\<>_applications\\Applications\\VendorExtractUtility\\CSSHealth\"",
+        "Step Description contains unresolved placeholders: \"\\day<>appfs01\\<>_applications\\Applications\\VendorExtractUtility\\CSSHealth\"",
+        "Test Case Name is off-topic for scenario TS_003: \"Verify MADUAL full proprietary file is accepted when sourced from the required CSSHealth path and matched by the MADUAL_CSSHealth_F* mask\"",
+        "Step Description contains unresolved placeholders: \"\\day<>appfs01\\<>_applications\\Applications\\VendorExtractUtility\\CSSHealth\"",
+        "Step Description contains unresolved placeholders: \"\\day<>appfs01\\<>_applications\\Applications\\VendorExtractUtility\\CSSHealth\"",
+        "TC_006 is missing scenario-specific intake path coverage; scenario also requires \"Then the file is sourced from\n\\\\day<>appfs01\\<>_applications\\Applications\\VendorExtractUtility\\CSSHealth\"; add a dedicated test case for it",
+        "TC_007 is missing scenario-specific source-path/mask acceptance coverage; scenario also requires \"Then the file is sourced from\n\\\\day<>appfs01\\<>_applications\\Applications\\VendorExtractUtility\\CSSHealth\nFile mask for change : MADUAL_CSSHealth_C*\"; add a dedicated test case for it",
+        "TC_008 is missing scenario-specific source-path/mask acceptance coverage; scenario also requires \"Then the file is sourced from\n\\\\day<>appfs01\\<>_applications\\Applications\\VendorExtractUtility\\CSSHealth\nFile mask for change : MADUAL_CSSHealth_C*\"; add a dedicated test case for it",
+        "Test Case Name is off-topic for scenario TS_003: \"Verify MADUAL full outbound processing from the required CSSHealth path preserves the new full-file naming standard and successful delivery outcome\"",
+        "TC_010 is missing scenario-specific single-flow change intake coverage; scenario also requires \"Validate that a change proprietary file named MADUAL_CSSHealth_C_20260519124510.txt is sourced from \\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth, matched by file mask MADUAL_CSSHealth_C*\"; add a dedicated test case for it"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Accept full proprietary file only when MADUAL mask and source path match",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_021",
+          "why": "duplicate of another full positive case"
+        },
+        {
+          "id": "TC_022",
+          "why": "missing positive scenario coverage"
+        },
+        {
+          "id": "TC_023",
+          "why": "path check conflicts with flow setup"
+        },
+        {
+          "id": "TC_024",
+          "why": "duplicate observability case"
+        },
+        {
+          "id": "TC_025",
+          "why": "duplicate of another full positive case"
+        },
+        {
+          "id": "TC_026",
+          "why": "duplicate observability case"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 6,
+      "chars": 119901,
+      "elapsedms": 446440,
+      "gaps": [
+        "Duplicate intent with test case id \"TC_TS004_005\": both validate a valid full MADUAL file is processed end to end, \"passes SNIP 1 and SNIP 2 validation, and is delivered to the CSSHealth test location with approval evidence recorded.\" appears in Description for \"TC_TS004_001\" and \"passes SNIP 1 and SNIP 2 validation in TM, produces a good X12 output, and is ready for test delivery.\" appears in Description for \"TC_TS004_005\".",
+        "\"TC_TS004_002\" is most closely related, but scenario \"TS_004\" also requires \"Validate that a full proprietary file named MADUAL_CSSHealth_F_20260519140020.txt is sourced from \\\\daycrtappfs01\\\\crt_applications\\\\Applications\\\\VendorExtractUtility\\\\CSSHealth, matched by file mask MADUAL_CSSHealth_F*, picked up by the updated masking logic, transformed to outbound 834, passes SNIP 1 and SNIP 2, and is delivered for test with approval evidence.\"; add a dedicated test case for it.",
+        "Duplicate intent with test case id \"TC_TS004_002\": both validate the file is not processed when intake eligibility is wrong and no outbound 834 is generated or delivered. \"is not processed when the source file name does not match the required full mask\" and \"is not accepted when sourced from an incorrect path even though the file name matches the full mask\" both use the same staging flow \"Paste the file obtained from the alternate invalid source path into \\\\daycrtappfs01\\EdifecsSTRoot\\834\\Outbound\" / \"Paste MADUAL_CSSHealth_X_20260519140020.txt into \\\\daycrtappfs01\\EdifecsSTRoot\\834\\Outbound\" and assert the same outcome of no processing.",
+        "Duplicate intent with test case id \"TC_TS004_001\": both validate the same valid full MADUAL end-to-end processing flow, but \"TC_TS004_004\" is an observability/naming/archive variant. \"including successful TM processing, archive creation, correct outbound naming\" in Description for \"TC_TS004_004\" is already covered by steps and expected results in \"TC_TS004_001\" such as \"The transaction shows successful processing for the full MADUAL file.\", \"The processed MADUAL file is archived under the MADUAL archive path after pickup.\", and \"The outbound file name follows the required naming standard and no trailing GUID is present.\"",
+        "Duplicate intent with test case id \"TC_TS004_001\": both validate a valid full MADUAL file is processed end to end and delivered. \"passes SNIP 1 and SNIP 2 validation in TM, produces a good X12 output, and is ready for test delivery.\" in Description for \"TC_TS004_005\" is already covered by \"TC_TS004_001\" description and steps including \"Review the TM validation details and confirm the transaction passed SNIP 1 validation\" and \"Review the TM validation details and confirm the transaction passed SNIP 2 validation\" and delivery steps 25-28.",
+        "Duplicate intent with test case id \"TC_TS004_005\": both validate the same valid full MADUAL positive flow and differ only by observability emphasis on rejected output absence. \"produces only a good outbound 834 file in the X12 archive path, creates no rejected output\" in Description for \"TC_TS004_006\" is already covered by \"TC_TS004_005\" steps 18-19: \"Navigate to \\\\daycrtappfs01\\EdifecsSTArchive\\834\\Outbound\\BatchFiles\\CSSHealth\\Rejected\\20260519.\" and \"Verify that no rejected file was created for MADUAL_CSSHealth_F_20260519140020.txt during this clean positive run.\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "Reject improperly named MADUAL change proprietary file",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_027",
+          "why": "unresolved placeholder in path"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 1,
+      "chars": 19331,
+      "elapsedms": 127411,
+      "gaps": [
+        "Step 1 Step Description contains unresolved placeholder text from the referenced requirement path context: \"\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\" while the scenario acceptanceCriteriaRef still specifies \"\\\\day<>appfs01\\<>_applications\\Applications\\VendorExtractUtility\\CSSHealth\"",
+        "Step 5 Step Description contains unresolved placeholder text from the referenced requirement path context: \"\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\" while the scenario acceptanceCriteriaRef still specifies \"\\\\day<>appfs01\\<>_applications\\Applications\\VendorExtractUtility\\CSSHealth\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_006",
+      "title": "Reject improperly named MADUAL full proprietary file",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 74951,
+      "gaps": [],
+      "error": "generate:TS_006: agent 691 finished FAILED (execution 0a88e155-4636-4329-a55e-312e86f8f478)"
+    },
+    {
+      "scenarioid": "TS_007",
+      "title": "Validate outbound mapping compliance against approved GlobalOH mapping document",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_028",
+          "why": "wrong intake path cited"
+        },
+        {
+          "id": "TC_029",
+          "why": "wrong intake path cited"
+        },
+        {
+          "id": "TC_030",
+          "why": "wrong intake path cited"
+        },
+        {
+          "id": "TC_031",
+          "why": "scenario is unrelated negative flow"
+        },
+        {
+          "id": "TC_032",
+          "why": "scenario is unrelated negative flow"
+        },
+        {
+          "id": "TC_037",
+          "why": "wrong intake path cited"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        4
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 216731,
+      "elapsedms": 501843,
+      "gaps": [
+        "Pre-condition/Step Description quotes a non-authoritative intake path: \"\\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\"; contradicts domain hint line \"NAMING AND INTAKE: prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Step Description quotes a non-authoritative intake path: \"\\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\"; contradicts domain hint line \"NAMING AND INTAKE: prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Step Description quotes a non-authoritative intake path: \"\\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\"; contradicts domain hint line \"NAMING AND INTAKE: prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Test Case Name/Description is off-scenario for TS_007 positive mapping-compliance scope: \"Validate SNIP 1 rejection handling for MADUAL change file while good records still generate\"",
+        "Test Case Name/Description is off-scenario for TS_007 positive mapping-compliance scope: \"Validate SNIP 2 rejection handling for MADUAL full file while good records still generate\"",
+        "Step Description quotes a non-authoritative intake path: \"\\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\"; contradicts domain hint line \"NAMING AND INTAKE: prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_008",
+      "title": "Generate separate outbound change and full files when corresponding proprietary activity exists",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 317547,
+      "gaps": [],
+      "error": "generate:TS_008: agent 691 finished FAILED (execution bcdac551-9c73-4245-a02f-b3579ec01007)"
+    },
+    {
+      "scenarioid": "TS_010",
+      "title": "Pass SNIP 1 and SNIP 2 for valid MADUAL outbound change file",
+      "status": "unhealed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 212964,
+      "elapsedms": 224522,
+      "gaps": [
+        "all 10 test cases are High priority; only the scenario's primary flow and finance/regression guardrail cases are High \u2014 per-field permutation, repeated-occurrence and boundary variants are Medium"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_011",
+      "title": "Pass SNIP 1 and SNIP 2 for valid MADUAL outbound full file",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 75263,
+      "gaps": [],
+      "error": "generate:TS_011: agent 691 finished FAILED (execution 3d75d780-da25-45ee-b6b7-486ca04e3d8d)"
+    },
+    {
+      "scenarioid": "TS_012",
+      "title": "Block delivery when outbound file fails SNIP validation",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 1,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 1095686,
+      "gaps": [],
+      "error": "budget exhausted"
+    },
+    {
+      "scenarioid": "TS_013",
+      "title": "Validate change outbound file naming standard with MADUAL token and no trailing GUID",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_048",
+          "why": "wrong source path and duplicate intent"
+        },
+        {
+          "id": "TC_049",
+          "why": "different scenario than requested"
+        },
+        {
+          "id": "TC_050",
+          "why": "wrong source path and duplicate intent"
+        },
+        {
+          "id": "TC_051",
+          "why": "same scenario covered by other cases"
+        },
+        {
+          "id": "TC_052",
+          "why": "same scenario covered by other cases"
+        },
+        {
+          "id": "TC_053",
+          "why": "same scenario covered by other cases"
+        },
+        {
+          "id": "TC_054",
+          "why": "negative case for positive scenario"
+        },
+        {
+          "id": "TC_055",
+          "why": "different scenario than requested"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 8,
+      "chars": 159348,
+      "elapsedms": 273787,
+      "gaps": [
+        "Pre-condition contains unresolved angle-bracket placeholders in path example context per authoritative hint: table Pre-condition 'access to \\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth' contradicts hint 'prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)'",
+        "Semantic duplicate with TC_TS_013_003: both validate change outbound naming without trailing GUID for MADUAL incremental output. TC_TS_013_001 Description 'generated outbound file name is exactly CS_MADUAL_CLAREST_P_INCR_834_20260519153010.edi, following the new Claresthealth naming standard and excluding the retired trailing GUID pattern.' and TC_TS_013_003 Description 'never retains the retired legacy convention that appended a trailing GUID to file names, and that only the new Claresthealth incremental format is produced.'",
+        "TC_TS_013_002 is off-scenario for TS_013 change naming: Test Case Name 'Verify full outbound file for MADUAL uses new Claresthealth full naming format without GUID' while scenario description is 'Validate that the outbound change file generated from MADUAL input is named CS_MADUAL_CLAREST_P_INCR_834_20260519153010.edi, uses the MADUAL token, follows the new Claresthealth standard, and does not include the old trailing GUID format.'",
+        "Pre-condition contains path form contradicted by authoritative hint: table Pre-condition 'access to \\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth' vs hint 'prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)'",
+        "Pre-condition uses path text contradicted by authoritative hint: table Pre-condition 'access to CSSHealth source, staging, archive, TM UI, and CRT validation tools is available before execution.' with step path '\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth' contradicts hint 'prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)'",
+        "Semantic duplicate with TC_TS_013_001: both validate the same business intent of MADUAL change outbound file using the new incremental name and absence of trailing GUID. TC_TS_013_003 Description 'never retains the retired legacy convention that appended a trailing GUID to file names, and that only the new Claresthealth incremental format is produced.'",
+        "Semantic duplicate with TC_TS_013_001: both validate the same change outbound naming compliance for MADUAL incremental output. TC_TS_013_004 Description 'uses only the resolved timestamp as the terminal file-name component before the .edi extension and does not append extra delimiters, duplicate tokens, or hidden suffix text.' is already covered by TC_TS_013_001 steps 15-18 asserting exact name and no trailing GUID.",
+        "Pre-condition/steps use path text contradicted by authoritative hint: '\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth' contradicts hint 'prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)'",
+        "Semantic duplicate with TC_TS_013_001: both validate the same change outbound file naming format for MADUAL incremental production output. TC_TS_013_005 Description 'still uses the production qualifier P in the final file name and does not incorrectly substitute the test qualifier T.' is already covered by TC_TS_013_001 step 17 'confirm it contains the environment qualifier P'.",
+        "Pre-condition/steps use path text contradicted by authoritative hint: '\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth' contradicts hint 'prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)'",
+        "Semantic duplicate with TC_TS_013_001: both validate successful MADUAL change-file pickup and generation of the same incremental outbound name. TC_TS_013_006 Description 'updated pickup mask for MADUAL_CSSHealth_C source files results in successful change-file processing and generation of the correct Claresthealth incremental output name for the MADUAL feed.' overlaps the flow already covered by TC_TS_013_001 steps 2-15.",
+        "Pre-condition/steps use path text contradicted by authoritative hint: '\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth' contradicts hint 'prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)'",
+        "TC_TS_013_007 is off-scenario for positive TS_013: Test Case Name 'Verify no good outbound file is produced when invalid source naming prevents MADUAL mask pickup' while scenario type is 'Positive' and description is 'Validate that the outbound change file generated from MADUAL input is named CS_MADUAL_CLAREST_P_INCR_834_20260519153010.edi...'",
+        "Pre-condition/steps use path text contradicted by authoritative hint: '\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth' contradicts hint 'prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)'",
+        "TC_TS_013_008 is off-scenario for TS_013 change naming: Test Case Name 'Verify rejected-record handling does not create falsely compliant good output name during SNIP failure mix' while scenario description is limited to 'Validate that the outbound change file generated from MADUAL input is named CS_MADUAL_CLAREST_P_INCR_834_20260519153010.edi, uses the MADUAL token, follows the new Claresthealth standard, and does not include the old trailing GUID format.'",
+        "Pre-condition/steps use path text contradicted by authoritative hint: '\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth' contradicts hint 'prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)'"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_014",
+      "title": "Validate full outbound file naming standard with MADUAL token and no trailing GUID",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_056",
+          "why": "wrong source path and duplicate intent"
+        },
+        {
+          "id": "TC_057",
+          "why": "wrong scenario and wrong source path"
+        },
+        {
+          "id": "TC_058",
+          "why": "wrong source path and duplicate intent"
+        },
+        {
+          "id": "TC_059",
+          "why": "wrong source path and duplicate intent"
+        },
+        {
+          "id": "TC_060",
+          "why": "wrong source path and duplicate intent"
+        },
+        {
+          "id": "TC_061",
+          "why": "wrong source path and duplicate intent"
+        },
+        {
+          "id": "TC_062",
+          "why": "wrong scenario and wrong source path"
+        },
+        {
+          "id": "TC_063",
+          "why": "wrong source path and duplicate intent"
+        },
+        {
+          "id": "TC_064",
+          "why": "wrong scenario and wrong source path"
+        },
+        {
+          "id": "TC_065",
+          "why": "wrong source path and duplicate intent"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 171880,
+      "elapsedms": 431385,
+      "gaps": [
+        "Pre-condition contains meta-label in field Pre-condition: \"Development capacity is available, mapping documentation is finalized, the updated outbound naming logic is deployed in CRT, and a valid full MADUAL proprietary file is prepared for the DUAL outbound segment with a resolved timestamp that can be processed through Edifecs.\" and scenario refs contain \"Development capacity is confirmed.\" / \"Mapping documentation is finalized.\"",
+        "Step Description contains contradictory path in field Step Description step 2: \"Navigate to the proprietary source location \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth and confirm the file MADUAL_CSSHealth_F_20260519154535.txt is available for test execution.\"; contradicts hint: \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Semantic duplicate with TC_TS_014_003: both validate the same shared intent of full outbound file name uses the new full naming standard and has no trailing GUID",
+        "Test Case Name is off-topic for scenario TS_014 in field Test Case Name: \"Verify outbound incremental 834 file uses the new MADUAL Claresthealth production naming standard\"",
+        "Step Description contains contradictory path in field Step Description step 2: \"Navigate to \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth and verify the file MADUAL_CSSHealth_C_20260519154535.txt is present.\"; contradicts hint: \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "TC_TS_014_002 also requires scenario clause; add a dedicated test case for it: \"Validate that the outbound full file generated from MADUAL input is named CS_MADUAL_CLAREST_P_FULL_834_20260519154535.edi\"",
+        "Step Description contains contradictory path in field Step Description step 2: \"Verify the file exists in \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth.\"; contradicts hint: \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Semantic duplicate with TC_TS_014_001: both validate the same shared intent of full outbound file name uses the new full naming standard and has no trailing GUID",
+        "Step Description contains contradictory path in field Step Description step 2: \"Verify the file exists in \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth.\"; contradicts hint: \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Semantic duplicate with TC_TS_014_001: both validate the same shared intent of full outbound file name uses MADUAL token in the generated full file name",
+        "Step Description contains contradictory path in field Step Description step 2: \"Confirm the file is present in \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth.\"; contradicts hint: \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Semantic duplicate with TC_TS_014_001: both validate the same shared intent of full outbound file name uses production qualifier P in the generated full file name",
+        "Step Description contains contradictory path in field Step Description step 2: \"Verify the file is available in \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth.\"; contradicts hint: \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Semantic duplicate with TC_TS_014_001: both validate the same shared intent of full outbound file name uses FULL token and exact token order with resolved timestamp",
+        "Test Case Name is off-topic for scenario TS_014 in field Test Case Name: \"Verify invalid full proprietary source naming mask does not produce the Claresthealth full outbound file\"",
+        "Step Description contains contradictory path in field Step Description step 2: \"Place the negative test file in \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth and verify the incorrect name is visible.\"; contradicts hint: \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Step Description contains contradictory path in field Step Description step 2: \"Confirm the file exists in \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth.\"; contradicts hint: \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Semantic duplicate with TC_TS_014_001: both validate the same shared intent of correctly named full outbound file remains in the good X12 path after successful processing",
+        "Test Case Name is off-topic for scenario TS_014 in field Test Case Name: \"Verify SNIP negative data does not override the expected naming standard for good records in a mixed run\"",
+        "Step Description contains contradictory path in field Step Description step 2: \"Verify the mixed file is present in \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth.\"; contradicts hint: \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Step Description contains contradictory path in field Step Description step 2: \"Confirm the file is present in \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth.\"; contradicts hint: \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Semantic duplicate with TC_TS_014_001: both validate the same shared intent of full outbound file name uses the resolved 14-digit timestamp in the required full naming standard"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_015",
+      "title": "Detect invalid outbound name that retains superseded pattern or GUID",
+      "status": "unhealed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 4,
+      "chars": 96789,
+      "elapsedms": 298811,
+      "gaps": [
+        "all 4 test cases are High priority; only the scenario's primary flow and finance/regression guardrail cases are High \u2014 per-field permutation, repeated-occurrence and boundary variants are Medium"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_016",
+      "title": "Populate Loop 2000 REF*0F with 10-digit CCA-assigned Member ID for migrated members",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 318995,
+      "gaps": [],
+      "error": "generate:TS_016: agent 691 finished FAILED (execution ff8570a8-c1df-4ea9-8680-8e6e8d7e2f9d)"
+    },
+    {
+      "scenarioid": "TS_017",
+      "title": "Populate Loop 2000 REF*0F with 11-digit CareSource Member ID for net-new members",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_070",
+          "why": "source path uses wrong intake form"
+        },
+        {
+          "id": "TC_071",
+          "why": "source path uses wrong intake form"
+        },
+        {
+          "id": "TC_072",
+          "why": "source path uses wrong intake form"
+        },
+        {
+          "id": "TC_073",
+          "why": "source path uses wrong intake form"
+        },
+        {
+          "id": "TC_074",
+          "why": "wrong member type for scenario"
+        },
+        {
+          "id": "TC_075",
+          "why": "mixed member case is off-scope"
+        },
+        {
+          "id": "TC_076",
+          "why": "negative SNIP routing is off-scope"
+        },
+        {
+          "id": "TC_077",
+          "why": "negative SNIP routing is off-scope"
+        },
+        {
+          "id": "TC_079",
+          "why": "all-invalid batch is off-scope"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        1
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 181562,
+      "elapsedms": 461241,
+      "gaps": [
+        "Step Description field contains \"\\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\"; domain hint says \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Step Description field contains \"\\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\"; domain hint says \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Step Description field contains \"\\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\"; domain hint says \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Step Description field contains \"\\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\"; domain hint says \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Description field contains \"Validate that a migrated MADUAL CCA member is not treated as net-new\" while scenario acceptanceCriteriaRef says \"Net\u2011new members: 11\u2011digit CareSource Member ID (9\u2011digit Facets SBSB ID + 00 suffix)\"",
+        "Description field contains \"containing both one net-new member and one migrated member\" while scenario description says \"Validate that for Plan Year 2026 net-new CCA members in the MADUAL outbound file, Loop 2000 REF*0F carries the 11-digit CareSource Member ID\"",
+        "Description field contains \"one intentionally malformed record to trigger SNIP 1\" while scenario type is \"Positive\" and scenario description says \"the file remains delivery-ready after SNIP 1 and SNIP 2 pass\"",
+        "Description field contains \"one intentionally malformed record to trigger SNIP 2\" while scenario type is \"Positive\" and scenario description says \"the file remains delivery-ready after SNIP 1 and SNIP 2 pass\"",
+        "Description field contains \"containing only invalid net-new records is rejected during SNIP validation\" while scenario type is \"Positive\" and scenario description says \"the file remains delivery-ready after SNIP 1 and SNIP 2 pass\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_018",
+      "title": "Map proprietary MAINTENANCE_CODE to Loop 2000 INS04",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 75201,
+      "gaps": [],
+      "error": "generate:TS_018: agent 691 finished FAILED (execution 58f89563-dc9c-41ea-873c-f3f02a1d4396)"
+    },
+    {
+      "scenarioid": "TS_019",
+      "title": "Populate Loop 2000 INS12 when Death_Date is present",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_080",
+          "why": "wrong intake path in a step"
+        },
+        {
+          "id": "TC_081",
+          "why": "wrong intake path in a step"
+        },
+        {
+          "id": "TC_082",
+          "why": "wrong intake path in a step"
+        },
+        {
+          "id": "TC_083",
+          "why": "wrong intake path in a step"
+        },
+        {
+          "id": "TC_084",
+          "why": "off-topic negative case"
+        },
+        {
+          "id": "TC_085",
+          "why": "wrong intake path in a step"
+        },
+        {
+          "id": "TC_086",
+          "why": "wrong intake path in a step"
+        },
+        {
+          "id": "TC_087",
+          "why": "off-topic mixed batch case"
+        },
+        {
+          "id": "TC_088",
+          "why": "wrong intake path in a step"
+        },
+        {
+          "id": "TC_089",
+          "why": "wrong intake path in a step"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 224222,
+      "elapsedms": 295534,
+      "gaps": [
+        "Step Description field contains \"Confirm the file is placed in \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth for pickup by the updated Tidal masking process.\"",
+        "This contradicts domain hint line \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Step Description field contains \"Confirm the file is placed in \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth for pickup by the updated Tidal masking process.\"",
+        "This contradicts domain hint line \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Step Description field contains \"Place MADUAL_CSSHealth_C_20260305101520.txt in \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth.\"",
+        "This contradicts domain hint line \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Step Description field contains \"Place MADUAL_CSSHealth_F_20260306114025.txt in \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth.\"",
+        "This contradicts domain hint line \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Test Case Name field contains \"Validate MADUAL incremental outbound processing rejects a record when Death_Date is present in an invalid length for INS12 build rules\"",
+        "Description field contains \"Verify that an incremental MADUAL proprietary file containing a member Death_Date that is present but not in valid 8-digit format does not produce a compliant INS12 population outcome, is identified during validation, and is prevented from successful delivery as a good outbound result.\"",
+        "Step Description field contains \"Place MADUAL_CSSHealth_F_20260412130540.txt in \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth.\"",
+        "This contradicts domain hint line \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Step Description field contains \"Place MADUAL_CSSHealth_F_20260420141015.txt in \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth.\"",
+        "This contradicts domain hint line \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Test Case Name field contains \"Validate MADUAL incremental outbound processing keeps good and rejected record counts aligned when one deceased record is valid and one record is SNIP-rejected\"",
+        "Description field contains \"Verify that record-count reconciliation is preserved when an incremental MADUAL batch contains one valid deceased member that should populate INS12 and one intentionally invalid member that should route to Rejected, with total proprietary records equaling good plus rejected counts.\"",
+        "Step Description field contains \"Place MADUAL_CSSHealth_F_20260618115535.txt in \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth.\"",
+        "This contradicts domain hint line \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Step Description field contains \"Place MADUAL_CSSHealth_F_20260710122545.txt in \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth.\"",
+        "This contradicts domain hint line \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_020",
+      "title": "Suppress Loop 2000 INS12 when Death_Date is null",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_090",
+          "why": "wrong intake path format"
+        },
+        {
+          "id": "TC_091",
+          "why": "wrong intake path format"
+        },
+        {
+          "id": "TC_092",
+          "why": "wrong intake path format"
+        },
+        {
+          "id": "TC_093",
+          "why": "wrong intake path format"
+        },
+        {
+          "id": "TC_094",
+          "why": "wrong intake path format"
+        },
+        {
+          "id": "TC_095",
+          "why": "wrong intake path format"
+        },
+        {
+          "id": "TC_096",
+          "why": "wrong intake path format"
+        },
+        {
+          "id": "TC_097",
+          "why": "unresolved placeholder remains"
+        },
+        {
+          "id": "TC_098",
+          "why": "wrong intake path format"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        1
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 256561,
+      "elapsedms": 273888,
+      "gaps": [
+        "Pre-condition/Step Description contains \"\\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\" which contradicts hint \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Pre-condition/Step Description contains \"\\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\" which contradicts hint \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Pre-condition/Step Description contains \"\\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\" which contradicts hint \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Pre-condition/Step Description contains \"\\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\" which contradicts hint \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Pre-condition/Step Description contains \"\\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\" which contradicts hint \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Pre-condition/Step Description contains \"\\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\" which contradicts hint \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Pre-condition/Step Description contains \"\\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\" which contradicts hint \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Expected Result contains \"REF*ZZ*<value>\" in \"The 2750 MTM opt-out loop is present and correctly populated with LX*3, N1*75*MTM_OPT_OUT, and REF*ZZ*<value>.\"",
+        "Pre-condition/Step Description contains \"\\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth\" which contradicts hint \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_021",
+      "title": "Create 2750 loop for populated MTM_OPT_OUT_INDICATOR",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_100",
+          "why": "wrong intake path mapping"
+        },
+        {
+          "id": "TC_101",
+          "why": "wrong intake path mapping"
+        },
+        {
+          "id": "TC_102",
+          "why": "scenario coverage is off-topic"
+        },
+        {
+          "id": "TC_103",
+          "why": "scenario coverage is off-topic"
+        },
+        {
+          "id": "TC_104",
+          "why": "scenario coverage is off-topic"
+        },
+        {
+          "id": "TC_105",
+          "why": "scenario coverage is off-topic"
+        },
+        {
+          "id": "TC_106",
+          "why": "scenario coverage is off-topic"
+        },
+        {
+          "id": "TC_107",
+          "why": "scenario coverage is off-topic"
+        },
+        {
+          "id": "TC_108",
+          "why": "scenario coverage is off-topic"
+        },
+        {
+          "id": "TC_109",
+          "why": "scenario coverage is off-topic"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        0
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 209652,
+      "elapsedms": 417593,
+      "gaps": [
+        "Step Description field contains \"Open File Explorer in CRT and navigate to \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth.\" which contradicts hint \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Step Description field contains \"Open File Explorer in CRT and navigate to \\\\daycrtappfs01\\crt_applications\\Applications\\VendorExtractUtility\\CSSHealth.\" which contradicts hint \"prop files land on \\\\day<env>appfs01\\<env>_applications\\Applications\\VendorExtractUtility\\CSSHealth (the description writes crt_applications; the AC-2 placeholder form governs)\"",
+        "Test Case Name field contains \"Verify no 2750 loop is created when MTM opt-out field is blank in MADUAL change file\" but scenario type is \"Positive\" and scenario acceptanceCriteriaRef says \"Given the MTM_OPT_OUT_INDICATOR indicator is present\\nWhen the outbound EDI 834 file is generated\\nThen the 2750 loop is created and populated per approved mapping.\"",
+        "Test Case Name field contains \"Verify change outbound file preserves MTM opt-out mapping when member death date is blank\" but scenario acceptanceCriteriaRef is \"AC\u201110: MTM_OPT_OUT_INDICATOR Processing\\nGiven the MTM_OPT_OUT_INDICATOR indicator is present\\nWhen the outbound EDI 834 file is generated\\nThen the 2750 loop is created and populated per approved mapping.\\nMap in 2750 when there is a value in this field in the prop file\\nSample from the prod\\nLX*3~\\nN1*75*MTM_OPT_OUT~\\nREF*ZZ*N~\"",
+        "Test Case Name field contains \"Verify change outbound file preserves MTM opt-out mapping when death date populates INS12\" but scenario acceptanceCriteriaRef is \"AC\u201110: MTM_OPT_OUT_INDICATOR Processing\\nGiven the MTM_OPT_OUT_INDICATOR indicator is present\\nWhen the outbound EDI 834 file is generated\\nThen the 2750 loop is created and populated per approved mapping.\\nMap in 2750 when there is a value in this field in the prop file\\nSample from the prod\\nLX*3~\\nN1*75*MTM_OPT_OUT~\\nREF*ZZ*N~\"",
+        "Test Case Name field contains \"Verify migrated member identifier and MTM opt-out loop coexist in MADUAL outbound change file\" but scenario acceptanceCriteriaRef is \"AC\u201110: MTM_OPT_OUT_INDICATOR Processing\\nGiven the MTM_OPT_OUT_INDICATOR indicator is present\\nWhen the outbound EDI 834 file is generated\\nThen the 2750 loop is created and populated per approved mapping.\\nMap in 2750 when there is a value in this field in the prop file\\nSample from the prod\\nLX*3~\\nN1*75*MTM_OPT_OUT~\\nREF*ZZ*N~\"",
+        "Test Case Name field contains \"Verify net-new member identifier and MTM opt-out loop coexist in MADUAL outbound full file\" but scenario acceptanceCriteriaRef is \"AC\u201110: MTM_OPT_OUT_INDICATOR Processing\\nGiven the MTM_OPT_OUT_INDICATOR indicator is present\\nWhen the outbound EDI 834 file is generated\\nThen the 2750 loop is created and populated per approved mapping.\\nMap in 2750 when there is a value in this field in the prop file\\nSample from the prod\\nLX*3~\\nN1*75*MTM_OPT_OUT~\\nREF*ZZ*N~\"",
+        "Test Case Name field contains \"Verify SNIP 1 rejection does not create deliverable good file for MADUAL record with MTM opt-out\" but scenario type is \"Positive\" and scenario description is \"Validate that when MTM_OPT_OUT_INDICATOR has a value in the MADUAL proprietary file, the outbound 834 creates the 2750 loop with N1*75*MTM_OPT_OUT and REF*ZZ carrying the proprietary value, then passes SNIP 1 and SNIP 2 before test delivery.\"",
+        "Test Case Name field contains \"Verify SNIP 2 rejection does not create deliverable good file for MADUAL record with MTM opt-out\" but scenario type is \"Positive\" and scenario description is \"Validate that when MTM_OPT_OUT_INDICATOR has a value in the MADUAL proprietary file, the outbound 834 creates the 2750 loop with N1*75*MTM_OPT_OUT and REF*ZZ carrying the proprietary value, then passes SNIP 1 and SNIP 2 before test delivery.\"",
+        "Test Case Name field contains \"Verify multiple populated MTM values in one MADUAL full file create correct member-specific 2750 loops and reconcile counts\" but scenario acceptanceCriteriaRef is \"AC\u201110: MTM_OPT_OUT_INDICATOR Processing\\nGiven the MTM_OPT_OUT_INDICATOR indicator is present\\nWhen the outbound EDI 834 file is generated\\nThen the 2750 loop is created and populated per approved mapping.\\nMap in 2750 when there is a value in this field in the prop file\\nSample from the prod\\nLX*3~\\nN1*75*MTM_OPT_OUT~\\nREF*ZZ*N~\""
+      ],
+      "error": null
+    }
+  ],
+  "warnings": [
+    "TS_001 produced no test cases",
+    "TS_006 produced no test cases",
+    "TS_008 produced no test cases",
+    "TS_011 produced no test cases",
+    "TS_012 produced no test cases",
+    "TS_016 produced no test cases",
+    "TS_018 produced no test cases"
+  ],
+  "testcases": {
+    "rows": 2414,
+    "chars": 2255119,
+    "scenarios": 20,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-09-03T09:00:49Z step=start story=750331 maxscenarios=20 tcper=10 steps=18-40 rounds=2 workers=20 pass_=90/50 judge=672 deadline=1200s",
+    "[ORCH] ts=2026-09-03T09:00:49Z step=fetch story=750331 titlechars=160 descchars=3521 acchars=4659 ms=183",
+    "[ORCH] ts=2026-09-03T09:02:33Z step=scenarios count=20 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007,TS_008,TS_010,TS_011,TS_012,TS_013,TS_014,TS_015,TS_016,TS_017,TS_018,TS_019,TS_020,TS_021 ms=104406",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_002 agentid=691 phase=poll status=FAILED execution=bdd69f81-72ac-4d89-a214-d752d4a2fb5e ms=37371 why={\"executionId\": \"bdd69f81-72ac-4d89-a214-d752d4a2fb5e\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_002 round=1 error=generate:TS_002: agent 691 finished FAILED (execution bdd69f81-72ac-4d89-a214-d752d4a2fb5e)",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_008 agentid=691 phase=poll status=FAILED execution=aee28803-8186-4f54-afbb-12ae8e1e805d ms=37391 why={\"executionId\": \"aee28803-8186-4f54-afbb-12ae8e1e805d\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_008 round=1 error=generate:TS_008: agent 691 finished FAILED (execution aee28803-8186-4f54-afbb-12ae8e1e805d)",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_005 agentid=691 phase=poll status=FAILED execution=5e3a3681-fc4e-4de6-baee-827c06005a69 ms=37423 why={\"executionId\": \"5e3a3681-fc4e-4de6-baee-827c06005a69\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_005 round=1 error=generate:TS_005: agent 691 finished FAILED (execution 5e3a3681-fc4e-4de6-baee-827c06005a69)",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_019 agentid=691 phase=poll status=FAILED execution=094c15ab-7172-4dd0-8056-b0393dcbf6e9 ms=37442 why={\"executionId\": \"094c15ab-7172-4dd0-8056-b0393dcbf6e9\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_019 round=1 error=generate:TS_019: agent 691 finished FAILED (execution 094c15ab-7172-4dd0-8056-b0393dcbf6e9)",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_013 agentid=691 phase=poll status=FAILED execution=71047832-1913-4858-b0b5-39c63f56ae48 ms=37533 why={\"executionId\": \"71047832-1913-4858-b0b5-39c63f56ae48\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_013 round=1 error=generate:TS_013: agent 691 finished FAILED (execution 71047832-1913-4858-b0b5-39c63f56ae48)",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_010 agentid=691 phase=poll status=FAILED execution=154cdd11-ea62-41f1-b6b1-2c5c11fa4551 ms=37608 why={\"executionId\": \"154cdd11-ea62-41f1-b6b1-2c5c11fa4551\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_010 round=1 error=generate:TS_010: agent 691 finished FAILED (execution 154cdd11-ea62-41f1-b6b1-2c5c11fa4551)",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_011 agentid=691 phase=poll status=FAILED execution=c2d9e032-0676-4e40-88d0-5b768f671201 ms=37614 why={\"executionId\": \"c2d9e032-0676-4e40-88d0-5b768f671201\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_011 round=1 error=generate:TS_011: agent 691 finished FAILED (execution c2d9e032-0676-4e40-88d0-5b768f671201)",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_006 agentid=691 phase=poll status=FAILED execution=119233bc-bdd3-4deb-ba9a-df0ed98bd591 ms=37643 why={\"executionId\": \"119233bc-bdd3-4deb-ba9a-df0ed98bd591\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_006 round=1 error=generate:TS_006: agent 691 finished FAILED (execution 119233bc-bdd3-4deb-ba9a-df0ed98bd591)",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_020 agentid=691 phase=poll status=FAILED execution=0aad04ec-b6ab-4635-8beb-ab652b21b083 ms=37593 why={\"executionId\": \"0aad04ec-b6ab-4635-8beb-ab652b21b083\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_020 round=1 error=generate:TS_020: agent 691 finished FAILED (execution 0aad04ec-b6ab-4635-8beb-ab652b21b083)",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_018 agentid=691 phase=poll status=FAILED execution=de18877c-62e7-4b2f-9b4c-070916a3c8de ms=37647 why={\"executionId\": \"de18877c-62e7-4b2f-9b4c-070916a3c8de\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_018 round=1 error=generate:TS_018: agent 691 finished FAILED (execution de18877c-62e7-4b2f-9b4c-070916a3c8de)",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_016 agentid=691 phase=poll status=FAILED execution=93867a10-fe35-437a-be4b-2c4fa0de1d4d ms=37677 why={\"executionId\": \"93867a10-fe35-437a-be4b-2c4fa0de1d4d\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_016 round=1 error=generate:TS_016: agent 691 finished FAILED (execution 93867a10-fe35-437a-be4b-2c4fa0de1d4d)",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_015 agentid=691 phase=poll status=FAILED execution=649ffe02-9180-4428-9215-9ce54315dcb9 ms=37702 why={\"executionId\": \"649ffe02-9180-4428-9215-9ce54315dcb9\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_015 round=1 error=generate:TS_015: agent 691 finished FAILED (execution 649ffe02-9180-4428-9215-9ce54315dcb9)",
+    "[ORCH] ts=2026-09-03T09:03:48Z step=agenterror label=generate:TS_006 agentid=691 phase=poll status=FAILED execution=0a88e155-4636-4329-a55e-312e86f8f478 ms=37307 why={\"executionId\": \"0a88e155-4636-4329-a55e-312e86f8f478\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T09:03:48Z step=generate scenario=TS_006 round=2 error=generate:TS_006: agent 691 finished FAILED (execution 0a88e155-4636-4329-a55e-312e86f8f478)",
+    "[ORCH] ts=2026-09-03T09:03:48Z step=result scenario=TS_006 status=failed scores=[] rounds=2 tc=0 ms=74951",
+    "[ORCH] ts=2026-09-03T09:03:49Z step=agenterror label=generate:TS_018 agentid=691 phase=poll status=FAILED execution=58f89563-dc9c-41ea-873c-f3f02a1d4396 ms=37553 why={\"executionId\": \"58f89563-dc9c-41ea-873c-f3f02a1d4396\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T09:03:49Z step=generate scenario=TS_018 round=2 error=generate:TS_018: agent 691 finished FAILED (execution 58f89563-dc9c-41ea-873c-f3f02a1d4396)",
+    "[ORCH] ts=2026-09-03T09:03:49Z step=result scenario=TS_018 status=failed scores=[] rounds=2 tc=0 ms=75201",
+    "[ORCH] ts=2026-09-03T09:03:49Z step=agenterror label=generate:TS_011 agentid=691 phase=poll status=FAILED execution=3d75d780-da25-45ee-b6b7-486ca04e3d8d ms=37648 why={\"executionId\": \"3d75d780-da25-45ee-b6b7-486ca04e3d8d\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T09:03:49Z step=generate scenario=TS_011 round=2 error=generate:TS_011: agent 691 finished FAILED (execution 3d75d780-da25-45ee-b6b7-486ca04e3d8d)",
+    "[ORCH] ts=2026-09-03T09:03:49Z step=result scenario=TS_011 status=failed scores=[] rounds=2 tc=0 ms=75263",
+    "[ORCH] ts=2026-09-03T09:04:26Z step=generate scenario=TS_005 round=2 tc=1 ids=TC_TS_005_001 chars=19331 ms=75467 regen=1",
+    "[ORCH] ts=2026-09-03T09:04:41Z step=review scenario=TS_005 round=2 score=85 passed=0/1 failing=TC_TS_005_001 ms=14514",
+    "[ORCH] ts=2026-09-03T09:04:41Z step=result scenario=TS_005 status=unhealed scores=[85] rounds=2 tc=1 ms=127411",
+    "[ORCH] ts=2026-09-03T09:05:34Z step=generate scenario=TS_004 round=1 tc=6 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003,TC_TS004_004,TC_TS004_005,TC_TS004_006 chars=119901 ms=180735",
+    "[ORCH] ts=2026-09-03T09:05:54Z step=generate scenario=TS_014 round=1 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=183416 ms=200960",
+    "[ORCH] ts=2026-09-03T09:05:54Z step=pregate scenario=TS_014 round=1 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi",
+    "[ORCH] ts=2026-09-03T09:06:00Z step=generate scenario=TS_021 round=1 tc=10 ids=TC_021_001,TC_021_002,TC_021_003,TC_021_004,TC_021_005,TC_021_006,TC_021_007,TC_021_008,TC_021_009,TC_021_010 chars=209652 ms=207037",
+    "[ORCH] ts=2026-09-03T09:06:01Z step=generate scenario=TS_003 round=1 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=176499 ms=207236",
+    "[ORCH] ts=2026-09-03T09:06:02Z step=generate scenario=TS_013 round=2 tc=8 ids=TC_TS_013_001,TC_TS_013_002,TC_TS_013_003,TC_TS_013_004,TC_TS_013_005,TC_TS_013_006,TC_TS_013_007,TC_TS_013_008 chars=159348 ms=171531 regen=1",
+    "[ORCH] ts=2026-09-03T09:06:18Z step=review scenario=TS_004 round=1 score=85 passed=0/6 failing=TC_TS004_001,TC_TS004_002,TC_TS004_003,TC_TS004_004,TC_TS004_005,TC_TS004_006 ms=43645",
+    "[ORCH] ts=2026-09-03T09:06:18Z step=generate scenario=TS_010 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=212964 ms=186890 regen=1",
+    "[ORCH] ts=2026-09-03T09:06:18Z step=pregate scenario=TS_010 round=2 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi",
+    "[ORCH] ts=2026-09-03T09:06:18Z step=result scenario=TS_010 status=unhealed scores=[] rounds=2 tc=10 ms=224522",
+    "[ORCH] ts=2026-09-03T09:06:23Z step=generate scenario=TS_002 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=193163 ms=192506 regen=1",
+    "[ORCH] ts=2026-09-03T09:06:23Z step=pregate scenario=TS_002 round=2 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi",
+    "[ORCH] ts=2026-09-03T09:06:23Z step=result scenario=TS_002 status=unhealed scores=[] rounds=2 tc=10 ms=229899",
+    "[ORCH] ts=2026-09-03T09:06:23Z step=generate scenario=TS_020 round=2 tc=10 ids=TC_TS020_001,TC_TS020_002,TC_TS020_003,TC_TS020_004,TC_TS020_005,TC_TS020_006,TC_TS020_007,TC_TS020_008,TC_TS020_009,TC_TS020_010 chars=256561 ms=192385 regen=1",
+    "[ORCH] ts=2026-09-03T09:06:44Z step=generate scenario=TS_019 round=2 tc=10 ids=TC_TS019_001,TC_TS019_002,TC_TS019_003,TC_TS019_004,TC_TS019_005,TC_TS019_006,TC_TS019_007,TC_TS019_008,TC_TS019_009,TC_TS019_010 chars=224222 ms=212746 regen=1",
+    "[ORCH] ts=2026-09-03T09:06:44Z step=generate scenario=TS_017 round=1 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=256731 ms=250702",
+    "[ORCH] ts=2026-09-03T09:06:44Z step=pregate scenario=TS_017 round=1 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi",
+    "[ORCH] ts=2026-09-03T09:06:45Z step=review scenario=TS_021 round=1 score=85 passed=0/10 failing=TC_021_001,TC_021_002,TC_021_003,TC_021_004,TC_021_005,TC_021_006,TC_021_007,TC_021_008,TC_021_009,TC_021_010 ms=44510",
+    "[ORCH] ts=2026-09-03T09:06:45Z step=review scenario=TS_003 round=1 score=85 passed=0/10 failing=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 ms=44534",
+    "[ORCH] ts=2026-09-03T09:07:05Z step=generate scenario=TS_007 round=1 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=249923 ms=271318",
+    "[ORCH] ts=2026-09-03T09:07:05Z step=pregate scenario=TS_007 round=1 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi",
+    "[ORCH] ts=2026-09-03T09:07:07Z step=review scenario=TS_013 round=2 score=85 passed=0/8 failing=TC_TS_013_001,TC_TS_013_002,TC_TS_013_003,TC_TS_013_004,TC_TS_013_005,TC_TS_013_006,TC_TS_013_007,TC_TS_013_008 ms=64669",
+    "[ORCH] ts=2026-09-03T09:07:07Z step=result scenario=TS_013 status=unhealed scores=[85] rounds=2 tc=8 ms=273787",
+    "[ORCH] ts=2026-09-03T09:07:07Z step=review scenario=TS_020 round=2 score=85 passed=1/10 failing=TC_TS020_001,TC_TS020_002,TC_TS020_003,TC_TS020_004,TC_TS020_005,TC_TS020_006,TC_TS020_007,TC_TS020_008,TC_TS020_009 ms=43880",
+    "[ORCH] ts=2026-09-03T09:07:07Z step=result scenario=TS_020 status=unhealed scores=[85] rounds=2 tc=10 ms=273888",
+    "[ORCH] ts=2026-09-03T09:07:29Z step=review scenario=TS_019 round=2 score=85 passed=0/10 failing=TC_TS019_001,TC_TS019_002,TC_TS019_003,TC_TS019_004,TC_TS019_005,TC_TS019_006,TC_TS019_007,TC_TS019_008,TC_TS019_009,TC_TS019_010 ms=45314",
+    "[ORCH] ts=2026-09-03T09:07:29Z step=result scenario=TS_019 status=unhealed scores=[85] rounds=2 tc=10 ms=295534",
+    "[ORCH] ts=2026-09-03T09:07:32Z step=generate scenario=TS_015 round=2 tc=4 ids=TC_TS_015_001,TC_TS_015_002,TC_TS_015_003,TC_TS_015_004 chars=96789 ms=261095 regen=1",
+    "[ORCH] ts=2026-09-03T09:07:32Z step=pregate scenario=TS_015 round=2 failed=1 first=all 4 test cases are High priority; only the scenario's primary flow and finance/regressio",
+    "[ORCH] ts=2026-09-03T09:07:32Z step=result scenario=TS_015 status=unhealed scores=[] rounds=2 tc=4 ms=298811",
+    "[ORCH] ts=2026-09-03T09:07:51Z step=agenterror label=generate:TS_008 agentid=691 phase=poll status=FAILED execution=bcdac551-9c73-4245-a02f-b3579ec01007 ms=280154 why={\"executionId\": \"bcdac551-9c73-4245-a02f-b3579ec01007\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T09:07:51Z step=generate scenario=TS_008 round=2 error=generate:TS_008: agent 691 finished FAILED (execution bcdac551-9c73-4245-a02f-b3579ec01007)",
+    "[ORCH] ts=2026-09-03T09:07:51Z step=result scenario=TS_008 status=failed scores=[] rounds=2 tc=0 ms=317547",
+    "[ORCH] ts=2026-09-03T09:07:52Z step=agenterror label=generate:TS_016 agentid=691 phase=poll status=FAILED execution=ff8570a8-c1df-4ea9-8680-8e6e8d7e2f9d ms=281309 why={\"executionId\": \"ff8570a8-c1df-4ea9-8680-8e6e8d7e2f9d\", \"agentId\": 691, \"output\": null, \"agentName\": \"Self Healing EDI 834 Outbound Test Case Generator \", \"executedBy\": \"Archana.Bhaskar@caresource.com",
+    "[ORCH] ts=2026-09-03T09:07:52Z step=generate scenario=TS_016 round=2 error=generate:TS_016: agent 691 finished FAILED (execution ff8570a8-c1df-4ea9-8680-8e6e8d7e2f9d)",
+    "[ORCH] ts=2026-09-03T09:07:52Z step=result scenario=TS_016 status=failed scores=[] rounds=2 tc=0 ms=318995",
+    "[ORCH] ts=2026-09-03T09:08:40Z step=generate scenario=TS_014 round=2 tc=10 ids=TC_TS_014_001,TC_TS_014_002,TC_TS_014_003,TC_TS_014_004,TC_TS_014_005,TC_TS_014_006,TC_TS_014_007,TC_TS_014_008,TC_TS_014_009,TC_TS_014_010 chars=171880 ms=165858 regen=1",
+    "[ORCH] ts=2026-09-03T09:09:31Z step=generate scenario=TS_021 round=2 tc=10 ids=TC_021_001,TC_021_002,TC_021_003,TC_021_004,TC_021_005,TC_021_006,TC_021_007,TC_021_008,TC_021_009,TC_021_010 chars=175301 ms=165993 regen=10",
+    "[ORCH] ts=2026-09-03T09:09:31Z step=pregate scenario=TS_021 round=2 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi",
+    "[ORCH] ts=2026-09-03T09:09:31Z step=keptbest scenario=TS_021 round=1 passed=0 note=later round was worse, shipping the best reviewed round",
+    "[ORCH] ts=2026-09-03T09:09:31Z step=result scenario=TS_021 status=unhealed scores=[85] rounds=2 tc=10 ms=417593",
+    "[ORCH] ts=2026-09-03T09:09:31Z step=generate scenario=TS_017 round=2 tc=10 ids=TC_017_001,TC_017_002,TC_017_003,TC_017_004,TC_017_005,TC_017_006,TC_017_007,TC_017_008,TC_017_009,TC_017_010 chars=181562 ms=166967 regen=1",
+    "[ORCH] ts=2026-09-03T09:09:45Z step=review scenario=TS_014 round=2 score=85 passed=0/10 failing=TC_TS_014_001,TC_TS_014_002,TC_TS_014_003,TC_TS_014_004,TC_TS_014_005,TC_TS_014_006,TC_TS_014_007,TC_TS_014_008,TC_TS_014_009,TC_TS_014_010 ms=64525",
+    "[ORCH] ts=2026-09-03T09:09:45Z step=result scenario=TS_014 status=unhealed scores=[85] rounds=2 tc=10 ms=431385",
+    "[ORCH] ts=2026-09-03T09:09:45Z step=generate scenario=TS_004 round=2 tc=10 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003,TC_TS004_004,TC_TS004_005,TC_TS004_006,TC_TS004_007,TC_TS004_008,TC_TS004_009,TC_TS004_010 chars=215441 ms=207031 regen=6",
+    "[ORCH] ts=2026-09-03T09:09:52Z step=generate scenario=TS_003 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=205695 ms=186763 regen=10",
+    "[ORCH] ts=2026-09-03T09:10:00Z step=agenterror label=review:TS_004 agentid=672 phase=poll status=FAILED execution=fa4ef9bd-d184-454f-b053-f4dce11cc1a5 ms=14979 why={\"executionId\": \"fa4ef9bd-d184-454f-b053-f4dce11cc1a5\", \"agentId\": 672, \"output\": null, \"agentName\": \"Independent QA Test Case Review and Scoring Agent\", \"executedBy\": \"Archana.Bhaskar@caresource.com\"",
+    "[ORCH] ts=2026-09-03T09:10:00Z step=review scenario=TS_004 round=2 error=review:TS_004: agent 672 finished FAILED (execution fa4ef9bd-d184-454f-b053-f4dce11cc1a5)",
+    "[ORCH] ts=2026-09-03T09:10:00Z step=keptbest scenario=TS_004 round=1 passed=0 note=later round was worse, shipping the best reviewed round",
+    "[ORCH] ts=2026-09-03T09:10:00Z step=result scenario=TS_004 status=unhealed scores=[85] rounds=2 tc=6 ms=446440",
+    "[ORCH] ts=2026-09-03T09:10:11Z step=generate scenario=TS_007 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=216731 ms=186706 regen=1",
+    "[ORCH] ts=2026-09-03T09:10:15Z step=review scenario=TS_017 round=2 score=85 passed=1/10 failing=TC_017_001,TC_017_002,TC_017_003,TC_017_004,TC_017_005,TC_017_006,TC_017_007,TC_017_008,TC_017_010 ms=43506",
+    "[ORCH] ts=2026-09-03T09:10:15Z step=result scenario=TS_017 status=unhealed scores=[85] rounds=2 tc=10 ms=461241",
+    "[ORCH] ts=2026-09-03T09:10:36Z step=review scenario=TS_003 round=2 score=85 passed=0/10 failing=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 ms=43590",
+    "[ORCH] ts=2026-09-03T09:10:36Z step=stagnant scenario=TS_003 round=2 scores=[85, 85] passed=[0, 0]",
+    "[ORCH] ts=2026-09-03T09:10:36Z step=result scenario=TS_003 status=stagnant scores=[85, 85] rounds=2 tc=10 ms=482190",
+    "[ORCH] ts=2026-09-03T09:10:55Z step=review scenario=TS_007 round=2 score=85 passed=4/10 failing=TC_001,TC_002,TC_003,TC_004,TC_005,TC_010 ms=43763",
+    "[ORCH] ts=2026-09-03T09:10:55Z step=result scenario=TS_007 status=unhealed scores=[85] rounds=2 tc=10 ms=501843",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=generate scenario=TS_012 round=1 error=generate:TS_012: agent 691 still running when the budget ran out (execution a760ec8c-dc37-4681-b746-203d17c2db12)",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=budget scenario=TS_012 round=2 note=stopped, budget low",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=result scenario=TS_012 status=failed scores=[] rounds=1 tc=0 ms=1095686",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=generate scenario=TS_001 round=1 error=generate:TS_001: agent 691 still running when the budget ran out (execution 4e33420d-51bd-426f-8a4a-43e0403aef4e)",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=budget scenario=TS_001 round=2 note=stopped, budget low",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=result scenario=TS_001 status=failed scores=[] rounds=1 tc=0 ms=1095789",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_003 ids=TC_001>TC_011,TC_002>TC_012,TC_003>TC_013,TC_004>TC_014,TC_005>TC_015,TC_006>TC_016,TC_007>TC_017,TC_008>TC_018,TC_009>TC_019,TC_010>TC_020",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_004 ids=TC_TS004_001>TC_021,TC_TS004_002>TC_022,TC_TS004_003>TC_023,TC_TS004_004>TC_024,TC_TS004_005>TC_025,TC_TS004_006>TC_026",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_005 ids=TC_TS_005_001>TC_027",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_007 ids=TC_001>TC_028,TC_002>TC_029,TC_003>TC_030,TC_004>TC_031,TC_005>TC_032,TC_006>TC_033,TC_007>TC_034,TC_008>TC_035,TC_009>TC_036,TC_010>TC_037",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_010 ids=TC_001>TC_038,TC_002>TC_039,TC_003>TC_040,TC_004>TC_041,TC_005>TC_042,TC_006>TC_043,TC_007>TC_044,TC_008>TC_045,TC_009>TC_046,TC_010>TC_047",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_013 ids=TC_TS_013_001>TC_048,TC_TS_013_002>TC_049,TC_TS_013_003>TC_050,TC_TS_013_004>TC_051,TC_TS_013_005>TC_052,TC_TS_013_006>TC_053,TC_TS_013_007>TC_054,TC_TS_013_008>TC_055",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_014 ids=TC_TS_014_001>TC_056,TC_TS_014_002>TC_057,TC_TS_014_003>TC_058,TC_TS_014_004>TC_059,TC_TS_014_005>TC_060,TC_TS_014_006>TC_061,TC_TS_014_007>TC_062,TC_TS_014_008>TC_063,TC_TS_014_009>TC_064,TC_TS_014_010>TC_065",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_015 ids=TC_TS_015_001>TC_066,TC_TS_015_002>TC_067,TC_TS_015_003>TC_068,TC_TS_015_004>TC_069",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_017 ids=TC_017_001>TC_070,TC_017_002>TC_071,TC_017_003>TC_072,TC_017_004>TC_073,TC_017_005>TC_074,TC_017_006>TC_075,TC_017_007>TC_076,TC_017_008>TC_077,TC_017_009>TC_078,TC_017_010>TC_079",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_019 ids=TC_TS019_001>TC_080,TC_TS019_002>TC_081,TC_TS019_003>TC_082,TC_TS019_004>TC_083,TC_TS019_005>TC_084,TC_TS019_006>TC_085,TC_TS019_007>TC_086,TC_TS019_008>TC_087,TC_TS019_009>TC_088,TC_TS019_010>TC_089",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_020 ids=TC_TS020_001>TC_090,TC_TS020_002>TC_091,TC_TS020_003>TC_092,TC_TS020_004>TC_093,TC_TS020_005>TC_094,TC_TS020_006>TC_095,TC_TS020_007>TC_096,TC_TS020_008>TC_097,TC_TS020_009>TC_098,TC_TS020_010>TC_099",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_021 ids=TC_021_001>TC_100,TC_021_002>TC_101,TC_021_003>TC_102,TC_021_004>TC_103,TC_021_005>TC_104,TC_021_006>TC_105,TC_021_007>TC_106,TC_021_008>TC_107,TC_021_009>TC_108,TC_021_010>TC_109",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=done approved=0 unreviewed=0 unhealed=12 stagnant=1 hardstop=0 failed=7 skipped=0 testcases=109 agentcalls=51 ms=1200461",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=outcome story=750331 ready=30/109 testcases flagged=79 scenarios=20 elapsed=20m00s warnings=7",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_011 scenario=TS_003 why=has unresolved placeholders",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_012 scenario=TS_003 why=has unresolved placeholders",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_013 scenario=TS_003 why=clearly unrelated to scenario",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_014 scenario=TS_003 why=has unresolved placeholders",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_015 scenario=TS_003 why=has unresolved placeholders",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_016 scenario=TS_003 why=clearly unrelated to scenario",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_017 scenario=TS_003 why=clearly unrelated to scenario",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_018 scenario=TS_003 why=clearly unrelated to scenario",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_019 scenario=TS_003 why=clearly unrelated to scenario",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_020 scenario=TS_003 why=clearly unrelated to scenario",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_021 scenario=TS_004 why=duplicate of another full positive case",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_022 scenario=TS_004 why=missing positive scenario coverage",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_023 scenario=TS_004 why=path check conflicts with flow setup",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_024 scenario=TS_004 why=duplicate observability case",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_025 scenario=TS_004 why=duplicate of another full positive case",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_026 scenario=TS_004 why=duplicate observability case",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_027 scenario=TS_005 why=unresolved placeholder in path",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_028 scenario=TS_007 why=wrong intake path cited",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_029 scenario=TS_007 why=wrong intake path cited",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_030 scenario=TS_007 why=wrong intake path cited",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_031 scenario=TS_007 why=scenario is unrelated negative flow",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_032 scenario=TS_007 why=scenario is unrelated negative flow",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_037 scenario=TS_007 why=wrong intake path cited",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_048 scenario=TS_013 why=wrong source path and duplicate intent",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_049 scenario=TS_013 why=different scenario than requested",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_050 scenario=TS_013 why=wrong source path and duplicate intent",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_051 scenario=TS_013 why=same scenario covered by other cases",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_052 scenario=TS_013 why=same scenario covered by other cases",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_053 scenario=TS_013 why=same scenario covered by other cases",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_054 scenario=TS_013 why=negative case for positive scenario",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_055 scenario=TS_013 why=different scenario than requested",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_056 scenario=TS_014 why=wrong source path and duplicate intent",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_057 scenario=TS_014 why=wrong scenario and wrong source path",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_058 scenario=TS_014 why=wrong source path and duplicate intent",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_059 scenario=TS_014 why=wrong source path and duplicate intent",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_060 scenario=TS_014 why=wrong source path and duplicate intent",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_061 scenario=TS_014 why=wrong source path and duplicate intent",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_062 scenario=TS_014 why=wrong scenario and wrong source path",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_063 scenario=TS_014 why=wrong source path and duplicate intent",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_064 scenario=TS_014 why=wrong scenario and wrong source path",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_065 scenario=TS_014 why=wrong source path and duplicate intent",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_070 scenario=TS_017 why=source path uses wrong intake form",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_071 scenario=TS_017 why=source path uses wrong intake form",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_072 scenario=TS_017 why=source path uses wrong intake form",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_073 scenario=TS_017 why=source path uses wrong intake form",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_074 scenario=TS_017 why=wrong member type for scenario",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_075 scenario=TS_017 why=mixed member case is off-scope",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_076 scenario=TS_017 why=negative SNIP routing is off-scope",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_077 scenario=TS_017 why=negative SNIP routing is off-scope",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_079 scenario=TS_017 why=all-invalid batch is off-scope",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_080 scenario=TS_019 why=wrong intake path in a step",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_081 scenario=TS_019 why=wrong intake path in a step",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_082 scenario=TS_019 why=wrong intake path in a step",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_083 scenario=TS_019 why=wrong intake path in a step",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_084 scenario=TS_019 why=off-topic negative case",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_085 scenario=TS_019 why=wrong intake path in a step",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_086 scenario=TS_019 why=wrong intake path in a step",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_087 scenario=TS_019 why=off-topic mixed batch case",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_088 scenario=TS_019 why=wrong intake path in a step",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_089 scenario=TS_019 why=wrong intake path in a step",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_090 scenario=TS_020 why=wrong intake path format",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_091 scenario=TS_020 why=wrong intake path format",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_092 scenario=TS_020 why=wrong intake path format",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_093 scenario=TS_020 why=wrong intake path format",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_094 scenario=TS_020 why=wrong intake path format",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_095 scenario=TS_020 why=wrong intake path format",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_096 scenario=TS_020 why=wrong intake path format",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_097 scenario=TS_020 why=unresolved placeholder remains",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_098 scenario=TS_020 why=wrong intake path format",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_100 scenario=TS_021 why=wrong intake path mapping",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_101 scenario=TS_021 why=wrong intake path mapping",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_102 scenario=TS_021 why=scenario coverage is off-topic",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_103 scenario=TS_021 why=scenario coverage is off-topic",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_104 scenario=TS_021 why=scenario coverage is off-topic",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_105 scenario=TS_021 why=scenario coverage is off-topic",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_106 scenario=TS_021 why=scenario coverage is off-topic",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_107 scenario=TS_021 why=scenario coverage is off-topic",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_108 scenario=TS_021 why=scenario coverage is off-topic",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_109 scenario=TS_021 why=scenario coverage is off-topic",
+    "[ORCH] ts=2026-09-03T09:20:49Z step=detail calls=51 rounds=38 scoreboard=TS_001:failed  TS_002:unhealed  TS_003:stagnant(85>85)  TS_004:unhealed(85)  TS_005:unhealed(85)  TS_006:failed  TS_007:unhealed(85)  TS_008:failed  TS_010:unhealed  TS_011:failed  TS_012:failed  TS_013:unhealed(85)  TS_014:unhealed(85)  TS_015:unhealed  TS_016:failed  TS_017:unhealed(85)  TS_018:failed  TS_019:unhealed(85)  TS_020:unhealed(85)  TS_021:unhealed(85)"
+  ]
+}

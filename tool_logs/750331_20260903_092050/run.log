@@ -1,0 +1,197 @@
+[ORCH] ts=2026-09-03T09:00:49Z step=start story=750331 maxscenarios=20 tcper=10 steps=18-40 rounds=2 workers=20 pass_=90/50 judge=672 deadline=1200s
+[ORCH] ts=2026-09-03T09:00:49Z step=fetch story=750331 titlechars=160 descchars=3521 acchars=4659 ms=183
+[ORCH] ts=2026-09-03T09:02:33Z step=scenarios count=20 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007,TS_008,TS_010,TS_011,TS_012,TS_013,TS_014,TS_015,TS_016,TS_017,TS_018,TS_019,TS_020,TS_021 ms=104406
+[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_002 agentid=691 phase=poll status=FAILED execution=bdd69f81-72ac-4d89-a214-d752d4a2fb5e ms=37371 why={"executionId": "bdd69f81-72ac-4d89-a214-d752d4a2fb5e", "agentId": 691, "output": null, "agentName": "Self Healing EDI 834 Outbound Test Case Generator ", "executedBy": "Archana.Bhaskar@caresource.com
+[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_002 round=1 error=generate:TS_002: agent 691 finished FAILED (execution bdd69f81-72ac-4d89-a214-d752d4a2fb5e)
+[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_008 agentid=691 phase=poll status=FAILED execution=aee28803-8186-4f54-afbb-12ae8e1e805d ms=37391 why={"executionId": "aee28803-8186-4f54-afbb-12ae8e1e805d", "agentId": 691, "output": null, "agentName": "Self Healing EDI 834 Outbound Test Case Generator ", "executedBy": "Archana.Bhaskar@caresource.com
+[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_008 round=1 error=generate:TS_008: agent 691 finished FAILED (execution aee28803-8186-4f54-afbb-12ae8e1e805d)
+[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_005 agentid=691 phase=poll status=FAILED execution=5e3a3681-fc4e-4de6-baee-827c06005a69 ms=37423 why={"executionId": "5e3a3681-fc4e-4de6-baee-827c06005a69", "agentId": 691, "output": null, "agentName": "Self Healing EDI 834 Outbound Test Case Generator ", "executedBy": "Archana.Bhaskar@caresource.com
+[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_005 round=1 error=generate:TS_005: agent 691 finished FAILED (execution 5e3a3681-fc4e-4de6-baee-827c06005a69)
+[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_019 agentid=691 phase=poll status=FAILED execution=094c15ab-7172-4dd0-8056-b0393dcbf6e9 ms=37442 why={"executionId": "094c15ab-7172-4dd0-8056-b0393dcbf6e9", "agentId": 691, "output": null, "agentName": "Self Healing EDI 834 Outbound Test Case Generator ", "executedBy": "Archana.Bhaskar@caresource.com
+[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_019 round=1 error=generate:TS_019: agent 691 finished FAILED (execution 094c15ab-7172-4dd0-8056-b0393dcbf6e9)
+[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_013 agentid=691 phase=poll status=FAILED execution=71047832-1913-4858-b0b5-39c63f56ae48 ms=37533 why={"executionId": "71047832-1913-4858-b0b5-39c63f56ae48", "agentId": 691, "output": null, "agentName": "Self Healing EDI 834 Outbound Test Case Generator ", "executedBy": "Archana.Bhaskar@caresource.com
+[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_013 round=1 error=generate:TS_013: agent 691 finished FAILED (execution 71047832-1913-4858-b0b5-39c63f56ae48)
+[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_010 agentid=691 phase=poll status=FAILED execution=154cdd11-ea62-41f1-b6b1-2c5c11fa4551 ms=37608 why={"executionId": "154cdd11-ea62-41f1-b6b1-2c5c11fa4551", "agentId": 691, "output": null, "agentName": "Self Healing EDI 834 Outbound Test Case Generator ", "executedBy": "Archana.Bhaskar@caresource.com
+[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_010 round=1 error=generate:TS_010: agent 691 finished FAILED (execution 154cdd11-ea62-41f1-b6b1-2c5c11fa4551)
+[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_011 agentid=691 phase=poll status=FAILED execution=c2d9e032-0676-4e40-88d0-5b768f671201 ms=37614 why={"executionId": "c2d9e032-0676-4e40-88d0-5b768f671201", "agentId": 691, "output": null, "agentName": "Self Healing EDI 834 Outbound Test Case Generator ", "executedBy": "Archana.Bhaskar@caresource.com
+[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_011 round=1 error=generate:TS_011: agent 691 finished FAILED (execution c2d9e032-0676-4e40-88d0-5b768f671201)
+[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_006 agentid=691 phase=poll status=FAILED execution=119233bc-bdd3-4deb-ba9a-df0ed98bd591 ms=37643 why={"executionId": "119233bc-bdd3-4deb-ba9a-df0ed98bd591", "agentId": 691, "output": null, "agentName": "Self Healing EDI 834 Outbound Test Case Generator ", "executedBy": "Archana.Bhaskar@caresource.com
+[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_006 round=1 error=generate:TS_006: agent 691 finished FAILED (execution 119233bc-bdd3-4deb-ba9a-df0ed98bd591)
+[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_020 agentid=691 phase=poll status=FAILED execution=0aad04ec-b6ab-4635-8beb-ab652b21b083 ms=37593 why={"executionId": "0aad04ec-b6ab-4635-8beb-ab652b21b083", "agentId": 691, "output": null, "agentName": "Self Healing EDI 834 Outbound Test Case Generator ", "executedBy": "Archana.Bhaskar@caresource.com
+[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_020 round=1 error=generate:TS_020: agent 691 finished FAILED (execution 0aad04ec-b6ab-4635-8beb-ab652b21b083)
+[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_018 agentid=691 phase=poll status=FAILED execution=de18877c-62e7-4b2f-9b4c-070916a3c8de ms=37647 why={"executionId": "de18877c-62e7-4b2f-9b4c-070916a3c8de", "agentId": 691, "output": null, "agentName": "Self Healing EDI 834 Outbound Test Case Generator ", "executedBy": "Archana.Bhaskar@caresource.com
+[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_018 round=1 error=generate:TS_018: agent 691 finished FAILED (execution de18877c-62e7-4b2f-9b4c-070916a3c8de)
+[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_016 agentid=691 phase=poll status=FAILED execution=93867a10-fe35-437a-be4b-2c4fa0de1d4d ms=37677 why={"executionId": "93867a10-fe35-437a-be4b-2c4fa0de1d4d", "agentId": 691, "output": null, "agentName": "Self Healing EDI 834 Outbound Test Case Generator ", "executedBy": "Archana.Bhaskar@caresource.com
+[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_016 round=1 error=generate:TS_016: agent 691 finished FAILED (execution 93867a10-fe35-437a-be4b-2c4fa0de1d4d)
+[ORCH] ts=2026-09-03T09:03:11Z step=agenterror label=generate:TS_015 agentid=691 phase=poll status=FAILED execution=649ffe02-9180-4428-9215-9ce54315dcb9 ms=37702 why={"executionId": "649ffe02-9180-4428-9215-9ce54315dcb9", "agentId": 691, "output": null, "agentName": "Self Healing EDI 834 Outbound Test Case Generator ", "executedBy": "Archana.Bhaskar@caresource.com
+[ORCH] ts=2026-09-03T09:03:11Z step=generate scenario=TS_015 round=1 error=generate:TS_015: agent 691 finished FAILED (execution 649ffe02-9180-4428-9215-9ce54315dcb9)
+[ORCH] ts=2026-09-03T09:03:48Z step=agenterror label=generate:TS_006 agentid=691 phase=poll status=FAILED execution=0a88e155-4636-4329-a55e-312e86f8f478 ms=37307 why={"executionId": "0a88e155-4636-4329-a55e-312e86f8f478", "agentId": 691, "output": null, "agentName": "Self Healing EDI 834 Outbound Test Case Generator ", "executedBy": "Archana.Bhaskar@caresource.com
+[ORCH] ts=2026-09-03T09:03:48Z step=generate scenario=TS_006 round=2 error=generate:TS_006: agent 691 finished FAILED (execution 0a88e155-4636-4329-a55e-312e86f8f478)
+[ORCH] ts=2026-09-03T09:03:48Z step=result scenario=TS_006 status=failed scores=[] rounds=2 tc=0 ms=74951
+[ORCH] ts=2026-09-03T09:03:49Z step=agenterror label=generate:TS_018 agentid=691 phase=poll status=FAILED execution=58f89563-dc9c-41ea-873c-f3f02a1d4396 ms=37553 why={"executionId": "58f89563-dc9c-41ea-873c-f3f02a1d4396", "agentId": 691, "output": null, "agentName": "Self Healing EDI 834 Outbound Test Case Generator ", "executedBy": "Archana.Bhaskar@caresource.com
+[ORCH] ts=2026-09-03T09:03:49Z step=generate scenario=TS_018 round=2 error=generate:TS_018: agent 691 finished FAILED (execution 58f89563-dc9c-41ea-873c-f3f02a1d4396)
+[ORCH] ts=2026-09-03T09:03:49Z step=result scenario=TS_018 status=failed scores=[] rounds=2 tc=0 ms=75201
+[ORCH] ts=2026-09-03T09:03:49Z step=agenterror label=generate:TS_011 agentid=691 phase=poll status=FAILED execution=3d75d780-da25-45ee-b6b7-486ca04e3d8d ms=37648 why={"executionId": "3d75d780-da25-45ee-b6b7-486ca04e3d8d", "agentId": 691, "output": null, "agentName": "Self Healing EDI 834 Outbound Test Case Generator ", "executedBy": "Archana.Bhaskar@caresource.com
+[ORCH] ts=2026-09-03T09:03:49Z step=generate scenario=TS_011 round=2 error=generate:TS_011: agent 691 finished FAILED (execution 3d75d780-da25-45ee-b6b7-486ca04e3d8d)
+[ORCH] ts=2026-09-03T09:03:49Z step=result scenario=TS_011 status=failed scores=[] rounds=2 tc=0 ms=75263
+[ORCH] ts=2026-09-03T09:04:26Z step=generate scenario=TS_005 round=2 tc=1 ids=TC_TS_005_001 chars=19331 ms=75467 regen=1
+[ORCH] ts=2026-09-03T09:04:41Z step=review scenario=TS_005 round=2 score=85 passed=0/1 failing=TC_TS_005_001 ms=14514
+[ORCH] ts=2026-09-03T09:04:41Z step=result scenario=TS_005 status=unhealed scores=[85] rounds=2 tc=1 ms=127411
+[ORCH] ts=2026-09-03T09:05:34Z step=generate scenario=TS_004 round=1 tc=6 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003,TC_TS004_004,TC_TS004_005,TC_TS004_006 chars=119901 ms=180735
+[ORCH] ts=2026-09-03T09:05:54Z step=generate scenario=TS_014 round=1 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=183416 ms=200960
+[ORCH] ts=2026-09-03T09:05:54Z step=pregate scenario=TS_014 round=1 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi
+[ORCH] ts=2026-09-03T09:06:00Z step=generate scenario=TS_021 round=1 tc=10 ids=TC_021_001,TC_021_002,TC_021_003,TC_021_004,TC_021_005,TC_021_006,TC_021_007,TC_021_008,TC_021_009,TC_021_010 chars=209652 ms=207037
+[ORCH] ts=2026-09-03T09:06:01Z step=generate scenario=TS_003 round=1 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=176499 ms=207236
+[ORCH] ts=2026-09-03T09:06:02Z step=generate scenario=TS_013 round=2 tc=8 ids=TC_TS_013_001,TC_TS_013_002,TC_TS_013_003,TC_TS_013_004,TC_TS_013_005,TC_TS_013_006,TC_TS_013_007,TC_TS_013_008 chars=159348 ms=171531 regen=1
+[ORCH] ts=2026-09-03T09:06:18Z step=review scenario=TS_004 round=1 score=85 passed=0/6 failing=TC_TS004_001,TC_TS004_002,TC_TS004_003,TC_TS004_004,TC_TS004_005,TC_TS004_006 ms=43645
+[ORCH] ts=2026-09-03T09:06:18Z step=generate scenario=TS_010 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=212964 ms=186890 regen=1
+[ORCH] ts=2026-09-03T09:06:18Z step=pregate scenario=TS_010 round=2 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi
+[ORCH] ts=2026-09-03T09:06:18Z step=result scenario=TS_010 status=unhealed scores=[] rounds=2 tc=10 ms=224522
+[ORCH] ts=2026-09-03T09:06:23Z step=generate scenario=TS_002 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=193163 ms=192506 regen=1
+[ORCH] ts=2026-09-03T09:06:23Z step=pregate scenario=TS_002 round=2 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi
+[ORCH] ts=2026-09-03T09:06:23Z step=result scenario=TS_002 status=unhealed scores=[] rounds=2 tc=10 ms=229899
+[ORCH] ts=2026-09-03T09:06:23Z step=generate scenario=TS_020 round=2 tc=10 ids=TC_TS020_001,TC_TS020_002,TC_TS020_003,TC_TS020_004,TC_TS020_005,TC_TS020_006,TC_TS020_007,TC_TS020_008,TC_TS020_009,TC_TS020_010 chars=256561 ms=192385 regen=1
+[ORCH] ts=2026-09-03T09:06:44Z step=generate scenario=TS_019 round=2 tc=10 ids=TC_TS019_001,TC_TS019_002,TC_TS019_003,TC_TS019_004,TC_TS019_005,TC_TS019_006,TC_TS019_007,TC_TS019_008,TC_TS019_009,TC_TS019_010 chars=224222 ms=212746 regen=1
+[ORCH] ts=2026-09-03T09:06:44Z step=generate scenario=TS_017 round=1 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=256731 ms=250702
+[ORCH] ts=2026-09-03T09:06:44Z step=pregate scenario=TS_017 round=1 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi
+[ORCH] ts=2026-09-03T09:06:45Z step=review scenario=TS_021 round=1 score=85 passed=0/10 failing=TC_021_001,TC_021_002,TC_021_003,TC_021_004,TC_021_005,TC_021_006,TC_021_007,TC_021_008,TC_021_009,TC_021_010 ms=44510
+[ORCH] ts=2026-09-03T09:06:45Z step=review scenario=TS_003 round=1 score=85 passed=0/10 failing=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 ms=44534
+[ORCH] ts=2026-09-03T09:07:05Z step=generate scenario=TS_007 round=1 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=249923 ms=271318
+[ORCH] ts=2026-09-03T09:07:05Z step=pregate scenario=TS_007 round=1 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi
+[ORCH] ts=2026-09-03T09:07:07Z step=review scenario=TS_013 round=2 score=85 passed=0/8 failing=TC_TS_013_001,TC_TS_013_002,TC_TS_013_003,TC_TS_013_004,TC_TS_013_005,TC_TS_013_006,TC_TS_013_007,TC_TS_013_008 ms=64669
+[ORCH] ts=2026-09-03T09:07:07Z step=result scenario=TS_013 status=unhealed scores=[85] rounds=2 tc=8 ms=273787
+[ORCH] ts=2026-09-03T09:07:07Z step=review scenario=TS_020 round=2 score=85 passed=1/10 failing=TC_TS020_001,TC_TS020_002,TC_TS020_003,TC_TS020_004,TC_TS020_005,TC_TS020_006,TC_TS020_007,TC_TS020_008,TC_TS020_009 ms=43880
+[ORCH] ts=2026-09-03T09:07:07Z step=result scenario=TS_020 status=unhealed scores=[85] rounds=2 tc=10 ms=273888
+[ORCH] ts=2026-09-03T09:07:29Z step=review scenario=TS_019 round=2 score=85 passed=0/10 failing=TC_TS019_001,TC_TS019_002,TC_TS019_003,TC_TS019_004,TC_TS019_005,TC_TS019_006,TC_TS019_007,TC_TS019_008,TC_TS019_009,TC_TS019_010 ms=45314
+[ORCH] ts=2026-09-03T09:07:29Z step=result scenario=TS_019 status=unhealed scores=[85] rounds=2 tc=10 ms=295534
+[ORCH] ts=2026-09-03T09:07:32Z step=generate scenario=TS_015 round=2 tc=4 ids=TC_TS_015_001,TC_TS_015_002,TC_TS_015_003,TC_TS_015_004 chars=96789 ms=261095 regen=1
+[ORCH] ts=2026-09-03T09:07:32Z step=pregate scenario=TS_015 round=2 failed=1 first=all 4 test cases are High priority; only the scenario's primary flow and finance/regressio
+[ORCH] ts=2026-09-03T09:07:32Z step=result scenario=TS_015 status=unhealed scores=[] rounds=2 tc=4 ms=298811
+[ORCH] ts=2026-09-03T09:07:51Z step=agenterror label=generate:TS_008 agentid=691 phase=poll status=FAILED execution=bcdac551-9c73-4245-a02f-b3579ec01007 ms=280154 why={"executionId": "bcdac551-9c73-4245-a02f-b3579ec01007", "agentId": 691, "output": null, "agentName": "Self Healing EDI 834 Outbound Test Case Generator ", "executedBy": "Archana.Bhaskar@caresource.com
+[ORCH] ts=2026-09-03T09:07:51Z step=generate scenario=TS_008 round=2 error=generate:TS_008: agent 691 finished FAILED (execution bcdac551-9c73-4245-a02f-b3579ec01007)
+[ORCH] ts=2026-09-03T09:07:51Z step=result scenario=TS_008 status=failed scores=[] rounds=2 tc=0 ms=317547
+[ORCH] ts=2026-09-03T09:07:52Z step=agenterror label=generate:TS_016 agentid=691 phase=poll status=FAILED execution=ff8570a8-c1df-4ea9-8680-8e6e8d7e2f9d ms=281309 why={"executionId": "ff8570a8-c1df-4ea9-8680-8e6e8d7e2f9d", "agentId": 691, "output": null, "agentName": "Self Healing EDI 834 Outbound Test Case Generator ", "executedBy": "Archana.Bhaskar@caresource.com
+[ORCH] ts=2026-09-03T09:07:52Z step=generate scenario=TS_016 round=2 error=generate:TS_016: agent 691 finished FAILED (execution ff8570a8-c1df-4ea9-8680-8e6e8d7e2f9d)
+[ORCH] ts=2026-09-03T09:07:52Z step=result scenario=TS_016 status=failed scores=[] rounds=2 tc=0 ms=318995
+[ORCH] ts=2026-09-03T09:08:40Z step=generate scenario=TS_014 round=2 tc=10 ids=TC_TS_014_001,TC_TS_014_002,TC_TS_014_003,TC_TS_014_004,TC_TS_014_005,TC_TS_014_006,TC_TS_014_007,TC_TS_014_008,TC_TS_014_009,TC_TS_014_010 chars=171880 ms=165858 regen=1
+[ORCH] ts=2026-09-03T09:09:31Z step=generate scenario=TS_021 round=2 tc=10 ids=TC_021_001,TC_021_002,TC_021_003,TC_021_004,TC_021_005,TC_021_006,TC_021_007,TC_021_008,TC_021_009,TC_021_010 chars=175301 ms=165993 regen=10
+[ORCH] ts=2026-09-03T09:09:31Z step=pregate scenario=TS_021 round=2 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi
+[ORCH] ts=2026-09-03T09:09:31Z step=keptbest scenario=TS_021 round=1 passed=0 note=later round was worse, shipping the best reviewed round
+[ORCH] ts=2026-09-03T09:09:31Z step=result scenario=TS_021 status=unhealed scores=[85] rounds=2 tc=10 ms=417593
+[ORCH] ts=2026-09-03T09:09:31Z step=generate scenario=TS_017 round=2 tc=10 ids=TC_017_001,TC_017_002,TC_017_003,TC_017_004,TC_017_005,TC_017_006,TC_017_007,TC_017_008,TC_017_009,TC_017_010 chars=181562 ms=166967 regen=1
+[ORCH] ts=2026-09-03T09:09:45Z step=review scenario=TS_014 round=2 score=85 passed=0/10 failing=TC_TS_014_001,TC_TS_014_002,TC_TS_014_003,TC_TS_014_004,TC_TS_014_005,TC_TS_014_006,TC_TS_014_007,TC_TS_014_008,TC_TS_014_009,TC_TS_014_010 ms=64525
+[ORCH] ts=2026-09-03T09:09:45Z step=result scenario=TS_014 status=unhealed scores=[85] rounds=2 tc=10 ms=431385
+[ORCH] ts=2026-09-03T09:09:45Z step=generate scenario=TS_004 round=2 tc=10 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003,TC_TS004_004,TC_TS004_005,TC_TS004_006,TC_TS004_007,TC_TS004_008,TC_TS004_009,TC_TS004_010 chars=215441 ms=207031 regen=6
+[ORCH] ts=2026-09-03T09:09:52Z step=generate scenario=TS_003 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=205695 ms=186763 regen=10
+[ORCH] ts=2026-09-03T09:10:00Z step=agenterror label=review:TS_004 agentid=672 phase=poll status=FAILED execution=fa4ef9bd-d184-454f-b053-f4dce11cc1a5 ms=14979 why={"executionId": "fa4ef9bd-d184-454f-b053-f4dce11cc1a5", "agentId": 672, "output": null, "agentName": "Independent QA Test Case Review and Scoring Agent", "executedBy": "Archana.Bhaskar@caresource.com"
+[ORCH] ts=2026-09-03T09:10:00Z step=review scenario=TS_004 round=2 error=review:TS_004: agent 672 finished FAILED (execution fa4ef9bd-d184-454f-b053-f4dce11cc1a5)
+[ORCH] ts=2026-09-03T09:10:00Z step=keptbest scenario=TS_004 round=1 passed=0 note=later round was worse, shipping the best reviewed round
+[ORCH] ts=2026-09-03T09:10:00Z step=result scenario=TS_004 status=unhealed scores=[85] rounds=2 tc=6 ms=446440
+[ORCH] ts=2026-09-03T09:10:11Z step=generate scenario=TS_007 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=216731 ms=186706 regen=1
+[ORCH] ts=2026-09-03T09:10:15Z step=review scenario=TS_017 round=2 score=85 passed=1/10 failing=TC_017_001,TC_017_002,TC_017_003,TC_017_004,TC_017_005,TC_017_006,TC_017_007,TC_017_008,TC_017_010 ms=43506
+[ORCH] ts=2026-09-03T09:10:15Z step=result scenario=TS_017 status=unhealed scores=[85] rounds=2 tc=10 ms=461241
+[ORCH] ts=2026-09-03T09:10:36Z step=review scenario=TS_003 round=2 score=85 passed=0/10 failing=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 ms=43590
+[ORCH] ts=2026-09-03T09:10:36Z step=stagnant scenario=TS_003 round=2 scores=[85, 85] passed=[0, 0]
+[ORCH] ts=2026-09-03T09:10:36Z step=result scenario=TS_003 status=stagnant scores=[85, 85] rounds=2 tc=10 ms=482190
+[ORCH] ts=2026-09-03T09:10:55Z step=review scenario=TS_007 round=2 score=85 passed=4/10 failing=TC_001,TC_002,TC_003,TC_004,TC_005,TC_010 ms=43763
+[ORCH] ts=2026-09-03T09:10:55Z step=result scenario=TS_007 status=unhealed scores=[85] rounds=2 tc=10 ms=501843
+[ORCH] ts=2026-09-03T09:20:49Z step=generate scenario=TS_012 round=1 error=generate:TS_012: agent 691 still running when the budget ran out (execution a760ec8c-dc37-4681-b746-203d17c2db12)
+[ORCH] ts=2026-09-03T09:20:49Z step=budget scenario=TS_012 round=2 note=stopped, budget low
+[ORCH] ts=2026-09-03T09:20:49Z step=result scenario=TS_012 status=failed scores=[] rounds=1 tc=0 ms=1095686
+[ORCH] ts=2026-09-03T09:20:49Z step=generate scenario=TS_001 round=1 error=generate:TS_001: agent 691 still running when the budget ran out (execution 4e33420d-51bd-426f-8a4a-43e0403aef4e)
+[ORCH] ts=2026-09-03T09:20:49Z step=budget scenario=TS_001 round=2 note=stopped, budget low
+[ORCH] ts=2026-09-03T09:20:49Z step=result scenario=TS_001 status=failed scores=[] rounds=1 tc=0 ms=1095789
+[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_003 ids=TC_001>TC_011,TC_002>TC_012,TC_003>TC_013,TC_004>TC_014,TC_005>TC_015,TC_006>TC_016,TC_007>TC_017,TC_008>TC_018,TC_009>TC_019,TC_010>TC_020
+[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_004 ids=TC_TS004_001>TC_021,TC_TS004_002>TC_022,TC_TS004_003>TC_023,TC_TS004_004>TC_024,TC_TS004_005>TC_025,TC_TS004_006>TC_026
+[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_005 ids=TC_TS_005_001>TC_027
+[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_007 ids=TC_001>TC_028,TC_002>TC_029,TC_003>TC_030,TC_004>TC_031,TC_005>TC_032,TC_006>TC_033,TC_007>TC_034,TC_008>TC_035,TC_009>TC_036,TC_010>TC_037
+[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_010 ids=TC_001>TC_038,TC_002>TC_039,TC_003>TC_040,TC_004>TC_041,TC_005>TC_042,TC_006>TC_043,TC_007>TC_044,TC_008>TC_045,TC_009>TC_046,TC_010>TC_047
+[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_013 ids=TC_TS_013_001>TC_048,TC_TS_013_002>TC_049,TC_TS_013_003>TC_050,TC_TS_013_004>TC_051,TC_TS_013_005>TC_052,TC_TS_013_006>TC_053,TC_TS_013_007>TC_054,TC_TS_013_008>TC_055
+[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_014 ids=TC_TS_014_001>TC_056,TC_TS_014_002>TC_057,TC_TS_014_003>TC_058,TC_TS_014_004>TC_059,TC_TS_014_005>TC_060,TC_TS_014_006>TC_061,TC_TS_014_007>TC_062,TC_TS_014_008>TC_063,TC_TS_014_009>TC_064,TC_TS_014_010>TC_065
+[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_015 ids=TC_TS_015_001>TC_066,TC_TS_015_002>TC_067,TC_TS_015_003>TC_068,TC_TS_015_004>TC_069
+[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_017 ids=TC_017_001>TC_070,TC_017_002>TC_071,TC_017_003>TC_072,TC_017_004>TC_073,TC_017_005>TC_074,TC_017_006>TC_075,TC_017_007>TC_076,TC_017_008>TC_077,TC_017_009>TC_078,TC_017_010>TC_079
+[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_019 ids=TC_TS019_001>TC_080,TC_TS019_002>TC_081,TC_TS019_003>TC_082,TC_TS019_004>TC_083,TC_TS019_005>TC_084,TC_TS019_006>TC_085,TC_TS019_007>TC_086,TC_TS019_008>TC_087,TC_TS019_009>TC_088,TC_TS019_010>TC_089
+[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_020 ids=TC_TS020_001>TC_090,TC_TS020_002>TC_091,TC_TS020_003>TC_092,TC_TS020_004>TC_093,TC_TS020_005>TC_094,TC_TS020_006>TC_095,TC_TS020_007>TC_096,TC_TS020_008>TC_097,TC_TS020_009>TC_098,TC_TS020_010>TC_099
+[ORCH] ts=2026-09-03T09:20:49Z step=renumber scenario=TS_021 ids=TC_021_001>TC_100,TC_021_002>TC_101,TC_021_003>TC_102,TC_021_004>TC_103,TC_021_005>TC_104,TC_021_006>TC_105,TC_021_007>TC_106,TC_021_008>TC_107,TC_021_009>TC_108,TC_021_010>TC_109
+[ORCH] ts=2026-09-03T09:20:49Z step=done approved=0 unreviewed=0 unhealed=12 stagnant=1 hardstop=0 failed=7 skipped=0 testcases=109 agentcalls=51 ms=1200461
+[ORCH] ts=2026-09-03T09:20:49Z step=outcome story=750331 ready=30/109 testcases flagged=79 scenarios=20 elapsed=20m00s warnings=7
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_011 scenario=TS_003 why=has unresolved placeholders
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_012 scenario=TS_003 why=has unresolved placeholders
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_013 scenario=TS_003 why=clearly unrelated to scenario
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_014 scenario=TS_003 why=has unresolved placeholders
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_015 scenario=TS_003 why=has unresolved placeholders
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_016 scenario=TS_003 why=clearly unrelated to scenario
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_017 scenario=TS_003 why=clearly unrelated to scenario
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_018 scenario=TS_003 why=clearly unrelated to scenario
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_019 scenario=TS_003 why=clearly unrelated to scenario
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_020 scenario=TS_003 why=clearly unrelated to scenario
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_021 scenario=TS_004 why=duplicate of another full positive case
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_022 scenario=TS_004 why=missing positive scenario coverage
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_023 scenario=TS_004 why=path check conflicts with flow setup
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_024 scenario=TS_004 why=duplicate observability case
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_025 scenario=TS_004 why=duplicate of another full positive case
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_026 scenario=TS_004 why=duplicate observability case
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_027 scenario=TS_005 why=unresolved placeholder in path
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_028 scenario=TS_007 why=wrong intake path cited
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_029 scenario=TS_007 why=wrong intake path cited
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_030 scenario=TS_007 why=wrong intake path cited
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_031 scenario=TS_007 why=scenario is unrelated negative flow
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_032 scenario=TS_007 why=scenario is unrelated negative flow
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_037 scenario=TS_007 why=wrong intake path cited
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_048 scenario=TS_013 why=wrong source path and duplicate intent
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_049 scenario=TS_013 why=different scenario than requested
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_050 scenario=TS_013 why=wrong source path and duplicate intent
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_051 scenario=TS_013 why=same scenario covered by other cases
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_052 scenario=TS_013 why=same scenario covered by other cases
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_053 scenario=TS_013 why=same scenario covered by other cases
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_054 scenario=TS_013 why=negative case for positive scenario
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_055 scenario=TS_013 why=different scenario than requested
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_056 scenario=TS_014 why=wrong source path and duplicate intent
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_057 scenario=TS_014 why=wrong scenario and wrong source path
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_058 scenario=TS_014 why=wrong source path and duplicate intent
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_059 scenario=TS_014 why=wrong source path and duplicate intent
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_060 scenario=TS_014 why=wrong source path and duplicate intent
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_061 scenario=TS_014 why=wrong source path and duplicate intent
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_062 scenario=TS_014 why=wrong scenario and wrong source path
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_063 scenario=TS_014 why=wrong source path and duplicate intent
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_064 scenario=TS_014 why=wrong scenario and wrong source path
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_065 scenario=TS_014 why=wrong source path and duplicate intent
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_070 scenario=TS_017 why=source path uses wrong intake form
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_071 scenario=TS_017 why=source path uses wrong intake form
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_072 scenario=TS_017 why=source path uses wrong intake form
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_073 scenario=TS_017 why=source path uses wrong intake form
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_074 scenario=TS_017 why=wrong member type for scenario
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_075 scenario=TS_017 why=mixed member case is off-scope
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_076 scenario=TS_017 why=negative SNIP routing is off-scope
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_077 scenario=TS_017 why=negative SNIP routing is off-scope
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_079 scenario=TS_017 why=all-invalid batch is off-scope
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_080 scenario=TS_019 why=wrong intake path in a step
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_081 scenario=TS_019 why=wrong intake path in a step
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_082 scenario=TS_019 why=wrong intake path in a step
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_083 scenario=TS_019 why=wrong intake path in a step
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_084 scenario=TS_019 why=off-topic negative case
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_085 scenario=TS_019 why=wrong intake path in a step
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_086 scenario=TS_019 why=wrong intake path in a step
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_087 scenario=TS_019 why=off-topic mixed batch case
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_088 scenario=TS_019 why=wrong intake path in a step
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_089 scenario=TS_019 why=wrong intake path in a step
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_090 scenario=TS_020 why=wrong intake path format
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_091 scenario=TS_020 why=wrong intake path format
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_092 scenario=TS_020 why=wrong intake path format
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_093 scenario=TS_020 why=wrong intake path format
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_094 scenario=TS_020 why=wrong intake path format
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_095 scenario=TS_020 why=wrong intake path format
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_096 scenario=TS_020 why=wrong intake path format
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_097 scenario=TS_020 why=unresolved placeholder remains
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_098 scenario=TS_020 why=wrong intake path format
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_100 scenario=TS_021 why=wrong intake path mapping
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_101 scenario=TS_021 why=wrong intake path mapping
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_102 scenario=TS_021 why=scenario coverage is off-topic
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_103 scenario=TS_021 why=scenario coverage is off-topic
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_104 scenario=TS_021 why=scenario coverage is off-topic
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_105 scenario=TS_021 why=scenario coverage is off-topic
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_106 scenario=TS_021 why=scenario coverage is off-topic
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_107 scenario=TS_021 why=scenario coverage is off-topic
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_108 scenario=TS_021 why=scenario coverage is off-topic
+[ORCH] ts=2026-09-03T09:20:49Z step=flagged tc=TC_109 scenario=TS_021 why=scenario coverage is off-topic
+[ORCH] ts=2026-09-03T09:20:49Z step=detail calls=51 rounds=38 scoreboard=TS_001:failed  TS_002:unhealed  TS_003:stagnant(85>85)  TS_004:unhealed(85)  TS_005:unhealed(85)  TS_006:failed  TS_007:unhealed(85)  TS_008:failed  TS_010:unhealed  TS_011:failed  TS_012:failed  TS_013:unhealed(85)  TS_014:unhealed(85)  TS_015:unhealed  TS_016:failed  TS_017:unhealed(85)  TS_018:failed  TS_019:unhealed(85)  TS_020:unhealed(85)  TS_021:unhealed(85)
