@@ -1,0 +1,617 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "750331",
+    "title": "Dev and Test | Outbound | 834| MADUAL | ADD CCA LOB in the existing CareSource 834, update the file naming and add additional data elements for ClarestHealth/CS"
+  },
+  "summary": {
+    "scenarios": 20,
+    "approved": 0,
+    "unreviewed": 0,
+    "unhealed": 13,
+    "stagnant": 0,
+    "hardstop": 0,
+    "failed": 7,
+    "skipped": 0,
+    "testcases": 120,
+    "totalrounds": 36,
+    "agentcalls": 40,
+    "elapsedms": 1200438
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "Process MADUAL change proprietary file from resolved CRT source path and change file mask",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 1,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 1095037,
+      "gaps": [],
+      "error": "budget exhausted"
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "Process MADUAL full proprietary file from resolved CRT source path and full file mask",
+      "status": "unhealed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 84262,
+      "elapsedms": 164178,
+      "gaps": [
+        "the banned term 'SSBCI' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'deeming' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CS_CLAREST_P_FULL_834' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CARESOURCE_CSSHEALTH_P_FULL_834' appears in the output; replace it with the correct domain terminology",
+        "all 10 test cases are High priority; only the scenario's primary flow and finance/regression guardrail cases are High \u2014 per-field permutation, repeated-occurrence and boundary variants are Medium"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "Reject or do not process proprietary file that does not follow MADUAL naming convention",
+      "status": "unhealed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 106297,
+      "elapsedms": 364530,
+      "gaps": [
+        "the banned term 'CARESOURCE_CSSHEALTH_P_INCR_834' appears in the output; replace it with the correct domain terminology"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Generate outbound change 834 file with MADUAL token and CRT test environment indicator",
+      "status": "unhealed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 108347,
+      "elapsedms": 223760,
+      "gaps": [
+        "the banned term 'SSBCI' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'deeming' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CS_CLAREST_P_INCR_834' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CARESOURCE_CSSHEALTH_P_INCR_834' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CARESOURCE_CSSHEALTH_P_FULL_834' appears in the output; replace it with the correct domain terminology",
+        "all 10 test cases are High priority; only the scenario's primary flow and finance/regression guardrail cases are High \u2014 per-field permutation, repeated-occurrence and boundary variants are Medium"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "Generate outbound full 834 file with MADUAL token and CRT test environment indicator",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_031",
+          "why": "wrong token positions in name check"
+        },
+        {
+          "id": "TC_034",
+          "why": "off-topic member ID mapping case"
+        },
+        {
+          "id": "TC_035",
+          "why": "off-topic member ID mapping case"
+        },
+        {
+          "id": "TC_036",
+          "why": "off-topic INS mapping case"
+        },
+        {
+          "id": "TC_037",
+          "why": "off-topic death date mapping case"
+        },
+        {
+          "id": "TC_038",
+          "why": "off-topic MTM mapping case"
+        },
+        {
+          "id": "TC_039",
+          "why": "off-topic MTM absence case"
+        },
+        {
+          "id": "TC_040",
+          "why": "off-topic unsupported elements case"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        2
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 86709,
+      "elapsedms": 386468,
+      "gaps": [
+        "Step Description field: \"Verify the generated file name contains the mandatory MADUAL token as the second token and the environment indicator T as the fifth token.\"",
+        "Step Description field: \"Verify the generated file name contains FULL as the sixth token and 834 as the seventh token, followed by a 14-digit timestamp and the .edi extension.\"",
+        "Scenario description requires: \"CS_MADUAL_CLAREST_T_FULL_834_YYYYMMDDhhmmss.edi\"",
+        "Test Case Name field: \"Validate full outbound 834 generation with migrated member Loop 2000 REF*0F and required file naming\"",
+        "Description field: \"Verify that a CRT-generated full outbound 834 for a migrated member uses the required test file naming standard and populates Member ID in Loop 2000 REF*0F as the 10-digit CCA-assigned identifier while the file processes successfully and passes SNIP validation.\"",
+        "TS_005 acceptanceCriteriaRef is only: \"AC\u20116: File Naming Standards(need dev change)\"",
+        "Test Case Name field: \"Validate full outbound 834 generation with net-new member Loop 2000 REF*0F derived from 9-digit SBSB ID plus 00\"",
+        "Description field: \"Verify that a CRT-generated full outbound 834 for a net-new member uses the required test file naming standard and populates Member ID in Loop 2000 REF*0F as an 11-digit value formed from the 9-digit Facets subscriber SBSB ID with a literal 00 suffix.\"",
+        "TS_005 acceptanceCriteriaRef is only: \"AC\u20116: File Naming Standards(need dev change)\"",
+        "Test Case Name field: \"Validate full outbound 834 maps Loop 2000 INS04 from maintenance code and includes Loop 2000 INS12 when death date exists\"",
+        "Description field: \"Verify that a CRT-generated full outbound 834 with a populated maintenance code and death date uses the required full test file naming standard, maps Loop 2000 INS04 from the proprietary maintenance code field, and populates Loop 2000 INS12 only when a death date is present.\"",
+        "TS_005 acceptanceCriteriaRef is only: \"AC\u20116: File Naming Standards(need dev change)\"",
+        "Test Case Name field: \"Validate full outbound 834 omits Loop 2000 INS12 when death date is null\"",
+        "Description field: \"Verify that a CRT-generated full outbound 834 uses the required test file name and does not create Loop 2000 INS12 when the proprietary Death_Date field is null, with explicit absence validation in the generated file.\"",
+        "TS_005 acceptanceCriteriaRef is only: \"AC\u20116: File Naming Standards(need dev change)\"",
+        "Test Case Name field: \"Validate full outbound 834 creates Loop 2750 MTM opt-out structure when indicator is populated\"",
+        "Description field: \"Verify that a CRT-generated full outbound 834 uses the required test file name and creates Loop 2750 as LX, N1*75*MTM_OPT_OUT, and REF*ZZ with the indicator value when the proprietary MTM opt-out indicator is populated.\"",
+        "TS_005 acceptanceCriteriaRef is only: \"AC\u20116: File Naming Standards(need dev change)\"",
+        "Test Case Name field: \"Validate full outbound 834 omits Loop 2750 entirely when MTM opt-out indicator is blank\"",
+        "Description field: \"Verify that a CRT-generated full outbound 834 uses the required test file name and does not create Loop 2750 at all when the proprietary MTM opt-out indicator is blank, with explicit absence validation in the generated file.\"",
+        "TS_005 acceptanceCriteriaRef is only: \"AC\u20116: File Naming Standards(need dev change)\"",
+        "Test Case Name field: \"Validate full outbound 834 excludes unsupported outbound elements while retaining required full test file naming\"",
+        "Description field: \"Verify that a CRT-generated full outbound 834 uses the required test naming standard, includes only the CCA line of business data in scope, and does not send unsupported outbound elements or any other out-of-scope population while still processing successfully and passing SNIP validation.\"",
+        "TS_005 acceptanceCriteriaRef is only: \"AC\u20116: File Naming Standards(need dev change)\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_006",
+      "title": "Do not generate outbound files with superseded legacy naming patterns",
+      "status": "unhealed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 105094,
+      "elapsedms": 185146,
+      "gaps": [
+        "the banned term 'CS_CLAREST_P_INCR_834' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CS_CLAREST_P_FULL_834' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CARESOURCE_CSSHEALTH_P_INCR_834' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CARESOURCE_CSSHEALTH_P_FULL_834' appears in the output; replace it with the correct domain terminology",
+        "all 10 test cases are High priority; only the scenario's primary flow and finance/regression guardrail cases are High \u2014 per-field permutation, repeated-occurrence and boundary variants are Medium"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_007",
+      "title": "Generate both outbound change and full 834 files when separate MADUAL inputs are available",
+      "status": "unhealed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 151006,
+      "elapsedms": 245605,
+      "gaps": [
+        "the banned term 'SSBCI' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'deeming' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CS_CLAREST_P_INCR_834' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CARESOURCE_CSSHEALTH_P_INCR_834' appears in the output; replace it with the correct domain terminology",
+        "all 10 test cases are High priority; only the scenario's primary flow and finance/regression guardrail cases are High \u2014 per-field permutation, repeated-occurrence and boundary variants are Medium"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_008",
+      "title": "Restrict generated outbound population to CCA Line of Business only",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_061",
+          "why": "test naming contradicts story naming rule"
+        },
+        {
+          "id": "TC_062",
+          "why": "test naming contradicts story naming rule"
+        },
+        {
+          "id": "TC_070",
+          "why": "missing specific out-of-scope elements"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        7
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 113341,
+      "elapsedms": 368726,
+      "gaps": [
+        "Test Case Name contains \"Verify incremental outbound 834 generation includes only CCA members for CSSHealth / ClarestHealth\" while domain hint says \"FILE NAMING (authoritative; AC-6 supersedes the Description): outbound files are CS_MADUAL_CLAREST_P_INCR_834_YYYYMMDDhhmmss.edi for the daily Change/Incremental file and CS_MADUAL_CLAREST_P_FULL_834_YYYYMMDDhhmmss.edi for the monthly Full file, where the fifth token is the environment indicator - P for production, T for test - so a CRT execution asserts T and P only when the case explicitly validates the production naming.\"",
+        "Description contains \"Validate that an incremental outbound 834 generated from a proprietary MADUAL change extract contains only CCA Line of Business members, uses the required naming convention, is processed successfully through Edifecs ST, passes SNIP 1 and SNIP 2 validation, and is delivered to the CSSHealth test output location without any non-CCA population.\"; TS_008 also requires \"And processing adheres to the approved mapping defined in:\" from acceptanceCriteriaRef; add a dedicated test case for explicit mapping compliance.",
+        "Test Case Name contains \"Verify full outbound 834 generation includes only CCA members for CSSHealth / ClarestHealth\" while domain hint says \"FILE NAMING (authoritative; AC-6 supersedes the Description): outbound files are CS_MADUAL_CLAREST_P_INCR_834_YYYYMMDDhhmmss.edi for the daily Change/Incremental file and CS_MADUAL_CLAREST_P_FULL_834_YYYYMMDDhhmmss.edi for the monthly Full file, where the fifth token is the environment indicator - P for production, T for test - so a CRT execution asserts T and P only when the case explicitly validates the production naming.\"",
+        "Description contains \"Validate that the generated CCA-only outbound 834 does not send the explicitly excluded out-of-scope elements and does not include any non-CCA population, while remaining successfully processed and SNIP compliant.\"; TS_008 also requires \"OUT OF SCOPE - never assert, populate or validate these: SSBCI_IND, SSBCI_START_DT, SSBCI_END_DT, and any deeming indicator or deeming date; they are explicitly not sent.\" from domain hints; add a dedicated test case for those specific excluded elements."
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_009",
+      "title": "Validate all outbound segments comply with approved Proprietary-to-EDI map",
+      "status": "unhealed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 142751,
+      "elapsedms": 246434,
+      "gaps": [
+        "the banned term 'SSBCI' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'deeming' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CS_CLAREST_P_INCR_834' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CS_CLAREST_P_FULL_834' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CARESOURCE_CSSHEALTH_P_INCR_834' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CARESOURCE_CSSHEALTH_P_FULL_834' appears in the output; replace it with the correct domain terminology",
+        "all 10 test cases are High priority; only the scenario's primary flow and finance/regression guardrail cases are High \u2014 per-field permutation, repeated-occurrence and boundary variants are Medium"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_010",
+      "title": "Pass SNIP 1 and SNIP 2 validation for generated change outbound 834",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 527513,
+      "gaps": [],
+      "error": "generate:TS_010: agent 670 finished FAILED (execution 79fe35bf-3719-496c-9c70-86856e2090ce)"
+    },
+    {
+      "scenarioid": "TS_011",
+      "title": "Pass SNIP 1 and SNIP 2 validation for generated full outbound 834",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 1,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 1095085,
+      "gaps": [],
+      "error": "budget exhausted"
+    },
+    {
+      "scenarioid": "TS_012",
+      "title": "Populate Loop 2000 REF*0F with 10-digit CCA-assigned Member ID for migrated members in Plan Year 2026",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 1,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 1095105,
+      "gaps": [],
+      "error": "budget exhausted"
+    },
+    {
+      "scenarioid": "TS_013",
+      "title": "Populate Loop 2000 REF*0F with 11-digit CareSource Member ID for net-new members in Plan Year 2026",
+      "status": "unhealed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 8,
+      "chars": 99659,
+      "elapsedms": 425840,
+      "gaps": [
+        "the banned term 'CS_CLAREST_P_INCR_834' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CS_CLAREST_P_FULL_834' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CARESOURCE_CSSHEALTH_P_INCR_834' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CARESOURCE_CSSHEALTH_P_FULL_834' appears in the output; replace it with the correct domain terminology"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_014",
+      "title": "Do not cross-apply migrated and net-new Member ID logic in Loop 2000 REF*0F",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 1,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 1095042,
+      "gaps": [],
+      "error": "budget exhausted"
+    },
+    {
+      "scenarioid": "TS_015",
+      "title": "Map MAINTENANCE_CODE from proprietary file to Loop 2000 INS04",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 287223,
+      "gaps": [],
+      "error": "generate:TS_015: agent 670 finished FAILED (execution f11ed388-f26f-4c25-b885-a7529aa71ad5)"
+    },
+    {
+      "scenarioid": "TS_016",
+      "title": "Populate Loop 2000 INS12 when Death_Date is present in proprietary file",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 526405,
+      "gaps": [],
+      "error": "generate:TS_016: agent 670 finished FAILED (execution cefb82ab-aca2-4733-8430-36c04a6b70f9)"
+    },
+    {
+      "scenarioid": "TS_017",
+      "title": "Omit Loop 2000 INS12 when Death_Date is null in proprietary file",
+      "status": "unhealed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 8,
+      "chars": 107885,
+      "elapsedms": 362268,
+      "gaps": [
+        "all 8 test cases are High priority; only the scenario's primary flow and finance/regression guardrail cases are High \u2014 per-field permutation, repeated-occurrence and boundary variants are Medium"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_018",
+      "title": "Create Loop 2750 for MTM opt-out when MTM_OPT_OUT_INDICATOR has a value",
+      "status": "unhealed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 133479,
+      "elapsedms": 204836,
+      "gaps": [
+        "the banned term 'SSBCI' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'deeming' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CS_CLAREST_P_INCR_834' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CS_CLAREST_P_FULL_834' appears in the output; replace it with the correct domain terminology"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_019",
+      "title": "Omit Loop 2750 entirely when MTM_OPT_OUT_INDICATOR is blank",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_107",
+          "why": "duplicate of full-file omission case"
+        },
+        {
+          "id": "TC_108",
+          "why": "duplicate of change-file omission case"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        4
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 6,
+      "chars": 82538,
+      "elapsedms": 337281,
+      "gaps": [
+        "Semantic duplicate: 'TC_TS019_001' and 'TC_TS019_002' share the same intent of validating that a blank MTM opt-out indicator results in omission of Loop 2750; the only changed condition is Change vs Full file while the business intent and assertions are the same.",
+        "Semantic duplicate: 'TC_TS019_002' and 'TC_TS019_001' share the same intent of validating that a blank MTM opt-out indicator results in omission of Loop 2750; the only changed condition is Full vs Change file while the business intent and assertions are the same."
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_020",
+      "title": "Do not send out-of-scope SSBCI and deeming elements in generated outbound 834",
+      "status": "unhealed",
+      "flagged": [],
+      "scorehistory": [],
+      "passedhistory": [],
+      "finalscore": null,
+      "rounds": 2,
+      "testcasecount": 8,
+      "chars": 125516,
+      "elapsedms": 184550,
+      "gaps": [
+        "the banned term 'SSBCI' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'deeming' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CS_CLAREST_P_INCR_834' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CS_CLAREST_P_FULL_834' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CARESOURCE_CSSHEALTH_P_INCR_834' appears in the output; replace it with the correct domain terminology",
+        "the banned term 'CARESOURCE_CSSHEALTH_P_FULL_834' appears in the output; replace it with the correct domain terminology"
+      ],
+      "error": null
+    }
+  ],
+  "warnings": [
+    "TS_001 produced no test cases",
+    "TS_010 produced no test cases",
+    "TS_011 produced no test cases",
+    "TS_012 produced no test cases",
+    "TS_014 produced no test cases",
+    "TS_015 produced no test cases",
+    "TS_016 produced no test cases"
+  ],
+  "testcases": {
+    "rows": 1595,
+    "chars": 1436520,
+    "scenarios": 20,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-09-01T09:31:06Z step=start story=750331 maxscenarios=20 tcper=10 steps=5-40 rounds=2 workers=20 pass_=90/50 judge=653 deadline=1200s",
+    "[ORCH] ts=2026-09-01T09:31:06Z step=fetch story=750331 titlechars=160 descchars=3521 acchars=4659 ms=218",
+    "[ORCH] ts=2026-09-01T09:32:51Z step=scenarios count=20 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007,TS_008,TS_009,TS_010,TS_011,TS_012,TS_013,TS_014,TS_015,TS_016,TS_017,TS_018,TS_019,TS_020 ms=105046",
+    "[ORCH] ts=2026-09-01T09:33:28Z step=agenterror label=generate:TS_002 agentid=670 phase=poll status=FAILED execution=915ea4ac-37d6-4471-b818-d400b43e4356 ms=37521 why={\"executionId\": \"915ea4ac-37d6-4471-b818-d400b43e4356\", \"agentId\": 670, \"output\": null, \"agentName\": \"EDI 834 Outbound Modified Test Case Generator Self Heal\", \"executedBy\": \"Archana.Bhaskar@caresourc",
+    "[ORCH] ts=2026-09-01T09:33:28Z step=generate scenario=TS_002 round=1 error=generate:TS_002: agent 670 finished FAILED (execution 915ea4ac-37d6-4471-b818-d400b43e4356)",
+    "[ORCH] ts=2026-09-01T09:33:28Z step=agenterror label=generate:TS_020 agentid=670 phase=poll status=FAILED execution=e172c135-3d3c-49b5-ae23-9df180a9818a ms=37481 why={\"executionId\": \"e172c135-3d3c-49b5-ae23-9df180a9818a\", \"agentId\": 670, \"output\": null, \"agentName\": \"EDI 834 Outbound Modified Test Case Generator Self Heal\", \"executedBy\": \"Archana.Bhaskar@caresourc",
+    "[ORCH] ts=2026-09-01T09:33:28Z step=generate scenario=TS_020 round=1 error=generate:TS_020: agent 670 finished FAILED (execution e172c135-3d3c-49b5-ae23-9df180a9818a)",
+    "[ORCH] ts=2026-09-01T09:33:29Z step=agenterror label=generate:TS_007 agentid=670 phase=poll status=FAILED execution=3336ad64-4df2-47ed-8dcf-688822be17e4 ms=37639 why={\"executionId\": \"3336ad64-4df2-47ed-8dcf-688822be17e4\", \"agentId\": 670, \"output\": null, \"agentName\": \"EDI 834 Outbound Modified Test Case Generator Self Heal\", \"executedBy\": \"Archana.Bhaskar@caresourc",
+    "[ORCH] ts=2026-09-01T09:33:29Z step=generate scenario=TS_007 round=1 error=generate:TS_007: agent 670 finished FAILED (execution 3336ad64-4df2-47ed-8dcf-688822be17e4)",
+    "[ORCH] ts=2026-09-01T09:33:29Z step=agenterror label=generate:TS_018 agentid=670 phase=poll status=FAILED execution=5cb79b4b-3fc0-4995-8d4b-06686a12cf17 ms=37649 why={\"executionId\": \"5cb79b4b-3fc0-4995-8d4b-06686a12cf17\", \"agentId\": 670, \"output\": null, \"agentName\": \"EDI 834 Outbound Modified Test Case Generator Self Heal\", \"executedBy\": \"Archana.Bhaskar@caresourc",
+    "[ORCH] ts=2026-09-01T09:33:29Z step=generate scenario=TS_018 round=1 error=generate:TS_018: agent 670 finished FAILED (execution 5cb79b4b-3fc0-4995-8d4b-06686a12cf17)",
+    "[ORCH] ts=2026-09-01T09:33:29Z step=agenterror label=generate:TS_006 agentid=670 phase=poll status=FAILED execution=3e5b0624-395b-434c-afa0-0626dfe09e58 ms=37719 why={\"executionId\": \"3e5b0624-395b-434c-afa0-0626dfe09e58\", \"agentId\": 670, \"output\": null, \"agentName\": \"EDI 834 Outbound Modified Test Case Generator Self Heal\", \"executedBy\": \"Archana.Bhaskar@caresourc",
+    "[ORCH] ts=2026-09-01T09:33:29Z step=generate scenario=TS_006 round=1 error=generate:TS_006: agent 670 finished FAILED (execution 3e5b0624-395b-434c-afa0-0626dfe09e58)",
+    "[ORCH] ts=2026-09-01T09:33:29Z step=agenterror label=generate:TS_015 agentid=670 phase=poll status=FAILED execution=ebcd6f04-0c1a-449b-a371-3ee7eea0056f ms=37752 why={\"executionId\": \"ebcd6f04-0c1a-449b-a371-3ee7eea0056f\", \"agentId\": 670, \"output\": null, \"agentName\": \"EDI 834 Outbound Modified Test Case Generator Self Heal\", \"executedBy\": \"Archana.Bhaskar@caresourc",
+    "[ORCH] ts=2026-09-01T09:33:29Z step=generate scenario=TS_015 round=1 error=generate:TS_015: agent 670 finished FAILED (execution ebcd6f04-0c1a-449b-a371-3ee7eea0056f)",
+    "[ORCH] ts=2026-09-01T09:33:29Z step=agenterror label=generate:TS_004 agentid=670 phase=poll status=FAILED execution=2e1a88d3-ce01-4dbd-95fd-d6ad511226de ms=37945 why={\"executionId\": \"2e1a88d3-ce01-4dbd-95fd-d6ad511226de\", \"agentId\": 670, \"output\": null, \"agentName\": \"EDI 834 Outbound Modified Test Case Generator Self Heal\", \"executedBy\": \"Archana.Bhaskar@caresourc",
+    "[ORCH] ts=2026-09-01T09:33:29Z step=generate scenario=TS_004 round=1 error=generate:TS_004: agent 670 finished FAILED (execution 2e1a88d3-ce01-4dbd-95fd-d6ad511226de)",
+    "[ORCH] ts=2026-09-01T09:33:29Z step=agenterror label=generate:TS_009 agentid=670 phase=poll status=FAILED execution=4b92d864-8cdf-4937-8607-1aa9b1b779a0 ms=38199 why={\"executionId\": \"4b92d864-8cdf-4937-8607-1aa9b1b779a0\", \"agentId\": 670, \"output\": null, \"agentName\": \"EDI 834 Outbound Modified Test Case Generator Self Heal\", \"executedBy\": \"Archana.Bhaskar@caresourc",
+    "[ORCH] ts=2026-09-01T09:33:29Z step=generate scenario=TS_009 round=1 error=generate:TS_009: agent 670 finished FAILED (execution 4b92d864-8cdf-4937-8607-1aa9b1b779a0)",
+    "[ORCH] ts=2026-09-01T09:35:35Z step=generate scenario=TS_002 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=84262 ms=126627 regen=1",
+    "[ORCH] ts=2026-09-01T09:35:35Z step=pregate scenario=TS_002 round=2 failed=5 first=the banned term 'SSBCI' appears in the output; replace it with the correct domain terminol",
+    "[ORCH] ts=2026-09-01T09:35:35Z step=result scenario=TS_002 status=unhealed scores=[] rounds=2 tc=10 ms=164178",
+    "[ORCH] ts=2026-09-01T09:35:48Z step=generate scenario=TS_008 round=1 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=111046 ms=176828",
+    "[ORCH] ts=2026-09-01T09:35:48Z step=pregate scenario=TS_008 round=1 failed=3 first=the banned term 'SSBCI' appears in the output; replace it with the correct domain terminol",
+    "[ORCH] ts=2026-09-01T09:35:55Z step=generate scenario=TS_020 round=2 tc=8 ids=TC_TS_020_001,TC_TS_020_002,TC_TS_020_003,TC_TS_020_004,TC_TS_020_005,TC_TS_020_006,TC_TS_020_007,TC_TS_020_008 chars=125516 ms=147026 regen=1",
+    "[ORCH] ts=2026-09-01T09:35:55Z step=pregate scenario=TS_020 round=2 failed=6 first=the banned term 'SSBCI' appears in the output; replace it with the correct domain terminol",
+    "[ORCH] ts=2026-09-01T09:35:55Z step=result scenario=TS_020 status=unhealed scores=[] rounds=2 tc=8 ms=184550",
+    "[ORCH] ts=2026-09-01T09:35:56Z step=generate scenario=TS_006 round=2 tc=10 ids=TC_TS_006_001,TC_TS_006_002,TC_TS_006_003,TC_TS_006_004,TC_TS_006_005,TC_TS_006_006,TC_TS_006_007,TC_TS_006_008,TC_TS_006_009,TC_TS_006_010 chars=105094 ms=147393 regen=1",
+    "[ORCH] ts=2026-09-01T09:35:56Z step=pregate scenario=TS_006 round=2 failed=5 first=the banned term 'CS_CLAREST_P_INCR_834' appears in the output; replace it with the correct",
+    "[ORCH] ts=2026-09-01T09:35:56Z step=result scenario=TS_006 status=unhealed scores=[] rounds=2 tc=10 ms=185146",
+    "[ORCH] ts=2026-09-01T09:36:08Z step=generate scenario=TS_017 round=1 tc=10 ids=TC_TS_017_001,TC_TS_017_002,TC_TS_017_003,TC_TS_017_004,TC_TS_017_005,TC_TS_017_006,TC_TS_017_007,TC_TS_017_008,TC_TS_017_009,TC_TS_017_010 chars=125532 ms=197013",
+    "[ORCH] ts=2026-09-01T09:36:08Z step=pregate scenario=TS_017 round=1 failed=4 first=the banned term 'SSBCI' appears in the output; replace it with the correct domain terminol",
+    "[ORCH] ts=2026-09-01T09:36:09Z step=generate scenario=TS_019 round=1 tc=6 ids=TC_TS019_001,TC_TS019_002,TC_TS019_003,TC_TS019_004,TC_TS019_005,TC_TS019_006 chars=102953 ms=197828",
+    "[ORCH] ts=2026-09-01T09:36:09Z step=pregate scenario=TS_019 round=1 failed=3 first=the banned term 'SSBCI' appears in the output; replace it with the correct domain terminol",
+    "[ORCH] ts=2026-09-01T09:36:10Z step=generate scenario=TS_003 round=1 tc=10 ids=TC_TS003_001,TC_TS003_002,TC_TS003_003,TC_TS003_004,TC_TS003_005,TC_TS003_006,TC_TS003_007,TC_TS003_008,TC_TS003_009,TC_TS003_010 chars=102124 ms=198635",
+    "[ORCH] ts=2026-09-01T09:36:10Z step=pregate scenario=TS_003 round=1 failed=1 first=all 10 test cases are High priority; only the scenario's primary flow and finance/regressi",
+    "[ORCH] ts=2026-09-01T09:36:16Z step=generate scenario=TS_018 round=2 tc=10 ids=TC_TS018_001,TC_TS018_002,TC_TS018_003,TC_TS018_004,TC_TS018_005,TC_TS018_006,TC_TS018_007,TC_TS018_008,TC_TS018_009,TC_TS018_010 chars=133479 ms=167140 regen=1",
+    "[ORCH] ts=2026-09-01T09:36:16Z step=pregate scenario=TS_018 round=2 failed=4 first=the banned term 'SSBCI' appears in the output; replace it with the correct domain terminol",
+    "[ORCH] ts=2026-09-01T09:36:16Z step=result scenario=TS_018 status=unhealed scores=[] rounds=2 tc=10 ms=204836",
+    "[ORCH] ts=2026-09-01T09:36:29Z step=generate scenario=TS_005 round=1 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=111305 ms=218387",
+    "[ORCH] ts=2026-09-01T09:36:29Z step=pregate scenario=TS_005 round=1 failed=4 first=the banned term 'SSBCI' appears in the output; replace it with the correct domain terminol",
+    "[ORCH] ts=2026-09-01T09:36:35Z step=generate scenario=TS_004 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=108347 ms=185779 regen=1",
+    "[ORCH] ts=2026-09-01T09:36:35Z step=pregate scenario=TS_004 round=2 failed=6 first=the banned term 'SSBCI' appears in the output; replace it with the correct domain terminol",
+    "[ORCH] ts=2026-09-01T09:36:35Z step=result scenario=TS_004 status=unhealed scores=[] rounds=2 tc=10 ms=223760",
+    "[ORCH] ts=2026-09-01T09:36:56Z step=generate scenario=TS_007 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=151006 ms=207914 regen=1",
+    "[ORCH] ts=2026-09-01T09:36:56Z step=pregate scenario=TS_007 round=2 failed=5 first=the banned term 'SSBCI' appears in the output; replace it with the correct domain terminol",
+    "[ORCH] ts=2026-09-01T09:36:56Z step=result scenario=TS_007 status=unhealed scores=[] rounds=2 tc=10 ms=245605",
+    "[ORCH] ts=2026-09-01T09:36:57Z step=generate scenario=TS_009 round=2 tc=10 ids=TC_TS009_001,TC_TS009_002,TC_TS009_003,TC_TS009_004,TC_TS009_005,TC_TS009_006,TC_TS009_007,TC_TS009_008,TC_TS009_009,TC_TS009_010 chars=142751 ms=208191 regen=1",
+    "[ORCH] ts=2026-09-01T09:36:57Z step=pregate scenario=TS_009 round=2 failed=7 first=the banned term 'SSBCI' appears in the output; replace it with the correct domain terminol",
+    "[ORCH] ts=2026-09-01T09:36:57Z step=result scenario=TS_009 status=unhealed scores=[] rounds=2 tc=10 ms=246434",
+    "[ORCH] ts=2026-09-01T09:37:30Z step=agenterror label=generate:TS_016 agentid=670 phase=poll status=FAILED execution=409d5753-a3d5-4417-aa64-6151e04598ac ms=279160 why={\"executionId\": \"409d5753-a3d5-4417-aa64-6151e04598ac\", \"agentId\": 670, \"output\": null, \"agentName\": \"EDI 834 Outbound Modified Test Case Generator Self Heal\", \"executedBy\": \"Archana.Bhaskar@caresourc",
+    "[ORCH] ts=2026-09-01T09:37:30Z step=generate scenario=TS_016 round=1 error=generate:TS_016: agent 670 finished FAILED (execution 409d5753-a3d5-4417-aa64-6151e04598ac)",
+    "[ORCH] ts=2026-09-01T09:37:31Z step=agenterror label=generate:TS_010 agentid=670 phase=poll status=FAILED execution=a7055463-8f71-4af2-96a5-113bb2d2e734 ms=280098 why={\"executionId\": \"a7055463-8f71-4af2-96a5-113bb2d2e734\", \"agentId\": 670, \"output\": null, \"agentName\": \"EDI 834 Outbound Modified Test Case Generator Self Heal\", \"executedBy\": \"Archana.Bhaskar@caresourc",
+    "[ORCH] ts=2026-09-01T09:37:31Z step=generate scenario=TS_010 round=1 error=generate:TS_010: agent 670 finished FAILED (execution a7055463-8f71-4af2-96a5-113bb2d2e734)",
+    "[ORCH] ts=2026-09-01T09:37:31Z step=agenterror label=generate:TS_013 agentid=670 phase=poll status=FAILED execution=42481bbd-9fa8-477a-b454-cf5ac8975d68 ms=280110 why={\"executionId\": \"42481bbd-9fa8-477a-b454-cf5ac8975d68\", \"agentId\": 670, \"output\": null, \"agentName\": \"EDI 834 Outbound Modified Test Case Generator Self Heal\", \"executedBy\": \"Archana.Bhaskar@caresourc",
+    "[ORCH] ts=2026-09-01T09:37:31Z step=generate scenario=TS_013 round=1 error=generate:TS_013: agent 670 finished FAILED (execution 42481bbd-9fa8-477a-b454-cf5ac8975d68)",
+    "[ORCH] ts=2026-09-01T09:37:38Z step=agenterror label=generate:TS_015 agentid=670 phase=poll status=FAILED execution=f11ed388-f26f-4c25-b885-a7529aa71ad5 ms=249453 why={\"executionId\": \"f11ed388-f26f-4c25-b885-a7529aa71ad5\", \"agentId\": 670, \"output\": null, \"agentName\": \"EDI 834 Outbound Modified Test Case Generator Self Heal\", \"executedBy\": \"Archana.Bhaskar@caresourc",
+    "[ORCH] ts=2026-09-01T09:37:38Z step=generate scenario=TS_015 round=2 error=generate:TS_015: agent 670 finished FAILED (execution f11ed388-f26f-4c25-b885-a7529aa71ad5)",
+    "[ORCH] ts=2026-09-01T09:37:38Z step=result scenario=TS_015 status=failed scores=[] rounds=2 tc=0 ms=287223",
+    "[ORCH] ts=2026-09-01T09:38:13Z step=generate scenario=TS_019 round=2 tc=6 ids=TC_TS019_001,TC_TS019_002,TC_TS019_003,TC_TS019_004,TC_TS019_005,TC_TS019_006 chars=82538 ms=124641 regen=1",
+    "[ORCH] ts=2026-09-01T09:38:28Z step=review scenario=TS_019 round=2 score=85 passed=4/6 failing=TC_TS019_001,TC_TS019_002 ms=14732",
+    "[ORCH] ts=2026-09-01T09:38:28Z step=result scenario=TS_019 status=unhealed scores=[85] rounds=2 tc=6 ms=337281",
+    "[ORCH] ts=2026-09-01T09:38:33Z step=generate scenario=TS_008 round=2 tc=10 ids=TC_001,TC_002,TC_003,TC_004,TC_005,TC_006,TC_007,TC_008,TC_009,TC_010 chars=113341 ms=165652 regen=1",
+    "[ORCH] ts=2026-09-01T09:38:34Z step=generate scenario=TS_005 round=2 tc=10 ids=TC_TS_005_001,TC_TS_005_002,TC_TS_005_003,TC_TS_005_004,TC_TS_005_005,TC_TS_005_006,TC_TS_005_007,TC_TS_005_008,TC_TS_005_009,TC_TS_005_010 chars=86709 ms=124725 regen=1",
+    "[ORCH] ts=2026-09-01T09:38:53Z step=generate scenario=TS_017 round=2 tc=8 ids=TC_TS017_001,TC_TS017_002,TC_TS017_003,TC_TS017_004,TC_TS017_005,TC_TS017_006,TC_TS017_007,TC_TS017_008 chars=107885 ms=165135 regen=1",
+    "[ORCH] ts=2026-09-01T09:38:53Z step=pregate scenario=TS_017 round=2 failed=1 first=all 8 test cases are High priority; only the scenario's primary flow and finance/regressio",
+    "[ORCH] ts=2026-09-01T09:38:53Z step=result scenario=TS_017 status=unhealed scores=[] rounds=2 tc=8 ms=362268",
+    "[ORCH] ts=2026-09-01T09:38:55Z step=generate scenario=TS_003 round=2 tc=10 ids=TC_TS003_001,TC_TS003_002,TC_TS003_003,TC_TS003_004,TC_TS003_005,TC_TS003_006,TC_TS003_007,TC_TS003_008,TC_TS003_009,TC_TS003_010 chars=106297 ms=165821 regen=1",
+    "[ORCH] ts=2026-09-01T09:38:55Z step=pregate scenario=TS_003 round=2 failed=1 first=the banned term 'CARESOURCE_CSSHEALTH_P_INCR_834' appears in the output; replace it with t",
+    "[ORCH] ts=2026-09-01T09:38:55Z step=result scenario=TS_003 status=unhealed scores=[] rounds=2 tc=10 ms=364530",
+    "[ORCH] ts=2026-09-01T09:39:00Z step=review scenario=TS_008 round=2 score=85 passed=7/10 failing=TC_001,TC_002,TC_010 ms=26167",
+    "[ORCH] ts=2026-09-01T09:39:00Z step=result scenario=TS_008 status=unhealed scores=[85] rounds=2 tc=10 ms=368726",
+    "[ORCH] ts=2026-09-01T09:39:17Z step=review scenario=TS_005 round=2 score=85 passed=2/10 failing=TC_TS_005_001,TC_TS_005_004,TC_TS_005_005,TC_TS_005_006,TC_TS_005_007,TC_TS_005_008,TC_TS_005_009,TC_TS_005_010 ms=43285",
+    "[ORCH] ts=2026-09-01T09:39:17Z step=result scenario=TS_005 status=unhealed scores=[85] rounds=2 tc=10 ms=386468",
+    "[ORCH] ts=2026-09-01T09:39:57Z step=generate scenario=TS_013 round=2 tc=8 ids=TC_013_001,TC_013_002,TC_013_003,TC_013_004,TC_013_005,TC_013_006,TC_013_007,TC_013_008 chars=99659 ms=145694 regen=1",
+    "[ORCH] ts=2026-09-01T09:39:57Z step=pregate scenario=TS_013 round=2 failed=4 first=the banned term 'CS_CLAREST_P_INCR_834' appears in the output; replace it with the correct",
+    "[ORCH] ts=2026-09-01T09:39:57Z step=result scenario=TS_013 status=unhealed scores=[] rounds=2 tc=8 ms=425840",
+    "[ORCH] ts=2026-09-01T09:41:37Z step=agenterror label=generate:TS_016 agentid=670 phase=poll status=FAILED execution=cefb82ab-aca2-4733-8430-36c04a6b70f9 ms=247244 why={\"executionId\": \"cefb82ab-aca2-4733-8430-36c04a6b70f9\", \"agentId\": 670, \"output\": null, \"agentName\": \"EDI 834 Outbound Modified Test Case Generator Self Heal\", \"executedBy\": \"Archana.Bhaskar@caresourc",
+    "[ORCH] ts=2026-09-01T09:41:37Z step=generate scenario=TS_016 round=2 error=generate:TS_016: agent 670 finished FAILED (execution cefb82ab-aca2-4733-8430-36c04a6b70f9)",
+    "[ORCH] ts=2026-09-01T09:41:37Z step=result scenario=TS_016 status=failed scores=[] rounds=2 tc=0 ms=526405",
+    "[ORCH] ts=2026-09-01T09:41:38Z step=agenterror label=generate:TS_010 agentid=670 phase=poll status=FAILED execution=79fe35bf-3719-496c-9c70-86856e2090ce ms=247414 why={\"executionId\": \"79fe35bf-3719-496c-9c70-86856e2090ce\", \"agentId\": 670, \"output\": null, \"agentName\": \"EDI 834 Outbound Modified Test Case Generator Self Heal\", \"executedBy\": \"Archana.Bhaskar@caresourc",
+    "[ORCH] ts=2026-09-01T09:41:38Z step=generate scenario=TS_010 round=2 error=generate:TS_010: agent 670 finished FAILED (execution 79fe35bf-3719-496c-9c70-86856e2090ce)",
+    "[ORCH] ts=2026-09-01T09:41:38Z step=result scenario=TS_010 status=failed scores=[] rounds=2 tc=0 ms=527513",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=generate scenario=TS_001 round=1 error=generate:TS_001: agent 670 still running when the budget ran out (execution 8f1a1987-97e5-4092-821f-5b7a7808b989)",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=budget scenario=TS_001 round=2 note=stopped, budget low",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=result scenario=TS_001 status=failed scores=[] rounds=1 tc=0 ms=1095037",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=generate scenario=TS_014 round=1 error=generate:TS_014: agent 670 still running when the budget ran out (execution cd1cab1f-066a-48a3-aaf9-63c3d269797e)",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=budget scenario=TS_014 round=2 note=stopped, budget low",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=result scenario=TS_014 status=failed scores=[] rounds=1 tc=0 ms=1095042",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=generate scenario=TS_011 round=1 error=generate:TS_011: agent 670 still running when the budget ran out (execution 99ded99e-1e2c-409e-9100-5d1f34a170d7)",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=budget scenario=TS_011 round=2 note=stopped, budget low",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=result scenario=TS_011 status=failed scores=[] rounds=1 tc=0 ms=1095085",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=generate scenario=TS_012 round=1 error=generate:TS_012: agent 670 still running when the budget ran out (execution cb114c17-5b6a-4f64-8484-a3558fec7607)",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=budget scenario=TS_012 round=2 note=stopped, budget low",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=result scenario=TS_012 status=failed scores=[] rounds=1 tc=0 ms=1095105",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=renumber scenario=TS_003 ids=TC_TS003_001>TC_011,TC_TS003_002>TC_012,TC_TS003_003>TC_013,TC_TS003_004>TC_014,TC_TS003_005>TC_015,TC_TS003_006>TC_016,TC_TS003_007>TC_017,TC_TS003_008>TC_018,TC_TS003_009>TC_019,TC_TS003_010>TC_020",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=renumber scenario=TS_004 ids=TC_001>TC_021,TC_002>TC_022,TC_003>TC_023,TC_004>TC_024,TC_005>TC_025,TC_006>TC_026,TC_007>TC_027,TC_008>TC_028,TC_009>TC_029,TC_010>TC_030",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=renumber scenario=TS_005 ids=TC_TS_005_001>TC_031,TC_TS_005_002>TC_032,TC_TS_005_003>TC_033,TC_TS_005_004>TC_034,TC_TS_005_005>TC_035,TC_TS_005_006>TC_036,TC_TS_005_007>TC_037,TC_TS_005_008>TC_038,TC_TS_005_009>TC_039,TC_TS_005_010>TC_040",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=renumber scenario=TS_006 ids=TC_TS_006_001>TC_041,TC_TS_006_002>TC_042,TC_TS_006_003>TC_043,TC_TS_006_004>TC_044,TC_TS_006_005>TC_045,TC_TS_006_006>TC_046,TC_TS_006_007>TC_047,TC_TS_006_008>TC_048,TC_TS_006_009>TC_049,TC_TS_006_010>TC_050",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=renumber scenario=TS_007 ids=TC_001>TC_051,TC_002>TC_052,TC_003>TC_053,TC_004>TC_054,TC_005>TC_055,TC_006>TC_056,TC_007>TC_057,TC_008>TC_058,TC_009>TC_059,TC_010>TC_060",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=renumber scenario=TS_008 ids=TC_001>TC_061,TC_002>TC_062,TC_003>TC_063,TC_004>TC_064,TC_005>TC_065,TC_006>TC_066,TC_007>TC_067,TC_008>TC_068,TC_009>TC_069,TC_010>TC_070",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=renumber scenario=TS_009 ids=TC_TS009_001>TC_071,TC_TS009_002>TC_072,TC_TS009_003>TC_073,TC_TS009_004>TC_074,TC_TS009_005>TC_075,TC_TS009_006>TC_076,TC_TS009_007>TC_077,TC_TS009_008>TC_078,TC_TS009_009>TC_079,TC_TS009_010>TC_080",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=renumber scenario=TS_013 ids=TC_013_001>TC_081,TC_013_002>TC_082,TC_013_003>TC_083,TC_013_004>TC_084,TC_013_005>TC_085,TC_013_006>TC_086,TC_013_007>TC_087,TC_013_008>TC_088",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=renumber scenario=TS_017 ids=TC_TS017_001>TC_089,TC_TS017_002>TC_090,TC_TS017_003>TC_091,TC_TS017_004>TC_092,TC_TS017_005>TC_093,TC_TS017_006>TC_094,TC_TS017_007>TC_095,TC_TS017_008>TC_096",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=renumber scenario=TS_018 ids=TC_TS018_001>TC_097,TC_TS018_002>TC_098,TC_TS018_003>TC_099,TC_TS018_004>TC_100,TC_TS018_005>TC_101,TC_TS018_006>TC_102,TC_TS018_007>TC_103,TC_TS018_008>TC_104,TC_TS018_009>TC_105,TC_TS018_010>TC_106",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=renumber scenario=TS_019 ids=TC_TS019_001>TC_107,TC_TS019_002>TC_108,TC_TS019_003>TC_109,TC_TS019_004>TC_110,TC_TS019_005>TC_111,TC_TS019_006>TC_112",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=renumber scenario=TS_020 ids=TC_TS_020_001>TC_113,TC_TS_020_002>TC_114,TC_TS_020_003>TC_115,TC_TS_020_004>TC_116,TC_TS_020_005>TC_117,TC_TS_020_006>TC_118,TC_TS_020_007>TC_119,TC_TS_020_008>TC_120",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=done approved=0 unreviewed=0 unhealed=13 stagnant=0 hardstop=0 failed=7 skipped=0 testcases=120 agentcalls=40 ms=1200438",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=outcome story=750331 ready=107/120 testcases flagged=13 scenarios=20 elapsed=20m00s warnings=7",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=flagged tc=TC_031 scenario=TS_005 why=wrong token positions in name check",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=flagged tc=TC_034 scenario=TS_005 why=off-topic member ID mapping case",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=flagged tc=TC_035 scenario=TS_005 why=off-topic member ID mapping case",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=flagged tc=TC_036 scenario=TS_005 why=off-topic INS mapping case",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=flagged tc=TC_037 scenario=TS_005 why=off-topic death date mapping case",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=flagged tc=TC_038 scenario=TS_005 why=off-topic MTM mapping case",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=flagged tc=TC_039 scenario=TS_005 why=off-topic MTM absence case",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=flagged tc=TC_040 scenario=TS_005 why=off-topic unsupported elements case",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=flagged tc=TC_061 scenario=TS_008 why=test naming contradicts story naming rule",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=flagged tc=TC_062 scenario=TS_008 why=test naming contradicts story naming rule",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=flagged tc=TC_070 scenario=TS_008 why=missing specific out-of-scope elements",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=flagged tc=TC_107 scenario=TS_019 why=duplicate of full-file omission case",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=flagged tc=TC_108 scenario=TS_019 why=duplicate of change-file omission case",
+    "[ORCH] ts=2026-09-01T09:51:06Z step=detail calls=40 rounds=36 scoreboard=TS_001:failed  TS_002:unhealed  TS_003:unhealed  TS_004:unhealed  TS_005:unhealed(85)  TS_006:unhealed  TS_007:unhealed  TS_008:unhealed(85)  TS_009:unhealed  TS_010:failed  TS_011:failed  TS_012:failed  TS_013:unhealed  TS_014:failed  TS_015:failed  TS_016:failed  TS_017:unhealed  TS_018:unhealed  TS_019:unhealed(85)  TS_020:unhealed"
+  ]
+}
