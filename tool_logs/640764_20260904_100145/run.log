@@ -1,0 +1,8 @@
+[ORCH] ts=2026-09-04T09:58:26Z step=start stage=scenarios story=640764 maxscenarios=20 tcper=3 steps=15-18 rounds=3 workers=20 pass_=90/50 judge=off scenjudge=704 deadline=450s
+[ORCH] ts=2026-09-04T09:58:26Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=277
+[ORCH] ts=2026-09-04T09:59:51Z step=scenarios count=14 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007,TS_008,TS_012,TS_009,TS_010,TS_011,TS_013,TS_014 ms=84365
+[ORCH] ts=2026-09-04T10:00:05Z step=scenreview round=1 confidence=52 approved=False gaps=5 ms=14479
+[ORCH] ts=2026-09-04T10:01:29Z step=scenarios rework=1 count=11 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007,TS_008,TS_011,TS_009,TS_010 ms=84410
+[ORCH] ts=2026-09-04T10:01:44Z step=scenreview round=2 confidence=62 approved=False gaps=5 ms=14460
+[ORCH] ts=2026-09-04T10:01:45Z step=handoff action=write path=scenarios/640764/scenarios.json scenarios=11 chars=30652
+[ORCH] ts=2026-09-04T10:01:45Z step=outcome stage=scenarios story=640764 scenarios=11 confidence=62 approved=False elapsed=3m19s
