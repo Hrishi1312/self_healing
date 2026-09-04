@@ -1,0 +1,469 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "640764",
+    "title": "(ENR SUCC) DEV & TEST - 834E/U AR PASSE Transaction Effective Date Logic Update - EDI"
+  },
+  "summary": {
+    "scenarios": 11,
+    "approved": 1,
+    "unreviewed": 0,
+    "unhealed": 3,
+    "stagnant": 3,
+    "hardstop": 0,
+    "failed": 4,
+    "skipped": 0,
+    "testcases": 39,
+    "totalrounds": 20,
+    "agentcalls": 45,
+    "elapsedms": 450535
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "Existing date elements are identified and available for Facets transaction effective date population",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_002",
+          "why": "missing required condition"
+        },
+        {
+          "id": "TC_003",
+          "why": "missing required condition"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 84666,
+      "elapsedms": 293849,
+      "gaps": [
+        "Coverage gap for scenario TS_001 attached to TC_002: scenario description requires \"2) Assessment Date is identified and can populate the transaction effective date in Facets.\" and the full acceptance criteria text for this scenario includes \"Given an inbound EDI 834 file, if the member\u2019s eligibility span has already begun and the Assessment Date has changed, the Assessment Date populates as the transaction effective date.\" but TC_002 Pre-condition only states \"the selected execution data must be the scenario where the Assessment Date is the value expected to populate the Facets transaction effective date.\" Add a dedicated test case for the explicit condition where \"the member\u2019s eligibility span has already begun and the Assessment Date has changed\".",
+        "Coverage gap for scenario TS_001 attached to TC_003: scenario description requires \"3) Maintenance Date is identified and can populate the transaction effective date in Facets.\" and the full acceptance criteria text for this scenario includes \"Given an inbound EDI 834 file, if the member\u2019s eligibility span has already begun and any relevant fields have changed but Assessment Date has NOT changed, the Maintenance Date (DTP*303) populates as the transaction effective date.\" but TC_003 Pre-condition only states \"the selected execution data must be the scenario where the Maintenance Date is the value expected to populate the Facets transaction effective date.\" Add a dedicated test case for the explicit condition where \"the member\u2019s eligibility span has already begun and any relevant fields have changed but Assessment Date has NOT changed\"."
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "Future eligibility uses Eligibility Date as transaction effective date regardless of Assessment Date",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_001",
+          "why": "duplicate of other scenario variants"
+        },
+        {
+          "id": "TC_002",
+          "why": "duplicate of other scenario variants"
+        },
+        {
+          "id": "TC_003",
+          "why": "duplicate of other scenario variants"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 63100,
+      "elapsedms": 262132,
+      "gaps": [
+        "Semantic duplicate with Test Case Id 'TC_002': both validate the same business intent that for a future new enrollment 'Eligibility Date' is the winning transaction effective date regardless of Assessment Date value; only the sample dates differ.",
+        "Semantic duplicate with Test Case Id 'TC_003': both validate the same business intent that for a future new enrollment 'Eligibility Date' is the winning transaction effective date regardless of Assessment Date value; only the sample dates differ.",
+        "Semantic duplicate with Test Case Id 'TC_001': both validate the same business intent that for a future new enrollment 'Eligibility Date' is the winning transaction effective date regardless of Assessment Date value; only the sample dates differ.",
+        "Semantic duplicate with Test Case Id 'TC_003': both validate the same business intent that for a future new enrollment 'Eligibility Date' is the winning transaction effective date regardless of Assessment Date value; only the sample dates differ.",
+        "Semantic duplicate with Test Case Id 'TC_001': both validate the same business intent that for a future new enrollment 'Eligibility Date' is the winning transaction effective date regardless of Assessment Date value; only the sample dates differ.",
+        "Semantic duplicate with Test Case Id 'TC_002': both validate the same business intent that for a future new enrollment 'Eligibility Date' is the winning transaction effective date regardless of Assessment Date value; only the sample dates differ."
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "Current eligibility with changed Assessment Date uses Assessment Date as transaction effective date",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_001",
+          "why": "duplicate of TC_002"
+        },
+        {
+          "id": "TC_002",
+          "why": "duplicate of TC_001"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 71691,
+      "elapsedms": 328607,
+      "gaps": [
+        "the knowledge base or schema name 'Facets 834' appears in the output"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Assessment Date change with unchanged relevant fields uses Assessment Date and preserves field values",
+      "status": "failed",
+      "flagged": [
+        {
+          "id": "TC_001",
+          "why": "missing unchanged field coverage"
+        },
+        {
+          "id": "TC_002",
+          "why": "missing unchanged field coverage"
+        },
+        {
+          "id": "TC_003",
+          "why": "missing unchanged field coverage"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 6,
+      "chars": 183234,
+      "elapsedms": 450485,
+      "gaps": [
+        "Coverage gap for TC_001: scenario also requires \"2) The maintained value for Assessment Number remains unchanged while Assessment Date drives the effective date.\"; add a dedicated test case for it",
+        "Coverage gap for TC_002: scenario also requires \"3) The maintained value for Assessment Tier remains unchanged while Assessment Date drives the effective date.\"; add a dedicated test case for it",
+        "Coverage gap for TC_003: scenario also requires \"7) The maintained value for Pregnancy remains unchanged while Assessment Date drives the effective date.\"; add a dedicated test case for it"
+      ],
+      "error": "budget exhausted before call"
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "Future eligibility with unchanged Assessment Date and relevant-field changes uses Eligibility Date",
+      "status": "failed",
+      "flagged": [
+        {
+          "id": "TC_002",
+          "why": "missing grouped condition coverage"
+        },
+        {
+          "id": "TC_003",
+          "why": "missing grouped condition coverage"
+        },
+        {
+          "id": "TC_004",
+          "why": "missing grouped condition coverage"
+        },
+        {
+          "id": "TC_005",
+          "why": "missing grouped condition coverage"
+        },
+        {
+          "id": "TC_006",
+          "why": "missing grouped condition coverage"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 6,
+      "chars": 202573,
+      "elapsedms": 450467,
+      "gaps": [
+        "TC_002 is the closest related case, but the scenario description also requires \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy all change together while Assessment Date is unchanged and eligibility has not yet begun, so Eligibility Date is used.\"; add a dedicated test case for it",
+        "TC_003 is the closest related case, but the scenario description also requires \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy all change together while Assessment Date is unchanged and eligibility has not yet begun, so Eligibility Date is used.\"; add a dedicated test case for it",
+        "TC_004 is the closest related case, but the scenario description also requires \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy all change together while Assessment Date is unchanged and eligibility has not yet begun, so Eligibility Date is used.\"; add a dedicated test case for it",
+        "TC_005 is the closest related case, but the scenario description also requires \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy all change together while Assessment Date is unchanged and eligibility has not yet begun, so Eligibility Date is used.\"; add a dedicated test case for it",
+        "TC_006 is the closest related case, but the scenario description also requires \"Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy all change together while Assessment Date is unchanged and eligibility has not yet begun, so Eligibility Date is used.\"; add a dedicated test case for it"
+      ],
+      "error": "budget exhausted before call"
+    },
+    {
+      "scenarioid": "TS_006",
+      "title": "Current eligibility with unchanged Assessment Date and relevant-field changes uses Maintenance Date",
+      "status": "failed",
+      "flagged": [
+        {
+          "id": "TC_001",
+          "why": "missing scenario conditions"
+        },
+        {
+          "id": "TC_002",
+          "why": "missing scenario conditions"
+        },
+        {
+          "id": "TC_003",
+          "why": "missing scenario conditions"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 6,
+      "chars": 185612,
+      "elapsedms": 450502,
+      "gaps": [
+        "TC_001 is most closely related, but scenario also requires \"1) Assessment Number changes while Assessment Date is unchanged and eligibility has already begun, so Maintenance Date is used.\"; add a dedicated test case for it",
+        "TC_001 is most closely related, but scenario also requires \"2) Assessment Tier changes while Assessment Date is unchanged and eligibility has already begun, so Maintenance Date is used.\"; add a dedicated test case for it",
+        "TC_001 is most closely related, but scenario also requires \"3) Assessment Division changes while Assessment Date is unchanged and eligibility has already begun, so Maintenance Date is used.\"; add a dedicated test case for it",
+        "TC_001 is most closely related, but scenario also requires \"7) Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy all change together while Assessment Date is unchanged and eligibility has already begun, so Maintenance Date is used.\"; add a dedicated test case for it",
+        "TC_002 is most closely related, but scenario also requires \"1) Assessment Number changes while Assessment Date is unchanged and eligibility has already begun, so Maintenance Date is used.\"; add a dedicated test case for it",
+        "TC_002 is most closely related, but scenario also requires \"2) Assessment Tier changes while Assessment Date is unchanged and eligibility has already begun, so Maintenance Date is used.\"; add a dedicated test case for it",
+        "TC_002 is most closely related, but scenario also requires \"3) Assessment Division changes while Assessment Date is unchanged and eligibility has already begun, so Maintenance Date is used.\"; add a dedicated test case for it",
+        "TC_002 is most closely related, but scenario also requires \"7) Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy all change together while Assessment Date is unchanged and eligibility has already begun, so Maintenance Date is used.\"; add a dedicated test case for it",
+        "TC_003 is most closely related, but scenario also requires \"1) Assessment Number changes while Assessment Date is unchanged and eligibility has already begun, so Maintenance Date is used.\"; add a dedicated test case for it",
+        "TC_003 is most closely related, but scenario also requires \"2) Assessment Tier changes while Assessment Date is unchanged and eligibility has already begun, so Maintenance Date is used.\"; add a dedicated test case for it",
+        "TC_003 is most closely related, but scenario also requires \"3) Assessment Division changes while Assessment Date is unchanged and eligibility has already begun, so Maintenance Date is used.\"; add a dedicated test case for it",
+        "TC_003 is most closely related, but scenario also requires \"7) Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy all change together while Assessment Date is unchanged and eligibility has already begun, so Maintenance Date is used.\"; add a dedicated test case for it"
+      ],
+      "error": "budget exhausted before call"
+    },
+    {
+      "scenarioid": "TS_007",
+      "title": "Maintenance Date is not used outside the allowed current-eligibility relevant-field change rule",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_001",
+          "why": "missing listed condition coverage"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 67067,
+      "elapsedms": 367650,
+      "gaps": [
+        "TC_001 is most closely related, but scenario description also requires \"4) Future eligibility with relevant-field changes and unchanged Assessment Date does not use Maintenance Date and uses Eligibility Date instead.\"; add a dedicated test case for it",
+        "Step Description: \"Run the crosswalk validation on crt_72.sql.caresource.corp\\crt_72: SELECT * FROM FACPRDDB.dbo.CMC_MELC_LSTY_CD WITH (NOLOCK) WHERE MEME_CK='[TEST DATA: MEME_CK returned from FACPRDDB.dbo.CMC_MEME_MEMBER]';\" contradicts hint \"FILE NAMING: the 'E' prefix is for new-enrollment files only; update/change files use the 'U' prefix with a control number specific to that test case.\" because TC_001 reuses fixed file name \"TP028433_E2026031_123456789.834\" rather than a control number specific to that test case"
+      ],
+      "error": "no markdown table found"
+    },
+    {
+      "scenarioid": "TS_008",
+      "title": "First occurrence of repeated incoming date values is used",
+      "status": "failed",
+      "flagged": [],
+      "scorehistory": [],
+      "finalscore": null,
+      "rounds": 1,
+      "testcasecount": 0,
+      "chars": 0,
+      "elapsedms": 450398,
+      "gaps": [],
+      "error": "budget exhausted"
+    },
+    {
+      "scenarioid": "TS_011",
+      "title": "Regression confirms corrected date selection avoids prior Maintenance Date split-span behavior",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_001",
+          "why": "missing finance regression check"
+        },
+        {
+          "id": "TC_002",
+          "why": "missing finance regression check"
+        },
+        {
+          "id": "TC_003",
+          "why": "missing finance regression check"
+        },
+        {
+          "id": "TC_004",
+          "why": "missing named grouping coverage"
+        },
+        {
+          "id": "TC_005",
+          "why": "missing named grouping coverage"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 5,
+      "chars": 185219,
+      "elapsedms": 348541,
+      "gaps": [
+        "Coverage gap for TC_001: scenario description says \"thereby supports unchanged capitation calculations and accurate finance reporting.\" and acceptanceCriteriaRef says \"Verify no change in capitation calculations and accurate reporting for finance team.\" but no step or expected result in this test case quotes any capitation or finance-reporting verification; add a dedicated test case for it",
+        "Coverage gap for TC_002: scenario description says \"thereby supports unchanged capitation calculations and accurate finance reporting.\" and acceptanceCriteriaRef says \"Verify no change in capitation calculations and accurate reporting for finance team.\" but no step or expected result in this test case quotes any capitation or finance-reporting verification; add a dedicated test case for it",
+        "Coverage gap for TC_003: scenario description says \"thereby supports unchanged capitation calculations and accurate finance reporting.\" and acceptanceCriteriaRef says \"Verify no change in capitation calculations and accurate reporting for finance team.\" but no step or expected result in this test case quotes any capitation or finance-reporting verification; add a dedicated test case for it",
+        "Coverage gap for TC_004: hint says \"NAMED GROUPINGS, each enumerated as its own condition: Assessment Number + Assessment Tier + Assessment Division; Aid Category + Rate Cell; Pregnancy Indicator + Rate Cell; Pregnancy Indicator + Aid Category + Rate Cell.\" but this test case only says \"Exactly one relevant-field grouping is changed for this execution, using one of these groupings only: Assessment Number plus Assessment Tier plus Assessment Division, Aid Category plus Rate Cell, Pregnancy Indicator plus Rate Cell, or Pregnancy Indicator plus Aid Category plus Rate Cell.\" and does not dedicate a case to one quoted grouping; add a dedicated test case for the missing grouping-specific condition",
+        "Coverage gap for TC_005: hint says \"NAMED GROUPINGS, each enumerated as its own condition: Assessment Number + Assessment Tier + Assessment Division; Aid Category + Rate Cell; Pregnancy Indicator + Rate Cell; Pregnancy Indicator + Aid Category + Rate Cell.\" but this test case only says \"Exactly one relevant-field grouping is changed for this execution, using one of these groupings only: Assessment Number plus Assessment Tier plus Assessment Division, Aid Category plus Rate Cell, Pregnancy Indicator plus Rate Cell, or Pregnancy Indicator plus Aid Category plus Rate Cell.\" and does not dedicate a case to one quoted grouping; add a dedicated test case for the missing grouping-specific condition"
+      ],
+      "error": "generate:TS_011: agent 689 finished FAILED (execution b59e5fc1-4de8-4fae-a0ad-6e60c206c083)"
+    },
+    {
+      "scenarioid": "TS_009",
+      "title": "Eligibility Date qualifier variants DTP*356 and DTP*348 are both supported for selection logic",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        92
+      ],
+      "finalscore": 92,
+      "rounds": 1,
+      "testcasecount": 2,
+      "chars": 86043,
+      "elapsedms": 129814,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_010",
+      "title": "Boundary between not-yet-begun and already-begun eligibility drives date selection outcome",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_002",
+          "why": "missing dedicated condition coverage"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 80143,
+      "elapsedms": 157590,
+      "gaps": [
+        "TC_002 is the closest related case, but the scenario also requires \"3) An Assessment Date change after eligibility begins uses Assessment Date.\"; add a dedicated test case for it"
+      ],
+      "error": "generate:TS_010: agent 689 finished FAILED (execution 7a4286c8-e9f6-407f-aec6-78febaa9ab33)"
+    }
+  ],
+  "warnings": [
+    "TS_008 produced no test cases"
+  ],
+  "testcases": {
+    "rows": 801,
+    "chars": 1206522,
+    "scenarios": 11,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-09-04T10:06:05Z step=handoff action=read path=scenarios/640764/scenarios.json scenarios=11",
+    "[ORCH] ts=2026-09-04T10:06:05Z step=start stage=testcases story=640764 maxscenarios=11 tcper=10 steps=18-40 rounds=2 workers=11 pass_=90/50 judge=672 scenjudge=off deadline=450s",
+    "[ORCH] ts=2026-09-04T10:06:41Z step=agenterror label=generate:TS_007 agentid=689 phase=poll status=FAILED execution=e71b7346-edfa-4a22-9839-d69682d0f894 ms=36663 why={\"executionId\": \"e71b7346-edfa-4a22-9839-d69682d0f894\", \"agentId\": 689, \"output\": null, \"agentName\": \"Self Healing EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\"",
+    "[ORCH] ts=2026-09-04T10:06:41Z step=generate scenario=TS_007 round=1 chunk=1/2 error=generate:TS_007: agent 689 finished FAILED (execution e71b7346-edfa-4a22-9839-d69682d0f894)",
+    "[ORCH] ts=2026-09-04T10:06:41Z step=agenterror label=generate:TS_011 agentid=689 phase=poll status=FAILED execution=b59e5fc1-4de8-4fae-a0ad-6e60c206c083 ms=36694 why={\"executionId\": \"b59e5fc1-4de8-4fae-a0ad-6e60c206c083\", \"agentId\": 689, \"output\": null, \"agentName\": \"Self Healing EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\"",
+    "[ORCH] ts=2026-09-04T10:06:41Z step=generate scenario=TS_011 round=1 chunk=1/2 error=generate:TS_011: agent 689 finished FAILED (execution b59e5fc1-4de8-4fae-a0ad-6e60c206c083)",
+    "[ORCH] ts=2026-09-04T10:06:41Z step=agenterror label=generate:TS_010 agentid=689 phase=poll status=FAILED execution=7a4286c8-e9f6-407f-aec6-78febaa9ab33 ms=36785 why={\"executionId\": \"7a4286c8-e9f6-407f-aec6-78febaa9ab33\", \"agentId\": 689, \"output\": null, \"agentName\": \"Self Healing EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\"",
+    "[ORCH] ts=2026-09-04T10:06:41Z step=generate scenario=TS_010 round=1 chunk=1/1 error=generate:TS_010: agent 689 finished FAILED (execution 7a4286c8-e9f6-407f-aec6-78febaa9ab33)",
+    "[ORCH] ts=2026-09-04T10:06:41Z step=agenterror label=generate:TS_006 agentid=689 phase=poll status=FAILED execution=3414d47e-6eb6-4b09-903c-811b8dc9089f ms=36827 why={\"executionId\": \"3414d47e-6eb6-4b09-903c-811b8dc9089f\", \"agentId\": 689, \"output\": null, \"agentName\": \"Self Healing EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\"",
+    "[ORCH] ts=2026-09-04T10:06:41Z step=generate scenario=TS_006 round=1 chunk=1/3 error=generate:TS_006: agent 689 finished FAILED (execution 3414d47e-6eb6-4b09-903c-811b8dc9089f)",
+    "[ORCH] ts=2026-09-04T10:06:41Z step=agenterror label=generate:TS_004 agentid=689 phase=poll status=FAILED execution=1f95195f-be17-4395-b472-70c3abdb7db8 ms=36924 why={\"executionId\": \"1f95195f-be17-4395-b472-70c3abdb7db8\", \"agentId\": 689, \"output\": null, \"agentName\": \"Self Healing EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\"",
+    "[ORCH] ts=2026-09-04T10:06:41Z step=generate scenario=TS_004 round=1 chunk=1/3 error=generate:TS_004: agent 689 finished FAILED (execution 1f95195f-be17-4395-b472-70c3abdb7db8)",
+    "[ORCH] ts=2026-09-04T10:07:46Z step=generate scenario=TS_007 round=1 chunk=2/2 error=no markdown table found raw={ \"id\" : \"TC_001\", \"name\" : \"Verify AR PASSE future eligibility update with relevant-field change and unchanged Assessment Date uses the Eligibility Date instead of the Maintenance Date\", \"description",
+    "[ORCH] ts=2026-09-04T10:07:59Z step=generate scenario=TS_005 round=1 chunk=1/3 tc=3 ids=TC_001,TC_002,TC_003 chars=78644 ms=114826",
+    "[ORCH] ts=2026-09-04T10:08:00Z step=generate scenario=TS_009 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=86043 ms=114975",
+    "[ORCH] ts=2026-09-04T10:08:00Z step=generate scenario=TS_002 round=1 chunk=1/1 tc=3 ids=TC_TS_002_01,TC_TS_002_02,TC_TS_002_03 chars=84655 ms=115132",
+    "[ORCH] ts=2026-09-04T10:08:06Z step=generate scenario=TS_011 round=1 chunk=2/2 tc=2 ids=TC_001,TC_002 chars=83468 ms=84664",
+    "[ORCH] ts=2026-09-04T10:08:14Z step=review scenario=TS_009 round=1 score=92 passed=2/2 ms=14825",
+    "[ORCH] ts=2026-09-04T10:08:14Z step=result scenario=TS_009 status=approved scores=[92] rounds=1 tc=2 ms=129814",
+    "[ORCH] ts=2026-09-04T10:08:15Z step=review scenario=TS_002 round=1 score=85 passed=1/3 failing=TC_002,TC_003 ms=14985",
+    "[ORCH] ts=2026-09-04T10:08:21Z step=generate scenario=TS_001 round=1 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=93700 ms=136027",
+    "[ORCH] ts=2026-09-04T10:08:21Z step=review scenario=TS_011 round=1 score=85 passed=0/2 failing=TC_001,TC_002 ms=14796",
+    "[ORCH] ts=2026-09-04T10:08:27Z step=generate scenario=TS_010 round=2 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=80143 ms=105782 regen=1",
+    "[ORCH] ts=2026-09-04T10:08:27Z step=generate scenario=TS_004 round=1 chunk=2/3 tc=3 ids=TC_001,TC_002,TC_003 chars=83360 ms=105707",
+    "[ORCH] ts=2026-09-04T10:08:42Z step=review scenario=TS_010 round=2 score=85 passed=2/3 failing=TC_002 ms=15007",
+    "[ORCH] ts=2026-09-04T10:08:42Z step=result scenario=TS_010 status=unhealed scores=[85] rounds=2 tc=3 ms=157590",
+    "[ORCH] ts=2026-09-04T10:08:47Z step=review scenario=TS_001 round=1 score=85 passed=0/3 failing=TC_001,TC_002,TC_003 ms=26370",
+    "[ORCH] ts=2026-09-04T10:09:22Z step=generate scenario=TS_003 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=80142 ms=197140",
+    "[ORCH] ts=2026-09-04T10:09:31Z step=generate scenario=TS_004 round=1 chunk=3/3 error=no markdown table found raw={ \"id\" : \"TC_001\", \"name\" : \"Verify AR PASSE assessment date change updates Eligibility Date while preserving Pregnancy Indicator\", \"description\" : \"Validate that an AR PASSE 834 change transaction wi",
+    "[ORCH] ts=2026-09-04T10:09:31Z step=generate scenario=TS_007 round=2 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=67067 ms=105000 regen=1",
+    "[ORCH] ts=2026-09-04T10:09:45Z step=generate scenario=TS_005 round=1 chunk=2/3 tc=3 ids=TC_001,TC_002,TC_003 chars=95838 ms=105155",
+    "[ORCH] ts=2026-09-04T10:09:45Z step=generate scenario=TS_011 round=2 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=67762 ms=84476 regen=2",
+    "[ORCH] ts=2026-09-04T10:09:46Z step=review scenario=TS_004 round=1 score=85 passed=0/3 failing=TC_001,TC_002,TC_003 ms=14955",
+    "[ORCH] ts=2026-09-04T10:09:48Z step=review scenario=TS_003 round=1 score=85 passed=0/2 failing=TC_001,TC_002 ms=26355",
+    "[ORCH] ts=2026-09-04T10:10:00Z step=generate scenario=TS_002 round=2 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=63100 ms=105258 regen=2",
+    "[ORCH] ts=2026-09-04T10:10:27Z step=review scenario=TS_002 round=2 score=85 passed=0/3 failing=TC_001,TC_002,TC_003 ms=26741",
+    "[ORCH] ts=2026-09-04T10:10:27Z step=stagnant scenario=TS_002 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-09-04T10:10:27Z step=result scenario=TS_002 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=262132",
+    "[ORCH] ts=2026-09-04T10:10:29Z step=generate scenario=TS_006 round=1 chunk=2/3 tc=3 ids=TC_001,TC_002,TC_003 chars=111102 ms=228015",
+    "[ORCH] ts=2026-09-04T10:10:32Z step=generate scenario=TS_001 round=2 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=84666 ms=104852 regen=3",
+    "[ORCH] ts=2026-09-04T10:10:49Z step=generate scenario=TS_005 round=1 chunk=3/3 error=no markdown table found raw={ \"id\" : \"TC_001\", \"name\" : \"Verify AR PASSE future eligibility update uses Eligibility Date when Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy Indica",
+    "[ORCH] ts=2026-09-04T10:10:58Z step=review scenario=TS_001 round=2 score=85 passed=1/3 failing=TC_002,TC_003 ms=26582",
+    "[ORCH] ts=2026-09-04T10:10:58Z step=stagnant scenario=TS_001 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-09-04T10:10:58Z step=result scenario=TS_001 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=293849",
+    "[ORCH] ts=2026-09-04T10:11:10Z step=generate scenario=TS_011 round=2 chunk=2/2 tc=2 ids=TC_001,TC_002 chars=117771 ms=84339 regen=2",
+    "[ORCH] ts=2026-09-04T10:11:16Z step=review scenario=TS_005 round=1 score=85 passed=1/6 failing=TC_002,TC_003,TC_004,TC_005,TC_006 ms=26761",
+    "[ORCH] ts=2026-09-04T10:11:31Z step=generate scenario=TS_004 round=2 chunk=1/3 tc=3 ids=TC_001,TC_002,TC_003 chars=100188 ms=105104 regen=3",
+    "[ORCH] ts=2026-09-04T10:11:33Z step=generate scenario=TS_003 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=71691 ms=105092 regen=2",
+    "[ORCH] ts=2026-09-04T10:11:33Z step=pregate scenario=TS_003 round=2 failed=1 first=the knowledge base or schema name 'Facets 834' appears in the output",
+    "[ORCH] ts=2026-09-04T10:11:33Z step=result scenario=TS_003 status=unhealed scores=[85] rounds=2 tc=2 ms=328607",
+    "[ORCH] ts=2026-09-04T10:11:35Z step=generate scenario=TS_006 round=1 chunk=3/3 error=no markdown table found raw={ \"id\" : \"TC_001\", \"name\" : \"Verify AR PASSE current eligibility change uses Maintenance Date when Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, and Pregnancy Indic",
+    "[ORCH] ts=2026-09-04T10:11:53Z step=review scenario=TS_011 round=2 score=85 passed=0/5 failing=TC_001,TC_002,TC_003,TC_004,TC_005 ms=43544",
+    "[ORCH] ts=2026-09-04T10:11:53Z step=stagnant scenario=TS_011 round=2 scores=[85, 85]",
+    "[ORCH] ts=2026-09-04T10:11:53Z step=result scenario=TS_011 status=stagnant scores=[85, 85] rounds=2 tc=5 ms=348541",
+    "[ORCH] ts=2026-09-04T10:11:58Z step=generate scenario=TS_007 round=2 chunk=2/2 error=no markdown table found raw={ \"id\" : \"TC_001\", \"name\" : \"Verify AR PASSE future eligibility update with relevant-field change and unchanged Assessment Date uses the Eligibility Date instead of the Maintenance Date\", \"description",
+    "[ORCH] ts=2026-09-04T10:12:01Z step=review scenario=TS_006 round=1 score=85 passed=0/3 failing=TC_001,TC_002,TC_003 ms=26457",
+    "[ORCH] ts=2026-09-04T10:12:12Z step=review scenario=TS_007 round=2 score=85 passed=2/3 failing=TC_001 ms=14574",
+    "[ORCH] ts=2026-09-04T10:12:12Z step=result scenario=TS_007 status=unhealed scores=[85] rounds=2 tc=3 ms=367650",
+    "[ORCH] ts=2026-09-04T10:13:00Z step=generate scenario=TS_005 round=2 chunk=1/3 tc=3 ids=TC_001,TC_002,TC_003 chars=107049 ms=104594 regen=5",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=generate scenario=TS_008 round=1 chunk=1/1 error=generate:TS_008: agent 689 still running when the budget ran out (execution fecfae8b-ad1e-400f-8da4-7d476d567cc8)",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=budget scenario=TS_008 round=2 note=stopped, budget low",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=result scenario=TS_008 status=failed scores=[] rounds=1 tc=0 ms=450398",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=generate scenario=TS_005 round=2 chunk=2/3 error=generate:TS_005: agent 689 still IN_PROGRESS when the budget ran out (execution b798a0e3-d619-4fb0-838a-c39cd3b07028)",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=generate scenario=TS_005 round=2 chunk=3/3 error=budget exhausted before call",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=review scenario=TS_005 round=2 error=budget exhausted before call",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=result scenario=TS_005 status=failed scores=[85] rounds=2 tc=6 ms=450467",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=generate scenario=TS_004 round=2 chunk=2/3 error=generate:TS_004: agent 689 still IN_PROGRESS when the budget ran out (execution 856c9b72-7f9e-4d59-9abc-943b896cd76a)",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=generate scenario=TS_004 round=2 chunk=3/3 error=budget exhausted before call",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=review scenario=TS_004 round=2 error=budget exhausted before call",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=result scenario=TS_004 status=failed scores=[85] rounds=2 tc=6 ms=450485",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=generate scenario=TS_006 round=2 chunk=1/3 tc=3 ids=TC_001,TC_002,TC_003 chars=74824 ms=93943 regen=3",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=generate scenario=TS_006 round=2 chunk=2/3 error=budget exhausted before call",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=generate scenario=TS_006 round=2 chunk=3/3 error=budget exhausted before call",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=review scenario=TS_006 round=2 error=budget exhausted before call",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=result scenario=TS_006 status=failed scores=[85] rounds=2 tc=6 ms=450502",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=done approved=1 unreviewed=0 unhealed=3 stagnant=3 hardstop=0 failed=4 skipped=0 testcases=39 agentcalls=45 ms=450535",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=outcome story=640764 ready=14/39 testcases flagged=25 scenarios=11 elapsed=7m30s warnings=1",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_002 scenario=TS_001 why=missing required condition",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_003 scenario=TS_001 why=missing required condition",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_001 scenario=TS_002 why=duplicate of other scenario variants",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_002 scenario=TS_002 why=duplicate of other scenario variants",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_003 scenario=TS_002 why=duplicate of other scenario variants",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_001 scenario=TS_003 why=duplicate of TC_002",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_002 scenario=TS_003 why=duplicate of TC_001",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_001 scenario=TS_004 why=missing unchanged field coverage",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_002 scenario=TS_004 why=missing unchanged field coverage",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_003 scenario=TS_004 why=missing unchanged field coverage",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_002 scenario=TS_005 why=missing grouped condition coverage",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_003 scenario=TS_005 why=missing grouped condition coverage",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_004 scenario=TS_005 why=missing grouped condition coverage",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_005 scenario=TS_005 why=missing grouped condition coverage",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_006 scenario=TS_005 why=missing grouped condition coverage",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_001 scenario=TS_006 why=missing scenario conditions",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_002 scenario=TS_006 why=missing scenario conditions",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_003 scenario=TS_006 why=missing scenario conditions",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_001 scenario=TS_007 why=missing listed condition coverage",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_001 scenario=TS_011 why=missing finance regression check",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_002 scenario=TS_011 why=missing finance regression check",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_003 scenario=TS_011 why=missing finance regression check",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_004 scenario=TS_011 why=missing named grouping coverage",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_005 scenario=TS_011 why=missing named grouping coverage",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=flagged tc=TC_002 scenario=TS_010 why=missing dedicated condition coverage",
+    "[ORCH] ts=2026-09-04T10:13:35Z step=detail calls=45 rounds=20 scoreboard=TS_001:stagnant(85>85)  TS_002:stagnant(85>85)  TS_003:unhealed(85)  TS_004:failed(85)  TS_005:failed(85)  TS_006:failed(85)  TS_007:unhealed(85)  TS_008:failed  TS_011:stagnant(85>85)  TS_009:approved(92)  TS_010:unhealed(85)"
+  ]
+}
