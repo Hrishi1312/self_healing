@@ -1,4 +1,4 @@
-"""Offline test suite for AavaTestGenOrchestratorTwoStage. No credentials, no network.
+"""Offline test suite for AavaTestGenOrchestrator. No credentials, no network.
 
 The point of this file is to answer one question before anything is uploaded:
 **will the tool accept what the agents actually produce?**
@@ -20,8 +20,8 @@ import time
 import types
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-# Real recorded agent output and the unchanged sub-agent prompts live with the frozen
-# working copy; this suite references them rather than duplicating them.
+# Real recorded agent output and the unchanged sub-agent prompts live with
+# testgen_orchestrator/; this suite references them rather than duplicating them.
 SHARED = os.path.join(HERE, "..", "..", "testgen_orchestrator")
 FIX = os.path.join(SHARED, "tool", "fixtures")
 sys.path.insert(0, HERE)
@@ -73,63 +73,58 @@ def as_current(table):
     tokens that are now a violation. Convert them to the [TEST DATA: ...] form so the fixture
     represents output a CURRENT generator would produce. The raw fixture is kept for the
     checks that prove the rule catches the old shape."""
-      import re as _r
-      table = _r.sub(r"<([A-Za-z][\w ]{0,30})>", r"[TEST DATA: \1]", table or "")
-      rows = []
-      for line in table.splitlines():
-            cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
-            if len(cells) != 13:
-                  rows.append(line)
-                  continue
-            if cells[0] == "ScenarioId":
-                  rows.append("| " + " | ".join(T.COLUMNS) + " |")
-            elif cells[0].startswith("-"):
-                  rows.append("|" + "---|" * len(T.COLUMNS))
-            else:
-                  priority = "P1" if cells[5] == "Positive" else "P2"
-                  rows.append("| " + " | ".join([
-                        cells[3], cells[2], cells[7], cells[8], cells[9], cells[10], cells[11],
-                        "Manual", "New", priority, "", "EDI", "", "Functional", "",
-                  ]) + " |")
-      return "\n".join(rows)
+    import re as _r
+    return _r.sub(r"<([A-Za-z][\w ]{0,30})>", r"[TEST DATA: \1]", table or "")
+
+
+def build_table(n=12, steps=3):
+    """A realistic 15-column table, standing in for the retired 13-column captured fixtures.
+
+    The schema changed 2026-08-24 (no ScenarioId/AcceptanceCriteriaRef/Status columns; Test
+    Case Type/Status/Test Type are now tool-injected constants — Manual/New/Functional). The
+    old fixtures (fixtures/testcases_log*.md) are real captured output against the RETIRED
+    schema and can never be made to match the new one without fabricating fake "real"
+    output, so this replaces them as the stand-in used throughout the suite.
+    """
+    rows = ["| " + " | ".join(T.COLUMNS) + " |", "|" + "---|" * len(T.COLUMNS)]
+    prios = ["High", "Medium", "Low"]
+    for i in range(1, n + 1):
+        tid, name = f"TC_{i:03d}", f"Verify AR PASSE inbound 834 case {i}"
+        desc = f"Validate transaction effective date logic for case {i}."
+        precon = "AR PASSE test member data is available in the staging environment."
+        pc = T.PRIORITY_CODE[prios[(i - 1) % 3]]
+        for st in range(1, steps + 1):
+            rows.append("| " + " | ".join([
+                tid, name, desc, precon, str(st),
+                f"Perform step {st} of the transaction.", f"Step {st} completes as expected.",
+                "Manual", "New", pc, "", "EDI", "", T.TEST_TYPE, ""]) + " |")
+    return "\n".join(rows)
 
 
 # ────────────────────────────────────────────────────────────────────────────
 section("1. REAL AGENT OUTPUT THROUGH THE PARSERS  (the upload risk)")
 
-for tag in ("log0814",):
-    raw = fixture(f"testcases_{tag}.md")
-    if raw is None:
-        continue
-            try:
-            parsed = T.parse_testcases(as_current(raw), 1, 100)      # wide limits: shape only
-        check(f"parse_testcases accepts real table from {tag}",
-              len(parsed["ids"]) > 0, "")
-        print(f"          -> {len(parsed['ids'])} test cases, {len(parsed['rows'])} rows, "
-              f"{parsed['chars']:,} chars")
-    except Exception as e:
-        check(f"parse_testcases accepts real table from {tag}", False, str(e)[:150])
+# DISABLED 2026-08-24 — the schema changed (no ScenarioId/AcceptanceCriteriaRef/Status
+# columns; Test Case Type/Status now tool-injected constants; a Test Type Functional/
+# Regression axis added). fixtures/testcases_log*.md are real captured output against the
+# RETIRED 13-column schema and will never parse under the new 15-column header — that is
+# correct, not a regression. build_table() (defined above) stands in as the "accepts
+# realistic output" check until a real capture exists against the new schema.
+_bt = build_table(12, 3)
+try:
+    parsed = T.parse_testcases(_bt, 1, 100)
+    check("parse_testcases accepts a realistic 15 column table",
+          len(parsed["ids"]) == 12 and len(parsed["rows"]) == 36)
+    print(f"          -> {len(parsed['ids'])} test cases, {len(parsed['rows'])} rows, "
+          f"{parsed['chars']:,} chars")
+except Exception as e:
+    check("parse_testcases accepts a realistic 15 column table", False, str(e)[:150])
 
-# A cell holding a newline splits the row across physical lines. log0814 does this 93 times.
-# Without the rejoin those rows are dropped silently, leaving 97 of 190 step rows.
-raw0814 = fixture("testcases_log0814.md") or ""
-check("rows split across physical lines are rejoined, not dropped",
-      len(T.parse_testcases(as_current(raw0814), 1, 100)["rows"]) == 190,
-      f"got {len(T.parse_testcases(as_current(raw0814), 1, 100)['rows'])} rows, expected 190")
-
-# log15 and log18 were captured BEFORE the Status / Test Case Type columns were corrected.
-# The tool used to reject them. That check is DISABLED (2026-08-18) — the rule now lives in
-# agent 02 rule 7a and agent 03 check 9. These assert the new reality, so that re-enabling
-# the check makes them fail loudly rather than passing by accident.
-for tag in ("log15", "log18"):
-    raw = fixture(f"testcases_{tag}.md")
-    if raw is None:
-        continue
-    check(f"the tool no longer rejects the swapped columns in {tag}",
-          not _try(lambda: T.parse_testcases(as_current(raw), 1, 100)))
 _rv = open(os.path.join(SHARED, "agents", "03_reviewer_agent.md"), encoding="utf-8").read()
-check("normal status and test type fields are documented",
-      "Test Case Status" in _rv and "Test Case Type" in _rv)
+check("Priority is still enforced, by agent 03 check 9",
+      "must contain `P1`, `P2` or `P3`" in _rv)
+check("Test Type is documented as a tool-injected constant in agent 03",
+      "`Test Type` is always `Functional`" in _rv)
 check("step count is still enforced, by agent 03 check 8",
       "stepsmin" in _rv and "stepsmax" in _rv)
 
@@ -174,9 +169,9 @@ check("parse_verdict rejects a score for an unknown test case id",
 section("2. PARSER GUARDS  (bad output must be caught, not passed on)")
 
 
-good_table = as_current(fixture("testcases_log0814.md")) or ""
+good_table = build_table(3, 3)
 check("rejects a table with the wrong header",
-      _try(lambda: T.parse_testcases(good_table.replace("ScenarioId", "Scenario Id"), 1, 100)))
+      _try(lambda: T.parse_testcases(good_table.replace("Test Case Id", "TestCase Id"), 1, 100)))
 check("rejects an empty response",
       _try(lambda: T.parse_testcases("", 1, 100)))
 check("rejects prose with no table",
@@ -224,9 +219,11 @@ check("maxagentcalls sizes itself: 3 + scenarios x 2 x rounds",
 check("an explicit maxagentcalls still overrides the formula",
       tool._config(json.dumps(dict(base, maxagentcalls=99)))["maxagentcalls"] == 99)
 check("the minimal seven key payload is enough",
-      tool._config(json.dumps(base))["testcasesperscenario"] == 3
+      tool._config(json.dumps(base))["testcasesperscenario"] == 6
       and tool._config(json.dumps(base))["hardstopscore"] == 50
       and tool._config(json.dumps(base))["maxworkers"] == 5)
+check("testcasesperscenario is a ceiling clamped to 12",
+      tool._config(json.dumps(dict(base, testcasesperscenario=20)))["testcasesperscenario"] == 12)
 check("clamps an absurd deadline", tool._config(json.dumps(dict(base, deadlineseconds=99999)))["deadlineseconds"] == 3600)
 check("coerces stoponstagnation from a string",
       tool._config(json.dumps(dict(base, stoponstagnation="false")))["stoponstagnation"] is False)
@@ -320,8 +317,8 @@ check("log is thread safe under 6 threads", not lerr and len(log.dump()) >= 600)
 # ────────────────────────────────────────────────────────────────────────────
 section("7. FULL PIPELINE, MOCKED  (real recorded output, no network)")
 
-real_table = as_current(fixture("testcases_log0814.md"))   # post column fix, post angle bracket rule
-real_scen = fixture("scenarios_log0814.json")
+real_table = build_table(12, 3)   # stand-in for the retired 13 column captured fixture
+real_scen = fixture("scenarios_log0814.json")   # scenario schema is unchanged, still real
 
 calls = {"n": 0, "ids": [], "threads": set()}
 
@@ -351,7 +348,7 @@ orig_exec, orig_story, orig_secret = T.exec_agent, T.fetch_story, T._secret
 T.exec_agent, T.fetch_story = fake_exec, fake_story
 T._secret = lambda k, f="": "test-token"
 
-blob = json.dumps(dict(base, maxscenarios=4, testcasesperscenario=3, stepsmin=1,
+blob = json.dumps(dict(base, maxscenarios=4, testcasesperscenario=12, stepsmin=1,
                        stepsmax=100, maxworkers=4, deadlineseconds=120))
 t0 = time.monotonic()
 res = json.loads(tool._run(runinputs=blob))
@@ -437,7 +434,7 @@ def healing_exec(agentid, userinputs, cfg, token, budget, log, label):
 
 T.exec_agent = healing_exec
 res3 = json.loads(tool._run(runinputs=json.dumps(dict(
-    base, maxscenarios=2, testcasesperscenario=3, stepsmin=1, stepsmax=100,
+    base, maxscenarios=2, testcasesperscenario=12, stepsmin=1, stepsmax=100,
     maxworkers=2, maxhealrounds=3, stoponstagnation=False, deadlineseconds=120))))
 sc = res3["scenarios"]
 check("a never passing scenario ends unhealed, not failed",
@@ -449,11 +446,339 @@ check("score history has one entry per round", all(len(r["scorehistory"]) == 3 f
 
 T.exec_agent = healing_exec
 res4 = json.loads(tool._run(runinputs=json.dumps(dict(
-    base, maxscenarios=2, testcasesperscenario=3, stepsmin=1, stepsmax=100,
+    base, maxscenarios=2, testcasesperscenario=12, stepsmin=1, stepsmax=100,
     maxworkers=2, maxhealrounds=3, stoponstagnation=True, deadlineseconds=120))))
 check("stoponstagnation stops early when the score does not improve",
       all(r["status"] == "stagnant" and r["rounds"] == 2 for r in res4["scenarios"]),
       str([(r["status"], r["rounds"]) for r in res4["scenarios"]]))
+
+# Run 640764_064825: TS_003/TS_005 went from 7 cases passing in round 1 to 0 passing after
+# a heal round, and the tool shipped the 0-passing table. A heal round must never lose work.
+worse = {"gen": 0}
+
+
+def worsening_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        worse["gen"] += 1
+        # round 1: 3 cases; the regeneration round: only 2, and they all fail review
+        return build_table(3 if worse["gen"] == 1 else 2, 3), 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    if len(ids) == 3:      # round 1's table: 2 of 3 pass
+        scores = [{"id": ids[0], "score": 85, "pass": False, "gaps": ["step 3 is vague"]}]
+        scores += [{"id": i, "score": 95, "pass": True, "gaps": []} for i in ids[1:]]
+    else:                  # the regenerated table: everything fails
+        scores = [{"id": i, "score": 85, "pass": False, "gaps": ["worse than before"]}
+                  for i in ids]
+    return json.dumps({"scenarioid": "x", "scores": scores,
+                       "batchscore": 85, "batchpass": False}), 10
+
+
+T.exec_agent = worsening_exec
+res4b = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=3, stoponstagnation=True, deadlineseconds=120))))
+r4b = res4b["scenarios"][0]
+check("a heal round that loses passing cases still stops as stagnant",
+      r4b["status"] == "stagnant" and r4b["passedhistory"] == [2, 0],
+      f"status={r4b['status']} passed={r4b.get('passedhistory')}")
+check("the shipped table is the BEST round's, not the last round's",
+      r4b["testcasecount"] == 3, f"testcasecount={r4b['testcasecount']}")
+check("flagged reflects the best round too", len(r4b["flagged"]) == 1,
+      str(r4b["flagged"]))
+check("keeping the best round is logged",
+      any("step=keptbest" in l for l in res4b["log"]))
+
+# Run 640764_064825: TS_002/TS_007's final heal round returned [], ending the scenario as
+# status=failed with an error, even though an earlier reviewed table was still in hand.
+lastempty = {"gen": 0}
+
+
+def finalround_empty_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        lastempty["gen"] += 1
+        return (build_table(3, 3) if lastempty["gen"] == 1 else "[]"), 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    scores = [{"id": ids[0], "score": 85, "pass": False, "gaps": ["step 3 is vague"]}]
+    scores += [{"id": i, "score": 95, "pass": True, "gaps": []} for i in ids[1:]]
+    return json.dumps({"scenarioid": "x", "scores": scores,
+                       "batchscore": 85, "batchpass": False}), 10
+
+
+T.exec_agent = finalround_empty_exec
+res4c = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=2, stoponstagnation=False, deadlineseconds=120))))
+r4c = res4c["scenarios"][0]
+check("a final round returning [] ends unhealed, not failed",
+      r4c["status"] == "unhealed", f"status={r4c['status']} error={r4c.get('error')}")
+check("its stale error message is cleared", r4c.get("error") is None,
+      f"error={r4c.get('error')}")
+check("the reviewed table survives the bad final round",
+      r4c["testcasecount"] == 3 and res4c["testcases"]["rows"] > 0,
+      f"testcasecount={r4c['testcasecount']} rows={res4c['testcases']['rows']}")
+
+# Run 640764_080233, TS_005: round 1 returned [], rounds 2-3 recovered and shipped 6 good
+# cases — yet the envelope still showed error="test case array is empty" next to them. A
+# transient error a later round recovered from must not linger in the record.
+recov = {"gen": 0}
+
+
+def transient_error_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        recov["gen"] += 1
+        return ("[]" if recov["gen"] == 1 else build_table(3, 3)), 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    scores = [{"id": ids[0], "score": 85, "pass": False, "gaps": ["step 3 is vague"]}]
+    scores += [{"id": i, "score": 95, "pass": True, "gaps": []} for i in ids[1:]]
+    return json.dumps({"scenarioid": "x", "scores": scores,
+                       "batchscore": 85, "batchpass": False}), 10
+
+
+T.exec_agent = transient_error_exec
+res4d = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=3, stoponstagnation=True, deadlineseconds=120))))
+r4d = res4d["scenarios"][0]
+check("a round-1 error later rounds recovered from does not linger in the record",
+      r4d["status"] == "stagnant" and r4d.get("error") is None,
+      f"status={r4d['status']} error={r4d.get('error')}")
+
+# Run 640764_083251: TS_002/TS_005 returned a bare JSON object on all six attempts and died
+# with tc=0. When no table exists yet there is nothing a single object can clobber, so it is
+# accepted as a one-case array; with a table in hand the rejection stands.
+single_obj = json.dumps({"id": "TC_001", "name": "n", "description": "d",
+                         "precondition": "p", "priority": "High",
+                         "steps": [{"no": 1, "description": "sd", "expected": "se"}]})
+check("a bare object is accepted when explicitly allowed",
+      len(T.read_testcases(single_obj, 1, 100, allow_single=True)["ids"]) == 1)
+
+
+def bareobj_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        return single_obj, 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    return json.dumps({"scenarioid": "x",
+                       "scores": [{"id": i, "score": 95, "pass": True, "gaps": []}
+                                  for i in ids],
+                       "batchscore": 95, "batchpass": True}), 10
+
+
+T.exec_agent = bareobj_exec
+res4d = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=6, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=3, deadlineseconds=120))))
+r4d = res4d["scenarios"][0]
+check("a first-round bare object is recovered as a one-case scenario, not failed",
+      r4d["status"] == "approved" and r4d["testcasecount"] == 1,
+      f"status={r4d['status']} tc={r4d['testcasecount']} err={r4d.get('error')}")
+
+tablethen = {"gen": 0}
+
+
+def table_then_bareobj_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        tablethen["gen"] += 1
+        return (build_table(3, 3) if tablethen["gen"] == 1 else single_obj), 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    scores = [{"id": ids[0], "score": 85, "pass": False, "gaps": ["step 3 is vague"]}]
+    scores += [{"id": i, "score": 95, "pass": True, "gaps": []} for i in ids[1:]]
+    return json.dumps({"scenarioid": "x", "scores": scores,
+                       "batchscore": 85, "batchpass": False}), 10
+
+
+T.exec_agent = table_then_bareobj_exec
+res4e = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=6, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=3, stoponstagnation=False, deadlineseconds=120))))
+r4e = res4e["scenarios"][0]
+check("a heal-round bare object still cannot replace an existing table",
+      r4e["testcasecount"] == 3 and r4e["status"] == "unhealed",
+      f"status={r4e['status']} tc={r4e['testcasecount']}")
+
+# Run 640764_082102: TS_002/003/004 each held a ONE-case table, and every heal round came
+# back as a bare object — rejected all three rounds, three scenarios unhealed. With exactly
+# one case in hand a bare object can clobber nothing but the case it replaces, so accept it.
+onecase = {"gen": 0}
+
+
+def onecase_then_bareobj_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        onecase["gen"] += 1
+        return (build_table(1, 3) if onecase["gen"] == 1 else single_obj), 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    return json.dumps({"scenarioid": "x",
+                       "scores": [{"id": i, "score": 85, "pass": False,
+                                   "gaps": ["scenario also requires more coverage"]}
+                                  for i in ids],
+                       "batchscore": 85, "batchpass": False}), 10
+
+
+T.exec_agent = onecase_then_bareobj_exec
+res4f = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=6, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=3, stoponstagnation=False, deadlineseconds=120))))
+r4f = res4f["scenarios"][0]
+check("a heal-round bare object IS accepted when the table holds exactly one case",
+      len(r4f["scorehistory"]) == 3 and r4f.get("error") is None,
+      f"status={r4f['status']} scores={r4f['scorehistory']} err={r4f.get('error')}")
+
+# mocks stay installed; section 11 restores them
+
+
+# ────────────────────────────────────────────────────────────────────────────
+section("9b. CONDITION-CHUNKED GENERATION  (the single-completion budget wall)")
+
+# Run 640764_145552: at 18-40 step depth no single completion could carry more than ~4
+# cases — big condition lists came back as [] or truncated. Scenarios whose description
+# carries a "Conditions to cover:" list are generated in chunks of at most 3 conditions,
+# one agent call each, merged by the tool.
+
+check("parse_conditions extracts a numbered list",
+      T.parse_conditions("intro text. Conditions to cover: 1) Alpha changes. "
+                         "2) Beta changes. 3) All fields together.")
+      == ["Alpha changes", "Beta changes", "All fields together"])
+check("parse_conditions returns [] when there is no list",
+      T.parse_conditions("a plain description") == [])
+
+chunk_scen = json.dumps([{
+    "scenarioId": "TS_001", "title": "quadrant", "descriptionRef": "d",
+    "acceptanceCriteriaRef": "ac", "dorRef": "", "dodRef": "", "type": "Positive",
+    "description": ("Rule matrix quadrant. Conditions to cover: 1) Alpha changes. "
+                    "2) Beta changes. 3) Gamma changes. 4) Delta changes. "
+                    "5) Epsilon changes. 6) Zeta changes. "
+                    "7) All relevant fields change together."),
+    "priority": "High"}])
+
+ck = {"gen": []}
+
+
+def chunked_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return chunk_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        ck["gen"].append(json.loads(userinputs["scenario"])["description"])
+        return build_table(3, 2), 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    return json.dumps({"scenarioid": "x",
+                       "scores": [{"id": i, "score": 95, "pass": True, "gaps": []}
+                                  for i in ids],
+                       "batchscore": 95, "batchpass": True}), 10
+
+
+T.exec_agent = chunked_exec
+res_c = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=10, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=2, deadlineseconds=120, maxagentcalls=60))))
+r_c = res_c["scenarios"][0]
+check("a 7-condition list generates in ceil(7/3)=3 chunk calls",
+      len(ck["gen"]) == 3, f"calls={len(ck['gen'])}")
+check("each chunk call carries ONLY its own conditions, renumbered",
+      len(ck["gen"]) == 3
+      and "Alpha changes" in ck["gen"][0] and "Delta" not in ck["gen"][0]
+      and "1) Delta changes" in ck["gen"][1] and "Alpha" not in ck["gen"][1]
+      and "All relevant fields" in ck["gen"][2] and "Beta" not in ck["gen"][2])
+check("chunk results merge with unique sequential ids and approve",
+      r_c["status"] == "approved" and r_c["testcasecount"] == 9,
+      f"status={r_c['status']} tc={r_c['testcasecount']}")
+
+# heal isolation: one failing case regenerates only its own chunk
+hz = {"gen": 0, "rev": 0}
+
+
+def chunkheal_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return chunk_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        hz["gen"] += 1
+        return build_table(3, 2), 10
+    hz["rev"] += 1
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    scores = [{"id": i,
+               "score": 85 if (hz["rev"] == 1 and i == "TC_005") else 95,
+               "pass": not (hz["rev"] == 1 and i == "TC_005"),
+               "gaps": ["fix it"] if (hz["rev"] == 1 and i == "TC_005") else []}
+              for i in ids]
+    return json.dumps({"scenarioid": "x", "scores": scores,
+                       "batchscore": min(s["score"] for s in scores),
+                       "batchpass": all(s["pass"] for s in scores)}), 10
+
+
+T.exec_agent = chunkheal_exec
+res_h = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=10, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=2, deadlineseconds=120, maxagentcalls=60))))
+r_h = res_h["scenarios"][0]
+check("healing a failing case regenerates ONLY its chunk (3+1 calls)",
+      hz["gen"] == 4 and r_h["status"] == "approved",
+      f"gen={hz['gen']} status={r_h['status']}")
+
+# a [] on one chunk must not kill the scenario; the chunk is retried next round
+bz = {"gen": 0}
+
+
+def chunkempty_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return chunk_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        bz["gen"] += 1
+        return ("[]" if bz["gen"] == 2 else build_table(3, 2)), 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    return json.dumps({"scenarioid": "x",
+                       "scores": [{"id": i, "score": 95, "pass": True, "gaps": []}
+                                  for i in ids],
+                       "batchscore": 95, "batchpass": True}), 10
+
+
+T.exec_agent = chunkempty_exec
+res_e = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=10, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=2, deadlineseconds=120, maxagentcalls=60))))
+r_e = res_e["scenarios"][0]
+check("an empty chunk is retried, not fatal: scenario completes with all 9 cases",
+      r_e["status"] == "approved" and r_e["testcasecount"] == 9 and bz["gen"] == 4,
+      f"status={r_e['status']} tc={r_e['testcasecount']} gen={bz['gen']}")
+
+# the ceiling trims the condition list before chunking
+tz = {"gen": 0}
+big_scen = json.dumps([{
+    "scenarioId": "TS_001", "title": "big", "descriptionRef": "d",
+    "acceptanceCriteriaRef": "ac", "dorRef": "", "dodRef": "", "type": "Positive",
+    "description": "Big list. Conditions to cover: " + " ".join(
+        f"{i}) Condition {i}." for i in range(1, 14)),
+    "priority": "High"}])
+
+
+def chunktrim_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return big_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        tz["gen"] += 1
+        return build_table(2, 2), 10
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    return json.dumps({"scenarioid": "x",
+                       "scores": [{"id": i, "score": 95, "pass": True, "gaps": []}
+                                  for i in ids],
+                       "batchscore": 95, "batchpass": True}), 10
+
+
+T.exec_agent = chunktrim_exec
+res_t = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=10, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=2, deadlineseconds=120, maxagentcalls=60))))
+check("a 13-condition list is trimmed to the ceiling before chunking (4 calls, not 5)",
+      tz["gen"] == 4, f"calls={tz['gen']}")
 
 # mocks stay installed; section 11 restores them
 
@@ -470,9 +795,10 @@ section("10. PLACEHOLDER WIRING  (the failure that produces confident nonsense)"
 # ONE {{runinputs}} blob, and each sub agent takes several semantically grouped variables.
 # Fields inside a grouped variable are documented as `group.field` and are NOT placeholders.
 import re as _re                                          # noqa: E402
-AGENTS = os.path.join(SHARED, "agents")          # 00-03 stay with the working copy
+AGENTS = os.path.join(SHARED, "agents")            # 00-03 stay with testgen_orchestrator
 AGENTS_LOCAL = os.path.join(HERE, "..", "agents")  # 04 scenario reviewer lives here
-TOOLSRC = open(os.path.join(HERE, "AavaTestGenOrchestratorTwoStage.py"), encoding="utf-8").read()
+TOOLSRC = open(os.path.join(HERE, "AavaTestGenOrchestratorTwoStage.py"),
+               encoding="utf-8").read()
 
 
 def prompt_of(fname):
@@ -563,39 +889,40 @@ check("the retry constants are gone",
       not hasattr(T, "MAX_HTTP_ATTEMPTS") and not hasattr(T, "RETRY_STATUSES"))
 
 # 2. Bounded concurrency.
-check("every guard sits BELOW the 500s hosting ceiling",
-      T.DEF_DEADLINESECONDS < 500 and T.HTTP_TIMEOUT < 500,
+check("every guard sits BELOW the client's 240s ACA cut",
+      T.DEF_DEADLINESECONDS < 240 and T.HTTP_TIMEOUT < 240,
       f"deadline={T.DEF_DEADLINESECONDS} http={T.HTTP_TIMEOUT}")
 
 # 3/4. The deterministic pre gate.
 import copy as _copy                                      # noqa: E402
 
-_RAW = fixture("testcases_log0814.md") or ""
-_ANCHOR = "The file is automatically picked up by Edifecs within the normal polling interval."
-_RAW_CUR = None  # set after as_current below
-check("the pre gate fixture anchor still exists", _RAW.count(_ANCHOR) > 0)
+# Schema changed 2026-08-24: Test Case Id is column 0, Name 1, Description 2, Precondition 3,
+# Step Description 5, Expected Result 6. _ANCHOR is the step-1 description build_table()
+# writes for every case, so replacing its first occurrence targets TC_001's first row.
+_ANCHOR = "Perform step 1 of the transaction."
+_RAW = build_table(12, 3)
+check("the pre gate anchor exists in the synthetic table", _RAW.count(_ANCHOR) > 0)
 
-_good = T.parse_testcases(as_current(_RAW), 1, 100)
-check("pre gate passes REAL output once angle brackets are converted",
+_good = T.parse_testcases(_RAW, 1, 100)
+check("pre gate passes a clean table",
       T.pregate(_good) == [], str(T.pregate(_good)[:2]))
-
 
 
 def _mutated(fn):
     """Parse once, mutate the structure in memory, gate it. rows and cases share row objects."""
-    p2 = _copy.deepcopy(T.parse_testcases(as_current(_RAW), 1, 100))
+    p2 = _copy.deepcopy(T.parse_testcases(_RAW, 1, 100))
     fn(p2)
     return T.pregate(p2)
 
 
 def _blank_expected(p2):
-      p2["rows"][0][6] = ""
-      p2["cases"][p2["rows"][0][0]][0][6] = ""
+    p2["rows"][0][6] = ""
+    p2["cases"][p2["rows"][0][0]][0][6] = ""
 
 
-check("pre gate catches an empty Test Step Expected Result",
+check("pre gate catches an empty Expected Result",
       any("Expected Result" in x for x in _mutated(_blank_expected)))
-check("pre gate catches an empty Test Step Description",
+check("pre gate catches an empty Step Description",
       any("Description" in x for x in _mutated(
           lambda p2: (p2["rows"][0].__setitem__(5, ""),
                       p2["cases"][p2["rows"][0][0]][0].__setitem__(5, "")))))
@@ -605,18 +932,18 @@ check("pre gate catches a knowledge base name in the output",
               _ANCHOR, "See kb_edi_834_testcase_analysis for details.", 1)))))
 check("pre gate catches a meta label in a Precondition",
       any("DoR" in x for x in _mutated(
-              lambda p2: p2["rows"][0].__setitem__(3, "Per the DoR this must hold."))))
+          lambda p2: p2["rows"][0].__setitem__(3, "Per the DoR this must hold."))))
 
 check("the pre gate leaves angle brackets to the agents, by design",
       _mutated(lambda p2: p2.__setitem__("table", p2["table"].replace(
           _ANCHOR, "Capture <ISA13> and <member_ssn> at run time.", 1))) == [])
 check("ANGLE_TOKEN is gone from the tool", not hasattr(T, "ANGLE_TOKEN"))
-check("a meta label in AcceptanceCriteriaRef is NOT a violation",
-      _mutated(lambda p2: p2["rows"][0].__setitem__(1, "DoD - file archived")) == [])
+check("a meta label in a column the gate does not check is NOT a violation",
+      _mutated(lambda p2: p2["rows"][0].__setitem__(12, "DoD - file archived")) == [])
 
 # A pre gate failure must NOT spend a reviewer call.
 seen = {"gen": 0, "rev": 0}
-bad_table = as_current(_RAW).replace(_ANCHOR, "Per the DoR this must hold.", 1)
+bad_table = _RAW.replace(_ANCHOR, "Per the DoR this must hold.", 1)
 check("the mutated raw table really does fail the gate",
       T.pregate(T.parse_testcases(bad_table, 1, 100)) != [])
 
@@ -647,7 +974,8 @@ check("a never-passing gate ends unhealed with the problem in gaps",
       f"status={_rec5['status']} gaps={_rec5['gaps'][:1]}")
 _src = open(os.path.join(HERE, "AavaTestGenOrchestratorTwoStage.py"), encoding="utf-8").read()
 check("pregate() is defined and wired in",
-      "def pregate(" in _src and "\n            problems = pregate(parsed, cfg[\"bannedterms\"])" in _src)
+      "def pregate(" in _src
+      and '\n            problems = pregate(parsed, cfg["bannedterms"], cfg["testcasesperscenario"])' in _src)
 check("and the re-enable reason is written next to it", "re-enabled\n# 2026-08-19" in _src
       or "Re-enabled 2026-08-19" in _src or "re-enabled 2026-08-19" in _src)
 
@@ -666,8 +994,8 @@ def lowscore_exec(agentid, userinputs, cfg, token, budget, log, label):
 
 T.exec_agent = lowscore_exec
 res6 = json.loads(tool._run(runinputs=json.dumps(dict(
-    base, maxscenarios=1, stepsmin=1, stepsmax=100, maxworkers=1, maxhealrounds=3,
-    deadlineseconds=120))))
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100, maxworkers=1,
+    maxhealrounds=3, deadlineseconds=120))))
 r6 = res6["scenarios"][0]
 check("a score below hardstopscore stops immediately", r6["status"] == "hardstop", str(r6["status"]))
 check("it stops after ONE round, not three", r6["rounds"] == 1, f"rounds={r6['rounds']}")
@@ -676,8 +1004,8 @@ check("hardstop is counted in the summary", res6["summary"]["hardstop"] == 1)
 # 5. Degraded modes.
 T.exec_agent = healing_exec
 res7 = json.loads(tool._run(runinputs=json.dumps(dict(
-    base, maxscenarios=1, stepsmin=1, stepsmax=100, maxworkers=1, maxhealrounds=0,
-    deadlineseconds=120))))
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100, maxworkers=1,
+    maxhealrounds=0, deadlineseconds=120))))
 check("maxhealrounds=0 still runs ONE pass", res7["scenarios"][0]["rounds"] == 1,
       str(res7["scenarios"][0]["rounds"]))
 check("maxhealrounds=0 returns test cases and a score",
@@ -697,8 +1025,8 @@ def nojudge_exec(agentid, userinputs, cfg, token, budget, log, label):
 
 T.exec_agent = nojudge_exec
 res8 = json.loads(tool._run(runinputs=json.dumps(dict(
-    base, maxscenarios=1, stepsmin=1, stepsmax=100, maxworkers=1, reviewagentid=0,
-    deadlineseconds=120))))
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100, maxworkers=1,
+    reviewagentid=0, deadlineseconds=120))))
 check("reviewagentid=0 never calls a judge", nojudge["rev"] == 0)
 check("reviewagentid=0 yields status unreviewed",
       res8["scenarios"][0]["status"] == "unreviewed", str(res8["scenarios"][0]["status"]))
@@ -711,14 +1039,15 @@ T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
 
 section("12. NESTED JSON OUTPUT  (halves what the generator has to write)")
 
-_p = T.parse_testcases(as_current(fixture("testcases_log0814.md") or ""), 1, 100)
+_REV_PC = {v: k for k, v in T.PRIORITY_CODE.items()}   # "P1" -> "High", table -> agent JSON
+_p = T.parse_testcases(build_table(6, 3), 1, 100)
 _nested = []
 for tid, rws in _p["cases"].items():
     h = rws[0]
     _nested.append({
-            "id": h[0], "name": h[1], "description": h[2], "precondition": h[3],
-            "priority": "High" if h[9] == "P1" else "Medium",
-            "steps": [{"no": r[4], "description": r[5], "expected": r[6]} for r in rws]})
+        "id": h[0], "name": h[1], "description": h[2], "precondition": h[3],
+        "priority": _REV_PC[h[9]],
+        "steps": [{"no": r[4], "description": r[5], "expected": r[6]} for r in rws]})
 _json = json.dumps(_nested)
 
 expanded = T.expand_testcases(_json)
@@ -730,9 +1059,8 @@ check("no step row is lost in expansion",
       len(back["rows"]) == len(_p["rows"]), f"{len(back['rows'])} vs {len(_p['rows'])}")
 check("the repeated columns are filled down on every step row",
       all(r[0] and r[1] and r[3] for r in back["rows"]))
-check("constant status and test type survive expansion",
-      {r[7] for r in back["rows"]} == {"Manual"} and
-      {r[8] for r in back["rows"]} == {"New"})
+check("Test Case Type is always Manual and Test Type is always Functional",
+      {r[7] for r in back["rows"]} == {"Manual"} and {r[13] for r in back["rows"]} == {T.TEST_TYPE})
 print("          -> JSON %d chars vs table %d chars  (%.2fx, %d%% less to write)"
       % (len(_json), len(_p["table"]), len(_json)/len(_p["table"]),
          100 - 100*len(_json)//len(_p["table"])))
@@ -750,7 +1078,7 @@ check("rejects JSON with no steps array",
       _try(lambda: T.expand_testcases(json.dumps([{**_nested[0], "steps": []}]))))
 check("rejects a test case missing a required key",
       _try(lambda: T.expand_testcases(json.dumps([{k: v for k, v in _nested[0].items()
-                                                   if k != "status"}]))))
+                                                   if k != "priority"}]))))
 check("rejects a step with no expected result",
       _try(lambda: T.expand_testcases(json.dumps(
           [{**_nested[0], "steps": [{"no": 1, "description": "x"}]}]))))
@@ -774,7 +1102,8 @@ T.exec_agent, T.fetch_story, T._secret = fake_exec, fake_story, lambda k, f="": 
 _buf = _io.StringIO()
 with _ctx.redirect_stdout(_buf):
     res9 = json.loads(tool._run(runinputs=json.dumps(dict(
-        base, maxscenarios=2, stepsmin=1, stepsmax=100, maxworkers=2, deadlineseconds=120))))
+        base, maxscenarios=2, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+        maxworkers=2, deadlineseconds=120))))
 out = _buf.getvalue()
 T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
 
@@ -865,8 +1194,8 @@ def mixed_exec(agentid, userinputs, cfg, token, budget, log, label):
 
 T.exec_agent, T.fetch_story, T._secret = mixed_exec, fake_story, lambda k, f="": "t"
 res10 = json.loads(tool._run(runinputs=json.dumps(dict(
-    base, maxscenarios=2, stepsmin=1, stepsmax=100, maxworkers=2, maxhealrounds=1,
-    deadlineseconds=120))))
+    base, maxscenarios=2, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+    maxworkers=2, maxhealrounds=1, deadlineseconds=120))))
 T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
 
 _out = next(l for l in res10["log"] if "step=outcome" in l)
@@ -906,15 +1235,35 @@ check("an older reviewer with no reason field still says something useful",
       "absent record" in _f2[0]["why"], _f2[0]["why"])
 
 # the separator row must never be reported as a duplicate again
-_sep = "| " + " | ".join(T.COLUMNS) + " |\n|" + "---|" * 13 + "\n"
-_row = "| %s | AC1 | Verify thing | TC_001 | None | Positive | Functional | Desc | Pre | 1 | Do | Then | None |"
+_sep = "| " + " | ".join(T.COLUMNS) + " |\n|" + "---|" * len(T.COLUMNS) + "\n"
+_row = ("| TC_001 | Verify thing | Desc | Pre | 1 | Do | Then | Manual | New | P1 |  | EDI |"
+        "  | Functional |  |")
 _recs = [{"scenarioid": "TS_00%d" % i, "testcasecount": 1,
-          "table": _sep + (_row % ("TS_00%d" % i))} for i in (1, 2, 3)]
+          "table": _sep + _row} for i in (1, 2, 3)]
 check("the markdown separator row is never a duplicate",
       T.cross_batch_check(_recs, [{"scenarioId": "TS_00%d" % i} for i in (1, 2, 3)]) == []
       or all("---" not in w for w in T.cross_batch_check(
           _recs, [{"scenarioId": "TS_00%d" % i} for i in (1, 2, 3)])),
       str(T.cross_batch_check(_recs, [{"scenarioId": "TS_00%d" % i} for i in (1, 2, 3)])[:2]))
+# every scenario numbers its own cases from TC_001, so concatenation collides
+# (run 640764_20260824_122700 delivered 42 test cases under 8 distinct ids)
+_r1 = {"scenarioid": "TS_001", "testcasecount": 2, "table": build_table(2, 2)}
+_r2 = {"scenarioid": "TS_002", "testcasecount": 2, "table": build_table(2, 2),
+       "flagged": [{"id": "TC_002", "why": "duplicate business intent"}]}
+_map = T.renumber_testcases([_r1, _r2])
+_ids1 = T.parse_testcases(_r1["table"], 1, 100)["ids"]
+_ids2 = T.parse_testcases(_r2["table"], 1, 100)["ids"]
+check("colliding per-scenario ids are renumbered into one global sequence",
+      set(_ids1) == {"TC_001", "TC_002"} and set(_ids2) == {"TC_003", "TC_004"},
+      f"{_ids1} / {_ids2}")
+check("the renumber mapping names every rewritten id",
+      _map.get("TS_002") == {"TC_001": "TC_003", "TC_002": "TC_004"}, str(_map))
+_rrows = T.parse_testcases(_r2["table"], 1, 100)["rows"]
+check("renumbering rewrites only the id column",
+      all(r[1].startswith("Verify AR PASSE") and r[13] == T.TEST_TYPE for r in _rrows))
+check("flagged ids follow the renumbering, so run_local names real ids",
+      _r2["flagged"][0]["id"] == "TC_004", str(_r2["flagged"]))
+
 check("a clean scenario has an empty flagged list",
       any(r["flagged"] == [] for r in res10["scenarios"]))
 check("a flagged scenario names the id and keeps its other test cases",
@@ -1026,7 +1375,7 @@ check("no hardcoded secret literals",
 section("17. GITHUB PUBLISH  (opt in, and a failure can never fail the run)")
 
 _ghtoken = "ghp_FAKETOKENVALUE1234567890"
-_gh_base = dict(base, maxscenarios=2, testcasesperscenario=3, stepsmin=1, stepsmax=100,
+_gh_base = dict(base, maxscenarios=2, testcasesperscenario=12, stepsmin=1, stepsmax=100,
                 maxworkers=2, deadlineseconds=120)
 
 cfgp = tool._config(json.dumps(_gh_base))
@@ -1058,14 +1407,14 @@ check("publish off makes no github call and adds no envelope field",
 res18 = json.loads(tool._run(runinputs=json.dumps(dict(
     _gh_base, publish=True, githubtoken=_ghtoken))))
 names = [u.split("/")[-1] for _, u, _, _ in _puts]
-check("publish on PUTs exactly the four run files",
-      len(_puts) == 4 and set(names) == {"run.log", "testcases.md", "envelope.json",
-                                         "runinputs.json"}, str(names))
+check("publish on PUTs exactly the five run files",
+      len(_puts) == 5 and set(names) == {"run.log", "testcases.md", "envelope.json",
+                                         "runinputs.json", "testcases.xlsx"}, str(names))
 check("files go to the contents api of the configured repo",
       all(u.startswith("https://api.github.com/repos/Hrishi1312/self_healing/contents/"
                        "tool_logs/640764_") for _, u, _, _ in _puts),
       _puts[0][1] if _puts else "no calls")
-check("all four files share one run folder",
+check("all five files share one run folder",
       len({u.rsplit("/", 1)[0] for _, u, _, _ in _puts}) == 1)
 check("the body carries branch and base64 content",
       all(b.get("branch") == "main" and b.get("content") for _, _, _, b in _puts))
@@ -1078,7 +1427,7 @@ check("published runinputs.json blanks all three credentials",
 check("the github token never reaches a log line",
       _ghtoken not in "\n".join(res18["log"]))
 check("the envelope reports what was published",
-      res18.get("published", {}).get("files") == 4
+      res18.get("published", {}).get("files") == 5
       and res18["published"]["repo"] == "Hrishi1312/self_healing")
 check("the run is still completed", res18.get("status") == "completed")
 
@@ -1127,7 +1476,167 @@ check("the run still completes and reports the scenario failed",
 T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
 
 
-section("18. TWO STAGE SPLIT  (scenarios stage, handoff file, testcases stage)")
+section("19. EXPERT-BASELINE FIXES  (run 640764_141324 vs the expert workbook)")
+
+# 1. Config: the two new optional inputs.
+check("domainhints defaults to empty and passes through",
+      tool._config(json.dumps(base))["domainhints"] == ""
+      and tool._config(json.dumps(dict(base, domainhints=" Assessment Date = HD03 ")))[
+          "domainhints"] == "Assessment Date = HD03")
+check("bannedterms accepts a comma string or a list",
+      tool._config(json.dumps(dict(base, bannedterms="DTP01, DTP03 ,")))["bannedterms"]
+      == ["DTP01", "DTP03"]
+      and tool._config(json.dumps(dict(base, bannedterms=["DTP01"])))["bannedterms"]
+      == ["DTP01"]
+      and tool._config(json.dumps(base))["bannedterms"] == [])
+
+# 2. A bare JSON object on a heal round is rejected with actionable feedback, never parsed
+#    as markdown and never allowed to replace the whole table with one case.
+try:
+    T.read_testcases('{ "id": "TC_003_02", "name": "x", "steps": [] }', 1, 100)
+    _objerr = ""
+except ValueError as e:
+    _objerr = str(e)
+check("a bare JSON object is rejected with the full-array instruction",
+      "complete" in _objerr and "array" in _objerr and "ALL test cases" in _objerr,
+      _objerr[:80] or "did not raise")
+
+# 3. Priority differentiation: an all-P1 batch of 4+ cases fails the pre gate; smaller
+#    batches and mixed batches pass.
+_allp1 = T.parse_testcases(
+    build_table(5, 2).replace("| P2 |", "| P1 |").replace("| P3 |", "| P1 |"), 1, 100)
+check("pre gate catches an all-P1 batch of 4 or more cases",
+      any("High priority" in x for x in T.pregate(_allp1)),
+      str(T.pregate(_allp1)[:1]))
+_small = T.parse_testcases(
+    build_table(3, 2).replace("| P2 |", "| P1 |").replace("| P3 |", "| P1 |"), 1, 100)
+check("an all-P1 batch of 3 or fewer cases is not a violation", T.pregate(_small) == [])
+check("a mixed-priority batch is not a violation",
+      T.pregate(T.parse_testcases(build_table(6, 2), 1, 100)) == [])
+
+# 4. Banned terms: token match, so DTP03 fires as a bare element name but never inside
+#    the legitimate qualifier DTP*303.
+_banned = T.parse_testcases(build_table(4, 2).replace(
+    _ANCHOR, "Verify the Loop 2000 DTP01 Maintenance Date is loaded.", 1), 1, 100)
+check("pre gate catches a banned term as a whole token",
+      any("DTP01" in x for x in T.pregate(_banned, ["DTP01", "DTP03"])))
+_legit = T.parse_testcases(build_table(4, 2).replace(
+    _ANCHOR, "Verify the DTP*303 Maintenance Date is loaded.", 1), 1, 100)
+check("a banned term inside a legitimate qualifier does not fire",
+      T.pregate(_legit, ["DTP03", "DTP01"]) == [])
+check("no banned terms configured means no banned-term check",
+      T.pregate(_banned) == [])
+
+# 5. Wiring: domainhints reaches all three agents, storyac reaches the reviewer, and both
+#    are always bound (never an unbound {{variable}}).
+_captured = {}
+
+
+def capture_exec(agentid, userinputs, cfg, token, budget, log, label):
+    _captured[agentid] = dict(userinputs)
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        return real_table, 10
+    ids = T.parse_testcases(real_table, 1, 100)["ids"]
+    return json.dumps({"scenarioid": "x", "batchpass": True, "batchscore": 95,
+                       "scores": [{"id": i, "score": 95, "pass": True, "gaps": []}
+                                  for i in ids]}), 10
+
+
+T.exec_agent, T.fetch_story, T._secret = capture_exec, fake_story, lambda k, f="": "t"
+res22 = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+    deadlineseconds=120, domainhints="Assessment Date = Loop 2300 HD03"))))
+_scen_in = _captured.get(base["scenarioagentid"], {})
+_gen_in = _captured.get(base["testcaseagentid"], {})
+_rev_in = _captured.get(base["reviewagentid"], {})
+check("domainhints reaches the scenario, generator and reviewer agents",
+      _scen_in.get("domainhints") == "Assessment Date = Loop 2300 HD03"
+      and _gen_in.get("domainhints") == "Assessment Date = Loop 2300 HD03"
+      and _rev_in.get("domainhints") == "Assessment Date = Loop 2300 HD03")
+check("the reviewer receives the full story acceptance criteria",
+      bool(_rev_in.get("storyac")) and _rev_in["storyac"] != "{{storyac}}")
+_captured.clear()
+res23 = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+    deadlineseconds=120))))
+check("with no hints configured the keys are still bound, as 'none'",
+      _captured.get(base["testcaseagentid"], {}).get("domainhints") == "none"
+      and _captured.get(base["reviewagentid"], {}).get("domainhints") == "none")
+
+# 6. A scenario that heals to approved clears the earlier round's error, so a consumer
+#    keying off error != None never misreads a healed scenario as broken (640764 TS_003).
+_healcalls = {"gen": 0}
+
+
+def heal_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        _healcalls["gen"] += 1
+        if _healcalls["gen"] == 1:
+            return '{ "id": "TC_003_02", "name": "only one case" }', 10   # the TS_003 shape
+        return real_table, 10
+    ids = T.parse_testcases(real_table, 1, 100)["ids"]
+    return json.dumps({"scenarioid": "x", "batchpass": True, "batchscore": 95,
+                       "scores": [{"id": i, "score": 95, "pass": True, "gaps": []}
+                                  for i in ids]}), 10
+
+
+T.exec_agent, T.fetch_story, T._secret = heal_exec, fake_story, lambda k, f="": "t"
+res24 = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+    maxhealrounds=3, deadlineseconds=120))))
+_rec24 = res24["scenarios"][0]
+check("a bare-object round is rejected and healed on the next round",
+      _rec24["status"] == "approved" and _healcalls["gen"] == 2,
+      f"status={_rec24['status']} gen={_healcalls['gen']}")
+check("an approved scenario carries no stale error from the failed round",
+      _rec24["error"] is None, str(_rec24["error"])[:80])
+
+# 7. Ceiling count is the pre gate's job now, deterministic. Exactly the ceiling passes;
+#    only above fails; 0 disables (the judge is told never to police the count).
+_twelve = T.parse_testcases(build_table(12, 2), 1, 100)
+check("pre gate fails a batch above the ceiling",
+      any("above the ceiling" in x for x in T.pregate(_twelve, None, 10)))
+check("a batch at exactly the ceiling passes", T.pregate(_twelve, None, 12) == [])
+check("maxcases 0 disables the ceiling check", T.pregate(_twelve, None, 0) == [])
+
+# 8. Stagnation needs BOTH signals flat. Score pinned at 85 while the passed count climbs
+#    (the coverage-gap pattern from run 640764_062519) must keep healing, not stop.
+_prog = {"round": 0}
+
+
+def progress_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        return real_table, 10
+    _prog["round"] += 1
+    ids = T.parse_testcases(real_table, 1, 100)["ids"]
+    passing = min(_prog["round"] * 4, len(ids) - 1)     # 4 then 8 pass, never all 12
+    scores = [{"id": i, "score": 95, "pass": True, "gaps": []} for i in ids[:passing]]
+    scores += [{"id": i, "score": 85, "pass": False, "gaps": ["coverage gap"]}
+               for i in ids[passing:]]
+    return json.dumps({"scenarioid": "x", "scores": scores,
+                       "batchscore": 85, "batchpass": False}), 10
+
+
+T.exec_agent, T.fetch_story, T._secret = progress_exec, fake_story, lambda k, f="": "t"
+res25 = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100,
+    maxhealrounds=3, stoponstagnation=True, deadlineseconds=120))))
+_rec25 = res25["scenarios"][0]
+check("a flat score with a rising passed count is NOT stagnation",
+      _rec25["status"] == "unhealed" and _rec25["rounds"] == 3
+      and _rec25["passedhistory"] == [4, 8, 11],
+      f"status={_rec25['status']} rounds={_rec25['rounds']} passed={_rec25.get('passedhistory')}")
+T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
+
+
+# ────────────────────────────────────────────────────────────────────────────
+section("20. TWO STAGE SPLIT  (scenarios stage, handoff file, testcases stage)")
 
 _orig_http3 = T._http
 
@@ -1135,19 +1644,31 @@ check("stage defaults to all", tool._config(json.dumps(base))["stage"] == "all")
 check("a bogus stage is rejected",
       _try(lambda: tool._config(json.dumps(dict(base, stage="bogus")))))
 scen_base = {"stage": "scenarios", "adoorg": "CSGRP", "adoproject": "ADO",
-             "adostoryid": "640764", "scenarioagentid": 625, "scenarioreviewagentid": 628,
+             "adostoryid": "640764", "scenarioagentid": 688, "scenarioreviewagentid": 704,
              "maxscenarios": 4, "githubtoken": "ghp_FAKEHANDOFFTOKEN1234567890",
              "adopat": "p" * 12, "aavatoken": "t" * 12}
-tc_base = {"stage": "testcases", "adostoryid": "640764", "testcaseagentid": 626,
-           "reviewagentid": 627, "githubtoken": "ghp_FAKEHANDOFFTOKEN1234567890",
+tc_base = {"stage": "testcases", "adostoryid": "640764", "testcaseagentid": 689,
+           "reviewagentid": 672, "githubtoken": "ghp_FAKEHANDOFFTOKEN1234567890",
            "stepsmin": 1, "stepsmax": 100, "maxhealrounds": 2, "deadlineseconds": 120,
            "aavatoken": "t" * 12}
 check("the scenarios stage does not require the test case agents",
       tool._config(json.dumps(scen_base))["testcaseagentid"] == 0)
 check("the testcases stage needs neither adoorg nor maxscenarios",
       tool._config(json.dumps(tc_base))["stage"] == "testcases")
-check("the deadline default uses the 500s ceiling",
-      tool._config(json.dumps(base))["deadlineseconds"] == 450)
+# The two designs share one ceiling: Azure Container Apps severs at 240s, and the default
+# sits below it. A divergence here is drift, not design — this pins them together.
+check("the deadline default is the working copy's, not a two-stage one",
+      tool._config(json.dumps(base))["deadlineseconds"] == T.DEF_DEADLINESECONDS == 190,
+      str(tool._config(json.dumps(base))["deadlineseconds"]))
+check("scenariopassscore defaults without the caller naming it",
+      tool._config(json.dumps(scen_base))["scenariopassscore"] == T.DEF_SCENARIOPASSSCORE)
+# The scenario reviewer costs calls the working copy's formula knows nothing about: two
+# reviews plus one rework generate. Budget for them or the run stops mid-review.
+check("scenario review widens the stage=all call budget by exactly 4",
+      tool._config(json.dumps(dict(base, scenarioreviewagentid=704)))["maxagentcalls"]
+      - tool._config(json.dumps(base))["maxagentcalls"] == 4)
+check("the testcases stage defers its call budget to the handoff file",
+      tool._config(json.dumps(tc_base))["maxagentcalls"] == 0)
 
 T._secret = lambda k, f="": f or ""
 res20b = json.loads(tool._run(runinputs=json.dumps(
@@ -1232,6 +1753,17 @@ check("scenario count and workers come from the handoff file",
       f"{res22['summary']['scenarios']} vs {len(_scenlist)}")
 check("test cases were assembled from the handoff scenarios",
       res22["testcases"]["rows"] > 0)
+# Ids are renumbered globally across scenarios (working-copy behaviour). Every generator
+# call numbers its own scenario from TC_001, so a multi-scenario handoff is exactly the
+# shape that collided before renumber_testcases existed. The ids the warnings quote are the
+# ids the delivered table carries, so the highest one proves the sequence ran 1..N across
+# the whole handoff rather than restarting per scenario.
+_seen_ids = sorted(set(_re.findall(r"TC_\d+", " ".join(res22["warnings"]))))
+check("the handoff's scenarios are renumbered into one global sequence",
+      len(_scenlist) > 1 and _seen_ids
+      and _seen_ids[-1] == "TC_%03d" % res22["summary"]["testcases"],
+      f"{len(_scenlist)} scenarios, {res22['summary']['testcases']} cases, "
+      f"highest id {_seen_ids[-1] if _seen_ids else 'none'}")
 
 # a missing handoff file is a clear failure, not a crash
 T._http = lambda m, u, l, headers=None, json_body=None, timeout=None, form=None: (

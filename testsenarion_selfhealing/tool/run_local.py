@@ -6,7 +6,7 @@ accept what the agents produce; this proves the agent ids exist, the credentials
 
     export AAVA_TOKEN=...      # bearer for /agents/execute
     export ADO_PAT=...         # Azure DevOps read PAT
-    python3 testgen_orchestrator/tool/run_local.py 640764
+    python3 testsenarion_selfhealing/tool/run_local.py 640764
 
     python3 testsenarion_selfhealing/tool/run_local.py 640764 --scenarios 2 --no-heal
     python3 testsenarion_selfhealing/tool/run_local.py 640764 --probe  # bind check, no run
@@ -211,6 +211,28 @@ def probe(cfg):
     return 0 if hit else 1
 
 
+def _write_xlsx(md_path):
+    """Best effort: also save testcases.md as an .xlsx workbook, next to it.
+
+    Never raises: a missing openpyxl or an empty table should not change the run's outcome
+    or exit code, only skip this one convenience file.
+    """
+    try:
+        sys.path.insert(0, os.path.abspath(os.path.join(HERE, "..", "..")))
+        import md_table_to_excel as mx
+    except ImportError:
+        return None, "openpyxl not installed (pip install openpyxl)"
+    try:
+        rows = mx.parse_table(open(md_path, encoding="utf-8").read())
+        if not rows:
+            return None, None
+        xlsx_path = os.path.splitext(md_path)[0] + ".xlsx"
+        mx.write_xlsx(rows, xlsx_path)
+        return xlsx_path, None
+    except Exception as e:
+        return None, str(e)
+
+
 def _files(tee, rundir):
     """Name what was written and put stdout back. Called on every exit path, so a failed run
     still leaves a complete folder."""
@@ -223,6 +245,11 @@ def _files(tee, rundir):
             print("   %-15s %s" % (n, what))
     sys.stdout = sys.__stdout__
     tee.close()
+    xlsx_path, xlsx_note = _write_xlsx(tee.tblpath)
+    if xlsx_path:
+        print("   %-15s %s" % ("testcases.xlsx", "the assembled table, as a workbook"))
+    elif xlsx_note:
+        print("   testcases.xlsx  skipped: %s" % xlsx_note)
 
 
 def main():
@@ -250,9 +277,11 @@ def main():
     ap.add_argument("--org", default=d("adoorg", "CSGRP"))
     ap.add_argument("--project", default=d("adoproject", "ADO"))
     ap.add_argument("--scenarios", type=int, default=d("maxscenarios", 4, int))
-    ap.add_argument("--cases", type=int, default=d("testcasesperscenario", 3, int))
-    ap.add_argument("--stepsmin", type=int, default=d("stepsmin", 15, int))
-    ap.add_argument("--stepsmax", type=int, default=d("stepsmax", 18, int))
+    ap.add_argument("--cases", type=int, default=d("testcasesperscenario", 6, int),
+                    help="backstop ceiling: the count comes from each scenario's declared "
+                         "'Conditions to cover' list, one case per condition")
+    ap.add_argument("--stepsmin", type=int, default=d("stepsmin", 7, int))
+    ap.add_argument("--stepsmax", type=int, default=d("stepsmax", 24, int))
     ap.add_argument("--rounds", type=int, default=d("maxhealrounds", 2, int))
     ap.add_argument("--no-heal", action="store_true", help="single pass, no regeneration")
     ap.add_argument("--no-judge", action="store_true", help="pre gate only, no reviewer")
@@ -260,13 +289,13 @@ def main():
                     default=d("stage", "all"),
                     help="all = whole pipeline; scenarios = story to handoff file; "
                          "testcases = handoff file to table")
-    ap.add_argument("--deadline", type=int, default=d("deadlineseconds", 450, int))
-    ap.add_argument("--scenarioagent", type=int, default=d("scenarioagentid", 625, int))
+    ap.add_argument("--deadline", type=int, default=d("deadlineseconds", 190, int))
+    ap.add_argument("--scenarioagent", type=int, default=d("scenarioagentid", 688, int))
     ap.add_argument("--scenarioreviewagent", type=int,
-                    default=d("scenarioreviewagentid", 0, int),
+                    default=d("scenarioreviewagentid", 704, int),
                     help="scenario reviewer agent id; 0 = no scenario review")
-    ap.add_argument("--testcaseagent", type=int, default=d("testcaseagentid", 626, int))
-    ap.add_argument("--reviewagent", type=int, default=d("reviewagentid", 627, int))
+    ap.add_argument("--testcaseagent", type=int, default=d("testcaseagentid", 689, int))
+    ap.add_argument("--reviewagent", type=int, default=d("reviewagentid", 672, int))
     ap.add_argument("--base", default=d("aavabaseurl", T.DEF_AAVA_BASE))
     ap.add_argument("--realm", default=d("realmid", ""))
     ap.add_argument("--user", default=d("userprincipal", T.DEF_USERPRINCIPAL))
@@ -311,6 +340,10 @@ def main():
         "githubtoken": E.get("githubtoken") or os.environ.get("GITHUB_TOKEN", ""),
         "githubrepo": d("githubrepo", ""),        # blank falls to the tool's default
         "githubbranch": d("githubbranch", ""),
+        # Optional, from .env only: a domain glossary handed to all three agents, and a
+        # comma separated list of terms the pregate rejects from the assembled table.
+        "domainhints": d("domainhints", ""),
+        "bannedterms": d("bannedterms", ""),
     }
 
     if a.probe:
@@ -395,17 +428,17 @@ def main():
                 print("     %-16s %s" % (f["id"], f["why"]))
     for w in res["warnings"]:
         print("  warning:", w)
-    print(f"\n  All {total} test cases are in testcases.md. envelope.json carries the "
-          f"reviewer's full reasoning.")
+    print(f"\n  All {total} test cases are in testcases.md (and testcases.xlsx if openpyxl "
+          f"is installed). envelope.json carries the reviewer's full reasoning.")
     pub = res.get("published")
     if pub:
         print("  published: %s" % (pub.get("error")
               or "https://github.com/%s/tree/%s/%s" % (pub["repo"], pub["branch"], pub["path"])))
     _files(tee, rundir)
 
-    if wall > 500:
-        print(f"\nWARNING: {wall:.0f}s exceeds the 500s hosting ceiling. On the platform "
-              f"this run would have been severed.")
+    if wall > 240:
+        print(f"\nWARNING: {wall:.0f}s exceeds the 240s ACA ceiling. On the platform this run "
+              f"would have been severed.")
 
 
 if __name__ == "__main__":

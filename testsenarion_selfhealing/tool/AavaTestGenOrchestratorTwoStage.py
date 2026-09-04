@@ -1,8 +1,8 @@
 """AavaTestGenOrchestratorTwoStage — Azure DevOps story to EDI 834 test cases, in one tool call.
 
-TWO-STAGE COPY (testsenarion_selfhealing). This file is the successor to
-testgen_orchestrator/tool/AavaTestGenOrchestrator.py, which stays frozen as the in-production
-working copy. Everything there is here unchanged, plus a `stage` key in runinputs:
+TWO-STAGE COPY (testsenarion_selfhealing). The pipeline logic here is kept in sync with
+testgen_orchestrator/tool/AavaTestGenOrchestrator.py, which is where that logic evolves.
+Everything there is here unchanged, plus a `stage` key in runinputs:
 
     stage=all         the whole pipeline in one call — byte-compatible with the working copy
     stage=scenarios   fetch story -> scenarios -> scenario review (one rework) -> write the
@@ -62,20 +62,28 @@ DEF_AAVA_BASE = ("https://aava-core-api-agents-svc"
 DEF_ADO_BASE = "https://dev.azure.com"
 
 # maxscenarios has no default: it sizes the whole run, so the caller must pass it.
-DEF_TESTCASESPERSCENARIO = 3
-DEF_STEPSMIN = 15
-DEF_STEPSMAX = 18
+# testcasesperscenario is a BACKSTOP ceiling, not a target: the case count comes from the
+# scenario's own "Conditions to cover" list (agent 01 declares it, agent 02 writes one case
+# per entry). 6 matches the largest genuine family in the domain experts' reference output
+# (6 field permutations); run 640764_073418 showed anything higher gets padded to. The
+# clamp still allows up to 12 for stories with bigger enumerations.
+DEF_TESTCASESPERSCENARIO = 6
+# The domain experts' reference output (640764_edi_834.xlsx) is front-loaded: one deep
+# foundation case (baseline ~20 steps since the 2026-08-27 file-naming/canonical/Facets-client
+# additions; the manual reference cases run 23), then ~7-step variants that compress the
+# shared plumbing. 7 admits that shape; 24 gives the foundation case room.
+DEF_STEPSMIN = 7
+DEF_STEPSMAX = 24
 DEF_MAXHEALROUNDS = 3
 DEF_PASSSCORE = 90
 DEF_HARDSTOPSCORE = 50        # below this, healing does not help; stop and report
 # maxworkers is not an input: it always equals maxscenarios. Anything lower splits the run
 # into waves and multiplies wall clock by the wave count, which is what breaches the 240s
 # ACA ceiling.
-# The hosting ceiling is 500s end to end (was 240s until 2026-08-20). This sits below it on
-# purpose: the tool must stop on its own terms and return what it has, because a severed
-# connection returns nothing at all. 500 minus ~50s of margin for the last poll interval,
-# assembly and publish.
-DEF_DEADLINESECONDS = 450
+# The client fronts AAVA with Azure Container Apps, which severs a request at 240s. This
+# sits below it on purpose: the tool must stop on its own terms and return what it has,
+# because a connection ACA cuts returns nothing at all.
+DEF_DEADLINESECONDS = 190
 DEF_SCENARIOPASSSCORE = 70     # scenario reviewer approval threshold, passed via reviewinputs
 # maxagentcalls has no constant: it sizes itself from the run shape in _config, so the
 # caller never has to calculate it. See the formula there.
@@ -105,7 +113,9 @@ HTTP_TIMEOUT = 60
 POLL_START, POLL_MAX, POLL_GROWTH = 5.0, 20.0, 1.5
 ADO_TIMEOUT = (15, 45)
 
-# 15 columns matching the normal orchestrator's test-management import format.
+# 15 columns matching the test-management import format. No traceability columns
+# (ScenarioId/AcceptanceCriteriaRef) — scenario association is tracked internally by the
+# tool (each record already carries its scenarioid in Python), never rendered in the table.
 COLUMNS = ["Test Case Id", "Test Case Name", "Description", "Pre-condition", "Step #",
            "Step Description", "Expected Result", "Test Case Type", "Test Case Status",
            "Test Case Priority", "Test Case Assigned To", "Product Area", "Implementation",
@@ -119,9 +129,10 @@ COLUMNS = ["Test Case Id", "Test Case Name", "Description", "Pre-condition", "St
 SCENARIO_KEYS = ["scenarioId", "title", "descriptionRef", "acceptanceCriteriaRef",
                  "dorRef", "dodRef", "type", "description", "priority"]
 
-TYPES = {"Positive", "Negative", "Edge"}
+TYPES = {"Positive", "Negative", "Edge"}   # scenario classification only, not a table column
 PRIORITIES = {"High", "Medium", "Low"}
-CATEGORIES = {"Functional", "Regression"}
+PRIORITY_CODE = {"High": "P1", "Medium": "P2", "Low": "P3"}
+TEST_TYPE = "Functional"  # the Test Type column — always Functional, tool-injected
 
 
 def _now() -> str:
@@ -482,7 +493,9 @@ def parse_scenarios(raw: str, maxscenarios: int) -> List[Dict[str, Any]]:
     return out[:maxscenarios]
 
 
-# Field names in the generator's JSON, lowercase with no separators, in column order.
+# Case-level fields the generator emits. Constant fields (Test Case Type, Test Case Status,
+# Assigned To, Product Area, Implementation, Test Type, Requirement Ids) are injected by the
+# tool, not the model, since they never vary and there is nothing for the model to get wrong.
 TC_KEYS = ["id", "name", "description", "precondition", "priority"]
 STEP_KEYS = ["no", "description", "expected"]
 
@@ -497,9 +510,10 @@ def expand_testcases(raw: str) -> str:
     """Nested JSON from the generator to the 15 column markdown table.
 
     The generator emits each test case ONCE with its steps as an array, instead of repeating
-    the nine header columns on every step row. Measured on real output, those repeats were
-    64.6% of all characters, so this halves what the model has to write. Constant import
-    fields are injected here, matching the normal orchestrator's 15-column contract.
+    the header columns on every step row. Constant columns (Test Case Type, Test Case Status,
+    Assigned To, Product Area, Implementation, Test Type, Requirement Ids) are injected here
+    from fixed values, never trusted to the model, since a constant the model has to repeat
+    correctly on every row is a constant it will eventually get wrong on one of them.
     """
     text = _strip_fences(raw)
     start, end = text.find("["), text.rfind("]")
@@ -523,9 +537,8 @@ def expand_testcases(raw: str) -> str:
         if priority not in PRIORITIES:
             raise ValueError(f"{tc['id']} priority '{priority}' is not High, Medium or Low")
         head = [_cell(tc["id"]), _cell(tc["name"]), _cell(tc["description"]),
-            _cell(tc["precondition"])]
-        tail = ["Manual", "New", "P1" if priority == "High" else
-            "P2" if priority == "Medium" else "P3", "", "EDI", "", "Functional", ""]
+                _cell(tc["precondition"])]
+        tail = ["Manual", "New", PRIORITY_CODE[priority], "", "EDI", "", TEST_TYPE, ""]
         for n, st in enumerate(steps, 1):
             if not isinstance(st, dict):
                 raise ValueError(f"{tc['id']} step {n} is not an object")
@@ -538,19 +551,33 @@ def expand_testcases(raw: str) -> str:
     return "\n".join(out)
 
 
-def read_testcases(raw: str, stepsmin: int, stepsmax: int) -> Dict[str, Any]:
+def read_testcases(raw: str, stepsmin: int, stepsmax: int,
+                   allow_single: bool = False) -> Dict[str, Any]:
     """Accept either shape. Nested JSON is what the generator emits now; a markdown table is
     still accepted so an older agent, or a model that ignores the format, is not a hard fail."""
-    head = _strip_fences(raw).lstrip()[:1]
+    text = _strip_fences(raw).lstrip()
+    head = text[:1]
+    if head == "{":
+        # A bare object instead of an array. On a heal round with a table in hand, wrapping
+        # it would silently replace the whole table with one case (640764_141324, TS_003),
+        # so the caller keeps allow_single False there and it is rejected with precise
+        # feedback. When NO table exists yet there is nothing to lose — and run
+        # 640764_083251 lost two whole scenarios (six bare-object rounds, tc=0) to the
+        # rejection — so the caller allows it and the object is read as a one-case array;
+        # the reviewer's coverage check then demands whatever cases are missing.
+        if not allow_single:
+            raise ValueError("response is a single JSON test case object; return the "
+                             "complete JSON array of ALL test cases for the scenario, with "
+                             "the repaired cases fixed and every other case unchanged")
+        return parse_testcases(expand_testcases("[" + text + "]"), stepsmin, stepsmax)
     return parse_testcases(expand_testcases(raw) if head == "[" else raw, stepsmin, stepsmax)
 
 
 def parse_testcases(raw: str, stepsmin: int, stepsmax: int) -> Dict[str, Any]:
     """Parse the markdown table and check its shape. Returns rows plus a per test case index."""
     text = _strip_fences(raw)
-    # A cell holding a newline splits one table row across physical lines. Real output does
-    # this whenever acceptanceCriteriaRef carries two AC lines. Rejoin before splitting on
-    # pipes, or the row is dropped and its steps vanish without any check noticing.
+    # A cell holding a newline splits one table row across physical lines. Rejoin before
+    # splitting on pipes, or the row is dropped and its steps vanish without any check noticing.
     rows: List[str] = []
     for line in text.split("\n"):
         s = line.strip()
@@ -563,12 +590,13 @@ def parse_testcases(raw: str, stepsmin: int, stepsmax: int) -> Dict[str, Any]:
     cells = [[c.strip() for c in r.strip().strip("|").split("|")] for r in rows]
     header = cells[0]
     if header != COLUMNS:
-        raise ValueError(f"header has {len(header)} columns, expected the 15 standard columns")
+        raise ValueError(f"header has {len(header)} columns, expected the {len(COLUMNS)} standard columns")
 
     body = [c for c in cells[2:] if len(c) == len(COLUMNS)]
     if not body:
         raise ValueError("table has a header but no data rows")
 
+    # Test Case Id is column 0 now (no leading traceability columns), repeated on every row.
     cases: Dict[str, List[List[str]]] = {}
     current = None
     for row in body:
@@ -582,27 +610,8 @@ def parse_testcases(raw: str, stepsmin: int, stepsmax: int) -> Dict[str, Any]:
         if not re.match(r"^TC[_-]?\w*\d+$", tid):
             raise ValueError(f"test case id '{tid}' does not look like TC followed by digits")
 
-    # ── DISABLED 2026-08-18 — moved to the agent instructions ──────────────
-    # Step count, Status and Test Case Type are stated in agent 02 (OUTPUT VOLUME
-    # DISCIPLINE, rule 7a) and enforced by agent 03 (checks 8 and 9). Keeping them here
-    # too put the same rule in two places that could drift. Re-enable if a run ships a
-    # swapped Status column or a short test case: the failure is silent, and this is the
-    # only thing that would have caught it before the workbook.
-    #
-    # problems = []
-    # for tid, tcrows in cases.items():
-    #     n = len(tcrows)
-    #     if n < stepsmin or n > stepsmax:
-    #         problems.append(f"{tid} has {n} steps, expected {stepsmin} to {stepsmax}")
-    #     st = {r[5] for r in tcrows if r[5]}
-    #     if st - TYPES:
-    #         problems.append(f"{tid} Status holds {sorted(st - TYPES)}, expected Positive, Negative or Edge")
-    #     cat = {r[6] for r in tcrows if r[6]}
-    #     if cat - CATEGORIES:
-    #         problems.append(f"{tid} Test Case Type holds {sorted(cat - CATEGORIES)}, expected Functional or Regression")
-    # if problems:
-    #     raise ValueError("; ".join(problems))
-    # ── end disabled ───────────────────────────────────────────────────────
+    # Step count, Priority and Test Type are stated in agent 02 and enforced by agent 03 —
+    # kept out of the tool so the same rule does not live in two places that could drift.
 
     # Rebuild the table from the parsed rows rather than handing back the raw text. The raw
     # text still contains any physically split rows this function just rejoined, so returning
@@ -646,9 +655,15 @@ META_LABELS = ["DoR", "DoD", "Definition of Ready", "Definition of Done",
                "descriptionRef", "dorRef", "dodRef", "per the AC", "as referenced in"]
 # Test Case Name, Description, Pre-condition, Step Description, Expected Result.
 _META_COLS = [1, 2, 3, 5, 6]
+# Derived, not hardcoded: a column inserted into COLUMNS must not silently shift this.
+_PRIO_COL = COLUMNS.index("Test Case Priority")
+# An all-High batch below this many cases is legitimate (a scenario with 2-3 genuinely
+# critical conditions); at or above it, an undifferentiated batch carries no triage signal.
+ALL_HIGH_MIN_CASES = 4
 
 
-def pregate(parsed: Dict[str, Any], bannedterms: List[str] = None) -> List[str]:
+def pregate(parsed: Dict[str, Any], bannedterms: List[str] = None,
+            maxcases: int = 0) -> List[str]:
     """Return the problems a machine can prove. Empty means it is worth reviewing.
 
     Deliberately NOT here: the angle-bracket rule. It lives in agent 02 (write
@@ -659,11 +674,31 @@ def pregate(parsed: Dict[str, Any], bannedterms: List[str] = None) -> List[str]:
     """
     problems: List[str] = []
 
+    # Ceiling count, deterministic. Was a judge check, but run 640764_062519 failed a
+    # 10-case batch against a ceiling of 10 ("10 is more than 10") — an LLM fumbling a
+    # boundary a counter cannot. Exactly the ceiling passes; only above it fails.
+    if maxcases and len(parsed["cases"]) > maxcases:
+        problems.append(f"batch has {len(parsed['cases'])} test cases, above the ceiling of "
+                        f"{maxcases}; merge or drop the least valuable cases")
+
+    # Caller-supplied banned terms (e.g. invented EDI element names like DTP01). Token
+    # match, not substring: "DTP03" must not fire inside "DTP*303".
     for term in bannedterms or []:
-        pattern = r"(?<![A-Za-z0-9*])" + re.escape(term) + r"(?![A-Za-z0-9*])"
-        if re.search(pattern, parsed["table"]):
+        pat = r"(?<![A-Za-z0-9*])" + re.escape(term) + r"(?![A-Za-z0-9*])"
+        if re.search(pat, parsed["table"]):
             problems.append(f"the banned term '{term}' appears in the output; replace it "
-                           f"with the correct domain terminology")
+                            f"with the correct domain terminology")
+
+    # Priority differentiation. Run 640764_141324 delivered 45 of 48 cases as P1 against an
+    # expert baseline that marks per-field permutation and occurrence variants P2 — an
+    # all-P1 batch carries no triage signal. Numeric count, so it lives here, not in a
+    # reviewer call.
+    prios = {rows[0][_PRIO_COL] for rows in parsed["cases"].values() if rows}
+    if len(parsed["cases"]) >= ALL_HIGH_MIN_CASES and prios == {"P1"}:
+        problems.append(f"all {len(parsed['cases'])} test cases are High priority; only the "
+                        f"scenario's primary flow and finance/regression guardrail cases are "
+                        f"High — per-field permutation, repeated-occurrence and boundary "
+                        f"variants are Medium")
 
     for tid, rows in parsed["cases"].items():
         for r in rows:
@@ -693,9 +728,16 @@ def pregate(parsed: Dict[str, Any], bannedterms: List[str] = None) -> List[str]:
     return unique[:20]
 
 
+# ── one scenario, start to finish, on its own thread ────────────────────────
 # ── condition-chunked generation ────────────────────────────────────────────
-# Keep each test-case completion small enough for the agent to return valid JSON. The
-# scenario description's numbered conditions are the source of truth for the chunks.
+# Run 640764_145552: at 18-40 step depth no single completion carried more than ~4 cases —
+# big condition lists came back as [] or truncated, and heal rounds could not add cases
+# because the complete-array contract exceeded the model's output budget. Scenarios whose
+# description ends in agent 01's numbered "Conditions to cover:" list are therefore
+# generated in chunks of at most CHUNK_CONDITIONS conditions, one agent call each, and the
+# tool merges the results. A chunk that fails ([] or parse error) costs one call, not the
+# scenario; a heal round regenerates only the chunks holding failing cases.
+
 CHUNK_CONDITIONS = 3
 
 _COND_HEAD = re.compile(r"Conditions to cover:\s*", re.I)
@@ -703,50 +745,60 @@ _COND_ITEM = re.compile(r"\d+\)\s*")
 
 
 def parse_conditions(description: str) -> List[str]:
+    """The numbered condition list from a scenario description, or [] when absent."""
     m = _COND_HEAD.search(description or "")
     if not m:
         return []
-    return [item.strip().rstrip(".").strip()
-            for item in _COND_ITEM.split(description[m.end():]) if item.strip()]
+    items = _COND_ITEM.split(description[m.end():])
+    return [i.strip().rstrip(".").strip() for i in items if i.strip()]
 
 
-def chunk_scenario(scenario: Dict[str, Any], conditions: List[str]) -> Dict[str, Any]:
+def chunk_scenario(scenario: Dict[str, Any], conds: List[str]) -> Dict[str, Any]:
+    """A copy of the scenario whose description lists ONLY the given conditions,
+    renumbered from 1 — so agent 02's count-equals-list rule yields exactly this chunk."""
     s = dict(scenario)
-    description = scenario.get("description") or ""
-    match = _COND_HEAD.search(description)
-    head = description[:match.start()] if match else description + " "
+    desc = scenario.get("description") or ""
+    m = _COND_HEAD.search(desc)
+    head = desc[:m.start()] if m else desc + " "
     s["description"] = (head + "Conditions to cover: "
-                         + " ".join(f"{i}) {condition}."
-                                   for i, condition in enumerate(conditions, 1)))
+                        + " ".join(f"{i}) {c}." for i, c in enumerate(conds, 1)))
     return s
 
 
-def merge_chunks(parts: List[Optional[Dict[str, Any]]]) -> Dict[str, Any]:
+def merge_chunks(parts: List[Optional[Dict[str, Any]]], idchunk: Dict[str, int],
+                 idlocal: Dict[str, str]) -> Dict[str, Any]:
+    """Merge per-chunk parse results into one parsed table with sequential unique ids.
+    idchunk maps merged id -> chunk index and idlocal maps merged id -> the id the chunk's
+    own output used, so heal feedback can reference ids the chunk agent recognises."""
+    idchunk.clear()
+    idlocal.clear()
     cases: Dict[str, List[List[str]]] = {}
-    rows: List[List[str]] = []
     ids: List[str] = []
-    number = 0
-    for part in parts:
-        if not part:
+    rowsout: List[List[str]] = []
+    n = 0
+    for ci, p in enumerate(parts):
+        if not p:
             continue
-        for test_case_id in part["ids"]:
-            number += 1
-            new_id = f"TC_{number:03d}"
-            case_rows = []
-            for row in part["cases"][test_case_id]:
-                rewritten = list(row)
-                rewritten[0] = new_id
-                case_rows.append(rewritten)
-            cases[new_id] = case_rows
-            ids.append(new_id)
-            rows.extend(case_rows)
+        for tid in p["ids"]:
+            n += 1
+            nid = f"TC_{n:03d}"
+            rws = []
+            for r in p["cases"][tid]:
+                r2 = list(r)
+                r2[0] = nid
+                rws.append(r2)
+            cases[nid] = rws
+            ids.append(nid)
+            idchunk[nid] = ci
+            idlocal[nid] = tid
+            rowsout.extend(rws)
     table = "\n".join(["| " + " | ".join(COLUMNS) + " |", "|" + "---|" * len(COLUMNS)]
-                      + ["| " + " | ".join(row) + " |" for row in rows])
-    return {"header": list(COLUMNS), "rows": rows, "cases": cases, "table": table,
+                      + ["| " + " | ".join(r) + " |" for r in rowsout])
+    # Same shape as parse_testcases returns, so pregate/review consume either untouched.
+    return {"header": list(COLUMNS), "rows": rowsout, "cases": cases, "table": table,
             "chars": len(table), "ids": ids}
 
 
-# ── one scenario, start to finish, on its own thread ────────────────────────
 def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[str, Any],
                      token: str, budget: _Budget, log: _Log) -> Dict[str, Any]:
     """Generate, review and heal one scenario. Never raises: every failure becomes a record
@@ -757,24 +809,35 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
         # which test cases the reviewer flagged, and why. Without this the envelope can say
         # "this scenario has a problem" but not "2 of its 3 test cases are fine".
         "flagged": [],
-        "scorehistory": [], "finalscore": None, "rounds": 0,
+        "scorehistory": [], "passedhistory": [], "finalscore": None, "rounds": 0,
         "testcasecount": 0, "chars": 0, "elapsedms": 0, "gaps": [], "error": None,
         "table": "",
     }
     t0 = time.monotonic()
     passscore = cfg["passscore"]
     parsed: Optional[Dict[str, Any]] = None
-    regenerate: List[Dict[str, Any]] = []
-    conditions = parse_conditions(scenario.get("description") or "")
-    if len(conditions) > cfg["testcasesperscenario"]:
-        log.line("condtrim", scenario=sid, listed=len(conditions),
+    # Condition-chunked generation: a scenario with a "Conditions to cover:" list is
+    # generated CHUNK_CONDITIONS conditions at a time (see the helpers above). A scenario
+    # without a list is one chunk of None — the legacy whole-scenario call.
+    conds = parse_conditions(scenario.get("description") or "")
+    if len(conds) > cfg["testcasesperscenario"]:
+        log.line("condtrim", scenario=sid, listed=len(conds),
                  kept=cfg["testcasesperscenario"])
-        conditions = conditions[:cfg["testcasesperscenario"]]
+        conds = conds[:cfg["testcasesperscenario"]]
     chunks: List[Optional[List[str]]] = (
-        [conditions[i:i + CHUNK_CONDITIONS]
-         for i in range(0, len(conditions), CHUNK_CONDITIONS)]
-        if conditions else [None])
+        [conds[i:i + CHUNK_CONDITIONS] for i in range(0, len(conds), CHUNK_CONDITIONS)]
+        if conds else [None])
     chunkparsed: List[Optional[Dict[str, Any]]] = [None] * len(chunks)
+    chunkgaps: Dict[int, List[Dict[str, Any]]] = {}
+    needwork = set(range(len(chunks)))
+    idchunk: Dict[str, int] = {}
+    idlocal: Dict[str, str] = {}
+    # Best reviewed round so far. Run 640764_064825: two scenarios went from 7 cases
+    # passing to 0 after a heal round, and the last (worst) table was shipped. A heal
+    # round must never lose work, so the best round is kept and restored after the loop.
+    best: Optional[Dict[str, Any]] = None
+    tablernd = 0      # round whose table is currently in rec["table"]
+    reviewedrnd = 0   # last round the reviewer actually scored
     # maxhealrounds 0 means one pass and no regeneration: score it, report it, change nothing.
     passes = max(1, cfg["maxhealrounds"])
     reviewing = int(cfg["reviewagentid"]) > 0          # 0 disables the judge entirely
@@ -788,49 +851,82 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                 break
             rec["rounds"] = rnd
 
-            for chunk_index, chunk in enumerate(chunks):
-                current_scenario = scenario if chunk is None else chunk_scenario(scenario, chunk)
+            for ci in sorted(needwork):
+                csc = scenario if chunks[ci] is None else chunk_scenario(scenario, chunks[ci])
                 gen_inputs = {
-                    "scenario": _j(current_scenario),
+                    "scenario": _j(csc),
                     "storytitle": story["title"],
                     "limits": _j({"testcasesperscenario": cfg["testcasesperscenario"],
                                               "stepsmin": cfg["stepsmin"],
                                               "stepsmax": cfg["stepsmax"]}),
+                    # Always present, even empty: an unbound {{variable}} arrives as its
+                    # own literal name in the agent's prompt.
                     "domainhints": cfg["domainhints"] or "none",
                 }
-                if regenerate:
-                    gen_inputs["regenerate"] = _j(regenerate)
+                regen_list = chunkgaps.get(ci)
+                if regen_list:
+                    gen_inputs["regenerate"] = _j(regen_list)   # omitted on the first round
                 raw = ""
                 try:
                     raw, gen_ms = exec_agent(cfg["testcaseagentid"], gen_inputs, cfg, token,
                                              budget, log, f"generate:{sid}")
-                    chunkparsed[chunk_index] = read_testcases(
-                        raw, cfg["stepsmin"], cfg["stepsmax"])
+                    # A bare single object is recoverable while there is nothing it can
+                    # clobber: no result for this chunk yet, or one holding a single case
+                    # (which the object replaces anyway — 640764_082102 burned three
+                    # scenarios' heal rounds on rejecting exactly that).
+                    prior = chunkparsed[ci]
+                    if chunks[ci] is None:
+                        allow = not rec["table"] or rec["testcasecount"] == 1
+                    else:
+                        allow = (len(chunks[ci]) == 1 or prior is None
+                                 or len(prior["ids"]) <= 1)
+                    p = read_testcases(raw, cfg["stepsmin"], cfg["stepsmax"],
+                                       allow_single=allow)
+                    chunkparsed[ci] = p
+                    chunkgaps.pop(ci, None)
                     log.line("generate", scenario=sid, round=rnd,
-                             chunk=(f"{chunk_index + 1}/{len(chunks)}" if chunk is not None else None),
-                             tc=len(chunkparsed[chunk_index]["ids"]),
-                             ids=",".join(chunkparsed[chunk_index]["ids"]), chars=chunkparsed[chunk_index]["chars"],
-                             ms=gen_ms, regen=len(regenerate) or None)
+                             chunk=(f"{ci + 1}/{len(chunks)}" if chunks[ci] is not None
+                                    else None),
+                             tc=len(p["ids"]), ids=",".join(p["ids"]), chars=p["chars"],
+                             ms=gen_ms, regen=len(regen_list or []) or None)
                 except Exception as e:
+                    # Log the head of what the agent actually sent. Run 640764_084112
+                    # failed 7/7 with "test case array is empty" and the log carried no
+                    # way to tell whether the model wrote [], the prompt was broken, or
+                    # the platform truncated the output. Empty when exec_agent raised.
                     log.line("generate", scenario=sid, round=rnd,
-                             chunk=(f"{chunk_index + 1}/{len(chunks)}" if chunk is not None else None),
+                             chunk=(f"{ci + 1}/{len(chunks)}" if chunks[ci] is not None
+                                    else None),
                              error=str(e)[:120], raw=_WS.sub(" ", raw)[:200] or None)
+                    chunkgaps[ci] = [{"id": "all",
+                                      "gaps": [f"previous attempt was rejected: {e}"]}]
                     rec["error"] = str(e)[:300]
 
-            if not any(part is not None for part in chunkparsed):
-                regenerate = [{"id": "all", "gaps": ["previous attempt produced no parseable test cases"]}]
-                continue
-            parsed = (chunkparsed[0] if chunks == [None]
-                      else merge_chunks(chunkparsed))
+            if not any(p is not None for p in chunkparsed):
+                continue    # nothing parseable this round; next round retries every chunk
+
+            if chunks == [None]:
+                parsed = chunkparsed[0]
+                idchunk = {tid: 0 for tid in parsed["ids"]}
+                idlocal = {tid: tid for tid in parsed["ids"]}
+            else:
+                parsed = merge_chunks(chunkparsed, idchunk, idlocal)
             rec["table"] = parsed["table"]
             rec["chars"] = parsed["chars"]
             rec["testcasecount"] = len(parsed["ids"])
+            tablernd = rnd
+            # A full parse success supersedes any earlier round's error: the envelope's
+            # error field reports only what ended the scenario, never a transient a later
+            # round recovered from (640764_080233 showed "test case array is empty"
+            # beside six healthy shipped cases).
+            if all(p is not None for p in chunkparsed):
+                rec["error"] = None
 
             # Re-enabled 2026-08-19: the 640764 comparison run shipped meta labels ("DoD"
             # in 5 preconditions) that this gate catches for free. Disabling it (2026-08-18)
             # was the drift the code comment warned about. Only work that survives this gate
             # is worth a reviewer call; its problems feed the regenerate round verbatim.
-            problems = pregate(parsed, cfg["bannedterms"])
+            problems = pregate(parsed, cfg["bannedterms"], cfg["testcasesperscenario"])
             if problems:
                 log.line("pregate", scenario=sid, round=rnd, failed=len(problems),
                          first=problems[0][:90])
@@ -838,7 +934,9 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                 rec["status"] = "unhealed"
                 if rnd >= passes:
                     break
-                regenerate = [{"id": "all", "gaps": problems}]
+                chunkgaps = {ci: [{"id": "all", "gaps": problems}]
+                             for ci in range(len(chunks))}
+                needwork = set(range(len(chunks)))
                 continue
 
             if not reviewing:
@@ -855,6 +953,9 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                 "limits": _j({"passscore": passscore, "stepsmin": cfg["stepsmin"],
                                           "stepsmax": cfg["stepsmax"],
                                           "testcasesperscenario": cfg["testcasesperscenario"]}),
+                # The judge previously saw only the scenario object, so a requirement clause
+                # lost between story and scenario (first-occurrence handling in 640764) was
+                # invisible to it. The full AC text lets it check clause-level coverage.
                 "storyac": story["acceptancecriteria"] or "none",
                 "domainhints": cfg["domainhints"] or "none",
             }
@@ -873,6 +974,7 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             failing = [s for s in scores if not s.get("pass")]
             batchscore = int(verdict.get("batchscore") or min(s["score"] for s in scores))
             rec["scorehistory"].append(batchscore)
+            rec["passedhistory"].append(len(scores) - len(failing))
             rec["finalscore"] = batchscore
             rec["gaps"] = [g for s in failing for g in (s.get("gaps") or [])]
             # `reason` is the reviewer's own plain English line for a person; `gaps` is the
@@ -886,9 +988,31 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                      passed=f"{len(scores) - len(failing)}/{len(scores)}",
                      failing=",".join(s["id"] for s in failing) or None, ms=rev_ms)
 
-            if not failing:
+            reviewedrnd = rnd
+            passedcount = len(scores) - len(failing)
+            if best is None or passedcount > best["passed"]:
+                best = {"round": rnd, "passed": passedcount, "table": rec["table"],
+                        "chars": rec["chars"], "testcasecount": rec["testcasecount"],
+                        "gaps": rec["gaps"], "flagged": rec["flagged"],
+                        "finalscore": batchscore}
+
+            if not failing and all(p is not None for p in chunkparsed):
                 rec["status"] = "approved"
+                # A failed earlier round leaves its message in rec["error"]; keeping it on an
+                # approved scenario (640764_141324, TS_003: approved yet error="no markdown
+                # table found") misleads any consumer that keys off error != None.
+                rec["error"] = None
                 break
+
+            if not failing:
+                # Review passed everything that exists, but a chunk never parsed — its
+                # conditions are silently missing. Retry just that chunk; approval requires
+                # every chunk in hand.
+                if rnd >= passes:
+                    rec["status"] = "unhealed"
+                    break
+                needwork = {ci for ci, p in enumerate(chunkparsed) if p is None}
+                continue
 
             # Hard stop: this far below the bar the output is wrong, not rough, and another
             # round spends budget to arrive at the same place. Report it for a human instead.
@@ -898,29 +1022,106 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                          floor=cfg["hardstopscore"], note="too low to heal, stopping")
                 break
 
+            # Stagnant only when NEITHER signal moved. A coverage gap caps its case at 85,
+            # and batchscore is the minimum, so a scenario adding the demanded cases can go
+            # 0/7 -> 4/10 passing while the score sits at 85 (run 640764_062519: six
+            # scenarios stopped "stagnant" mid-improvement). Passed count sees that
+            # progress; score alone cannot.
             if cfg["stoponstagnation"] and len(rec["scorehistory"]) >= 2 \
-                    and rec["scorehistory"][-1] <= rec["scorehistory"][-2]:
+                    and rec["scorehistory"][-1] <= rec["scorehistory"][-2] \
+                    and rec["passedhistory"][-1] <= rec["passedhistory"][-2]:
                 rec["status"] = "stagnant"
-                log.line("stagnant", scenario=sid, round=rnd, scores=rec["scorehistory"])
+                log.line("stagnant", scenario=sid, round=rnd, scores=rec["scorehistory"],
+                         passed=rec["passedhistory"])
                 break
 
             if rnd >= passes:
                 rec["status"] = "unhealed"
                 break
 
-            # Targeted repair: only the test cases that failed, with their quoted gaps.
-            regenerate = [{"id": s["id"], "gaps": s.get("gaps") or []} for s in failing]
+            # Targeted repair: only the chunks holding failing cases are regenerated, and
+            # the feedback names the ids the chunk's own output used, not the merged ids.
+            newgaps: Dict[int, List[Dict[str, Any]]] = {}
+            for s in failing:
+                ci = idchunk.get(s["id"], 0)
+                newgaps.setdefault(ci, []).append(
+                    {"id": idlocal.get(s["id"], s["id"]), "gaps": s.get("gaps") or []})
+            for ci, p in enumerate(chunkparsed):
+                if p is None:
+                    newgaps.setdefault(ci, chunkgaps.get(ci)
+                                       or [{"id": "all",
+                                            "gaps": ["previous attempt produced nothing"]}])
+            chunkgaps = newgaps
+            needwork = set(newgaps)
 
     except Exception as e:                                   # defensive: never escape a thread
         rec["status"] = "failed"
         rec["error"] = str(e)[:300]
         log.line("threaderror", scenario=sid, error=str(e)[:160])
 
+    if best is not None and rec["status"] != "approved":
+        # The table in hand is a later round's than the best reviewed one, and it is
+        # either unreviewed (its round failed the pre gate or the parser) or reviewed
+        # worse. Ship the best round instead — a heal round must never lose work.
+        currentpassed = rec["passedhistory"][-1] if reviewedrnd == tablernd else -1
+        if tablernd != best["round"] and currentpassed < best["passed"]:
+            for k in ("table", "chars", "testcasecount", "gaps", "flagged", "finalscore"):
+                rec[k] = best[k]
+            log.line("keptbest", scenario=sid, round=best["round"], passed=best["passed"],
+                     note="later round was worse, shipping the best reviewed round")
+        if rec["status"] == "failed":
+            # The loop ended on an error (e.g. a final round returning []), but a
+            # reviewed table is in hand — that is unhealed work, not a failed scenario.
+            rec["status"] = "unhealed"
+            rec["error"] = None
+
     rec["elapsedms"] = int((time.monotonic() - t0) * 1000)
     log.line("result", scenario=sid, status=rec["status"],
              scores=json.dumps(rec["scorehistory"]), rounds=rec["rounds"],
              tc=rec["testcasecount"], ms=rec["elapsedms"])
     return rec
+
+
+# ── id renumbering, deterministic, no llm ───────────────────────────────────
+def renumber_testcases(records: List[Dict[str, Any]]) -> Dict[str, Dict[str, str]]:
+    """Rewrite Test Case Ids into one global TC_001..TC_NNN sequence, in scenario order.
+
+    Every generator call numbers its own scenario's cases from TC_001, so the per-scenario
+    tables collide once concatenated (run 640764_20260824_122700 delivered 42 test cases
+    under 8 distinct ids). An id is a uniqueness contract, so the tool owns it here rather
+    than trusting the model to prefix correctly. Runs before cross_batch_check so any
+    duplicate warning quotes the id the delivered table actually carries.
+    Returns {scenarioid: {oldid: newid}} so the caller can log the mapping.
+    """
+    mapping: Dict[str, Dict[str, str]] = {}
+    n = 0
+    for r in records:
+        table = r.get("table") or ""
+        if not table:
+            continue
+        seen: Dict[str, str] = {}
+        out = []
+        for row in table.split("\n"):
+            cells = [c.strip() for c in row.strip().strip("|").split("|")]
+            # header, separator and blank-id continuation rows pass through untouched
+            if len(cells) != len(COLUMNS) or cells[0] in ("Test Case Id", "") \
+                    or set(cells[0]) <= {"-", ":"}:
+                out.append(row)
+                continue
+            if cells[0] not in seen:
+                n += 1
+                seen[cells[0]] = f"TC_{n:03d}"
+            cells[0] = seen[cells[0]]
+            out.append("| " + " | ".join(cells) + " |")
+        if seen:
+            r["table"] = "\n".join(out)
+            # keep the envelope's flagged ids pointing at the ids the table now carries,
+            # or run_local's "needs a look" list names test cases that no longer exist
+            for f in r.get("flagged") or []:
+                if f.get("id") in seen:
+                    f["id"] = seen[f["id"]]
+            mapping[r["scenarioid"]] = seen
+    return mapping
 
 
 # ── cross batch check, deterministic, no llm ────────────────────────────────
@@ -935,9 +1136,8 @@ def cross_batch_check(records: List[Dict[str, Any]], scenarios: List[Dict[str, A
     for r in records:
         for row in (r.get("table") or "").split("\n"):
             cells = [c.strip() for c in row.strip().strip("|").split("|")]
-            # "---" is the markdown separator row: 13 cells of dashes, which otherwise
-            # collides with every other scenario's separator and reports itself as a
-            # duplicate. Every warning in every run so far was this row.
+            # "---" is the markdown separator row, which otherwise collides with every other
+            # scenario's separator and reports itself as a duplicate.
             if len(cells) != len(COLUMNS) or cells[0] in ("Test Case Id", "") \
                     or set(cells[0]) <= {"-", ":"}:
                 continue
@@ -946,13 +1146,19 @@ def cross_batch_check(records: List[Dict[str, Any]], scenarios: List[Dict[str, A
                 warnings.append(f"{cells[0]} looks like a duplicate of a test case in {seen[key]}")
             elif key:
                 seen[key] = r["scenarioid"]
-
     return warnings
 
 
-# ── xlsx rendering, best effort, no hard dependency ───────────────────────
+# ── xlsx rendering, best effort, no hard dependency ─────────────────────────
 def build_xlsx(table: str) -> Optional[bytes]:
-    """Render the assembled markdown table as an in-memory Excel workbook."""
+    """Render the assembled markdown table as an .xlsx workbook, in memory.
+
+    Same design as the platform's own working Excel conversion tool (agent 394 / tool 53):
+    pandas.DataFrame.to_excel(engine="openpyxl"), with no `import openpyxl` of our own — only
+    pandas needs to be on the container, and it resolves the engine itself. Returns None,
+    never raises, if pandas is unavailable or the table is empty: the workbook is a
+    convenience, not something a run can fail over.
+    """
     if not pd or not table:
         return None
     try:
@@ -962,22 +1168,23 @@ def build_xlsx(table: str) -> Optional[bytes]:
             stripped = line.strip()
             if not stripped.startswith("|"):
                 continue
-            cells = [cell.strip() for cell in stripped.strip("|").split("|")]
+            cells = [c.strip() for c in stripped.strip("|").split("|")]
             if set("".join(cells)) <= {"-", ":", ""}:
-                continue
+                continue  # the "|---|---|" separator row
             rows.append(cells)
         if len(rows) < 2:
             return None
-        width = max(len(row) for row in rows)
-        padded = [(row + [""] * (width - len(row)))[:width] for row in rows]
-        frame = pd.DataFrame(padded[1:], columns=padded[0])
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine="openpyxl") as writer:
-            frame.to_excel(writer, index=False, sheet_name="Test Cases")
-            worksheet = writer.sheets["Test Cases"]
-            worksheet.freeze_panes = "A2"
-            worksheet.auto_filter.ref = worksheet.dimensions
-        return output.getvalue()
+        width = max(len(r) for r in rows)
+        padded = [(r + [""] * (width - len(r)))[:width] for r in rows]
+        df = pd.DataFrame(padded[1:], columns=padded[0])
+
+        buf = io.BytesIO()
+        with pd.ExcelWriter(buf, engine="openpyxl") as writer:
+            df.to_excel(writer, index=False, sheet_name="Test Cases")
+            ws = writer.sheets["Test Cases"]
+            ws.freeze_panes = "A2"
+            ws.auto_filter.ref = ws.dimensions
+        return buf.getvalue()
     except Exception:
         return None
 
@@ -985,10 +1192,12 @@ def build_xlsx(table: str) -> Optional[bytes]:
 # ── github publish, opt in ──────────────────────────────────────────────────
 def publish_run(cfg: Dict[str, Any], log: _Log,
                 files: List[Tuple[str, Any]]) -> Dict[str, Any]:
-    """Push text and binary run files to GitHub via the contents API, one PUT per file.
+    """Push the run's files to GitHub via the contents API, one PUT per file.
 
     A failure is logged and reported in the returned dict, never raised: publishing is a
-    convenience and can never fail the run that produced the thing being published.
+    convenience and can never fail the run that produced the thing being published. Content
+    is text for the logs/tables and raw bytes for the xlsx workbook; both go through the
+    same base64 upload.
     """
     import base64
     token = cfg.get("githubtoken") or ""
@@ -1169,8 +1378,7 @@ class AavaTestGenOrchestratorTwoStage(BaseTool):
 
         # The testcases stage reads everything about the story from the handoff file, so it
         # needs only the story id to derive the file's path.
-        needed = ("adostoryid",) if stage == "testcases" \
-            else ("adoorg", "adoproject", "adostoryid")
+        needed = ("adostoryid",) if stage == "testcases"             else ("adoorg", "adoproject", "adostoryid")
         for key in needed:
             if not str(cfg.get(key, "")).strip():
                 raise ValueError(f"runinputs is missing {key}")
@@ -1218,11 +1426,13 @@ class AavaTestGenOrchestratorTwoStage(BaseTool):
         num("hardstopscore", DEF_HARDSTOPSCORE, 0, cfg.get("passscore", DEF_PASSSCORE))
         num("scenariopassscore", DEF_SCENARIOPASSSCORE, 1, 100)
         # Not an input. One thread per scenario, always: anything lower splits the run into
-        # waves and multiplies wall clock by the wave count, which breaches the ceiling.
+        # waves and multiplies wall clock by the wave count, which breaches the 240s ceiling.
         cfg["maxworkers"] = cfg["maxscenarios"]
         num("deadlineseconds", DEF_DEADLINESECONDS, 60, 3600)
-        # The exact worst case, so the caller never has to size this. An explicit value
-        # still overrides. Scenario review adds at most 2 reviews + 1 rework generate.
+        # The exact worst case: 3 scenario-gen attempts, then one generate and one review
+        # per scenario per pass. Cases and steps never add calls, only time and characters,
+        # so the caller never has to size this. An explicit value still overrides.
+        # Scenario review adds at most 2 reviews + 1 rework generate.
         extra = 4 if cfg["scenarioreviewagentid"] > 0 else 0
         if stage == "scenarios":
             num("maxagentcalls", 3 + extra, 1, 500)
@@ -1245,11 +1455,15 @@ class AavaTestGenOrchestratorTwoStage(BaseTool):
         cfg["githubtoken"] = str(cfg.get("githubtoken") or "")
         cfg["aavabaseurl"] = str(cfg.get("aavabaseurl") or DEF_AAVA_BASE)
         cfg["realmid"] = str(cfg.get("realmid") or "")
+        # Free-text domain glossary passed to every sub agent (segment mappings, terminology).
+        # Optional: empty means the agents work from the story and knowledge bases alone.
         cfg["domainhints"] = str(cfg.get("domainhints") or "").strip()
+        # Terms that must never appear in the assembled table (e.g. invented EDI element
+        # names like DTP01). Accepts a JSON list or a comma separated string.
         bt = cfg.get("bannedterms") or []
         if isinstance(bt, str):
-            bt = [term.strip() for term in bt.split(",")]
-        cfg["bannedterms"] = [str(term).strip() for term in bt if str(term).strip()]
+            bt = [t.strip() for t in bt.split(",")]
+        cfg["bannedterms"] = [str(t).strip() for t in bt if str(t).strip()]
         # Attribution on every /agents/execute call. Never blank: an unattributed
         # execution is hard to find later in the platform analytics.
         cfg["userprincipal"] = str(cfg.get("userprincipal") or DEF_USERPRINCIPAL)
@@ -1385,6 +1599,7 @@ class AavaTestGenOrchestratorTwoStage(BaseTool):
                         raw, ms = exec_agent(cfg["scenarioagentid"],
                                              {"storydata": scen_inputs["storydata"],
                                               "maxscenarios": str(cfg["maxscenarios"]),
+                                              "domainhints": cfg["domainhints"] or "none",
                                               "feedback": fb},
                                              cfg, aavatoken, budget, log, "scenarios")
                         scenarios = parse_scenarios(raw, cfg["maxscenarios"])
@@ -1438,21 +1653,26 @@ class AavaTestGenOrchestratorTwoStage(BaseTool):
                     records.append(fut.result())
                 except Exception as e:                        # belt and braces
                     records.append({"scenarioid": s["scenarioId"], "status": "failed",
-                                    "error": str(e)[:300], "scorehistory": [], "rounds": 0,
+                                    "error": str(e)[:300], "scorehistory": [],
+                                    "passedhistory": [], "flagged": [], "rounds": 0,
                                     "testcasecount": 0, "chars": 0, "elapsedms": 0,
                                     "gaps": [], "table": "", "finalscore": None,
                                     "title": s.get("title", "")})
         order = {s["scenarioId"]: i for i, s in enumerate(scenarios)}
         records.sort(key=lambda r: order.get(r["scenarioid"], 999))
 
-        # 4. cross batch check and assembly
+        # 4. renumber, cross batch check and assembly
+        for sid, m in renumber_testcases(records).items():
+            changed = [f"{o}>{new}" for o, new in m.items() if o != new]
+            if changed:
+                log.line("renumber", scenario=sid, ids=",".join(changed))
         warnings = cross_batch_check(records, scenarios)
         body: List[str] = []
         for r in records:
             for row in (r.get("table") or "").split("\n"):
                 stripped = row.strip()
                 if stripped.startswith("|") and not stripped.startswith("|--") \
-                    and "| Test Case Id |" not in stripped:
+                        and "| Test Case Id |" not in stripped:
                     body.append(stripped)
         table = ""
         if body:
@@ -1532,8 +1752,7 @@ class AavaTestGenOrchestratorTwoStage(BaseTool):
             if xlsx:
                 files.append(("testcases.xlsx", xlsx))
             else:
-                log.line("publish", file="testcases.xlsx",
-                         skipped="openpyxl unavailable or empty table")
+                log.line("publish", file="testcases.xlsx", skipped="openpyxl unavailable or empty table")
             envelope["published"] = publish_run(cfg, log, files)
             envelope["log"] = log.dump()      # pick up the publish lines themselves
 

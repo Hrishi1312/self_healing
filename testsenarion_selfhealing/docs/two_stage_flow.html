@@ -80,23 +80,23 @@ footer{margin-top:40px;font-size:12px;color:var(--faint)}
 <p class="lede">The AAVA workflow view of <span class="mono">testsenarion_selfhealing</span>:
 drop <b>Agent A</b> and <b>Agent B</b> on the canvas and connect them. The wire only says
 <b>when to start</b> — the scenarios travel through a GitHub file, so no model ever relays
-them. Each agent gets its <b>own 500&nbsp;s window</b>.</p>
+them. Each agent gets its <b>own request window</b> — the 240&nbsp;s Azure Container Apps ceiling still applies to each one, so this buys two windows, not a longer one.</p>
 
 <div class="canvas">
   <div class="stagebox a">
-    <div class="stagehead"><h2>Agent A — self-healing TSc</h2><span class="win">own 500 s window</span></div>
+    <div class="stagehead"><h2>Agent A — self-healing TSc</h2><span class="win">own 240 s window</span></div>
     <p class="sub">stage = scenarios · story in, reviewed scenario list out</p>
     <div class="node tool"><span class="tag new">CLONE + NEW TOOL</span><b>00 orchestrator clone</b>
       <span>same pass-through prompt, new tool attached</span></div>
-    <div class="node"><span class="tag">625 · UNCHANGED</span><b>01 scenario generator</b>
+    <div class="node"><span class="tag">688 · UNCHANGED</span><b>01 scenario generator</b>
       <span>story → TS_### JSON array</span></div>
     <div class="node"><span class="tag new">NEW · NO TOOL</span><b>04 scenario reviewer</b>
       <span>coverage · redundancy · traceability</span></div>
     <div class="loop">↻ rejected once? one rework with the verdict, then proceed</div>
     <div class="ri">{ "stage": "scenarios",
   "adostoryid": "640764", <em>adoorg, adoproject,</em>
-  "scenarioagentid": 625,
-  "scenarioreviewagentid": <em>&lt;04 id&gt;</em>,
+  "scenarioagentid": 688,
+  "scenarioreviewagentid": 704,
   "maxscenarios": 7, "githubtoken": "…" }</div>
   </div>
 
@@ -109,19 +109,19 @@ them. Each agent gets its <b>own 500&nbsp;s window</b>.</p>
   </div>
 
   <div class="stagebox b">
-    <div class="stagehead"><h2>Agent B — self-healing TCs</h2><span class="win">own 500 s window</span></div>
+    <div class="stagehead"><h2>Agent B — self-healing TCs</h2><span class="win">own 240 s window</span></div>
     <p class="sub">stage = testcases · handoff file in, 15-column table out</p>
     <div class="node tool"><span class="tag new">CLONE + NEW TOOL</span><b>00 orchestrator clone</b>
       <span>same prompt again, same one registered tool</span></div>
-    <div class="node"><span class="tag">626 · UNCHANGED</span><b>02 test case generator</b>
+    <div class="node"><span class="tag">689 · UNCHANGED</span><b>02 test case generator</b>
       <span>one scenario → nested JSON test cases</span></div>
-    <div class="node"><span class="tag">627 · UNCHANGED</span><b>03 reviewer</b>
+    <div class="node"><span class="tag">672 · UNCHANGED</span><b>03 reviewer</b>
       <span>scores each test case, quotes evidence</span></div>
     <div class="loop">↻ one thread per scenario · pregate → review → targeted heal</div>
     <div class="ri">{ "stage": "testcases",
   "adostoryid": "640764",
-  "testcaseagentid": 626,
-  "reviewagentid": 627,
+  "testcaseagentid": 689,
+  "reviewagentid": 672,
   "githubtoken": "…" }
 <em>no ADO credential · count and workers come from the file</em></div>
   </div>
@@ -142,12 +142,12 @@ them. Each agent gets its <b>own 500&nbsp;s window</b>.</p>
       <td>register once, attach to both 00 clones</td><td class="new">NEW</td></tr>
   <tr><td>00 clone ×2 (Agent A, Agent B)</td><td>clone existing 00, bake stage runinputs</td><td class="new">NEW</td></tr>
   <tr><td>04 scenario reviewer</td><td>create from prompt, <b>no tool</b>, maxIter 2, note its id</td><td class="new">NEW</td></tr>
-  <tr><td>01 / 02 / 03 &nbsp;(625 / 626 / 627)</td><td>nothing — called by id as today</td><td class="ok">UNCHANGED</td></tr>
+  <tr><td>01 / 02 / 03 &nbsp;(688 / 689 / 672)</td><td>nothing — called by id as today</td><td class="ok">UNCHANGED</td></tr>
   <tr><td>Existing 00 + production tool + workflow 161/163</td><td>nothing — fully undisturbed</td><td class="ok">UNCHANGED</td></tr>
 </table>
 
 <footer>testsenarion_selfhealing · one registered tool shared by both clones · verified by
-218 offline checks · Jaydeep, 20 Aug 2026</footer>
+263 offline checks · Jaydeep, 20 Aug 2026 · resynced with testgen_orchestrator 4 Sep 2026</footer>
 </div>
 </body>
 </html>
