@@ -50,6 +50,11 @@ try:
 except ImportError:
     AVASecret = None  # type: ignore
 
+try:
+    import pandas as pd
+except ImportError:
+    pd = None  # type: ignore
+
 
 # ── defaults ────────────────────────────────────────────────────────────────
 DEF_AAVA_BASE = ("https://aava-core-api-agents-svc"
@@ -677,6 +682,59 @@ def pregate(parsed: Dict[str, Any]) -> List[str]:
     return unique[:20]
 
 
+# ── condition-chunked generation ────────────────────────────────────────────
+# Keep each test-case completion small enough for the agent to return valid JSON. The
+# scenario description's numbered conditions are the source of truth for the chunks.
+CHUNK_CONDITIONS = 3
+
+_COND_HEAD = re.compile(r"Conditions to cover:\s*", re.I)
+_COND_ITEM = re.compile(r"\d+\)\s*")
+
+
+def parse_conditions(description: str) -> List[str]:
+    m = _COND_HEAD.search(description or "")
+    if not m:
+        return []
+    return [item.strip().rstrip(".").strip()
+            for item in _COND_ITEM.split(description[m.end():]) if item.strip()]
+
+
+def chunk_scenario(scenario: Dict[str, Any], conditions: List[str]) -> Dict[str, Any]:
+    s = dict(scenario)
+    description = scenario.get("description") or ""
+    match = _COND_HEAD.search(description)
+    head = description[:match.start()] if match else description + " "
+    s["description"] = (head + "Conditions to cover: "
+                         + " ".join(f"{i}) {condition}."
+                                   for i, condition in enumerate(conditions, 1)))
+    return s
+
+
+def merge_chunks(parts: List[Optional[Dict[str, Any]]]) -> Dict[str, Any]:
+    cases: Dict[str, List[List[str]]] = {}
+    rows: List[List[str]] = []
+    ids: List[str] = []
+    number = 0
+    for part in parts:
+        if not part:
+            continue
+        for test_case_id in part["ids"]:
+            number += 1
+            new_id = f"TC_{number:03d}"
+            case_rows = []
+            for row in part["cases"][test_case_id]:
+                rewritten = list(row)
+                rewritten[3] = new_id
+                case_rows.append(rewritten)
+            cases[new_id] = case_rows
+            ids.append(new_id)
+            rows.extend(case_rows)
+    table = "\n".join(["| " + " | ".join(COLUMNS) + " |", "|" + "---|" * len(COLUMNS)]
+                      + ["| " + " | ".join(row) + " |" for row in rows])
+    return {"header": list(COLUMNS), "rows": rows, "cases": cases, "table": table,
+            "chars": len(table), "ids": ids}
+
+
 # ── one scenario, start to finish, on its own thread ────────────────────────
 def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[str, Any],
                      token: str, budget: _Budget, log: _Log) -> Dict[str, Any]:
@@ -696,6 +754,16 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
     passscore = cfg["passscore"]
     parsed: Optional[Dict[str, Any]] = None
     regenerate: List[Dict[str, Any]] = []
+    conditions = parse_conditions(scenario.get("description") or "")
+    if len(conditions) > cfg["testcasesperscenario"]:
+        log.line("condtrim", scenario=sid, listed=len(conditions),
+                 kept=cfg["testcasesperscenario"])
+        conditions = conditions[:cfg["testcasesperscenario"]]
+    chunks: List[Optional[List[str]]] = (
+        [conditions[i:i + CHUNK_CONDITIONS]
+         for i in range(0, len(conditions), CHUNK_CONDITIONS)]
+        if conditions else [None])
+    chunkparsed: List[Optional[Dict[str, Any]]] = [None] * len(chunks)
     # maxhealrounds 0 means one pass and no regeneration: score it, report it, change nothing.
     passes = max(1, cfg["maxhealrounds"])
     reviewing = int(cfg["reviewagentid"]) > 0          # 0 disables the judge entirely
@@ -709,36 +777,42 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                 break
             rec["rounds"] = rnd
 
-            gen_inputs = {
-                "scenario": _j(scenario),
-                "storytitle": story["title"],
-                "limits": _j({"testcasesperscenario": cfg["testcasesperscenario"],
-                                          "stepsmin": cfg["stepsmin"], "stepsmax": cfg["stepsmax"]}),
-            }
-            if regenerate:
-                gen_inputs["regenerate"] = _j(regenerate)   # omitted on the first round
-            raw = ""
-            try:
-                raw, gen_ms = exec_agent(cfg["testcaseagentid"], gen_inputs, cfg, token,
-                                         budget, log, f"generate:{sid}")
-                parsed = read_testcases(raw, cfg["stepsmin"], cfg["stepsmax"])
-            except Exception as e:
-                # Log the head of what the agent actually sent. Run 640764_084112 failed
-                # 7/7 with "test case array is empty" and the log carried no way to tell
-                # whether the model wrote [], the prompt was broken, or the platform
-                # truncated the output. Empty when exec_agent itself raised.
-                log.line("generate", scenario=sid, round=rnd, error=str(e)[:120],
-                         raw=_WS.sub(" ", raw)[:200] or None)
-                regenerate = [{"id": "all", "gaps": [f"previous attempt was rejected: {e}"]}]
-                rec["error"] = str(e)[:300]
-                continue
+            for chunk_index, chunk in enumerate(chunks):
+                current_scenario = scenario if chunk is None else chunk_scenario(scenario, chunk)
+                gen_inputs = {
+                    "scenario": _j(current_scenario),
+                    "storytitle": story["title"],
+                    "limits": _j({"testcasesperscenario": cfg["testcasesperscenario"],
+                                              "stepsmin": cfg["stepsmin"],
+                                              "stepsmax": cfg["stepsmax"]}),
+                }
+                if regenerate:
+                    gen_inputs["regenerate"] = _j(regenerate)
+                raw = ""
+                try:
+                    raw, gen_ms = exec_agent(cfg["testcaseagentid"], gen_inputs, cfg, token,
+                                             budget, log, f"generate:{sid}")
+                    chunkparsed[chunk_index] = read_testcases(
+                        raw, cfg["stepsmin"], cfg["stepsmax"])
+                    log.line("generate", scenario=sid, round=rnd,
+                             chunk=(f"{chunk_index + 1}/{len(chunks)}" if chunk is not None else None),
+                             tc=len(chunkparsed[chunk_index]["ids"]),
+                             ids=",".join(chunkparsed[chunk_index]["ids"]), chars=chunkparsed[chunk_index]["chars"],
+                             ms=gen_ms, regen=len(regenerate) or None)
+                except Exception as e:
+                    log.line("generate", scenario=sid, round=rnd,
+                             chunk=(f"{chunk_index + 1}/{len(chunks)}" if chunk is not None else None),
+                             error=str(e)[:120], raw=_WS.sub(" ", raw)[:200] or None)
+                    rec["error"] = str(e)[:300]
 
+            if not any(part is not None for part in chunkparsed):
+                regenerate = [{"id": "all", "gaps": ["previous attempt produced no parseable test cases"]}]
+                continue
+            parsed = (chunkparsed[0] if chunks == [None]
+                      else merge_chunks(chunkparsed))
             rec["table"] = parsed["table"]
             rec["chars"] = parsed["chars"]
             rec["testcasecount"] = len(parsed["ids"])
-            log.line("generate", scenario=sid, round=rnd, tc=len(parsed["ids"]),
-                     ids=",".join(parsed["ids"]), chars=parsed["chars"], ms=gen_ms,
-                     regen=len(regenerate) or None)
 
             # Re-enabled 2026-08-19: the 640764 comparison run shipped meta labels ("DoD"
             # in 5 preconditions) that this gate catches for free. Disabling it (2026-08-18)
@@ -866,10 +940,42 @@ def cross_batch_check(records: List[Dict[str, Any]], scenarios: List[Dict[str, A
     return warnings
 
 
+# ── xlsx rendering, best effort, no hard dependency ───────────────────────
+def build_xlsx(table: str) -> Optional[bytes]:
+    """Render the assembled markdown table as an in-memory Excel workbook."""
+    if not pd or not table:
+        return None
+    try:
+        import io
+        rows = []
+        for line in table.split("\n"):
+            stripped = line.strip()
+            if not stripped.startswith("|"):
+                continue
+            cells = [cell.strip() for cell in stripped.strip("|").split("|")]
+            if set("".join(cells)) <= {"-", ":", ""}:
+                continue
+            rows.append(cells)
+        if len(rows) < 2:
+            return None
+        width = max(len(row) for row in rows)
+        padded = [(row + [""] * (width - len(row)))[:width] for row in rows]
+        frame = pd.DataFrame(padded[1:], columns=padded[0])
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine="openpyxl") as writer:
+            frame.to_excel(writer, index=False, sheet_name="Test Cases")
+            worksheet = writer.sheets["Test Cases"]
+            worksheet.freeze_panes = "A2"
+            worksheet.auto_filter.ref = worksheet.dimensions
+        return output.getvalue()
+    except Exception:
+        return None
+
+
 # ── github publish, opt in ──────────────────────────────────────────────────
 def publish_run(cfg: Dict[str, Any], log: _Log,
-                files: List[Tuple[str, str]]) -> Dict[str, Any]:
-    """Push the run's files to GitHub via the contents API, one PUT per file.
+                files: List[Tuple[str, Any]]) -> Dict[str, Any]:
+    """Push text and binary run files to GitHub via the contents API, one PUT per file.
 
     A failure is logged and reported in the returned dict, never raised: publishing is a
     convenience and can never fail the run that produced the thing being published.
@@ -885,14 +991,15 @@ def publish_run(cfg: Dict[str, Any], log: _Log,
     headers = {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"}
     ok, err = 0, None
     for name, content in files:
+        raw = content if isinstance(content, bytes) else content.encode("utf-8")
         status, body = _http(
             "PUT", f"{GITHUB_API}/repos/{repo}/contents/{folder}/{name}", log, headers,
             json_body={"message": f"run log {cfg['adostoryid']}: {name}",
-                       "content": base64.b64encode(content.encode("utf-8")).decode(),
+                       "content": base64.b64encode(raw).decode(),
                        "branch": branch})
         if status in (200, 201):
             ok += 1
-            log.line("publish", file=name, chars=len(content))
+            log.line("publish", file=name, bytes=len(raw))
         else:
             err = f"{name}: http {status} {_err_detail(body, 120)}".strip()
             log.line("publish", file=name, status=status, error=_err_detail(body, 120))
@@ -1093,7 +1200,7 @@ class AavaTestGenOrchestratorTwoStage(BaseTool):
             num("maxscenarios", 0, 1, 20)
         else:
             num("maxscenarios", 20, 1, 20)     # provisional; replaced after the handoff read
-        num("testcasesperscenario", DEF_TESTCASESPERSCENARIO, 1, 5)
+        num("testcasesperscenario", DEF_TESTCASESPERSCENARIO, 1, 12)
         num("stepsmin", DEF_STEPSMIN, 1, 40)
         num("stepsmax", DEF_STEPSMAX, cfg.get("stepsmin", DEF_STEPSMIN), 40)
         num("maxhealrounds", DEF_MAXHEALROUNDS, 0, 5)
@@ -1398,12 +1505,19 @@ class AavaTestGenOrchestratorTwoStage(BaseTool):
 
         if cfg["publish"]:
             blanked = dict(cfg, adopat="", aavatoken="", githubtoken="")
-            envelope["published"] = publish_run(cfg, log, [
+            files: List[Tuple[str, Any]] = [
                 ("run.log", "\n".join(log.dump()) + "\n"),
                 ("testcases.md", table),
                 ("envelope.json", json.dumps(envelope, indent=2)),
                 ("runinputs.json", json.dumps(blanked, indent=2)),
-            ])
+            ]
+            xlsx = build_xlsx(table)
+            if xlsx:
+                files.append(("testcases.xlsx", xlsx))
+            else:
+                log.line("publish", file="testcases.xlsx",
+                         skipped="openpyxl unavailable or empty table")
+            envelope["published"] = publish_run(cfg, log, files)
             envelope["log"] = log.dump()      # pick up the publish lines themselves
 
         return json.dumps(envelope)
