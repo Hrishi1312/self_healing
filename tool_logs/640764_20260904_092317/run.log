@@ -1,0 +1,7 @@
+[ORCH] ts=2026-09-04T09:21:24Z step=start stage=scenarios story=640764 maxscenarios=20 tcper=3 steps=15-18 rounds=3 workers=20 pass_=90/50 judge=off scenjudge=704 deadline=450s
+[ORCH] ts=2026-09-04T09:21:25Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=356
+[ORCH] ts=2026-09-04T09:22:32Z step=scenarios count=11 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007,TS_008,TS_011,TS_009,TS_010 ms=67160
+[ORCH] ts=2026-09-04T09:23:15Z step=agenterror label=scenreview agentid=704 phase=poll status=FAILED execution=121b0bf0-256c-4110-8b67-8d68296cbeac ms=43370 why={"executionId": "121b0bf0-256c-4110-8b67-8d68296cbeac", "agentId": 704, "output": null, "agentName": "Scenario Quality Assurance Review Agent", "executedBy": "Hrishikesh.Rode@caresource.com", "created
+[ORCH] ts=2026-09-04T09:23:15Z step=scenreview round=1 error=scenreview: agent 704 finished FAILED (execution 121b0bf0-256c-4110-8b67-8d68296cbeac)
+[ORCH] ts=2026-09-04T09:23:17Z step=handoff action=write path=scenarios/640764/scenarios.json scenarios=11 chars=26404
+[ORCH] ts=2026-09-04T09:23:17Z step=outcome stage=scenarios story=640764 scenarios=11 confidence=unreviewed elapsed=1m52s
