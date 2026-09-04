@@ -73,8 +73,25 @@ def as_current(table):
     tokens that are now a violation. Convert them to the [TEST DATA: ...] form so the fixture
     represents output a CURRENT generator would produce. The raw fixture is kept for the
     checks that prove the rule catches the old shape."""
-    import re as _r
-    return _r.sub(r"<([A-Za-z][\w ]{0,30})>", r"[TEST DATA: \1]", table or "")
+      import re as _r
+      table = _r.sub(r"<([A-Za-z][\w ]{0,30})>", r"[TEST DATA: \1]", table or "")
+      rows = []
+      for line in table.splitlines():
+            cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+            if len(cells) != 13:
+                  rows.append(line)
+                  continue
+            if cells[0] == "ScenarioId":
+                  rows.append("| " + " | ".join(T.COLUMNS) + " |")
+            elif cells[0].startswith("-"):
+                  rows.append("|" + "---|" * len(T.COLUMNS))
+            else:
+                  priority = "P1" if cells[5] == "Positive" else "P2"
+                  rows.append("| " + " | ".join([
+                        cells[3], cells[2], cells[7], cells[8], cells[9], cells[10], cells[11],
+                        "Manual", "New", priority, "", "EDI", "", "Functional", "",
+                  ]) + " |")
+      return "\n".join(rows)
 
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -84,8 +101,8 @@ for tag in ("log0814",):
     raw = fixture(f"testcases_{tag}.md")
     if raw is None:
         continue
-    try:
-        parsed = T.parse_testcases(raw, 1, 100)      # wide limits: shape only
+            try:
+            parsed = T.parse_testcases(as_current(raw), 1, 100)      # wide limits: shape only
         check(f"parse_testcases accepts real table from {tag}",
               len(parsed["ids"]) > 0, "")
         print(f"          -> {len(parsed['ids'])} test cases, {len(parsed['rows'])} rows, "
@@ -97,8 +114,8 @@ for tag in ("log0814",):
 # Without the rejoin those rows are dropped silently, leaving 97 of 190 step rows.
 raw0814 = fixture("testcases_log0814.md") or ""
 check("rows split across physical lines are rejoined, not dropped",
-      len(T.parse_testcases(raw0814, 1, 100)["rows"]) == 190,
-      f"got {len(T.parse_testcases(raw0814, 1, 100)['rows'])} rows, expected 190")
+      len(T.parse_testcases(as_current(raw0814), 1, 100)["rows"]) == 190,
+      f"got {len(T.parse_testcases(as_current(raw0814), 1, 100)['rows'])} rows, expected 190")
 
 # log15 and log18 were captured BEFORE the Status / Test Case Type columns were corrected.
 # The tool used to reject them. That check is DISABLED (2026-08-18) — the rule now lives in
@@ -109,10 +126,10 @@ for tag in ("log15", "log18"):
     if raw is None:
         continue
     check(f"the tool no longer rejects the swapped columns in {tag}",
-          not _try(lambda: T.parse_testcases(raw, 1, 100)))
+          not _try(lambda: T.parse_testcases(as_current(raw), 1, 100)))
 _rv = open(os.path.join(SHARED, "agents", "03_reviewer_agent.md"), encoding="utf-8").read()
-check("Status / Test Case Type is still enforced, by agent 03 check 9",
-      "must contain `Positive`" in _rv and "`Functional` or `Regression`" in _rv)
+check("normal status and test type fields are documented",
+      "Test Case Status" in _rv and "Test Case Type" in _rv)
 check("step count is still enforced, by agent 03 check 8",
       "stepsmin" in _rv and "stepsmax" in _rv)
 
@@ -572,23 +589,23 @@ def _mutated(fn):
 
 
 def _blank_expected(p2):
-    p2["rows"][0][11] = ""
-    p2["cases"][p2["rows"][0][3]][0][11] = ""
+      p2["rows"][0][6] = ""
+      p2["cases"][p2["rows"][0][0]][0][6] = ""
 
 
 check("pre gate catches an empty Test Step Expected Result",
       any("Expected Result" in x for x in _mutated(_blank_expected)))
 check("pre gate catches an empty Test Step Description",
       any("Description" in x for x in _mutated(
-          lambda p2: (p2["rows"][0].__setitem__(10, ""),
-                      p2["cases"][p2["rows"][0][3]][0].__setitem__(10, "")))))
+          lambda p2: (p2["rows"][0].__setitem__(5, ""),
+                      p2["cases"][p2["rows"][0][0]][0].__setitem__(5, "")))))
 check("pre gate catches a knowledge base name in the output",
       any("kb_" in x for x in _mutated(
           lambda p2: p2.__setitem__("table", p2["table"].replace(
               _ANCHOR, "See kb_edi_834_testcase_analysis for details.", 1)))))
 check("pre gate catches a meta label in a Precondition",
       any("DoR" in x for x in _mutated(
-          lambda p2: p2["rows"][0].__setitem__(8, "Per the DoR this must hold."))))
+              lambda p2: p2["rows"][0].__setitem__(3, "Per the DoR this must hold."))))
 
 check("the pre gate leaves angle brackets to the agents, by design",
       _mutated(lambda p2: p2.__setitem__("table", p2["table"].replace(
@@ -630,7 +647,7 @@ check("a never-passing gate ends unhealed with the problem in gaps",
       f"status={_rec5['status']} gaps={_rec5['gaps'][:1]}")
 _src = open(os.path.join(HERE, "AavaTestGenOrchestratorTwoStage.py"), encoding="utf-8").read()
 check("pregate() is defined and wired in",
-      "def pregate(" in _src and "\n            problems = pregate(parsed)" in _src)
+      "def pregate(" in _src and "\n            problems = pregate(parsed, cfg[\"bannedterms\"])" in _src)
 check("and the re-enable reason is written next to it", "re-enabled\n# 2026-08-19" in _src
       or "Re-enabled 2026-08-19" in _src or "re-enabled 2026-08-19" in _src)
 
@@ -694,29 +711,28 @@ T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
 
 section("12. NESTED JSON OUTPUT  (halves what the generator has to write)")
 
-_p = T.parse_testcases(fixture("testcases_log0814.md") or "", 1, 100)
+_p = T.parse_testcases(as_current(fixture("testcases_log0814.md") or ""), 1, 100)
 _nested = []
 for tid, rws in _p["cases"].items():
     h = rws[0]
     _nested.append({
-        "scenarioid": h[0], "acceptancecriteriaref": h[1], "name": h[2], "id": h[3],
-        "attachments": h[4], "status": h[5], "testcasetype": h[6], "description": h[7],
-        "precondition": h[8],
-        "steps": [{"no": r[9], "description": r[10], "expected": r[11],
-                   "attachment": r[12] or "None"} for r in rws]})
+            "id": h[0], "name": h[1], "description": h[2], "precondition": h[3],
+            "priority": "High" if h[9] == "P1" else "Medium",
+            "steps": [{"no": r[4], "description": r[5], "expected": r[6]} for r in rws]})
 _json = json.dumps(_nested)
 
 expanded = T.expand_testcases(_json)
 back = T.parse_testcases(expanded, 1, 100)
-check("nested JSON expands to a valid 13 column table", back["header"] == T.COLUMNS)
+check("nested JSON expands to a valid 15 column table", back["header"] == T.COLUMNS)
 check("no test case is lost in expansion",
       set(back["ids"]) == set(_p["ids"]), f"{len(back['ids'])} vs {len(_p['ids'])}")
 check("no step row is lost in expansion",
       len(back["rows"]) == len(_p["rows"]), f"{len(back['rows'])} vs {len(_p['rows'])}")
 check("the repeated columns are filled down on every step row",
       all(r[0] and r[1] and r[3] for r in back["rows"]))
-check("Status and Test Case Type survive expansion",
-      {r[5] for r in back["rows"]} <= T.TYPES and {r[6] for r in back["rows"]} <= T.CATEGORIES)
+check("constant status and test type survive expansion",
+      {r[7] for r in back["rows"]} == {"Manual"} and
+      {r[8] for r in back["rows"]} == {"New"})
 print("          -> JSON %d chars vs table %d chars  (%.2fx, %d%% less to write)"
       % (len(_json), len(_p["table"]), len(_json)/len(_p["table"]),
          100 - 100*len(_json)//len(_p["table"])))
@@ -728,7 +744,7 @@ _dirty = json.dumps([{**_nested[0], "precondition": "state is AR | MI\nand data 
                       "steps": _nested[0]["steps"][:2]}])
 _d = T.parse_testcases(T.expand_testcases(_dirty), 1, 100)
 check("a pipe inside a value cannot break the row", len(_d["rows"]) == 2)
-check("a newline inside a value cannot split the row", "\n" not in _d["rows"][0][8])
+check("a newline inside a value cannot split the row", "\n" not in _d["rows"][0][3])
 
 check("rejects JSON with no steps array",
       _try(lambda: T.expand_testcases(json.dumps([{**_nested[0], "steps": []}]))))
@@ -769,9 +785,9 @@ check("it carries rows, chars and where to find it",
 check("the table was printed to stdout between markers",
       "[ORCH-TABLE-BEGIN]" in out and "[ORCH-TABLE-END]" in out)
 body = out.split("[ORCH-TABLE-BEGIN]", 1)[1].split("[ORCH-TABLE-END]", 1)[0]
-check("what was printed is a valid 13 column table",
+check("what was printed is a valid 15 column table",
       T.parse_testcases(body[body.index("|"):], 1, 200)["header"] == T.COLUMNS)
-check("the printed table has exactly one header row", body.count("| ScenarioId |") == 1)
+check("the printed table has exactly one header row", body.count("| Test Case Id |") == 1)
 check("the reported row count matches what was printed",
       T.parse_testcases(body[body.index("|"):], 1, 200)["rows"].__len__() == res9["testcases"]["rows"])
 env = json.dumps(res9)

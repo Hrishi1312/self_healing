@@ -66,6 +66,7 @@ You receive ONE variable, {{reviewinputs}} - a JSON string (it may be wrapped in
 - storydescription - the story description text
 - acceptancecriteria - the story's acceptance criteria text, one criterion per line
 - passscore - the approval threshold number. Use THIS number in the scoring rule below; do not use any other threshold.
+- domainhints - optional domain glossary and business-rule guidance from the orchestrator. The literal value `none` means no hints were supplied. When present, use it as authoritative context when checking terminology, rule combinations, and coverage.
 
 # Review checklist (work through each point)
 
@@ -122,7 +123,7 @@ Same as agent 03 (the test case reviewer): temperature 0, and `maxIter` 2.
 ## Wiring
 
 The tool sends ONE userInputs key, `reviewinputs`, carrying a JSON string with the fields
-`scenarios`, `storytitle`, `storydescription`, `acceptancecriteria`, `passscore`. The prompt
+`scenarios`, `storytitle`, `storydescription`, `acceptancecriteria`, `passscore`, `domainhints`. The prompt
 must contain the placeholder `{{reviewinputs}}` spelled character for character — an unbound
 placeholder means the agent answers fluently from its instructions alone and nothing
 downstream can tell (see the probe pattern in run_local.py).

@@ -105,9 +105,11 @@ HTTP_TIMEOUT = 60
 POLL_START, POLL_MAX, POLL_GROWTH = 5.0, 20.0, 1.5
 ADO_TIMEOUT = (15, 45)
 
-COLUMNS = ["ScenarioId", "AcceptanceCriteriaRef", "Name", "Id", "Attachments", "Status",
-           "Test Case Type", "Description", "Precondition", "Test Step #",
-           "Test Step Description", "Test Step Expected Result", "Test Step Attachment"]
+# 15 columns matching the normal orchestrator's test-management import format.
+COLUMNS = ["Test Case Id", "Test Case Name", "Description", "Pre-condition", "Step #",
+           "Step Description", "Expected Result", "Test Case Type", "Test Case Status",
+           "Test Case Priority", "Test Case Assigned To", "Product Area", "Implementation",
+           "Test Type", "Requirement Ids"]
 
 # Field names INSIDE a scenario object, as the scenario generator emits them. These are
 # camelCase because the agent prompt is carried verbatim from production and specifies
@@ -481,9 +483,8 @@ def parse_scenarios(raw: str, maxscenarios: int) -> List[Dict[str, Any]]:
 
 
 # Field names in the generator's JSON, lowercase with no separators, in column order.
-TC_KEYS = ["scenarioid", "acceptancecriteriaref", "name", "id", "attachments", "status",
-           "testcasetype", "description", "precondition"]
-STEP_KEYS = ["no", "description", "expected", "attachment"]
+TC_KEYS = ["id", "name", "description", "precondition", "priority"]
+STEP_KEYS = ["no", "description", "expected"]
 
 
 def _cell(v: Any) -> str:
@@ -493,13 +494,12 @@ def _cell(v: Any) -> str:
 
 
 def expand_testcases(raw: str) -> str:
-    """Nested JSON from the generator to the 13 column markdown table.
+    """Nested JSON from the generator to the 15 column markdown table.
 
     The generator emits each test case ONCE with its steps as an array, instead of repeating
     the nine header columns on every step row. Measured on real output, those repeats were
-    64.6% of all characters, so this halves what the model has to write. The table itself is
-    unchanged: the tool expands it here, so the deliverable still matches the 13 column
-    contract byte for byte.
+    64.6% of all characters, so this halves what the model has to write. Constant import
+    fields are injected here, matching the normal orchestrator's 15-column contract.
     """
     text = _strip_fences(raw)
     start, end = text.find("["), text.rfind("]")
@@ -519,16 +519,22 @@ def expand_testcases(raw: str) -> str:
         steps = tc.get("steps")
         if not isinstance(steps, list) or not steps:
             raise ValueError(f"{tc.get('id', 'test case ' + str(i))} has no steps array")
-        head = [_cell(tc[k]) for k in TC_KEYS]
+        priority = str(tc["priority"]).strip()
+        if priority not in PRIORITIES:
+            raise ValueError(f"{tc['id']} priority '{priority}' is not High, Medium or Low")
+        head = [_cell(tc["id"]), _cell(tc["name"]), _cell(tc["description"]),
+            _cell(tc["precondition"])]
+        tail = ["Manual", "New", "P1" if priority == "High" else
+            "P2" if priority == "Medium" else "P3", "", "EDI", "", "Functional", ""]
         for n, st in enumerate(steps, 1):
             if not isinstance(st, dict):
                 raise ValueError(f"{tc['id']} step {n} is not an object")
             for k in ("description", "expected"):
                 if k not in st:
                     raise ValueError(f"{tc['id']} step {n} missing '{k}'")
-            out.append("| " + " | ".join(head + [
-                _cell(st.get("no") or n), _cell(st["description"]), _cell(st["expected"]),
-                _cell(st.get("attachment") or "None")]) + " |")
+            out.append("| " + " | ".join(
+                head + [_cell(st.get("no") or n), _cell(st["description"]),
+                        _cell(st["expected"])] + tail) + " |")
     return "\n".join(out)
 
 
@@ -557,7 +563,7 @@ def parse_testcases(raw: str, stepsmin: int, stepsmax: int) -> Dict[str, Any]:
     cells = [[c.strip() for c in r.strip().strip("|").split("|")] for r in rows]
     header = cells[0]
     if header != COLUMNS:
-        raise ValueError(f"header has {len(header)} columns, expected the 13 standard columns")
+        raise ValueError(f"header has {len(header)} columns, expected the 15 standard columns")
 
     body = [c for c in cells[2:] if len(c) == len(COLUMNS)]
     if not body:
@@ -566,12 +572,12 @@ def parse_testcases(raw: str, stepsmin: int, stepsmax: int) -> Dict[str, Any]:
     cases: Dict[str, List[List[str]]] = {}
     current = None
     for row in body:
-        if row[3]:
-            current = row[3]
+        if row[0]:
+            current = row[0]
         if current:
             cases.setdefault(current, []).append(row)
     if not cases:
-        raise ValueError("no test case id found in the Id column")
+        raise ValueError("no test case id found in the Test Case Id column")
     for tid in cases:
         if not re.match(r"^TC[_-]?\w*\d+$", tid):
             raise ValueError(f"test case id '{tid}' does not look like TC followed by digits")
@@ -638,12 +644,11 @@ def parse_verdict(raw: str, known_ids: List[str]) -> Dict[str, Any]:
 SOURCE_NAMES = ["kb_", "EDI and FACETS Schema 2", "Facets 834", "EDIFECS Full with AUX 834"]
 META_LABELS = ["DoR", "DoD", "Definition of Ready", "Definition of Done",
                "descriptionRef", "dorRef", "dodRef", "per the AC", "as referenced in"]
-# Name, Description, Precondition, Test Step Description, Test Step Expected Result.
-# ScenarioId and AcceptanceCriteriaRef are exempt, as they are in the reviewer's own rules.
-_META_COLS = [2, 7, 8, 10, 11]
+# Test Case Name, Description, Pre-condition, Step Description, Expected Result.
+_META_COLS = [1, 2, 3, 5, 6]
 
 
-def pregate(parsed: Dict[str, Any]) -> List[str]:
+def pregate(parsed: Dict[str, Any], bannedterms: List[str] = None) -> List[str]:
     """Return the problems a machine can prove. Empty means it is worth reviewing.
 
     Deliberately NOT here: the angle-bracket rule. It lives in agent 02 (write
@@ -654,13 +659,19 @@ def pregate(parsed: Dict[str, Any]) -> List[str]:
     """
     problems: List[str] = []
 
+    for term in bannedterms or []:
+        pattern = r"(?<![A-Za-z0-9*])" + re.escape(term) + r"(?![A-Za-z0-9*])"
+        if re.search(pattern, parsed["table"]):
+            problems.append(f"the banned term '{term}' appears in the output; replace it "
+                           f"with the correct domain terminology")
+
     for tid, rows in parsed["cases"].items():
         for r in rows:
-            if not r[10].strip():
-                problems.append(f"{tid} step {r[9] or '?'} has an empty Test Step Description")
+            if not r[5].strip():
+                problems.append(f"{tid} step {r[4] or '?'} has an empty Step Description")
                 break
-            if not r[11].strip():
-                problems.append(f"{tid} step {r[9] or '?'} has an empty Test Step Expected Result")
+            if not r[6].strip():
+                problems.append(f"{tid} step {r[4] or '?'} has an empty Expected Result")
                 break
 
     table = parsed["table"]
@@ -671,7 +682,7 @@ def pregate(parsed: Dict[str, Any]) -> List[str]:
         for c in _META_COLS:
             for label in META_LABELS:
                 if label in row[c]:
-                    problems.append(f"{row[3] or 'a test case'} carries the meta label "
+                    problems.append(f"{row[0] or 'a test case'} carries the meta label "
                                     f"'{label}' in {COLUMNS[c]}")
                     break
     seen, unique = set(), []
@@ -724,7 +735,7 @@ def merge_chunks(parts: List[Optional[Dict[str, Any]]]) -> Dict[str, Any]:
             case_rows = []
             for row in part["cases"][test_case_id]:
                 rewritten = list(row)
-                rewritten[3] = new_id
+                rewritten[0] = new_id
                 case_rows.append(rewritten)
             cases[new_id] = case_rows
             ids.append(new_id)
@@ -785,6 +796,7 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                     "limits": _j({"testcasesperscenario": cfg["testcasesperscenario"],
                                               "stepsmin": cfg["stepsmin"],
                                               "stepsmax": cfg["stepsmax"]}),
+                    "domainhints": cfg["domainhints"] or "none",
                 }
                 if regenerate:
                     gen_inputs["regenerate"] = _j(regenerate)
@@ -818,7 +830,7 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             # in 5 preconditions) that this gate catches for free. Disabling it (2026-08-18)
             # was the drift the code comment warned about. Only work that survives this gate
             # is worth a reviewer call; its problems feed the regenerate round verbatim.
-            problems = pregate(parsed)
+            problems = pregate(parsed, cfg["bannedterms"])
             if problems:
                 log.line("pregate", scenario=sid, round=rnd, failed=len(problems),
                          first=problems[0][:90])
@@ -843,6 +855,8 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                 "limits": _j({"passscore": passscore, "stepsmin": cfg["stepsmin"],
                                           "stepsmax": cfg["stepsmax"],
                                           "testcasesperscenario": cfg["testcasesperscenario"]}),
+                "storyac": story["acceptancecriteria"] or "none",
+                "domainhints": cfg["domainhints"] or "none",
             }
             raw = ""
             try:
@@ -918,25 +932,21 @@ def cross_batch_check(records: List[Dict[str, Any]], scenarios: List[Dict[str, A
             warnings.append(f"{s['scenarioId']} produced no test cases")
 
     seen: Dict[str, str] = {}
-    statuses: Dict[str, int] = {}
     for r in records:
         for row in (r.get("table") or "").split("\n"):
             cells = [c.strip() for c in row.strip().strip("|").split("|")]
             # "---" is the markdown separator row: 13 cells of dashes, which otherwise
             # collides with every other scenario's separator and reports itself as a
             # duplicate. Every warning in every run so far was this row.
-            if len(cells) != len(COLUMNS) or cells[3] in ("Id", "") or set(cells[3]) <= {"-", ":"}:
+            if len(cells) != len(COLUMNS) or cells[0] in ("Test Case Id", "") \
+                    or set(cells[0]) <= {"-", ":"}:
                 continue
-            statuses[cells[5]] = statuses.get(cells[5], 0) + 1
-            key = _WS.sub(" ", (cells[2] + "|" + cells[7]).lower()).strip()
+            key = _WS.sub(" ", (cells[1] + "|" + cells[2]).lower()).strip()
             if key and key in seen and seen[key] != r["scenarioid"]:
-                warnings.append(f"{cells[3]} looks like a duplicate of a test case in {seen[key]}")
+                warnings.append(f"{cells[0]} looks like a duplicate of a test case in {seen[key]}")
             elif key:
                 seen[key] = r["scenarioid"]
 
-    for t in TYPES:
-        if statuses.get(t, 0) == 0:
-            warnings.append(f"no {t} test cases across the whole set")
     return warnings
 
 
@@ -1112,7 +1122,7 @@ class AavaTestGenOrchestratorTwoStageSchema(BaseModel):
             "testcaseagentid, reviewagentid, maxscenarios, testcasesperscenario, stepsmin, "
             "stepsmax, maxhealrounds, passscore, hardstopscore, stoponstagnation, "
             "deadlineseconds, maxagentcalls, aavabaseurl, realmid, userprincipal, publish, "
-            "githubtoken, githubrepo, githubbranch, and for "
+            "githubtoken, githubrepo, githubbranch, domainhints, bannedterms, and for "
             "local testing only adopat and aavatoken. Set maxhealrounds to 0 for a single "
             "pass with no regeneration, reviewagentid to 0 to run without the judge, or "
             "scenarioreviewagentid to 0 to skip the scenario review. Pass "
@@ -1235,6 +1245,11 @@ class AavaTestGenOrchestratorTwoStage(BaseTool):
         cfg["githubtoken"] = str(cfg.get("githubtoken") or "")
         cfg["aavabaseurl"] = str(cfg.get("aavabaseurl") or DEF_AAVA_BASE)
         cfg["realmid"] = str(cfg.get("realmid") or "")
+        cfg["domainhints"] = str(cfg.get("domainhints") or "").strip()
+        bt = cfg.get("bannedterms") or []
+        if isinstance(bt, str):
+            bt = [term.strip() for term in bt.split(",")]
+        cfg["bannedterms"] = [str(term).strip() for term in bt if str(term).strip()]
         # Attribution on every /agents/execute call. Never blank: an unattributed
         # execution is hard to find later in the platform analytics.
         cfg["userprincipal"] = str(cfg.get("userprincipal") or DEF_USERPRINCIPAL)
@@ -1313,6 +1328,7 @@ class AavaTestGenOrchestratorTwoStage(BaseTool):
                                          "description": story["description"],
                                          "acceptancecriteria": story["acceptancecriteria"]}),
                         "maxscenarios": str(cfg["maxscenarios"]),
+                        "domainhints": cfg["domainhints"] or "none",
                     }
                     if feedback:
                         scen_inputs["feedback"] = feedback   # omitted on the first attempt
@@ -1344,7 +1360,8 @@ class AavaTestGenOrchestratorTwoStage(BaseTool):
                                 "storytitle": story["title"],
                                 "storydescription": story["description"],
                                 "acceptancecriteria": story["acceptancecriteria"],
-                                "passscore": cfg["scenariopassscore"]})},
+                                "passscore": cfg["scenariopassscore"],
+                                "domainhints": cfg["domainhints"] or "none"})},
                             cfg, aavatoken, budget, log, "scenreview")
                         scenverdict = parse_scenario_verdict(raw)
                     except Exception as e:
@@ -1435,7 +1452,7 @@ class AavaTestGenOrchestratorTwoStage(BaseTool):
             for row in (r.get("table") or "").split("\n"):
                 stripped = row.strip()
                 if stripped.startswith("|") and not stripped.startswith("|--") \
-                        and "| ScenarioId |" not in stripped:
+                    and "| Test Case Id |" not in stripped:
                     body.append(stripped)
         table = ""
         if body:

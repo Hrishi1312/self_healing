@@ -10,7 +10,7 @@ Agent A (stage=scenarios)                    Agent B (stage=testcases)
 fetch story (ADO REST)                       read the handoff file (no ADO call)
 -> generate scenarios (agent 625)            -> one thread per scenario:
 -> scenario review (agent 04, new)              generate (626) -> review (627) -> heal
-   rejected? one rework with feedback        -> assemble the 13-column table
+   rejected? one rework with feedback        -> assemble the 15-column table
 -> write scenarios/<storyid>/scenarios.json  -> publish run.log, testcases.md,
    to GitHub                                    envelope.json, runinputs.json
 ```
