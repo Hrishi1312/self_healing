@@ -66,7 +66,7 @@ You receive ONE variable, {{reviewinputs}} - a JSON string (it may be wrapped in
 - storydescription - the story description text
 - acceptancecriteria - the story's acceptance criteria text, one criterion per line
 - passscore - the approval threshold number. Use THIS number in the scoring rule below; do not use any other threshold.
-- domainhints - optional domain glossary and business-rule guidance from the orchestrator. The literal value `none` means no hints were supplied. When present, use it as authoritative context when checking terminology, rule combinations, and coverage.
+- domainhints - optional domain glossary from the orchestrator. The literal value `none` means no hints were supplied. When present it is a TERMINOLOGY reference only: use it to check segment, loop and field names in titles and descriptions. It is never a source of required scenarios — a hint line that describes the environment, file naming or a grouping does not create a gap when no scenario mentions it.
 
 # Review checklist (work through each point)
 
@@ -108,7 +108,7 @@ After reviewing all points, assign:
   "approved": true | false,
   "feedback": "<one concise paragraph a generator could act on: exactly what to fix, add, or collapse>",
   "strengths": ["<what's good about this set, 0-3 items>"],
-  "gaps": ["<specific missing scenario or a redundant group to collapse, 0-5 items - be concrete: 'TS_002 and TS_005 differ only by the date field used, collapse to one parameterized scenario' not 'some redundancy'>"]
+  "gaps": ["<a missing scenario or a redundant group to collapse. Each gap MUST quote the acceptance criterion line or numbered story requirement it comes from; a story 'consideration', a 'where applicable' clause, or a domainhints line never creates a gap. There is no target number of gaps: an empty list is the normal result for a good set. Be concrete: 'TS_002 and TS_005 differ only by the date field used, collapse to one parameterized scenario' not 'some redundancy'>"]
 }
 
 # Rules

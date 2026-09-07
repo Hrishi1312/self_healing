@@ -1873,6 +1873,31 @@ check("with rounds left the empty chunk is retried, still without a re-review",
       _er["gen"] == 3 and _er["rev"] == 1, f"rev={_er['rev']} gen={_er['gen']}")
 T.exec_agent, T.fetch_story, T._secret = _orig_exec28, _f28, _c28
 
+# ────────────────────────────────────────────────────────────────────────────
+section("29. RUN 640764_114544  (unreviewed counted as ready, keptbest after a skipped review)")
+check("a skipped re-review never logs keptbest",
+      not any("step=keptbest" in l for l in res28["log"]),
+      str([l for l in res28["log"] if "keptbest" in l][:1]))
+_orig_exec29, _f29, _c29 = T.exec_agent, T.fetch_story, T._secret
+
+
+def noreview_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        return build_table(3, 3), 10
+    raise RuntimeError("reviewer down")
+
+
+T.exec_agent, T.fetch_story, T._secret = noreview_exec, fake_story, lambda k, f="": "t"
+res29 = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100, maxworkers=1,
+    maxhealrounds=1, deadlineseconds=120))))
+_out29 = [l for l in res29["log"] if "step=outcome" in l][0]
+check("cases that were never reviewed are not counted as ready",
+      "ready=0/3 testcases" in _out29 and "unreviewed=3" in _out29, _out29[-120:])
+T.exec_agent, T.fetch_story, T._secret = _orig_exec29, _f29, _c29
+
 
 print(f"\n{'=' * 70}\n{len(PASS)} passed, {len(FAIL)} failed")
 if FAIL:

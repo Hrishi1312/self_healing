@@ -980,7 +980,8 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             rec["table"] = parsed["table"]
             rec["chars"] = parsed["chars"]
             rec["testcasecount"] = len(parsed["ids"])
-            tablernd = rnd
+            if changed:
+                tablernd = rnd     # unchanged chunks are the same table as before
             # A full parse success supersedes any earlier round's error: the envelope's
             # error field reports only what ended the scenario, never a transient a later
             # round recovered from (640764_080233 showed "test case array is empty"
@@ -1790,10 +1791,14 @@ class AavaTestGenOrchestratorTwoStage(BaseTool):
         # is how the tool stopped trying, not how much output you got.
         flagged = [(r["scenarioid"], f) for r in records for f in r["flagged"]]
         total_tc = summary["testcases"]
+        # Run 640764_114544: TS_005 generated 11 cases, the budget ran out before its
+        # review, and all 11 were counted as ready. Never reviewed is not ready.
+        unreviewed_tc = sum(r["testcasecount"] for r in records if not r["scorehistory"])
         secs = budget.elapsed_ms() // 1000
         log.line("outcome", story=cfg["adostoryid"],
-                 ready=f"{total_tc - len(flagged)}/{total_tc} testcases",
+                 ready=f"{total_tc - len(flagged) - unreviewed_tc}/{total_tc} testcases",
                  flagged=len(flagged) or None,
+                 unreviewed=unreviewed_tc or None,
                  scenarios=len(records),
                  elapsed=f"{secs // 60}m{secs % 60:02d}s",
                  warnings=len(warnings) or None)
