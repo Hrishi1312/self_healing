@@ -1,0 +1,450 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "640764",
+    "title": "(ENR SUCC) DEV & TEST - 834E/U AR PASSE Transaction Effective Date Logic Update - EDI"
+  },
+  "summary": {
+    "scenarios": 12,
+    "approved": 6,
+    "unreviewed": 0,
+    "unhealed": 4,
+    "stagnant": 2,
+    "hardstop": 0,
+    "failed": 0,
+    "skipped": 0,
+    "testcases": 49,
+    "totalrounds": 20,
+    "agentcalls": 48,
+    "elapsedms": 450414
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "New enrollment uses Eligibility Date as transaction effective date regardless of Assessment Date",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        85,
+        92
+      ],
+      "passedhistory": [
+        0,
+        2
+      ],
+      "finalscore": 92,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 73857,
+      "elapsedms": 199072,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "Current eligibility uses Assessment Date when Assessment Date changes and relevant fields are unchanged",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        85,
+        96
+      ],
+      "passedhistory": [
+        1,
+        2
+      ],
+      "finalscore": 96,
+      "rounds": 2,
+      "testcasecount": 2,
+      "chars": 77262,
+      "elapsedms": 199229,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "Assessment Date change takes precedence when Assessment Date and relevant fields change together",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        92
+      ],
+      "passedhistory": [
+        1
+      ],
+      "finalscore": 92,
+      "rounds": 1,
+      "testcasecount": 1,
+      "chars": 46845,
+      "elapsedms": 79595,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Future eligibility with unchanged Assessment Date uses Eligibility Date when relevant fields change",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_006",
+          "why": "wrong Facets database path"
+        },
+        {
+          "id": "TC_007",
+          "why": "wrong Facets database path"
+        },
+        {
+          "id": "TC_008",
+          "why": "wrong Facets database path"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        7
+      ],
+      "finalscore": 85,
+      "rounds": 1,
+      "testcasecount": 10,
+      "chars": 309914,
+      "elapsedms": 405793,
+      "gaps": [
+        "Step Description field contains \"open database file C:\\Caresource\\Trizetto\\PZB_Files\\OH-Facets-crt_69.pzb\" which contradicts hint \"ENVIRONMENT CONSTANTS: ...\" and story context for Arkansas AR PASSE; also Coverage completeness gap: scenario description requires \"11) All relevant fields change together while the Assessment Date is unchanged.\" but no test case in the table covers all relevant fields together; TS_004 also requires \"11) All relevant fields change together while the Assessment Date is unchanged.\"; add a dedicated test case for it",
+        "Step Description field contains \"open C:\\Caresource\\Trizetto\\PZB_Files\\OH-Facets-crt_69.pzb\" which contradicts hint \"ENVIRONMENT CONSTANTS: ...\" and story context for Arkansas AR PASSE",
+        "Step Description field contains \"open database file C:\\Caresource\\Trizetto\\PZB_Files\\OH-Facets-crt_69.pzb\" which contradicts hint \"ENVIRONMENT CONSTANTS: ...\" and story context for Arkansas AR PASSE"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "Current eligibility with unchanged Assessment Date uses Maintenance Date when relevant fields change",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_017",
+          "why": "missing one scenario condition"
+        },
+        {
+          "id": "TC_019",
+          "why": "step count is too high"
+        },
+        {
+          "id": "TC_020",
+          "why": "step count is too low"
+        },
+        {
+          "id": "TC_021",
+          "why": "step count is too low"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        6
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 10,
+      "chars": 335048,
+      "elapsedms": 450367,
+      "gaps": [
+        "TC_002 is most closely related, but scenario description condition is missing from the table: \"2) Assessment Tier changes while the Assessment Date is unchanged.\" The table contains no test case for condition 11: \"11) All relevant fields change together while the Assessment Date is unchanged.\" Add a dedicated test case for it.",
+        "Test Case Id TC_004 has 20 steps, which exceeds stepsmax 40? No.",
+        "Test Case Id TC_004 Pre-condition contains incorrect file naming text: \"the inbound file is an update/change file for ARPasse using the CSAR daily naming pattern with U prefix\" which contradicts hint line \"FILE NAMING: the 'E' prefix is for new-enrollment files only; update/change files use the 'U' prefix with a control number specific to that test case.\"",
+        "Test Case Id TC_005 has 18 steps.",
+        "Test Case Id TC_006 has 18 steps."
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_006",
+      "title": "Eligibility Date versus Maintenance Date boundary resolves correctly when Assessment Date is unchanged",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_027",
+          "why": "missing dedicated condition coverage"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        2
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 93138,
+      "elapsedms": 163834,
+      "gaps": [
+        "TC_002 is the most closely related case, but scenario description also requires \"2) The Maintenance Date is exactly equal to the Eligibility Date, so the boundary outcome is resolved consistently with the story\u2019s prior-to-versus-after split. 3) The change is received after the Eligibility Date, so the winning date is the Maintenance Date.\" and the named grouping \"Pregnancy Indicator + Rate Cell\" from SEGMENT GLOSSARY is not covered by any test case; add a dedicated test case for it"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_010",
+      "title": "Only specified change scenarios use Maintenance Date",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_032",
+          "why": "too many steps"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        2,
+        3
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 4,
+      "chars": 140413,
+      "elapsedms": 282783,
+      "gaps": [
+        "TC_004 has 38 steps, but scenario limits are from \"{\"passscore\": 90, \"stepsmin\": 18, \"stepsmax\": 40}\" and measured count is 38"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_012",
+      "title": "Capitation and finance outcomes remain aligned after transaction effective date logic change",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        100
+      ],
+      "passedhistory": [
+        3
+      ],
+      "finalscore": 100,
+      "rounds": 1,
+      "testcasecount": 3,
+      "chars": 77176,
+      "elapsedms": 120434,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_007",
+      "title": "Winning-date source missing or unusable is handled without using an unsupported fallback date",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        85,
+        100
+      ],
+      "passedhistory": [
+        3,
+        4
+      ],
+      "finalscore": 100,
+      "rounds": 2,
+      "testcasecount": 4,
+      "chars": 151771,
+      "elapsedms": 262243,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_008",
+      "title": "File naming and file type route E and U transactions to the correct date-selection rule family",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_041",
+          "why": "wrong Facets database file named"
+        },
+        {
+          "id": "TC_042",
+          "why": "wrong Facets database file named"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        1,
+        1
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 3,
+      "chars": 79158,
+      "elapsedms": 218987,
+      "gaps": [
+        "Step 20 Step Description quotes \"enter the product file name OH-Facets-crt_69.pzb\" and Step 9 Step Description quotes \"open database file OH-Facets-crt_69.pzb\"; this contradicts the hint \"FILE NAMING: the 'E' prefix is for new-enrollment files only; update/change files use the 'U' prefix with a control number specific to that test case.\"? no",
+        "Step 9 Step Description quotes \"open database file OH-Facets-crt_69.pzb from C:\\Caresource\\Trizetto\\PZB_Files\"; this contradicts the hint line \"FACETS UI FIELDS this story's rule writes, verified in the UI by these literal labels: 'Eligibility Date' refreshes to the winning date, and '834 Spans Date Extension' reflects the changed relevant field.\"? no",
+        "Step 9 Step Description quotes \"open database file OH-Facets-crt_69.pzb from C:\\Caresource\\Trizetto\\PZB_Files\" while TC_003 Step 13 Step Description quotes \"load AR-Facets-crt_69.pzb\"; the batch uses conflicting Facets database file names for the same AR PASSE scenario.",
+        "Step 13 Step Description quotes \"load AR-Facets-crt_69.pzb\" while TC_001 Step 20 Step Description quotes \"enter the product file name OH-Facets-crt_69.pzb\" and TC_002 Step 9 Step Description quotes \"open database file OH-Facets-crt_69.pzb\"; the batch uses conflicting Facets database file names for the same AR PASSE scenario."
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_009",
+      "title": "Date identification and population support all three eligible date sources in Facets",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        100
+      ],
+      "passedhistory": [
+        3
+      ],
+      "finalscore": 100,
+      "rounds": 1,
+      "testcasecount": 3,
+      "chars": 96799,
+      "elapsedms": 120218,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_011",
+      "title": "Correct winning date persists in staging/archive across the story\u2019s rule paths",
+      "status": "stagnant",
+      "flagged": [
+        {
+          "id": "TC_047",
+          "why": "duplicate of another persistence case"
+        },
+        {
+          "id": "TC_049",
+          "why": "duplicate of another persistence case"
+        }
+      ],
+      "scorehistory": [
+        85,
+        85
+      ],
+      "passedhistory": [
+        2,
+        1
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 4,
+      "chars": 203588,
+      "elapsedms": 390581,
+      "gaps": [
+        "Semantic duplicate with Test Case Id 'TC_004': both validate the same business intent of persistence for the current-eligibility relevant-field change with unchanged Assessment Date using Maintenance Date. TC_002 already covers the same flow and assertions through archive, TM, staging rows, FACETS, and Facets UI in 'Verify AR PASSE current-eligibility Assessment Date change winning date persists through staging, archive, TM, FACETS, and Facets UI' alongside TC_004 'Verify AR PASSE update file persists the Maintenance Date as the winning transaction effective date for the current-eligibility relevant-field change with unchanged Assessment Date'.",
+        "Semantic duplicate with Test Case Id 'TC_002': both validate the same business intent of persistence for the current-eligibility relevant-field change with unchanged Assessment Date using Maintenance Date. TC_002 already covers the same flow and assertions through archive, TM, staging rows, FACETS, and Facets UI in 'Verify AR PASSE current-eligibility Assessment Date change winning date persists through staging, archive, TM, FACETS, and Facets UI' alongside TC_004 'Verify AR PASSE update file persists the Maintenance Date as the winning transaction effective date for the current-eligibility relevant-field change with unchanged Assessment Date'."
+      ],
+      "error": null
+    }
+  ],
+  "warnings": [],
+  "testcases": {
+    "rows": 1022,
+    "chars": 1681515,
+    "scenarios": 12,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-09-07T09:28:10Z step=handoff action=read path=scenarios/640764/scenarios.json scenarios=12",
+    "[ORCH] ts=2026-09-07T09:28:10Z step=start stage=testcases story=640764 maxscenarios=12 tcper=10 steps=18-40 rounds=2 workers=12 pass_=90/50 judge=709 scenjudge=off deadline=450s",
+    "[ORCH] ts=2026-09-07T09:28:10Z step=condtrim scenario=TS_004 listed=11 kept=10",
+    "[ORCH] ts=2026-09-07T09:28:10Z step=condtrim scenario=TS_005 listed=11 kept=10",
+    "[ORCH] ts=2026-09-07T09:28:55Z step=generate scenario=TS_006 round=1 chunk=1/1 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-09-07T09:29:15Z step=generate scenario=TS_003 round=1 chunk=1/1 tc=1 ids=TC_001 chars=46845 ms=65122",
+    "[ORCH] ts=2026-09-07T09:29:30Z step=review scenario=TS_003 round=1 score=92 passed=1/1 ms=14469",
+    "[ORCH] ts=2026-09-07T09:29:30Z step=result scenario=TS_003 status=approved scores=[92] rounds=1 tc=1 ms=79595",
+    "[ORCH] ts=2026-09-07T09:29:35Z step=generate scenario=TS_008 round=1 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=66219 ms=84606",
+    "[ORCH] ts=2026-09-07T09:29:35Z step=generate scenario=TS_002 round=1 chunk=1/1 tc=2 ids=TC_TS_002_01,TC_TS_002_02 chars=68042 ms=84694",
+    "[ORCH] ts=2026-09-07T09:29:35Z step=generate scenario=TS_010 round=1 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=51961 ms=85175",
+    "[ORCH] ts=2026-09-07T09:29:36Z step=generate scenario=TS_001 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=73320 ms=85497",
+    "[ORCH] ts=2026-09-07T09:29:50Z step=review scenario=TS_008 round=1 score=85 passed=1/3 failing=TC_001,TC_002 ms=14862",
+    "[ORCH] ts=2026-09-07T09:29:50Z step=review scenario=TS_002 round=1 score=85 passed=1/2 failing=TC_002 ms=14831",
+    "[ORCH] ts=2026-09-07T09:29:50Z step=review scenario=TS_001 round=1 score=85 passed=0/2 failing=TC_001,TC_002 ms=14830",
+    "[ORCH] ts=2026-09-07T09:29:55Z step=generate scenario=TS_011 round=1 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=140396 ms=104886",
+    "[ORCH] ts=2026-09-07T09:29:55Z step=generate scenario=TS_007 round=1 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=117053 ms=105031",
+    "[ORCH] ts=2026-09-07T09:29:56Z step=generate scenario=TS_009 round=1 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=96799 ms=105628",
+    "[ORCH] ts=2026-09-07T09:29:56Z step=generate scenario=TS_005 round=1 chunk=1/4 tc=3 ids=TC_TS005_001,TC_TS005_002,TC_TS005_003 chars=88152 ms=105847",
+    "[ORCH] ts=2026-09-07T09:29:56Z step=generate scenario=TS_012 round=1 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=77176 ms=105886",
+    "[ORCH] ts=2026-09-07T09:29:56Z step=generate scenario=TS_004 round=1 chunk=1/4 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=86452 ms=105923",
+    "[ORCH] ts=2026-09-07T09:30:10Z step=review scenario=TS_009 round=1 score=100 passed=3/3 ms=14581",
+    "[ORCH] ts=2026-09-07T09:30:10Z step=result scenario=TS_009 status=approved scores=[100] rounds=1 tc=3 ms=120218",
+    "[ORCH] ts=2026-09-07T09:30:11Z step=review scenario=TS_012 round=1 score=100 passed=3/3 ms=14540",
+    "[ORCH] ts=2026-09-07T09:30:11Z step=result scenario=TS_012 status=approved scores=[100] rounds=1 tc=3 ms=120434",
+    "[ORCH] ts=2026-09-07T09:30:39Z step=generate scenario=TS_006 round=2 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=93138 ms=104783 regen=1",
+    "[ORCH] ts=2026-09-07T09:30:54Z step=review scenario=TS_006 round=2 score=85 passed=2/3 failing=TC_002 ms=14577",
+    "[ORCH] ts=2026-09-07T09:30:54Z step=result scenario=TS_006 status=unhealed scores=[85] rounds=2 tc=3 ms=163834",
+    "[ORCH] ts=2026-09-07T09:31:00Z step=generate scenario=TS_007 round=1 chunk=2/2 tc=1 ids=TC_TS007_001 chars=32815 ms=64420",
+    "[ORCH] ts=2026-09-07T09:31:00Z step=generate scenario=TS_011 round=1 chunk=2/2 tc=1 ids=TC_001 chars=63506 ms=64559",
+    "[ORCH] ts=2026-09-07T09:31:00Z step=generate scenario=TS_010 round=1 chunk=2/2 tc=1 ids=TC_001 chars=74477 ms=84463",
+    "[ORCH] ts=2026-09-07T09:31:14Z step=review scenario=TS_007 round=1 score=85 passed=3/4 failing=TC_004 ms=14546",
+    "[ORCH] ts=2026-09-07T09:31:14Z step=review scenario=TS_010 round=1 score=85 passed=2/4 failing=TC_002,TC_003 ms=14536",
+    "[ORCH] ts=2026-09-07T09:31:15Z step=generate scenario=TS_002 round=2 chunk=1/1 tc=2 ids=TC_TS_002_01,TC_TS_002_02 chars=77514 ms=84980 regen=1 kept=1",
+    "[ORCH] ts=2026-09-07T09:31:15Z step=generate scenario=TS_001 round=2 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=73857 ms=84228 regen=2",
+    "[ORCH] ts=2026-09-07T09:31:26Z step=review scenario=TS_011 round=1 score=85 passed=2/4 failing=TC_002,TC_004 ms=26174",
+    "[ORCH] ts=2026-09-07T09:31:29Z step=review scenario=TS_001 round=2 score=92 passed=2/2 ms=14500",
+    "[ORCH] ts=2026-09-07T09:31:29Z step=result scenario=TS_001 status=approved scores=[85, 92] rounds=2 tc=2 ms=199072",
+    "[ORCH] ts=2026-09-07T09:31:29Z step=review scenario=TS_002 round=2 score=96 passed=2/2 ms=14708",
+    "[ORCH] ts=2026-09-07T09:31:29Z step=result scenario=TS_002 status=approved scores=[85, 96] rounds=2 tc=2 ms=199229",
+    "[ORCH] ts=2026-09-07T09:31:35Z step=generate scenario=TS_008 round=2 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=79158 ms=105020 regen=2 kept=1",
+    "[ORCH] ts=2026-09-07T09:31:41Z step=generate scenario=TS_005 round=1 chunk=2/4 tc=3 ids=TC_TS_005_001,TC_TS_005_002,TC_TS_005_003 chars=89305 ms=104601",
+    "[ORCH] ts=2026-09-07T09:31:41Z step=generate scenario=TS_004 round=1 chunk=2/4 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=82462 ms=105056",
+    "[ORCH] ts=2026-09-07T09:31:49Z step=review scenario=TS_008 round=2 score=85 passed=1/3 failing=TC_002,TC_003 ms=14483",
+    "[ORCH] ts=2026-09-07T09:31:49Z step=stagnant scenario=TS_008 round=2 scores=[85, 85] passed=[1, 1]",
+    "[ORCH] ts=2026-09-07T09:31:49Z step=result scenario=TS_008 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=218987",
+    "[ORCH] ts=2026-09-07T09:32:18Z step=generate scenario=TS_007 round=2 chunk=2/2 tc=1 ids=TC_TS007_001 chars=35152 ms=63837 regen=1",
+    "[ORCH] ts=2026-09-07T09:32:32Z step=review scenario=TS_007 round=2 score=100 passed=4/4 ms=14381",
+    "[ORCH] ts=2026-09-07T09:32:32Z step=result scenario=TS_007 status=approved scores=[85, 100] rounds=2 tc=4 ms=262243",
+    "[ORCH] ts=2026-09-07T09:32:38Z step=generate scenario=TS_010 round=2 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=66250 ms=84102 regen=2 kept=1",
+    "[ORCH] ts=2026-09-07T09:32:53Z step=review scenario=TS_010 round=2 score=85 passed=3/4 failing=TC_004 ms=14480",
+    "[ORCH] ts=2026-09-07T09:32:53Z step=result scenario=TS_010 status=unhealed scores=[85, 85] rounds=2 tc=4 ms=282783",
+    "[ORCH] ts=2026-09-07T09:33:05Z step=generate scenario=TS_005 round=1 chunk=3/4 tc=3 ids=TC_TS005_001,TC_TS005_002,TC_TS005_003 chars=83451 ms=84194",
+    "[ORCH] ts=2026-09-07T09:33:10Z step=generate scenario=TS_011 round=2 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=136724 ms=104247 regen=1 kept=2",
+    "[ORCH] ts=2026-09-07T09:33:26Z step=generate scenario=TS_004 round=1 chunk=3/4 tc=3 ids=TC_001,TC_002,TC_003 chars=106924 ms=104616",
+    "[ORCH] ts=2026-09-07T09:34:08Z step=generate scenario=TS_005 round=1 chunk=4/4 tc=1 ids=TC_001 chars=76146 ms=63701",
+    "[ORCH] ts=2026-09-07T09:34:14Z step=generate scenario=TS_011 round=2 chunk=2/2 tc=1 ids=TC_001 chars=50848 ms=64414 regen=1",
+    "[ORCH] ts=2026-09-07T09:34:30Z step=generate scenario=TS_004 round=1 chunk=4/4 tc=1 ids=TC_001 chars=35678 ms=64043",
+    "[ORCH] ts=2026-09-07T09:34:35Z step=review scenario=TS_005 round=1 score=85 passed=6/10 failing=TC_002,TC_004,TC_005,TC_006 ms=26392",
+    "[ORCH] ts=2026-09-07T09:34:41Z step=review scenario=TS_011 round=2 score=85 passed=1/4 failing=TC_001,TC_002,TC_003 ms=26265",
+    "[ORCH] ts=2026-09-07T09:34:41Z step=stagnant scenario=TS_011 round=2 scores=[85, 85] passed=[2, 1]",
+    "[ORCH] ts=2026-09-07T09:34:41Z step=keptbest scenario=TS_011 round=1 passed=2 note=later round was worse, shipping the best reviewed round",
+    "[ORCH] ts=2026-09-07T09:34:41Z step=result scenario=TS_011 status=stagnant scores=[85, 85] rounds=2 tc=4 ms=390581",
+    "[ORCH] ts=2026-09-07T09:34:56Z step=review scenario=TS_004 round=1 score=85 passed=7/10 failing=TC_001,TC_002,TC_003 ms=26125",
+    "[ORCH] ts=2026-09-07T09:34:56Z step=budget scenario=TS_004 round=2 note=stopped, budget low",
+    "[ORCH] ts=2026-09-07T09:34:56Z step=result scenario=TS_004 status=unhealed scores=[85] rounds=1 tc=10 ms=405793",
+    "[ORCH] ts=2026-09-07T09:35:40Z step=generate scenario=TS_005 round=2 chunk=1/4 error=generate:TS_005: agent 689 still IN_PROGRESS when the budget ran out (execution c57af84d-6169-47f2-aa66-b3c5740f5a52)",
+    "[ORCH] ts=2026-09-07T09:35:40Z step=generate scenario=TS_005 round=2 chunk=2/4 error=budget exhausted before call",
+    "[ORCH] ts=2026-09-07T09:35:40Z step=review scenario=TS_005 round=2 error=budget exhausted before call",
+    "[ORCH] ts=2026-09-07T09:35:40Z step=keptbest scenario=TS_005 round=1 passed=6 note=later round was worse, shipping the best reviewed round",
+    "[ORCH] ts=2026-09-07T09:35:40Z step=result scenario=TS_005 status=unhealed scores=[85] rounds=2 tc=10 ms=450367",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=renumber scenario=TS_002 ids=TC_001>TC_003,TC_002>TC_004",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=renumber scenario=TS_003 ids=TC_001>TC_005",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=renumber scenario=TS_004 ids=TC_001>TC_006,TC_002>TC_007,TC_003>TC_008,TC_004>TC_009,TC_005>TC_010,TC_006>TC_011,TC_007>TC_012,TC_008>TC_013,TC_009>TC_014,TC_010>TC_015",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=renumber scenario=TS_005 ids=TC_001>TC_016,TC_002>TC_017,TC_003>TC_018,TC_004>TC_019,TC_005>TC_020,TC_006>TC_021,TC_007>TC_022,TC_008>TC_023,TC_009>TC_024,TC_010>TC_025",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=renumber scenario=TS_006 ids=TC_001>TC_026,TC_002>TC_027,TC_003>TC_028",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=renumber scenario=TS_010 ids=TC_001>TC_029,TC_002>TC_030,TC_003>TC_031,TC_004>TC_032",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=renumber scenario=TS_012 ids=TC_001>TC_033,TC_002>TC_034,TC_003>TC_035",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=renumber scenario=TS_007 ids=TC_001>TC_036,TC_002>TC_037,TC_003>TC_038,TC_004>TC_039",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=renumber scenario=TS_008 ids=TC_001>TC_040,TC_002>TC_041,TC_003>TC_042",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=renumber scenario=TS_009 ids=TC_001>TC_043,TC_002>TC_044,TC_003>TC_045",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=renumber scenario=TS_011 ids=TC_001>TC_046,TC_002>TC_047,TC_003>TC_048,TC_004>TC_049",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=done approved=6 unreviewed=0 unhealed=4 stagnant=2 hardstop=0 failed=0 skipped=0 testcases=49 agentcalls=48 ms=450414",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=outcome story=640764 ready=36/49 testcases flagged=13 scenarios=12 elapsed=7m30s",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=flagged tc=TC_006 scenario=TS_004 why=wrong Facets database path",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=flagged tc=TC_007 scenario=TS_004 why=wrong Facets database path",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=flagged tc=TC_008 scenario=TS_004 why=wrong Facets database path",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=flagged tc=TC_017 scenario=TS_005 why=missing one scenario condition",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=flagged tc=TC_019 scenario=TS_005 why=step count is too high",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=flagged tc=TC_020 scenario=TS_005 why=step count is too low",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=flagged tc=TC_021 scenario=TS_005 why=step count is too low",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=flagged tc=TC_027 scenario=TS_006 why=missing dedicated condition coverage",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=flagged tc=TC_032 scenario=TS_010 why=too many steps",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=flagged tc=TC_041 scenario=TS_008 why=wrong Facets database file named",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=flagged tc=TC_042 scenario=TS_008 why=wrong Facets database file named",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=flagged tc=TC_047 scenario=TS_011 why=duplicate of another persistence case",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=flagged tc=TC_049 scenario=TS_011 why=duplicate of another persistence case",
+    "[ORCH] ts=2026-09-07T09:35:41Z step=detail calls=48 rounds=20 scoreboard=TS_001:approved(85>92)  TS_002:approved(85>96)  TS_003:approved(92)  TS_004:unhealed(85)  TS_005:unhealed(85)  TS_006:unhealed(85)  TS_010:unhealed(85>85)  TS_012:approved(100)  TS_007:approved(85>100)  TS_008:stagnant(85>85)  TS_009:approved(100)  TS_011:stagnant(85>85)"
+  ]
+}
