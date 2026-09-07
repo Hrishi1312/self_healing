@@ -1,0 +1,327 @@
+{
+  "status": "completed",
+  "story": {
+    "id": "640764",
+    "title": "(ENR SUCC) DEV & TEST - 834E/U AR PASSE Transaction Effective Date Logic Update - EDI"
+  },
+  "summary": {
+    "scenarios": 10,
+    "approved": 8,
+    "unreviewed": 0,
+    "unhealed": 2,
+    "stagnant": 0,
+    "hardstop": 0,
+    "failed": 0,
+    "skipped": 0,
+    "testcases": 38,
+    "totalrounds": 14,
+    "agentcalls": 39,
+    "elapsedms": 450389
+  },
+  "scenarios": [
+    {
+      "scenarioid": "TS_001",
+      "title": "Populate Eligibility Date for new enrollment before eligibility span begins",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        100
+      ],
+      "passedhistory": [
+        3
+      ],
+      "finalscore": 100,
+      "rounds": 1,
+      "testcasecount": 3,
+      "chars": 104751,
+      "elapsedms": 152532,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_002",
+      "title": "Populate Assessment Date for current eligibility when Assessment Date changes and relevant fields stay unchanged",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        96
+      ],
+      "passedhistory": [
+        2
+      ],
+      "finalscore": 96,
+      "rounds": 1,
+      "testcasecount": 2,
+      "chars": 77244,
+      "elapsedms": 132565,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_003",
+      "title": "Populate Eligibility Date for future eligibility when Assessment Date is unchanged and relevant fields change",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_010",
+          "why": "wrong SQL syntax in one step"
+        },
+        {
+          "id": "TC_011",
+          "why": "wrong SQL syntax in one step"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        6
+      ],
+      "finalscore": 85,
+      "rounds": 1,
+      "testcasecount": 8,
+      "chars": 307525,
+      "elapsedms": 402965,
+      "gaps": [
+        "Step Description field: \"Run the crosswalk verification query on crt_69.sql.caresource.corp\\crt_69 using the exact table name evidenced in the manual tests: select * from CMC_MELC_LSTY_CD(nolock) where MEME_CK='[TEST DATA: member key returned for the target SSN]';\" contradicts hint line: \"Never name a date by a bare element position such as DTP01, DTP02 or DTP03.\" is not applicable; actual contradiction is with valid SQL/table usage in the table itself: \"CMC_MELC_LSTY_CD(nolock)\" in Step Description is malformed SQL/table syntax and is the exact offending text.",
+        "Step Description field: \"Run the crosswalk verification query on crt_69.sql.caresource.corp\\crt_69 using the evidenced table name: select * from CMC_MELC_LSTY_CD(nolock) where MEME_CK='[TEST DATA: member key returned for the target SSN]';\" contains malformed SQL/table syntax: \"CMC_MELC_LSTY_CD(nolock)\""
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_004",
+      "title": "Populate Maintenance Date for current eligibility when Assessment Date is unchanged and relevant fields change",
+      "status": "unhealed",
+      "flagged": [
+        {
+          "id": "TC_015",
+          "why": "includes unscripted validation steps"
+        },
+        {
+          "id": "TC_017",
+          "why": "missing scenario coverage"
+        }
+      ],
+      "scorehistory": [
+        85
+      ],
+      "passedhistory": [
+        4
+      ],
+      "finalscore": 85,
+      "rounds": 2,
+      "testcasecount": 6,
+      "chars": 186427,
+      "elapsedms": 450357,
+      "gaps": [
+        "Expected Result contains unscripted content in field 'Expected Result': \"No matching crosswalk validation can be authoritatively scripted from the retrieved knowledge because the exact crosswalk table and column names were not returned; runtime schema confirmation is required and no exception row should be found once the correct object is identified.\"",
+        "Expected Result contains unscripted content in field 'Expected Result': \"No matching MELC validation can be authoritatively scripted from the retrieved knowledge because the exact MELC table and column names were not returned; runtime schema confirmation is required and no MELC row should exist for this accepted transaction.\"",
+        "TS_004 also requires \"12) Multiple Maintenance Date occurrences are present in the file and the first Maintenance Date occurrence is the one used as the winning date.\"; add a dedicated test case for it"
+      ],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_005",
+      "title": "Do not use Maintenance Date for new enrollment transactions",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        92
+      ],
+      "passedhistory": [
+        2
+      ],
+      "finalscore": 92,
+      "rounds": 1,
+      "testcasecount": 2,
+      "chars": 61432,
+      "elapsedms": 132171,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_006",
+      "title": "Do not use Eligibility Date or Maintenance Date when current eligibility has a changed Assessment Date",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        92
+      ],
+      "passedhistory": [
+        2
+      ],
+      "finalscore": 92,
+      "rounds": 1,
+      "testcasecount": 2,
+      "chars": 57963,
+      "elapsedms": 117541,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_009",
+      "title": "Regression validation of capitation and finance reporting after selective date logic update",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        85,
+        95
+      ],
+      "passedhistory": [
+        3,
+        4
+      ],
+      "finalscore": 95,
+      "rounds": 2,
+      "testcasecount": 4,
+      "chars": 179364,
+      "elapsedms": 328205,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_007",
+      "title": "Identify all three inbound business dates for selective transaction effective date population",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        85,
+        92
+      ],
+      "passedhistory": [
+        3,
+        4
+      ],
+      "finalscore": 92,
+      "rounds": 2,
+      "testcasecount": 4,
+      "chars": 118026,
+      "elapsedms": 274704,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_008",
+      "title": "Verify staging persistence for each transaction effective date rule path",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        85,
+        96
+      ],
+      "passedhistory": [
+        3,
+        4
+      ],
+      "finalscore": 96,
+      "rounds": 2,
+      "testcasecount": 4,
+      "chars": 162831,
+      "elapsedms": 321591,
+      "gaps": [],
+      "error": null
+    },
+    {
+      "scenarioid": "TS_010",
+      "title": "Maintain backward compatibility while applying selective winning-date logic",
+      "status": "approved",
+      "flagged": [],
+      "scorehistory": [
+        92
+      ],
+      "passedhistory": [
+        3
+      ],
+      "finalscore": 92,
+      "rounds": 1,
+      "testcasecount": 3,
+      "chars": 102176,
+      "elapsedms": 145443,
+      "gaps": [],
+      "error": null
+    }
+  ],
+  "warnings": [],
+  "testcases": {
+    "rows": 808,
+    "chars": 1354913,
+    "scenarios": 10,
+    "where": "activity log, between [ORCH-TABLE-BEGIN] and [ORCH-TABLE-END]"
+  },
+  "log": [
+    "[ORCH] ts=2026-09-07T12:28:29Z step=handoff action=read path=scenarios/640764/scenarios.json scenarios=10",
+    "[ORCH] ts=2026-09-07T12:28:29Z step=start stage=testcases story=640764 maxscenarios=10 tcper=12 steps=18-40 rounds=2 workers=10 pass_=90/50 judge=709 scenjudge=off deadline=450s",
+    "[ORCH] ts=2026-09-07T12:29:07Z step=agenterror label=generate:TS_003 agentid=689 phase=poll status=FAILED execution=d9756dff-93d9-488c-818a-421f6693864a ms=38274 why={\"executionId\": \"d9756dff-93d9-488c-818a-421f6693864a\", \"agentId\": 689, \"output\": null, \"agentName\": \"Self Healing EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\"",
+    "[ORCH] ts=2026-09-07T12:29:07Z step=agentretry label=generate:TS_003 agentid=689 execution=d9756dff-93d9-488c-818a-421f6693864a note=resubmitting once after a platform FAILED",
+    "[ORCH] ts=2026-09-07T12:29:07Z step=agenterror label=generate:TS_006 agentid=689 phase=poll status=FAILED execution=d5f7aba4-a7a5-4be7-b9ff-54c52d0b83f0 ms=38293 why={\"executionId\": \"d5f7aba4-a7a5-4be7-b9ff-54c52d0b83f0\", \"agentId\": 689, \"output\": null, \"agentName\": \"Self Healing EDI 834 Inbound Test Case Generation\", \"executedBy\": \"Hrishikesh.Rode@caresource.com\"",
+    "[ORCH] ts=2026-09-07T12:29:07Z step=agentretry label=generate:TS_006 agentid=689 execution=d5f7aba4-a7a5-4be7-b9ff-54c52d0b83f0 note=resubmitting once after a platform FAILED",
+    "[ORCH] ts=2026-09-07T12:30:11Z step=generate scenario=TS_006 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=57963 ms=102397",
+    "[ORCH] ts=2026-09-07T12:30:14Z step=generate scenario=TS_007 round=1 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=74884 ms=105485",
+    "[ORCH] ts=2026-09-07T12:30:15Z step=generate scenario=TS_004 round=1 chunk=1/4 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=86688 ms=105538",
+    "[ORCH] ts=2026-09-07T12:30:27Z step=generate scenario=TS_002 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=77244 ms=117524",
+    "[ORCH] ts=2026-09-07T12:30:27Z step=review scenario=TS_006 round=1 score=92 passed=2/2 ms=15128",
+    "[ORCH] ts=2026-09-07T12:30:27Z step=generate scenario=TS_005 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=61432 ms=117535",
+    "[ORCH] ts=2026-09-07T12:30:27Z step=result scenario=TS_006 status=approved scores=[92] rounds=1 tc=2 ms=117541",
+    "[ORCH] ts=2026-09-07T12:30:40Z step=generate scenario=TS_010 round=1 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=102176 ms=130853",
+    "[ORCH] ts=2026-09-07T12:30:41Z step=generate scenario=TS_008 round=1 chunk=1/2 tc=3 ids=TC_TS008_001,TC_TS008_002,TC_TS008_003 chars=94422 ms=131520",
+    "[ORCH] ts=2026-09-07T12:30:41Z step=review scenario=TS_005 round=1 score=92 passed=2/2 ms=14630",
+    "[ORCH] ts=2026-09-07T12:30:41Z step=result scenario=TS_005 status=approved scores=[92] rounds=1 tc=2 ms=132171",
+    "[ORCH] ts=2026-09-07T12:30:42Z step=review scenario=TS_002 round=1 score=96 passed=2/2 ms=15033",
+    "[ORCH] ts=2026-09-07T12:30:42Z step=result scenario=TS_002 status=approved scores=[96] rounds=1 tc=2 ms=132565",
+    "[ORCH] ts=2026-09-07T12:30:47Z step=generate scenario=TS_009 round=1 chunk=1/2 tc=3 ids=TC_001,TC_002,TC_003 chars=102206 ms=137742",
+    "[ORCH] ts=2026-09-07T12:30:47Z step=generate scenario=TS_001 round=1 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=104751 ms=137836",
+    "[ORCH] ts=2026-09-07T12:30:52Z step=generate scenario=TS_003 round=1 chunk=1/4 tc=3 ids=TC_001,TC_002,TC_003 chars=95456 ms=142817",
+    "[ORCH] ts=2026-09-07T12:30:54Z step=review scenario=TS_010 round=1 score=92 passed=3/3 ms=14576",
+    "[ORCH] ts=2026-09-07T12:30:54Z step=result scenario=TS_010 status=approved scores=[92] rounds=1 tc=3 ms=145443",
+    "[ORCH] ts=2026-09-07T12:30:58Z step=generate scenario=TS_004 round=1 chunk=2/4 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-09-07T12:31:02Z step=review scenario=TS_001 round=1 score=100 passed=3/3 ms=14685",
+    "[ORCH] ts=2026-09-07T12:31:02Z step=result scenario=TS_001 status=approved scores=[100] rounds=1 tc=3 ms=152532",
+    "[ORCH] ts=2026-09-07T12:31:18Z step=generate scenario=TS_007 round=1 chunk=2/2 tc=1 ids=TC_001 chars=43665 ms=63870",
+    "[ORCH] ts=2026-09-07T12:31:35Z step=generate scenario=TS_003 round=1 chunk=2/4 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-09-07T12:31:44Z step=review scenario=TS_007 round=1 score=85 passed=3/4 failing=TC_004 ms=25966",
+    "[ORCH] ts=2026-09-07T12:32:05Z step=generate scenario=TS_008 round=1 chunk=2/2 tc=1 ids=TC_001 chars=77676 ms=84656",
+    "[ORCH] ts=2026-09-07T12:32:11Z step=generate scenario=TS_009 round=1 chunk=2/2 tc=1 ids=TC_001 chars=56100 ms=84522",
+    "[ORCH] ts=2026-09-07T12:32:32Z step=review scenario=TS_008 round=1 score=85 passed=3/4 failing=TC_004 ms=26582",
+    "[ORCH] ts=2026-09-07T12:32:38Z step=review scenario=TS_009 round=1 score=85 passed=3/4 failing=TC_004 ms=27007",
+    "[ORCH] ts=2026-09-07T12:32:43Z step=generate scenario=TS_004 round=1 chunk=3/4 tc=3 ids=TC_001,TC_002,TC_003 chars=100377 ms=104529",
+    "[ORCH] ts=2026-09-07T12:32:49Z step=generate scenario=TS_007 round=2 chunk=2/2 tc=1 ids=TC_001 chars=43456 ms=64407 regen=1",
+    "[ORCH] ts=2026-09-07T12:33:04Z step=review scenario=TS_007 round=2 score=92 passed=4/4 ms=14954",
+    "[ORCH] ts=2026-09-07T12:33:04Z step=result scenario=TS_007 status=approved scores=[85, 92] rounds=2 tc=4 ms=274704",
+    "[ORCH] ts=2026-09-07T12:33:10Z step=generate scenario=TS_004 round=1 chunk=4/4 error=test case array is empty raw=[]",
+    "[ORCH] ts=2026-09-07T12:33:21Z step=generate scenario=TS_003 round=1 chunk=3/4 tc=3 ids=TC_001,TC_002,TC_003 chars=133994 ms=105686",
+    "[ORCH] ts=2026-09-07T12:33:36Z step=generate scenario=TS_008 round=2 chunk=2/2 tc=1 ids=TC_001 chars=69077 ms=64178 regen=1",
+    "[ORCH] ts=2026-09-07T12:33:36Z step=review scenario=TS_004 round=1 score=85 passed=4/6 failing=TC_002,TC_004 ms=26325",
+    "[ORCH] ts=2026-09-07T12:33:42Z step=generate scenario=TS_009 round=2 chunk=2/2 tc=1 ids=TC_001 chars=77472 ms=64192 regen=1",
+    "[ORCH] ts=2026-09-07T12:33:51Z step=review scenario=TS_008 round=2 score=96 passed=4/4 ms=14626",
+    "[ORCH] ts=2026-09-07T12:33:51Z step=result scenario=TS_008 status=approved scores=[85, 96] rounds=2 tc=4 ms=321591",
+    "[ORCH] ts=2026-09-07T12:33:57Z step=review scenario=TS_009 round=2 score=95 passed=4/4 ms=14712",
+    "[ORCH] ts=2026-09-07T12:33:57Z step=result scenario=TS_009 status=approved scores=[85, 95] rounds=2 tc=4 ms=328205",
+    "[ORCH] ts=2026-09-07T12:34:46Z step=generate scenario=TS_003 round=1 chunk=4/4 tc=2 ids=TC_TS003_001,TC_TS003_002 chars=78961 ms=84620",
+    "[ORCH] ts=2026-09-07T12:35:01Z step=generate scenario=TS_004 round=2 chunk=1/4 tc=3 ids=TC_TS004_001,TC_TS004_002,TC_TS004_003 chars=87988 ms=84318 regen=1 kept=2",
+    "[ORCH] ts=2026-09-07T12:35:12Z step=review scenario=TS_003 round=1 score=85 passed=6/8 failing=TC_005,TC_006 ms=26186",
+    "[ORCH] ts=2026-09-07T12:35:12Z step=budget scenario=TS_003 round=2 note=stopped, budget low",
+    "[ORCH] ts=2026-09-07T12:35:12Z step=result scenario=TS_003 status=unhealed scores=[85] rounds=1 tc=8 ms=402965",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=generate scenario=TS_004 round=2 chunk=2/4 error=generate:TS_004: agent 689 still IN_PROGRESS when the budget ran out (execution 83cbb8af-b128-40b9-b2c6-b1f9c35c0a74)",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=generate scenario=TS_004 round=2 chunk=3/4 error=budget exhausted before call",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=generate scenario=TS_004 round=2 chunk=4/4 error=budget exhausted before call",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=review scenario=TS_004 round=2 error=budget exhausted before call",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=keptbest scenario=TS_004 round=1 passed=4 note=later round was worse, shipping the best reviewed round",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=result scenario=TS_004 status=unhealed scores=[85] rounds=2 tc=6 ms=450357",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=renumber scenario=TS_002 ids=TC_001>TC_004,TC_002>TC_005",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=renumber scenario=TS_003 ids=TC_001>TC_006,TC_002>TC_007,TC_003>TC_008,TC_004>TC_009,TC_005>TC_010,TC_006>TC_011,TC_007>TC_012,TC_008>TC_013",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=renumber scenario=TS_004 ids=TC_001>TC_014,TC_002>TC_015,TC_003>TC_016,TC_004>TC_017,TC_005>TC_018,TC_006>TC_019",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=renumber scenario=TS_005 ids=TC_001>TC_020,TC_002>TC_021",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=renumber scenario=TS_006 ids=TC_001>TC_022,TC_002>TC_023",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=renumber scenario=TS_009 ids=TC_001>TC_024,TC_002>TC_025,TC_003>TC_026,TC_004>TC_027",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=renumber scenario=TS_007 ids=TC_001>TC_028,TC_002>TC_029,TC_003>TC_030,TC_004>TC_031",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=renumber scenario=TS_008 ids=TC_001>TC_032,TC_002>TC_033,TC_003>TC_034,TC_004>TC_035",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=renumber scenario=TS_010 ids=TC_001>TC_036,TC_002>TC_037,TC_003>TC_038",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=done approved=8 unreviewed=0 unhealed=2 stagnant=0 hardstop=0 failed=0 skipped=0 testcases=38 agentcalls=39 ms=450389",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=outcome story=640764 ready=34/38 testcases flagged=4 scenarios=10 elapsed=7m30s",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=flagged tc=TC_010 scenario=TS_003 why=wrong SQL syntax in one step",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=flagged tc=TC_011 scenario=TS_003 why=wrong SQL syntax in one step",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=flagged tc=TC_015 scenario=TS_004 why=includes unscripted validation steps",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=flagged tc=TC_017 scenario=TS_004 why=missing scenario coverage",
+    "[ORCH] ts=2026-09-07T12:35:59Z step=detail calls=39 rounds=14 scoreboard=TS_001:approved(100)  TS_002:approved(96)  TS_003:unhealed(85)  TS_004:unhealed(85)  TS_005:approved(92)  TS_006:approved(92)  TS_009:approved(85>95)  TS_007:approved(85>92)  TS_008:approved(85>96)  TS_010:approved(92)"
+  ]
+}
