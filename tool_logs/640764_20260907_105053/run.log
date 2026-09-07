@@ -1,0 +1,68 @@
+[ORCH] ts=2026-09-07T10:43:31Z step=handoff action=read path=scenarios/640764/scenarios.json scenarios=9
+[ORCH] ts=2026-09-07T10:43:31Z step=start stage=testcases story=640764 maxscenarios=9 tcper=12 steps=18-40 rounds=2 workers=9 pass_=90/50 judge=709 scenjudge=off deadline=450s
+[ORCH] ts=2026-09-07T10:44:55Z step=generate scenario=TS_001 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=77809 ms=84040
+[ORCH] ts=2026-09-07T10:44:55Z step=generate scenario=TS_002 round=1 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=90495 ms=84408
+[ORCH] ts=2026-09-07T10:44:56Z step=generate scenario=TS_005 round=1 chunk=1/1 tc=2 ids=TC_001,TC_002 chars=72027 ms=85119
+[ORCH] ts=2026-09-07T10:44:56Z step=generate scenario=TS_006 round=1 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=77058 ms=85130
+[ORCH] ts=2026-09-07T10:45:09Z step=review scenario=TS_001 round=1 score=92 passed=2/2 ms=14696
+[ORCH] ts=2026-09-07T10:45:09Z step=result scenario=TS_001 status=approved scores=[92] rounds=1 tc=2 ms=98744
+[ORCH] ts=2026-09-07T10:45:10Z step=review scenario=TS_005 round=1 score=92 passed=2/2 ms=14508
+[ORCH] ts=2026-09-07T10:45:10Z step=result scenario=TS_005 status=approved scores=[92] rounds=1 tc=2 ms=99686
+[ORCH] ts=2026-09-07T10:45:10Z step=review scenario=TS_002 round=1 score=85 passed=2/3 failing=TC_002 ms=15379
+[ORCH] ts=2026-09-07T10:45:10Z step=review scenario=TS_006 round=1 score=96 passed=3/3 ms=14689
+[ORCH] ts=2026-09-07T10:45:10Z step=result scenario=TS_006 status=approved scores=[96] rounds=1 tc=3 ms=99848
+[ORCH] ts=2026-09-07T10:45:16Z step=generate scenario=TS_003 round=1 chunk=1/4 tc=3 ids=TC_001,TC_002,TC_003 chars=83340 ms=105167
+[ORCH] ts=2026-09-07T10:45:16Z step=generate scenario=TS_009 round=1 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=108297 ms=105517
+[ORCH] ts=2026-09-07T10:45:16Z step=generate scenario=TS_008 round=1 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=97431 ms=105782
+[ORCH] ts=2026-09-07T10:45:16Z step=generate scenario=TS_007 round=1 chunk=1/1 tc=3 ids=TC_TS_007_001,TC_TS_007_002,TC_TS_007_003 chars=104217 ms=105932
+[ORCH] ts=2026-09-07T10:45:17Z step=generate scenario=TS_004 round=1 chunk=1/4 tc=3 ids=TC_001,TC_002,TC_003 chars=102784 ms=105963
+[ORCH] ts=2026-09-07T10:45:30Z step=review scenario=TS_009 round=1 score=92 passed=3/3 ms=14268
+[ORCH] ts=2026-09-07T10:45:30Z step=result scenario=TS_009 status=approved scores=[92] rounds=1 tc=3 ms=119795
+[ORCH] ts=2026-09-07T10:45:37Z step=generate scenario=TS_002 round=2 chunk=1/1 error=test case array is empty raw=[]
+[ORCH] ts=2026-09-07T10:45:42Z step=review scenario=TS_008 round=1 score=85 passed=1/3 failing=TC_002,TC_003 ms=25927
+[ORCH] ts=2026-09-07T10:45:42Z step=review scenario=TS_007 round=1 score=85 passed=2/3 failing=TC_003 ms=25897
+[ORCH] ts=2026-09-07T10:45:51Z step=review scenario=TS_002 round=2 score=85 passed=2/3 failing=TC_002 ms=14199
+[ORCH] ts=2026-09-07T10:45:51Z step=stagnant scenario=TS_002 round=2 scores=[85, 85] passed=[2, 2]
+[ORCH] ts=2026-09-07T10:45:51Z step=result scenario=TS_002 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=140349
+[ORCH] ts=2026-09-07T10:46:40Z step=generate scenario=TS_004 round=1 chunk=2/4 tc=3 ids=TC_001,TC_002,TC_003 chars=78757 ms=83970
+[ORCH] ts=2026-09-07T10:47:00Z step=generate scenario=TS_003 round=1 chunk=2/4 tc=3 ids=TC_001,TC_002,TC_003 chars=106174 ms=104264
+[ORCH] ts=2026-09-07T10:47:27Z step=generate scenario=TS_008 round=2 chunk=1/1 tc=3 ids=TC_001,TC_002,TC_003 chars=98582 ms=104357 regen=2 kept=1
+[ORCH] ts=2026-09-07T10:47:27Z step=generate scenario=TS_007 round=2 chunk=1/1 tc=3 ids=TC_TS_007_001,TC_TS_007_002,TC_TS_007_003 chars=105372 ms=104435 regen=1 kept=2
+[ORCH] ts=2026-09-07T10:47:41Z step=review scenario=TS_008 round=2 score=85 passed=1/3 failing=TC_002,TC_003 ms=14508
+[ORCH] ts=2026-09-07T10:47:41Z step=stagnant scenario=TS_008 round=2 scores=[85, 85] passed=[1, 1]
+[ORCH] ts=2026-09-07T10:47:41Z step=result scenario=TS_008 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=250595
+[ORCH] ts=2026-09-07T10:47:41Z step=review scenario=TS_007 round=2 score=85 passed=1/3 failing=TC_002,TC_003 ms=14527
+[ORCH] ts=2026-09-07T10:47:41Z step=stagnant scenario=TS_007 round=2 scores=[85, 85] passed=[2, 1]
+[ORCH] ts=2026-09-07T10:47:41Z step=keptbest scenario=TS_007 round=1 passed=2 note=later round was worse, shipping the best reviewed round
+[ORCH] ts=2026-09-07T10:47:41Z step=result scenario=TS_007 status=stagnant scores=[85, 85] rounds=2 tc=3 ms=250814
+[ORCH] ts=2026-09-07T10:48:25Z step=generate scenario=TS_004 round=1 chunk=3/4 tc=3 ids=TC_001,TC_002,TC_003 chars=120750 ms=104646
+[ORCH] ts=2026-09-07T10:48:45Z step=generate scenario=TS_003 round=1 chunk=3/4 tc=3 ids=TC_001,TC_002,TC_003 chars=120861 ms=104735
+[ORCH] ts=2026-09-07T10:49:49Z step=generate scenario=TS_004 round=1 chunk=4/4 tc=2 ids=TC_TS004_001,TC_TS004_002 chars=94251 ms=84345
+[ORCH] ts=2026-09-07T10:50:09Z step=generate scenario=TS_003 round=1 chunk=4/4 tc=2 ids=TC_TS003_001,TC_TS003_002 chars=91664 ms=84260
+[ORCH] ts=2026-09-07T10:50:16Z step=review scenario=TS_004 round=1 score=85 passed=8/11 failing=TC_004,TC_005,TC_006 ms=26188
+[ORCH] ts=2026-09-07T10:50:16Z step=budget scenario=TS_004 round=2 note=stopped, budget low
+[ORCH] ts=2026-09-07T10:50:16Z step=result scenario=TS_004 status=unhealed scores=[85] rounds=1 tc=11 ms=405172
+[ORCH] ts=2026-09-07T10:50:53Z step=review scenario=TS_003 round=1 score=85 passed=8/11 failing=TC_007,TC_008,TC_009 ms=43875
+[ORCH] ts=2026-09-07T10:50:53Z step=budget scenario=TS_003 round=2 note=stopped, budget low
+[ORCH] ts=2026-09-07T10:50:53Z step=result scenario=TS_003 status=unhealed scores=[85] rounds=1 tc=11 ms=442339
+[ORCH] ts=2026-09-07T10:50:53Z step=renumber scenario=TS_002 ids=TC_001>TC_003,TC_002>TC_004,TC_003>TC_005
+[ORCH] ts=2026-09-07T10:50:53Z step=renumber scenario=TS_003 ids=TC_001>TC_006,TC_002>TC_007,TC_003>TC_008,TC_004>TC_009,TC_005>TC_010,TC_006>TC_011,TC_007>TC_012,TC_008>TC_013,TC_009>TC_014,TC_010>TC_015,TC_011>TC_016
+[ORCH] ts=2026-09-07T10:50:53Z step=renumber scenario=TS_004 ids=TC_001>TC_017,TC_002>TC_018,TC_003>TC_019,TC_004>TC_020,TC_005>TC_021,TC_006>TC_022,TC_007>TC_023,TC_008>TC_024,TC_009>TC_025,TC_010>TC_026,TC_011>TC_027
+[ORCH] ts=2026-09-07T10:50:53Z step=renumber scenario=TS_005 ids=TC_001>TC_028,TC_002>TC_029
+[ORCH] ts=2026-09-07T10:50:53Z step=renumber scenario=TS_006 ids=TC_001>TC_030,TC_002>TC_031,TC_003>TC_032
+[ORCH] ts=2026-09-07T10:50:53Z step=renumber scenario=TS_007 ids=TC_001>TC_033,TC_002>TC_034,TC_003>TC_035
+[ORCH] ts=2026-09-07T10:50:53Z step=renumber scenario=TS_008 ids=TC_001>TC_036,TC_002>TC_037,TC_003>TC_038
+[ORCH] ts=2026-09-07T10:50:53Z step=renumber scenario=TS_009 ids=TC_001>TC_039,TC_002>TC_040,TC_003>TC_041
+[ORCH] ts=2026-09-07T10:50:53Z step=done approved=4 unreviewed=0 unhealed=2 stagnant=3 hardstop=0 failed=0 skipped=0 testcases=41 agentcalls=30 ms=442373
+[ORCH] ts=2026-09-07T10:50:53Z step=outcome story=640764 ready=31/41 testcases flagged=10 scenarios=9 elapsed=7m22s
+[ORCH] ts=2026-09-07T10:50:53Z step=flagged tc=TC_004 scenario=TS_002 why=wrong field change is asserted
+[ORCH] ts=2026-09-07T10:50:53Z step=flagged tc=TC_012 scenario=TS_003 why=uses unresolved environment placeholders
+[ORCH] ts=2026-09-07T10:50:53Z step=flagged tc=TC_013 scenario=TS_003 why=uses unresolved environment placeholders
+[ORCH] ts=2026-09-07T10:50:53Z step=flagged tc=TC_014 scenario=TS_003 why=uses unresolved environment placeholders
+[ORCH] ts=2026-09-07T10:50:53Z step=flagged tc=TC_020 scenario=TS_004 why=wrong environment file path used
+[ORCH] ts=2026-09-07T10:50:53Z step=flagged tc=TC_021 scenario=TS_004 why=missing listed condition coverage
+[ORCH] ts=2026-09-07T10:50:53Z step=flagged tc=TC_022 scenario=TS_004 why=missing listed condition coverage
+[ORCH] ts=2026-09-07T10:50:53Z step=flagged tc=TC_035 scenario=TS_007 why=missing one listed condition
+[ORCH] ts=2026-09-07T10:50:53Z step=flagged tc=TC_037 scenario=TS_008 why=coverage gap for a listed condition
+[ORCH] ts=2026-09-07T10:50:53Z step=flagged tc=TC_038 scenario=TS_008 why=coverage gap for a listed condition
+[ORCH] ts=2026-09-07T10:50:53Z step=detail calls=30 rounds=12 scoreboard=TS_001:approved(92)  TS_002:stagnant(85>85)  TS_003:unhealed(85)  TS_004:unhealed(85)  TS_005:approved(92)  TS_006:approved(96)  TS_007:stagnant(85>85)  TS_008:stagnant(85>85)  TS_009:approved(92)
