@@ -451,7 +451,10 @@ check("stoponstagnation stops early when the score does not improve",
 
 # Run 640764_064825: TS_003/TS_005 went from 7 cases passing in round 1 to 0 passing after
 # a heal round, and the tool shipped the 0-passing table. A heal round must never lose work.
-worse = {"gen": 0}
+# Since run 640764_134333 the generator can no longer drop or rewrite a passing case (the
+# tool splices it back), so the worse round here comes from the reviewer scoring the same
+# passing cases down — reviewer variance, the one way a round can still get worse.
+worse = {"gen": 0, "rev": 0, "seen": []}
 
 
 def worsening_exec(agentid, userinputs, cfg, token, budget, log, label):
@@ -459,13 +462,15 @@ def worsening_exec(agentid, userinputs, cfg, token, budget, log, label):
         return real_scen, 10
     if agentid == cfg["testcaseagentid"]:
         worse["gen"] += 1
-        # round 1: 3 cases; the regeneration round: only 2, and they all fail review
+        # round 1: 3 cases; the regeneration round: only 2 (the generator dropped one)
         return build_table(3 if worse["gen"] == 1 else 2, 3), 10
     ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
-    if len(ids) == 3:      # round 1's table: 2 of 3 pass
+    worse["rev"] += 1
+    worse["seen"].append(len(ids))
+    if worse["rev"] == 1:  # round 1's table: 2 of 3 pass
         scores = [{"id": ids[0], "score": 85, "pass": False, "gaps": ["step 3 is vague"]}]
         scores += [{"id": i, "score": 95, "pass": True, "gaps": []} for i in ids[1:]]
-    else:                  # the regenerated table: everything fails
+    else:                  # the repaired table: the reviewer now fails everything
         scores = [{"id": i, "score": 85, "pass": False, "gaps": ["worse than before"]}
                   for i in ids]
     return json.dumps({"scenarioid": "x", "scores": scores,
@@ -477,9 +482,11 @@ res4b = json.loads(tool._run(runinputs=json.dumps(dict(
     base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100,
     maxworkers=1, maxhealrounds=3, stoponstagnation=True, deadlineseconds=120))))
 r4b = res4b["scenarios"][0]
-check("a heal round that loses passing cases still stops as stagnant",
+check("a heal round the reviewer scores worse still stops as stagnant",
       r4b["status"] == "stagnant" and r4b["passedhistory"] == [2, 0],
       f"status={r4b['status']} passed={r4b.get('passedhistory')}")
+check("the passing cases the generator dropped were spliced back before review",
+      worse["seen"] == [3, 3], f"ids seen per review={worse['seen']}")
 check("the shipped table is the BEST round's, not the last round's",
       r4b["testcasecount"] == 3, f"testcasecount={r4b['testcasecount']}")
 check("flagged reflects the best round too", len(r4b["flagged"]) == 1,
@@ -1628,6 +1635,129 @@ check("a flat score with a rising passed count is NOT stagnation",
       and _rec25["passedhistory"] == [4, 8, 11],
       f"status={_rec25['status']} rounds={_rec25['rounds']} passed={_rec25.get('passedhistory')}")
 T.exec_agent, T.fetch_story, T._secret = orig_exec, orig_story, orig_secret
+
+# ────────────────────────────────────────────────────────────────────────────
+section("26. RUN 640764_134333  (burst FAILED, rewritten passing cases, 'Facets 834', ceiling)")
+
+# 1. The domain phrase is not a KB citation.
+check("'Facets 834' is no longer a forbidden source name", "Facets 834" not in T.SOURCE_NAMES)
+_t834 = build_table(3, 2).replace(_ANCHOR, "Verify the Facets 834 span detail reflects the change.", 1)
+check("'the Facets 834 span detail' passes the pre gate",
+      not any("schema name" in p for p in T.pregate(T.parse_testcases(_t834, 1, 100))),
+      str(T.pregate(T.parse_testcases(_t834, 1, 100))))
+check("the other source names still fail it",
+      any("EDIFECS Full with AUX 834" in p for p in T.pregate(T.parse_testcases(
+          build_table(3, 2).replace(_ANCHOR, "Per EDIFECS Full with AUX 834 do this.", 1), 1, 100))))
+check("has_banned is a token match", T.has_banned("uses DTP03 here", "DTP03")
+      and not T.has_banned("xDTP03y", "DTP03"))
+
+# 2. A platform FAILED is resubmitted once.
+_h26, _s26 = T._http, T.time.sleep
+_rt = {"posts": 0}
+
+
+def burst_platform(method, url, log, headers=None, json_body=None, timeout=None, form=None):
+    if method == "POST":
+        _rt["posts"] += 1
+        return 200, {"data": {"agentExecutionId": f"exec-{_rt['posts']}"}, "status": "SUCCESS"}
+    if url.endswith("exec-1"):
+        return 200, {"status": "FAILED", "output": None}
+    return 200, {"status": "SUCCESS", "output": "second try"}
+
+
+T._http, T.time.sleep = burst_platform, lambda s: None
+_bud26 = T._Budget(60, 5)
+_out26, _ = T.exec_agent(1, {}, {"aavabaseurl": "https://h"}, "t", _bud26, T._Log(), "gen")
+check("a terminal FAILED is resubmitted once and the second answer is returned",
+      _rt["posts"] == 2 and _out26 == "second try", f"posts={_rt['posts']} out={_out26!r}")
+check("the resubmit spends one budget call", _bud26.calls == 2, f"calls={_bud26.calls}")
+_rt["posts"] = 0
+check("no resubmit when the budget has no call left",
+      _try(lambda: T.exec_agent(1, {}, {"aavabaseurl": "https://h"}, "t",
+                                T._Budget(60, 1), T._Log(), "gen")) and _rt["posts"] == 1,
+      f"posts={_rt['posts']}")
+_rt["posts"] = 0
+
+
+def twice_failed(method, url, log, headers=None, json_body=None, timeout=None, form=None):
+    if method == "POST":
+        _rt["posts"] += 1
+        return 200, {"data": {"agentExecutionId": f"exec-{_rt['posts']}"}, "status": "SUCCESS"}
+    return 200, {"status": "FAILED", "output": None}
+
+
+T._http = twice_failed
+check("a second FAILED raises, never a third submit",
+      _try(lambda: T.exec_agent(1, {}, {"aavabaseurl": "https://h"}, "t",
+                                T._Budget(60, 5), T._Log(), "gen")) and _rt["posts"] == 2,
+      f"posts={_rt['posts']}")
+T._http, T.time.sleep = _h26, _s26
+
+# 3. A repair round keeps passing cases verbatim, whatever the generator returned.
+_e26, _f26, _c26 = T.exec_agent, T.fetch_story, T._secret
+_sp = {"gen": 0, "rev": 0, "second": None}
+
+
+def splice_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return chunk_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        _sp["gen"] += 1
+        t = build_table(3, 2)
+        if "regenerate" in userinputs:          # rewrote every case, against orders
+            t = t.replace("Perform step", "REWRITTEN step")
+        return t, 10
+    _sp["rev"] += 1
+    if _sp["rev"] == 2:
+        _sp["second"] = userinputs["testcases"]
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    fail = "TC_005" if _sp["rev"] == 1 else None
+    scores = [{"id": i, "score": 85 if i == fail else 95, "pass": i != fail,
+               "gaps": ["fix it"] if i == fail else []} for i in ids]
+    return json.dumps({"scenarioid": "x", "scores": scores,
+                       "batchscore": min(s["score"] for s in scores),
+                       "batchpass": all(s["pass"] for s in scores)}), 10
+
+
+T.exec_agent, T.fetch_story, T._secret = splice_exec, fake_story, lambda k, f="": "t"
+res26 = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=10, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=2, deadlineseconds=120, maxagentcalls=60))))
+_c2 = T.parse_testcases(_sp["second"], 1, 100)["cases"] if _sp["second"] else {}
+_rew = [i for i, rows in _c2.items() if any("REWRITTEN" in r[5] for r in rows)]
+check("only the failing case takes the regenerated rows",
+      _rew == ["TC_005"], f"rewritten={_rew} status={res26['scenarios'][0]['status']}")
+check("the passing cases of that chunk are carried forward verbatim",
+      _sp["second"] is not None and sum(1 for i, rows in _c2.items()
+                                       if any("Perform step" in r[5] for r in rows)) == len(_c2) - 1)
+check("the log says how many cases were kept",
+      any("kept=2" in l for l in res26["log"]), str([l for l in res26["log"] if "regen=" in l][:1]))
+check("the scenario still heals to approved", res26["scenarios"][0]["status"] == "approved",
+      res26["scenarios"][0]["status"])
+
+# 4. The reviewer never sees a case count.
+_lim = {}
+
+
+def limits_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        return real_table, 10
+    _lim.update(json.loads(userinputs["limits"]))
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    return json.dumps({"scenarioid": "x",
+                       "scores": [{"id": i, "score": 95, "pass": True, "gaps": []} for i in ids],
+                       "batchscore": 95, "batchpass": True}), 10
+
+
+T.exec_agent = limits_exec
+tool._run(runinputs=json.dumps(dict(base, maxscenarios=1, testcasesperscenario=12,
+                                    stepsmin=1, stepsmax=100, deadlineseconds=120)))
+check("the reviewer's limits carry passscore and step bounds but NO case count",
+      {"passscore", "stepsmin", "stepsmax"} <= set(_lim) and "testcasesperscenario" not in _lim,
+      str(_lim))
+T.exec_agent, T.fetch_story, T._secret = _e26, _f26, _c26
 
 
 print(f"\n{'=' * 70}\n{len(PASS)} passed, {len(FAIL)} failed")

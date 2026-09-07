@@ -364,55 +364,64 @@ def exec_agent(agentid: int, userinputs: Dict[str, Any], cfg: Dict[str, Any],
     # invalid for user"). Re-enable once the correct realm is confirmed.
     # if cfg.get("realmid"):
     #     headers["x-realm-id"] = str(cfg["realmid"])
-    eid = str(uuid.uuid4())
     t0 = time.monotonic()
-
-    status, payload = _http("POST", base + SUBMIT_PATH, log, headers, form={
-        "agentId": str(int(agentid)),
-        "executionId": eid,
-        "user": cfg.get("userprincipal", ""),
-        "userInputs": json.dumps(userinputs, ensure_ascii=False),
-    })
-    if status != 200:
-        why = _err_detail(payload)
-        log.line("agenterror", label=label, agentid=agentid, phase="submit", status=status,
-                 ms=int((time.monotonic() - t0) * 1000), realm=cfg.get("realmid") or "none",
-                 user=cfg.get("userprincipal") or "none", why=why[:200] or None)
-        raise RuntimeError(f"{label}: agent {agentid} submit returned http {status}"
-                           + (f" — {why[:200]}" if why else ""))
-    # Prefer the id the server echoes back; fall back to the one we generated.
-    server_eid = ((payload or {}).get("data") or {}).get("agentExecutionId") \
-        if isinstance(payload, dict) else None
-    execid = str(server_eid or eid)
-
-    url = f"{base}{POLL_PATH}?execution_id={execid}"
-    wait, last = POLL_START, ""
-    while True:
-        left = budget.remaining()
-        if left <= 0:
-            raise RuntimeError(f"{label}: agent {agentid} still {last or 'running'} when the "
-                               f"budget ran out (execution {execid})")
-        time.sleep(min(wait, max(0.5, left)))
-        wait = min(wait * POLL_GROWTH, POLL_MAX)
-        pstatus, ppayload = _http("GET", url, log, headers)
-        if pstatus != 200:
-            if pstatus in POLL_RETRY_STATUSES:
-                continue                       # not recorded yet, or a transient blip
-            why = _err_detail(ppayload)
-            log.line("agenterror", label=label, agentid=agentid, phase="poll", status=pstatus,
-                     execution=execid, why=why[:200] or None)
-            raise RuntimeError(f"{label}: agent {agentid} poll returned http {pstatus}"
+    # One resubmit on a terminal FAILED. Run 640764_134333: 6 of 13 launches fired together
+    # came back FAILED with a null output 37s later, and the 10:06 run that day lost 5 of 11
+    # the same way — the platform refusing a burst, not the prompt. Each one cost its
+    # scenario a whole heal round. The resubmit spends a budget call like any submit.
+    for attempt in (1, 2):
+        eid = str(uuid.uuid4())
+        status, payload = _http("POST", base + SUBMIT_PATH, log, headers, form={
+            "agentId": str(int(agentid)),
+            "executionId": eid,
+            "user": cfg.get("userprincipal", ""),
+            "userInputs": json.dumps(userinputs, ensure_ascii=False),
+        })
+        if status != 200:
+            why = _err_detail(payload)
+            log.line("agenterror", label=label, agentid=agentid, phase="submit", status=status,
+                     ms=int((time.monotonic() - t0) * 1000), realm=cfg.get("realmid") or "none",
+                     user=cfg.get("userprincipal") or "none", why=why[:200] or None)
+            raise RuntimeError(f"{label}: agent {agentid} submit returned http {status}"
                                + (f" — {why[:200]}" if why else ""))
-        last = str((ppayload or {}).get("status") or "").upper() \
-            if isinstance(ppayload, dict) else ""
-        if last in TERMINAL:
-            break
+        # Prefer the id the server echoes back; fall back to the one we generated.
+        server_eid = ((payload or {}).get("data") or {}).get("agentExecutionId") \
+            if isinstance(payload, dict) else None
+        execid = str(server_eid or eid)
 
-    ms = int((time.monotonic() - t0) * 1000)
-    if last != "SUCCESS":
+        url = f"{base}{POLL_PATH}?execution_id={execid}"
+        wait, last = POLL_START, ""
+        while True:
+            left = budget.remaining()
+            if left <= 0:
+                raise RuntimeError(f"{label}: agent {agentid} still {last or 'running'} when "
+                                   f"the budget ran out (execution {execid})")
+            time.sleep(min(wait, max(0.5, left)))
+            wait = min(wait * POLL_GROWTH, POLL_MAX)
+            pstatus, ppayload = _http("GET", url, log, headers)
+            if pstatus != 200:
+                if pstatus in POLL_RETRY_STATUSES:
+                    continue                   # not recorded yet, or a transient blip
+                why = _err_detail(ppayload)
+                log.line("agenterror", label=label, agentid=agentid, phase="poll",
+                         status=pstatus, execution=execid, why=why[:200] or None)
+                raise RuntimeError(f"{label}: agent {agentid} poll returned http {pstatus}"
+                                   + (f" — {why[:200]}" if why else ""))
+            last = str((ppayload or {}).get("status") or "").upper() \
+                if isinstance(ppayload, dict) else ""
+            if last in TERMINAL:
+                break
+
+        ms = int((time.monotonic() - t0) * 1000)
+        if last == "SUCCESS":
+            break
         why = _err_detail(ppayload)
         log.line("agenterror", label=label, agentid=agentid, phase="poll", status=last,
                  execution=execid, ms=ms, why=why[:200] or None)
+        if attempt == 1 and last == "FAILED" and budget.take():
+            log.line("agentretry", label=label, agentid=agentid, execution=execid,
+                     note="resubmitting once after a platform FAILED")
+            continue
         raise RuntimeError(f"{label}: agent {agentid} finished {last} (execution {execid})")
 
     out = _output_text(ppayload)
@@ -634,7 +643,10 @@ def parse_verdict(raw: str, known_ids: List[str]) -> Dict[str, Any]:
 # strictly better than paying an Opus call to do them: free, deterministic, and immune to the
 # evidence-rule ambiguity that had the reviewer inventing violations. Only work that survives
 # this gate is worth a reviewer call.
-SOURCE_NAMES = ["kb_", "EDI and FACETS Schema 2", "Facets 834", "EDIFECS Full with AUX 834"]
+# "Facets 834" was on this list and is gone: run 640764_134333 wrote "the Facets 834 span
+# detail reflects ..." 62 times — the domain hint's own UI label — and a 10-case scenario
+# lost its only round to it. A KB name that is also domain vocabulary cannot be a gate.
+SOURCE_NAMES = ["kb_", "EDI and FACETS Schema 2", "EDIFECS Full with AUX 834"]
 META_LABELS = ["DoR", "DoD", "Definition of Ready", "Definition of Done",
                "descriptionRef", "dorRef", "dodRef", "per the AC", "as referenced in"]
 # Test Case Name, Description, Pre-condition, Step Description, Expected Result.
@@ -644,6 +656,12 @@ _PRIO_COL = COLUMNS.index("Test Case Priority")
 # An all-High batch below this many cases is legitimate (a scenario with 2-3 genuinely
 # critical conditions); at or above it, an undifferentiated batch carries no triage signal.
 ALL_HIGH_MIN_CASES = 4
+
+
+def has_banned(text: str, term: str) -> bool:
+    """Token match, not substring: "DTP03" must not fire inside "DTP*303"."""
+    pat = r"(?<![A-Za-z0-9*])" + re.escape(term) + r"(?![A-Za-z0-9*])"
+    return re.search(pat, text) is not None
 
 
 def pregate(parsed: Dict[str, Any], bannedterms: List[str] = None,
@@ -668,8 +686,7 @@ def pregate(parsed: Dict[str, Any], bannedterms: List[str] = None,
     # Caller-supplied banned terms (e.g. invented EDI element names like DTP01). Token
     # match, not substring: "DTP03" must not fire inside "DTP*303".
     for term in bannedterms or []:
-        pat = r"(?<![A-Za-z0-9*])" + re.escape(term) + r"(?![A-Za-z0-9*])"
-        if re.search(pat, parsed["table"]):
+        if has_banned(parsed["table"], term):
             problems.append(f"the banned term '{term}' appears in the output; replace it "
                             f"with the correct domain terminology")
 
@@ -747,6 +764,35 @@ def chunk_scenario(scenario: Dict[str, Any], conds: List[str]) -> Dict[str, Any]
     s["description"] = (head + "Conditions to cover: "
                         + " ".join(f"{i}) {c}." for i, c in enumerate(conds, 1)))
     return s
+
+
+def keep_passing(prior: Dict[str, Any], new: Dict[str, Any],
+                 failing: set) -> Tuple[Dict[str, Any], int]:
+    """Splice a repair round: a case that passed the last review keeps last round's rows.
+
+    Agent 02 is told to rebuild only the listed cases and leave the rest untouched. Run
+    640764_134333: it rewrote every case in the chunk anyway, and TS_001 went from 2/3
+    passing to 0/3, TS_008 from 1/4 to 0/4. The tool now enforces the contract the prompt
+    could not: a passing case is copied forward verbatim, a failing case takes the new
+    rows, and cases the repair added stay. Returns the spliced parse and how many were kept.
+    """
+    cases: Dict[str, List[List[str]]] = {}
+    kept = 0
+    for tid, rows in prior["cases"].items():
+        if tid in failing:
+            if tid in new["cases"]:
+                cases[tid] = new["cases"][tid]
+        else:
+            cases[tid] = rows
+            kept += 1
+    for tid, rows in new["cases"].items():
+        cases.setdefault(tid, rows)
+    body = [r for rows in cases.values() for r in rows]
+    header = prior["header"]
+    clean = "\n".join(["| " + " | ".join(header) + " |", "|" + "---|" * len(COLUMNS)]
+                      + ["| " + " | ".join(r) + " |" for r in body])
+    return {"header": header, "rows": body, "cases": cases, "table": clean,
+            "chars": len(clean), "ids": list(cases)}, kept
 
 
 def merge_chunks(parts: List[Optional[Dict[str, Any]]], idchunk: Dict[str, int],
@@ -866,13 +912,18 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                                  or len(prior["ids"]) <= 1)
                     p = read_testcases(raw, cfg["stepsmin"], cfg["stepsmax"],
                                        allow_single=allow)
+                    kept = 0
+                    if regen_list and prior is not None \
+                            and all(g.get("id") != "all" for g in regen_list):
+                        p, kept = keep_passing(prior, p, {g["id"] for g in regen_list})
                     chunkparsed[ci] = p
                     chunkgaps.pop(ci, None)
                     log.line("generate", scenario=sid, round=rnd,
                              chunk=(f"{ci + 1}/{len(chunks)}" if chunks[ci] is not None
                                     else None),
                              tc=len(p["ids"]), ids=",".join(p["ids"]), chars=p["chars"],
-                             ms=gen_ms, regen=len(regen_list or []) or None)
+                             ms=gen_ms, regen=len(regen_list or []) or None,
+                             kept=kept or None)
                 except Exception as e:
                     # Log the head of what the agent actually sent. Run 640764_084112
                     # failed 7/7 with "test case array is empty" and the log carried no
@@ -934,9 +985,11 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             rev_inputs = {
                 "scenario": _j(scenario),
                 "testcases": parsed["table"],
+                # No case count here on purpose: run 640764_134333's reviewer quoted the
+                # ceiling to demand "the remaining cases" although its prompt forbids it
+                # three times. What it cannot see it cannot misuse.
                 "limits": _j({"passscore": passscore, "stepsmin": cfg["stepsmin"],
-                                          "stepsmax": cfg["stepsmax"],
-                                          "testcasesperscenario": cfg["testcasesperscenario"]}),
+                                          "stepsmax": cfg["stepsmax"]}),
                 # The judge previously saw only the scenario object, so a requirement clause
                 # lost between story and scenario (first-occurrence handling in 640764) was
                 # invisible to it. The full AC text lets it check clause-level coverage.

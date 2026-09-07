@@ -84,6 +84,8 @@ You receive ONE variable, {{reviewinputs}} - a JSON string (it may be wrapped in
 
 5. GROUNDING - Does any scenario's description or dorRef assume a starting state that contradicts the story? Flag it and quote the contradiction.
 
+6. TERMINOLOGY SCOPE - Terminology and domainhints checks apply to `title` and `description` ONLY. `descriptionRef`, `acceptanceCriteriaRef`, `dorRef` and `dodRef` are verbatim quotes of the story and are judged solely on whether they match the story text (check 4). A term the hints forbid, or a stale cross-reference such as "Requirement 4", that appears inside one of those four fields is the story's own wording and is NEVER a gap: the generator is not allowed to change a quote. Run 640764_133127 scored 58 twice for exactly this, and the list could never converge.
+
 # Scoring
 
 After reviewing all points, assign:

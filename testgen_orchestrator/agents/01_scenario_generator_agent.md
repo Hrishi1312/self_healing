@@ -64,6 +64,12 @@ Any JSON input may be wrapped in markdown fences — strip fences before parsing
 - {{domainhints}}  — free-text domain glossary from the orchestrator (e.g. which EDI segment carries which business date). The literal value `none` means no hints were supplied, which is normal. When hints ARE supplied, use their terminology and segment mappings EXACTLY in every scenario field — never invent or substitute a segment, loop, or element name that contradicts them.
 - {{feedback}}     — present ONLY on a retry. When present, the previous response was rejected and every point in it must be resolved. Absent on the first attempt, which is normal.
 
+  FEEDBACK HANDLING [MUST]. Read {{feedback}} as a checklist and change the LIST, not just the wording:
+  - "collapse" / "merge" / "under-collapsed" naming two or more TS ids: return ONE parameterized scenario in their place, with their conditions combined under one `Conditions to cover:` list, and drop the others.
+  - "split" / "over-collapsed" naming a TS id: replace it with one scenario per independent mechanism the feedback names; each new scenario keeps only the conditions that belong to it.
+  - a terminology or wording point: fix it in `title` and `description`. Never edit `descriptionRef`, `acceptanceCriteriaRef`, `dorRef` or `dodRef` to satisfy feedback — they quote the story verbatim, and a banned term that sits inside the story text stays there.
+  - a rework that returns the previous ids unchanged and appends new scenarios has ignored the feedback and will be rejected again. Renumber TS ids sequentially after collapsing or splitting.
+
 - `storydata.storyid` — the Azure DevOps work item id this story came from.
 
 - `storydata.title` — the user story title.

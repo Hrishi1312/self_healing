@@ -97,7 +97,7 @@ This matches `04_code_reviewer_agent.md`, which takes `{{jiradata}}` `{{codecont
 | Agent 00 → tool | `runinputs`, the tool's only argument, untouched |
 | Tool → agent 01 | `{{storydata}}` (storyid, title, description, acceptancecriteria), `{{maxscenarios}}`, `{{feedback}}` *(retry only)* |
 | Tool → agent 02 | `{{scenario}}`, `{{storytitle}}`, `{{limits}}` (testcasesperscenario, stepsmin, stepsmax), `{{regenerate}}` *(rework only)* |
-| Tool → agent 03 | `{{scenario}}`, `{{testcases}}`, `{{limits}}` (passscore, stepsmin, stepsmax, testcasesperscenario) |
+| Tool → agent 03 | `{{scenario}}`, `{{testcases}}`, `{{limits}}` (passscore, stepsmin, stepsmax — no case count, on purpose) |
 
 The workflow object, flat and lowercase:
 
