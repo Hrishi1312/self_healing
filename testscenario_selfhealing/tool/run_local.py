@@ -6,12 +6,12 @@ accept what the agents produce; this proves the agent ids exist, the credentials
 
     export AAVA_TOKEN=...      # bearer for /agents/execute
     export ADO_PAT=...         # Azure DevOps read PAT
-    python3 testsenarion_selfhealing/tool/run_local.py 640764
+    python3 testscenario_selfhealing/tool/run_local.py 640764
 
-    python3 testsenarion_selfhealing/tool/run_local.py 640764 --scenarios 2 --no-heal
-    python3 testsenarion_selfhealing/tool/run_local.py 640764 --probe  # bind check, no run
-    python3 testsenarion_selfhealing/tool/run_local.py 640764 --stage scenarios
-    python3 testsenarion_selfhealing/tool/run_local.py 640764 --stage testcases
+    python3 testscenario_selfhealing/tool/run_local.py 640764 --scenarios 2 --no-heal
+    python3 testscenario_selfhealing/tool/run_local.py 640764 --probe  # bind check, no run
+    python3 testscenario_selfhealing/tool/run_local.py 640764 --stage scenarios
+    python3 testscenario_selfhealing/tool/run_local.py 640764 --stage testcases
 
 Credentials come from the environment, never from a file in the repo. They are passed in
 runinputs only because AVASecret does not exist off-platform; the tool still scrubs them from

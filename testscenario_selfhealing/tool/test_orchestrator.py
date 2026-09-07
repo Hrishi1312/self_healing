@@ -2037,6 +2037,46 @@ check("and the trimmed list is renumbered from 1",
       in _seen27["scenario"]["description"])
 T.exec_agent, T.fetch_story, T._secret = _e27, _f27, _c27
 
+# ────────────────────────────────────────────────────────────────────────────
+section("28. RUN 640764_105053  (empty repair round was re-reviewed)")
+_orig_exec28, _f28, _c28 = T.exec_agent, T.fetch_story, T._secret
+_er = {"gen": 0, "rev": 0}
+
+
+def emptyrepair_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        _er["gen"] += 1
+        return (build_table(3, 3) if _er["gen"] == 1 else "[]"), 10
+    _er["rev"] += 1
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    scores = [{"id": ids[0], "score": 85, "pass": False, "gaps": ["step 3 is vague"]}]
+    scores += [{"id": i, "score": 95, "pass": True, "gaps": []} for i in ids[1:]]
+    return json.dumps({"scenarioid": "x", "scores": scores,
+                       "batchscore": 85, "batchpass": False}), 10
+
+
+T.exec_agent, T.fetch_story, T._secret = emptyrepair_exec, fake_story, lambda k, f="": "t"
+res28 = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100, maxworkers=1,
+    maxhealrounds=2, stoponstagnation=True, deadlineseconds=120))))
+r28 = res28["scenarios"][0]
+check("an empty repair round does not spend a second reviewer call",
+      _er["rev"] == 1 and _er["gen"] == 2, f"rev={_er['rev']} gen={_er['gen']}")
+check("the skip is logged", any("skipped=nothing regenerated" in l for l in res28["log"]))
+check("the scenario ends unhealed with the reviewed table, not stagnant",
+      r28["status"] == "unhealed" and r28["testcasecount"] == 3 and r28["scorehistory"] == [85],
+      f"status={r28['status']} tc={r28['testcasecount']} scores={r28['scorehistory']}")
+# with a round to spare, the empty chunk is retried instead
+_er.update(gen=0, rev=0)
+res28b = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=12, stepsmin=1, stepsmax=100, maxworkers=1,
+    maxhealrounds=3, stoponstagnation=True, deadlineseconds=120))))
+check("with rounds left the empty chunk is retried, still without a re-review",
+      _er["gen"] == 3 and _er["rev"] == 1, f"rev={_er['rev']} gen={_er['gen']}")
+T.exec_agent, T.fetch_story, T._secret = _orig_exec28, _f28, _c28
+
 
 print(f"\n{'=' * 70}\n{len(PASS)} passed, {len(FAIL)} failed")
 if FAIL:

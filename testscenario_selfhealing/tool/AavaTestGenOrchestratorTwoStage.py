@@ -1,6 +1,6 @@
 """AavaTestGenOrchestratorTwoStage — Azure DevOps story to EDI 834 test cases, in one tool call.
 
-TWO-STAGE COPY (testsenarion_selfhealing). The pipeline logic here is kept in sync with
+TWO-STAGE COPY (testscenario_selfhealing). The pipeline logic here is kept in sync with
 testgen_orchestrator/tool/AavaTestGenOrchestrator.py, which is where that logic evolves.
 Everything there is here unchanged, plus a `stage` key in runinputs:
 
@@ -909,6 +909,7 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                 log.line("budget", scenario=sid, round=rnd, note="stopped, budget low")
                 break
             rec["rounds"] = rnd
+            changed = False        # did any chunk parse this round
 
             for ci in sorted(needwork):
                 csc = scenario if chunks[ci] is None else chunk_scenario(scenario, chunks[ci])
@@ -947,6 +948,7 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
                         p, kept = keep_passing(prior, p, {g["id"] for g in regen_list})
                     chunkparsed[ci] = p
                     chunkgaps.pop(ci, None)
+                    changed = True
                     log.line("generate", scenario=sid, round=rnd,
                              chunk=(f"{ci + 1}/{len(chunks)}" if chunks[ci] is not None
                                     else None),
@@ -985,6 +987,17 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             # beside six healthy shipped cases).
             if all(p is not None for p in chunkparsed):
                 rec["error"] = None
+
+            # Run 640764_105053, TS_002: the repair round returned [], and the tool then
+            # re-reviewed the unchanged round-1 table, paid a reviewer call for the same
+            # verdict and called the scenario stagnant. Nothing new to score: skip the review,
+            # retry the chunk if a round is left, otherwise ship the reviewed table as is.
+            if rnd > 1 and not changed:
+                log.line("review", scenario=sid, round=rnd, skipped="nothing regenerated")
+                if rnd >= passes:
+                    rec["status"] = "unhealed"
+                    break
+                continue
 
             # Re-enabled 2026-08-19: the 640764 comparison run shipped meta labels ("DoD"
             # in 5 preconditions) that this gate catches for free. Disabling it (2026-08-18)

@@ -1,4 +1,4 @@
-# testsenarion_selfhealing — the two-stage split
+# testscenario_selfhealing — the two-stage split
 
 The pipeline from `testgen_orchestrator/`, divided into **two orchestrator agents** connected
 by a **GitHub handoff file**, so each stage gets its own execution window and the scenario
@@ -127,7 +127,7 @@ agent-call budget for stage `testcases` all come from the handoff file.
 ## Verify offline
 
 ```
-python3 testsenarion_selfhealing/tool/test_orchestrator.py
+python3 testscenario_selfhealing/tool/test_orchestrator.py
 ```
 
 263 checks. Two of them (`publish on PUTs exactly the five run files`, `the envelope reports
@@ -138,8 +138,8 @@ same reason. Everything else must pass.
 Local live runs:
 
 ```
-python3 testsenarion_selfhealing/tool/run_local.py 640764 --stage scenarios
-python3 testsenarion_selfhealing/tool/run_local.py 640764 --stage testcases
+python3 testscenario_selfhealing/tool/run_local.py 640764 --stage scenarios
+python3 testscenario_selfhealing/tool/run_local.py 640764 --stage testcases
 ```
 
 `--probe` checks `{{variable}}` binding by submitting a marker to the configured agent, so it
