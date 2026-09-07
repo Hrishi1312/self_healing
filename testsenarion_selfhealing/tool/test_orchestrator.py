@@ -982,7 +982,8 @@ check("a never-passing gate ends unhealed with the problem in gaps",
 _src = open(os.path.join(HERE, "AavaTestGenOrchestratorTwoStage.py"), encoding="utf-8").read()
 check("pregate() is defined and wired in",
       "def pregate(" in _src
-      and '\n            problems = pregate(parsed, cfg["bannedterms"], cfg["testcasesperscenario"])' in _src)
+      and '\n            problems = pregate(parsed, cfg["bannedterms"], cfg["testcasesperscenario"],\n'
+          '                               cfg["stepsmin"], cfg["stepsmax"])' in _src)
 check("and the re-enable reason is written next to it", "re-enabled\n# 2026-08-19" in _src
       or "Re-enabled 2026-08-19" in _src or "re-enabled 2026-08-19" in _src)
 
@@ -1962,6 +1963,79 @@ check("the rework feedback names the banned term",
       len(_sb["feedback"]) == 1 and "DTP03" in _sb["feedback"][0], str(_sb["feedback"])[:200])
 T._http = _h26b
 T.exec_agent, T.fetch_story, T._secret = _e26, _f26, _c26
+
+# ────────────────────────────────────────────────────────────────────────────
+section("27. RUN 640764_093541  (reviewer saw the untrimmed list, reviewer miscounted steps)")
+
+# 1. Step bounds are a tool check now.
+check("pregate flags a case below stepsmin",
+      any("TC_001 has 3 steps" in p for p in T.pregate(T.parse_testcases(build_table(2, 3), 1, 100),
+                                                        None, 0, 5, 40)))
+check("pregate flags a case above stepsmax",
+      any("outside the 1-2 range" in p for p in T.pregate(T.parse_testcases(build_table(2, 3), 1, 100),
+                                                          None, 0, 1, 2)))
+check("an in-range case raises no step problem",
+      not any("steps" in p for p in T.pregate(T.parse_testcases(build_table(2, 3), 1, 100),
+                                               None, 0, 3, 3)))
+_e27, _f27, _c27 = T.exec_agent, T.fetch_story, T._secret
+_sb27 = {"gen": 0, "rev": 0}
+
+
+def shortsteps_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return real_scen, 10
+    if agentid == cfg["testcaseagentid"]:
+        _sb27["gen"] += 1
+        return build_table(3, 2), 10          # 2 steps against a floor of 5
+    _sb27["rev"] += 1
+    return "{}", 10
+
+
+T.exec_agent, T.fetch_story, T._secret = shortsteps_exec, fake_story, lambda k, f="": "t"
+res27 = json.loads(tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, stepsmin=5, stepsmax=40, maxworkers=1, maxhealrounds=2,
+    deadlineseconds=120))))
+check("a table outside the step bounds never reaches the reviewer",
+      _sb27["rev"] == 0 and _sb27["gen"] == 2, f"rev={_sb27['rev']} gen={_sb27['gen']}")
+check("the step problem names the case and the count",
+      any("has 2 steps, outside the 5-40 range" in g for g in res27["scenarios"][0]["gaps"]),
+      str(res27["scenarios"][0]["gaps"][:1]))
+
+# 2. The reviewer sees exactly the condition list the generator was given.
+_eleven = json.dumps([{
+    "scenarioId": "TS_001", "title": "eleven", "descriptionRef": "d",
+    "acceptanceCriteriaRef": "ac", "dorRef": "", "dodRef": "", "type": "Positive",
+    "description": "Relevant field changes. Conditions to cover: "
+                   + " ".join(f"{i}) Field {i} changes." for i in range(1, 12)),
+    "priority": "High"}])
+_seen27 = {"scenario": None}
+
+
+def trimmed_exec(agentid, userinputs, cfg, token, budget, log, label):
+    if agentid == cfg["scenarioagentid"]:
+        return _eleven, 10
+    if agentid == cfg["testcaseagentid"]:
+        # one case per condition in the chunk, so the merged table sits under the ceiling
+        n = len(T.parse_conditions(json.loads(userinputs["scenario"])["description"]))
+        return build_table(n, 2), 10
+    _seen27["scenario"] = json.loads(userinputs["scenario"])
+    ids = T.parse_testcases(userinputs["testcases"], 1, 100)["ids"]
+    return json.dumps({"scenarioid": "x",
+                       "scores": [{"id": i, "score": 95, "pass": True, "gaps": []} for i in ids],
+                       "batchscore": 95, "batchpass": True}), 10
+
+
+T.exec_agent = trimmed_exec
+tool._run(runinputs=json.dumps(dict(
+    base, maxscenarios=1, testcasesperscenario=10, stepsmin=1, stepsmax=100,
+    maxworkers=1, maxhealrounds=1, deadlineseconds=120, maxagentcalls=60)))
+_revconds = T.parse_conditions((_seen27["scenario"] or {}).get("description", ""))
+check("the reviewer gets the trimmed 10-condition scenario, not the original 11",
+      len(_revconds) == 10, f"conditions seen by reviewer={len(_revconds)}")
+check("and the trimmed list is renumbered from 1",
+      _seen27["scenario"] is not None and "Conditions to cover: 1) Field 1 changes."
+      in _seen27["scenario"]["description"])
+T.exec_agent, T.fetch_story, T._secret = _e27, _f27, _c27
 
 
 print(f"\n{'=' * 70}\n{len(PASS)} passed, {len(FAIL)} failed")

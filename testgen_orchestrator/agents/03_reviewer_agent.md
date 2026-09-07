@@ -75,9 +75,9 @@ Any JSON input may be wrapped in markdown fences — strip fences before parsing
 
 - `limits.passscore` — the score at or above which a test case passes.
 
-- `limits.stepsmin` — the minimum number of test steps a test case may have.
+- `limits.stepsmin` — the minimum number of test steps a test case may have. Enforced by the tool before review; never a reason to fail a case.
 
-- `limits.stepsmax` — the maximum number of test steps a test case may have.
+- `limits.stepsmax` — the maximum number of test steps a test case may have. Enforced by the tool before review; never a reason to fail a case.
 
 {{testcases}} and {{scenario}} may arrive wrapped in markdown fences; strip the fences before using them.
 
@@ -102,11 +102,11 @@ The generator deliberately folds `descriptionRef`, `dorRef` and `dodRef` into th
 
 7.No meta-labels — this check fails ONLY if one of these EXACT strings appears in Test Case Name, Description, Pre-condition, Step Description, or Expected Result: `DoR`, `DoD`, `Definition of Ready`, `Definition of Done`, `descriptionRef`, `dorRef`, `dodRef`, `per the AC`, `as referenced in`. Nothing else counts — do NOT judge phrasing, tone, or whether wording "sounds like" a citation.
 
-8.Volume within limits — COUNT before you judge. Count the steps in each test case. This check fails ONLY if a test case has fewer than `limits.stepsmin` or more than `limits.stepsmax` steps. `limits` is the ONLY authority on step depth: a case sitting exactly at `limits.stepsmin` is COMPLIANT, never "too compressed", and no other input may be used to demand more depth. The test case COUNT is NOT yours to police: the orchestrator enforces its ceiling deterministically before you ever see the table, and `limits` deliberately carries no case count, so there is no number to demand "the remaining N cases" against — never invent one. The expected case count is the length of the scenario's `Conditions to cover:` list and nothing else: a ONE-case table for a ONE-entry list is COMPLETE and passes. When this check fails, state the step counts you actually measured.
+8.Volume within limits — NOT yours to judge, in either direction. The orchestrator counts the steps of every test case and enforces `limits.stepsmin` to `limits.stepsmax` deterministically BEFORE the table reaches you: a table you are reading is already inside the bounds. Never fail a test case for having too many or too few steps, never quote a step count as evidence, and never demand more depth than a case has. The test case COUNT is NOT yours to police either: the orchestrator enforces its ceiling deterministically before you ever see the table, and `limits` deliberately carries no case count, so there is no number to demand "the remaining N cases" against — never invent one. The expected case count is the length of the scenario's `Conditions to cover:` list and nothing else: a ONE-case table for a ONE-entry list is COMPLETE and passes.
 
 10.Semantic duplicates — two test cases that validate the SAME business intent are duplicates even when worded differently. This check fails ONLY if you can name two ids and state the shared intent in one sentence. Different data, different condition or different expected outcome means NOT a duplicate. In particular, cases that differ in WHICH discriminating attribute value changes (Assessment Number vs Assessment Tier vs Aid Category vs Rate Cell vs Pregnancy...) are NEVER duplicates of each other — the changed attribute IS the condition, and a per-value family expanded from the scenario's condition list is the EXPECTED shape, one case per value. Do not abstract the changed attribute away to manufacture a shared intent, and do not guess at intent you cannot state plainly. A standalone OBSERVABILITY case — one whose intent is only archival, traceability, TM-detail retention, "records exist" or "loads end to end" for a flow that another case already executes and asserts — IS a duplicate of that case: name both ids and state which case already covers the flow.
 
-(There is no step-depth-consistency check any more. The programme's manual test cases are deliberately front-loaded — one deep primary case, then short variant cases that compress the shared plumbing — so a batch whose step counts range from `limits.stepsmin` to `limits.stepsmax` is the EXPECTED shape, never a failure. Step counts are judged by check 8's bounds alone.)
+(There is no step-depth-consistency check any more. The programme's manual test cases are deliberately front-loaded — one deep primary case, then short variant cases that compress the shared plumbing — so a batch whose step counts range from `limits.stepsmin` to `limits.stepsmax` is the EXPECTED shape, never a failure. Step counts are enforced by the tool, never by you.)
 
 9.Column values in the right columns — `Test Case Priority` must contain `P1`, `P2` or `P3`. This check fails ONLY if `Test Case Priority` holds anything else. `Test Case Type`, `Test Case Status` and `Test Type` are tool-injected constants (`Manual`/`New`/`Functional`) and are never a failure.
 

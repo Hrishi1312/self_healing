@@ -603,8 +603,8 @@ def parse_testcases(raw: str, stepsmin: int, stepsmax: int) -> Dict[str, Any]:
         if not re.match(r"^TC[_-]?\w*\d+$", tid):
             raise ValueError(f"test case id '{tid}' does not look like TC followed by digits")
 
-    # Step count, Priority and Test Type are stated in agent 02 and enforced by agent 03 —
-    # kept out of the tool so the same rule does not live in two places that could drift.
+    # Priority and Test Type are stated in agent 02 and enforced by agent 03 — kept out of
+    # the tool so the same rule does not live in two places. Step count moved to pregate().
 
     # Rebuild the table from the parsed rows rather than handing back the raw text. The raw
     # text still contains any physically split rows this function just rejoined, so returning
@@ -665,7 +665,7 @@ def has_banned(text: str, term: str) -> bool:
 
 
 def pregate(parsed: Dict[str, Any], bannedterms: List[str] = None,
-            maxcases: int = 0) -> List[str]:
+            maxcases: int = 0, stepsmin: int = 0, stepsmax: int = 0) -> List[str]:
     """Return the problems a machine can prove. Empty means it is worth reviewing.
 
     Deliberately NOT here: the angle-bracket rule. It lives in agent 02 (write
@@ -682,6 +682,15 @@ def pregate(parsed: Dict[str, Any], bannedterms: List[str] = None,
     if maxcases and len(parsed["cases"]) > maxcases:
         problems.append(f"batch has {len(parsed['cases'])} test cases, above the ceiling of "
                         f"{maxcases}; merge or drop the least valuable cases")
+
+    # Step bounds, deterministic. Run 640764_093541: reviewer 709 flagged four in-range
+    # cases (20, 18, 18 and 38 steps against 18-40) as too many or too few, and one gap read
+    # "20 steps, which exceeds stepsmax 40? No." A counter cannot do that. Agent 03 no
+    # longer judges step depth at all.
+    for tid, rows in parsed["cases"].items():
+        n = len(rows)
+        if (stepsmin and n < stepsmin) or (stepsmax and n > stepsmax):
+            problems.append(f"{tid} has {n} steps, outside the {stepsmin}-{stepsmax} range")
 
     # Caller-supplied banned terms (e.g. invented EDI element names like DTP01). Token
     # match, not substring: "DTP03" must not fire inside "DTP*303".
@@ -854,6 +863,10 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
         log.line("condtrim", scenario=sid, listed=len(conds),
                  kept=cfg["testcasesperscenario"])
         conds = conds[:cfg["testcasesperscenario"]]
+        # The reviewer must see the same list the generator got. Run 640764_093541: the
+        # reviewer was handed the original 11-condition scenario, saw ten cases, and flagged
+        # "condition 11 missing" on both trimmed scenarios — a gap no repair can close.
+        scenario = chunk_scenario(scenario, conds)
     chunks: List[Optional[List[str]]] = (
         [conds[i:i + CHUNK_CONDITIONS] for i in range(0, len(conds), CHUNK_CONDITIONS)]
         if conds else [None])
@@ -961,7 +974,8 @@ def process_scenario(scenario: Dict[str, Any], story: Dict[str, Any], cfg: Dict[
             # in 5 preconditions) that this gate catches for free. Disabling it (2026-08-18)
             # was the drift the code comment warned about. Only work that survives this gate
             # is worth a reviewer call; its problems feed the regenerate round verbatim.
-            problems = pregate(parsed, cfg["bannedterms"], cfg["testcasesperscenario"])
+            problems = pregate(parsed, cfg["bannedterms"], cfg["testcasesperscenario"],
+                               cfg["stepsmin"], cfg["stepsmax"])
             if problems:
                 log.line("pregate", scenario=sid, round=rnd, failed=len(problems),
                          first=problems[0][:90])
