@@ -1,0 +1,132 @@
+{
+  "status": "completed",
+  "stage": "scenarios",
+  "story": {
+    "id": "640764",
+    "title": "(ENR SUCC) DEV & TEST - 834E/U AR PASSE Transaction Effective Date Logic Update - EDI"
+  },
+  "scenarios": [
+    {
+      "scenarioId": "TS_001",
+      "title": "Identify inbound 834 business dates used by the transaction effective date logic",
+      "descriptionRef": "Technical Notes\nData values are contained in the 834 transaction loops as follows:Assessment Date - Loop 2300, HD03\nEffective Date - Loop 2000, DTP03\nMaintenance Date - Loop 2000, DTP01\nAdjust logic to selectively use Eligibility Date, Assessment Date, or Maintenance Date as transaction effective date based on the outlined business rules.\nEnsure backward compatibility with existing EDI processing where applicable.\nWhen multiple dates come in, use the first one.\nRefer to DMND0031922.",
+      "acceptanceCriteriaRef": "EDI is able to identify the following dates in the EDI 834 file (existing functionality): Effective Date, Assessment Date, Maintenance Date.\nEnrollment IT can populate any of the three dates above into the transaction effective date in Facets (existing functionality).",
+      "dorRef": "",
+      "dodRef": "Transaction effective date in Facets is correctly populated per the detailed business rules and requirements.\nUnit and integration tests have passed.",
+      "type": "Positive",
+      "description": "Validate that inbound EDI 834 processing for AR PASSE identifies Eligibility Date from Loop 2000 DTP*356/DTP*348, Assessment Date from Loop 2300 HD03, and Maintenance Date from Loop 2000 DTP*303 so the transaction effective date can be populated in Facets using the correct business date source, with the first occurrence used when multiple dates of the same type are present. Conditions to cover: 1) Eligibility Date is identified from Loop 2000 DTP*356. 2) Eligibility Date is identified from Loop 2000 DTP*348. 3) Assessment Date is identified from Loop 2300 HD03. 4) Maintenance Date is identified from Loop 2000 DTP*303. 5) The first occurrence is used when multiple Eligibility Date values are present in one inbound file. 6) The first occurrence is used when multiple Maintenance Date values are present in one inbound file.",
+      "priority": "High"
+    },
+    {
+      "scenarioId": "TS_002",
+      "title": "Use Eligibility Date as the transaction effective date for new enrollment before eligibility begins",
+      "descriptionRef": "The business needs to utilize the Eligibility Date 2000 Loop (DTP*356/DTP*348) from the EDI 834 as the transaction effective date for all new enrollments, regardless of the Assessment Date. For example: Eligibility Date = 1/31/25 and Assessment Date = 1/24/25, use Eligibility Date (1/31/25).\nExamples / Scenarios\nScenarioEligibility Started?Transaction Effective DateNew enrollment (Future eligibility date) No Eligibility Date",
+      "acceptanceCriteriaRef": "Given an inbound EDI 834 file, if the member\u2019s eligibility span has not yet begun, the Eligibility Date (DTP*356/DTP*348) populates as the transaction effective date.",
+      "dorRef": "",
+      "dodRef": "All functionality detailed in the feature has been developed, implemented, and tested in Production.\nTransaction effective date in Facets is correctly populated per the detailed business rules and requirements.\nUnit and integration tests have passed.\nUser acceptance testing has been completed and approved.",
+      "type": "Positive",
+      "description": "Validate that a new enrollment inbound 834 for AR PASSE uses Eligibility Date as the transaction effective date in Facets when the member\u2019s eligibility span has not yet begun, regardless of the Assessment Date, and that the Facets UI field 'Eligibility Date' refreshes to the winning date. Conditions to cover: 1) New enrollment uses Loop 2000 DTP*356 as the winning Eligibility Date before the span begins. 2) New enrollment uses Loop 2000 DTP*348 as the winning Eligibility Date before the span begins. 3) Assessment Date is earlier than the future Eligibility Date and Eligibility Date still wins. 4) Multiple Eligibility Date occurrences are present and the first Eligibility Date is used for the new enrollment transaction effective date.",
+      "priority": "High"
+    },
+    {
+      "scenarioId": "TS_003",
+      "title": "Use Assessment Date as the transaction effective date when current eligibility has an Assessment Date change",
+      "descriptionRef": "The business needs to utilize the Assessment Date as the transaction effective date for changes to current eligibility, if the Assessment Date has changed. For example: Eligibility Date = 1/31/25 and Assessment Date changes to 6/29/25, use Assessment Date (6/29/25).\nThe business needs to update the Assessment Date as the transaction effective date for changes to current eligibility when the Assessment Date changes, but none of the other elements listed below have changed:Assessment Number\nAssessment Tier\nAssessment Division\nAid Category\nRate Cell\nPregnancy\nExamples / Scenarios\nScenarioEligibility Started?Transaction Effective Date Current eligibility, Assessment Date changed Yes Assessment Date Assessment Date changed, No changes to relevant fields Yes Assessment Date",
+      "acceptanceCriteriaRef": "Given an inbound EDI 834 file, if the member\u2019s eligibility span has already begun and the Assessment Date has changed, the Assessment Date populates as the transaction effective date.\nGiven an inbound EDI 834 file, if the Assessment Date has changed and none of the relevant fields have changed, the Assessment Date populates as the transaction effective date, maintaining values of relevant fields.",
+      "dorRef": "",
+      "dodRef": "Transaction effective date in Facets is correctly populated per the detailed business rules and requirements.\nUnit and integration tests have passed.\nUser acceptance testing has been completed and approved.",
+      "type": "Positive",
+      "description": "Validate that a change inbound 834 for current eligibility uses Assessment Date as the transaction effective date in Facets whenever Assessment Date changes, including the path where the relevant fields are unchanged so their values are maintained and the Facets UI field 'Eligibility Date' refreshes to the changed Assessment Date. Conditions to cover: 1) Current eligibility with changed Assessment Date uses Loop 2300 HD03 as the transaction effective date. 2) Current eligibility with changed Assessment Date and unchanged relevant fields preserves the existing relevant field values while using Assessment Date. 3) Multiple Assessment Date occurrences are present and the first Assessment Date is used for the changed-Assessment-Date rule path.",
+      "priority": "High"
+    },
+    {
+      "scenarioId": "TS_004",
+      "title": "Use Eligibility Date for future eligibility changes when Assessment Date is unchanged and relevant fields change",
+      "descriptionRef": "The business needs to utilize the Eligibility Date as the transaction effective date for any changes to the items listed in Requirement 3 above, when the Assessment Date does NOT change, and those changes are received prior to the Eligibility Date.\nExamples / Scenarios\nScenarioEligibility Started?Transaction Effective Date Future eligibility date, Changes to relevant fields, Assessment Date unchanged No Eligibility Date Relevant fields include Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy.",
+      "acceptanceCriteriaRef": "Given an inbound EDI 834 file, if the member\u2019s eligibility span has not yet begun and any relevant fields have changed but Assessment Date has NOT changed, the Eligibility Date populates as the transaction effective date.",
+      "dorRef": "",
+      "dodRef": "Transaction effective date in Facets is correctly populated per the detailed business rules and requirements.\nUnit and integration tests have passed.\nRelevant documentation has been updated.",
+      "type": "Positive",
+      "description": "Validate that an inbound change received before the member\u2019s eligibility span begins uses Eligibility Date as the transaction effective date when Assessment Date is unchanged and the changed data is limited to the story\u2019s relevant fields, with 'Eligibility Date' refreshed to the winning date and '834 Spans Date Extension' reflecting the changed relevant field in Facets. Conditions to cover: 1) Assessment Number changes while Assessment Date is unchanged and eligibility has not yet begun. 2) Assessment Tier changes while Assessment Date is unchanged and eligibility has not yet begun. 3) Assessment Division changes while Assessment Date is unchanged and eligibility has not yet begun. 4) Aid Category changes while Assessment Date is unchanged and eligibility has not yet begun. 5) Rate Cell changes while Assessment Date is unchanged and eligibility has not yet begun. 6) Pregnancy Indicator changes while Assessment Date is unchanged and eligibility has not yet begun. 7) Assessment Number + Assessment Tier + Assessment Division change while Assessment Date is unchanged and eligibility has not yet begun. 8) Aid Category + Rate Cell change while Assessment Date is unchanged and eligibility has not yet begun. 9) Pregnancy Indicator + Rate Cell change while Assessment Date is unchanged and eligibility has not yet begun. 10) Pregnancy Indicator + Aid Category + Rate Cell change while Assessment Date is unchanged and eligibility has not yet begun. 11) All relevant fields change together while Assessment Date is unchanged and eligibility has not yet begun.",
+      "priority": "High"
+    },
+    {
+      "scenarioId": "TS_005",
+      "title": "Use Maintenance Date for current eligibility changes when Assessment Date is unchanged and relevant fields change",
+      "descriptionRef": "The business needs to utilize the Maintenance Date (DTP*303) as the transaction effective date for any changes to the items listed in Requirement 3 above, when the Assessment Date does NOT change, and those changes are received after the Eligibility Date.\nCurrent State\nCurrently, Maintenance effective date is being used to split spans on Update files. This is causing mismatches with capitation calculations, and the Finance team is misreporting revenue.\nWhat is Changing\nThe Maintenance Date 2000 Loop (DTP*303) cannot be used for all change transactions. Depending on the change, and whether it is received prior to or after the initial Eligibility Date, the transaction effective date may reflect either the Assessment Date, Eligibility Date, or Maintenance Date.\nExamples / Scenarios\nScenarioEligibility Started?Transaction Effective Date Current eligibility, Changes to relevant fields, Assessment Date unchanged Yes Maintenance Date Relevant fields include Assessment Number, Assessment Tier, Assessment Division, Aid Category, Rate Cell, Pregnancy.",
+      "acceptanceCriteriaRef": "Given an inbound EDI 834 file, if the member\u2019s eligibility span has already begun and any relevant fields have changed but Assessment Date has NOT changed, the Maintenance Date (DTP*303) populates as the transaction effective date.",
+      "dorRef": "",
+      "dodRef": "Transaction effective date in Facets is correctly populated per the detailed business rules and requirements.\nUnit and integration tests have passed.\nRelevant documentation has been updated.",
+      "type": "Positive",
+      "description": "Validate that an inbound change received after the member\u2019s eligibility span begins uses Maintenance Date as the transaction effective date when Assessment Date is unchanged and the changed data is limited to the story\u2019s relevant fields, with 'Eligibility Date' refreshed to the winning date and '834 Spans Date Extension' reflecting the changed relevant field in Facets. Conditions to cover: 1) Assessment Number changes while Assessment Date is unchanged and eligibility has already begun. 2) Assessment Tier changes while Assessment Date is unchanged and eligibility has already begun. 3) Assessment Division changes while Assessment Date is unchanged and eligibility has already begun. 4) Aid Category changes while Assessment Date is unchanged and eligibility has already begun. 5) Rate Cell changes while Assessment Date is unchanged and eligibility has already begun. 6) Pregnancy Indicator changes while Assessment Date is unchanged and eligibility has already begun. 7) Assessment Number + Assessment Tier + Assessment Division change while Assessment Date is unchanged and eligibility has already begun. 8) Aid Category + Rate Cell change while Assessment Date is unchanged and eligibility has already begun. 9) Pregnancy Indicator + Rate Cell change while Assessment Date is unchanged and eligibility has already begun. 10) Pregnancy Indicator + Aid Category + Rate Cell change while Assessment Date is unchanged and eligibility has already begun. 11) All relevant fields change together while Assessment Date is unchanged and eligibility has already begun.",
+      "priority": "High"
+    },
+    {
+      "scenarioId": "TS_006",
+      "title": "Verify combinations of eligibility timing, Assessment Date change status, and relevant-field change status",
+      "descriptionRef": "What is Changing\nThe Maintenance Date 2000 Loop (DTP*303) cannot be used for all change transactions. Depending on the change, and whether it is received prior to or after the initial Eligibility Date, the transaction effective date may reflect either the Assessment Date, Eligibility Date, or Maintenance Date.\nFuture State\nThe Maintenance Date will no longer be used to split spans based on Update (834) files, except as detailed in Requirement 4 above. The transaction dates in Facets will conform to the functionality detailed in Requirements 1-5.\nExamples / Scenarios\nScenarioEligibility Started?Transaction Effective DateNew enrollment (Future eligibility date) No Eligibility Date Current eligibility, Assessment Date changed Yes Assessment Date Assessment Date changed, No changes to relevant fields Yes Assessment Date Future eligibility date, Changes to relevant fields, Assessment Date unchanged No Eligibility Date Current eligibility, Changes to relevant fields, Assessment Date unchanged Yes Maintenance Date",
+      "acceptanceCriteriaRef": "QA Regression Testing\nTest inbound 834 files with varying combinations of Eligibility Date, Assessment Date changes, and relevant field changes to verify correct transaction effective date population.",
+      "dorRef": "",
+      "dodRef": "Transaction effective date in Facets is correctly populated per the detailed business rules and requirements.\nUnit and integration tests have passed.\nUser acceptance testing has been completed and approved.",
+      "type": "Edge",
+      "description": "Validate, as a dedicated regression matrix check, that varying inbound 834 combinations of eligibility not yet begun versus current eligibility, Assessment Date changed versus unchanged, and relevant-field changed versus unchanged always populate the correct transaction effective date in Facets according to the story\u2019s rule set. Conditions to cover: 1) Eligibility not yet begun with no Assessment Date change and no relevant-field change resolves to Eligibility Date for new enrollment. 2) Current eligibility with Assessment Date changed and relevant fields unchanged resolves to Assessment Date. 3) Current eligibility with Assessment Date changed and relevant fields also changed still resolves to Assessment Date. 4) Eligibility not yet begun with Assessment Date unchanged and relevant fields changed resolves to Eligibility Date. 5) Current eligibility with Assessment Date unchanged and relevant fields changed resolves to Maintenance Date.",
+      "priority": "High"
+    },
+    {
+      "scenarioId": "TS_007",
+      "title": "Restrict Maintenance Date usage to the rule path explicitly allowed by the story",
+      "descriptionRef": "Future State\nThe Maintenance Date will no longer be used to split spans based on Update (834) files, except as detailed in Requirement 4 above. The transaction dates in Facets will conform to the functionality detailed in Requirements 1-5.",
+      "acceptanceCriteriaRef": "QA Regression Testing\nConfirm that Maintenance Date is only used when specified in acceptance criteria.",
+      "dorRef": "",
+      "dodRef": "Transaction effective date in Facets is correctly populated per the detailed business rules and requirements.\nUnit and integration tests have passed.\nRelevant documentation has been updated.",
+      "type": "Negative",
+      "description": "Validate that inbound 834 processing does not use Maintenance Date as the transaction effective date outside the single allowed rule path and instead uses the story-specified winning date for the other rule outcomes. Conditions to cover: 1) New enrollment before eligibility begins does not use Maintenance Date and uses Eligibility Date instead. 2) Current eligibility with changed Assessment Date does not use Maintenance Date and uses Assessment Date instead. 3) Future eligibility with changed relevant fields and unchanged Assessment Date does not use Maintenance Date and uses Eligibility Date instead. 4) Current eligibility with changed relevant fields and unchanged Assessment Date is the only allowed path that uses Maintenance Date.",
+      "priority": "High"
+    },
+    {
+      "scenarioId": "TS_008",
+      "title": "Verify capitation and finance reporting regression after transaction effective date selection changes",
+      "descriptionRef": "Current State\nCurrently, Maintenance effective date is being used to split spans on Update files. This is causing mismatches with capitation calculations, and the Finance team is misreporting revenue.\nFuture State\nThe Maintenance Date will no longer be used to split spans based on Update (834) files, except as detailed in Requirement 4 above.",
+      "acceptanceCriteriaRef": "QA Regression Testing\nVerify no change in capitation calculations and accurate reporting for finance team.",
+      "dorRef": "",
+      "dodRef": "All functionality detailed in the feature has been developed, implemented, and tested in Production.\nTransaction effective date in Facets is correctly populated per the detailed business rules and requirements.\nUser acceptance testing has been completed and approved.",
+      "type": "Edge",
+      "description": "Validate that the revised transaction effective date logic for inbound 834 updates corrects split-span dating without introducing capitation calculation differences or finance reporting inaccuracies across the story\u2019s winning-date rule paths. Conditions to cover: 1) Eligibility Date-driven rule paths preserve correct downstream span dating for capitation and finance reporting. 2) Assessment Date-driven rule paths preserve correct downstream span dating for capitation and finance reporting. 3) Maintenance Date-driven rule paths preserve correct downstream span dating for capitation and finance reporting only where the story explicitly allows Maintenance Date.",
+      "priority": "Medium"
+    }
+  ],
+  "review": {
+    "confidence": 64,
+    "approved": false,
+    "feedback": "Coverage of the core date-selection rules is solid, and the scenarios correctly use parameterized condition lists for relevant-field combinations, but the set still has actionable gaps and one over-collapsed regression bundle. Add explicit coverage for the first-occurrence rule for Assessment Date (and ideally confirm whether duplicate Effective/Eligibility parsing is needed only for identification vs rule execution), add a negative/edge scenario for unchanged current eligibility with no Assessment Date change and no relevant-field change so no improper date-driven update/span split occurs, add traceable coverage for backward compatibility and file-type grounding from the story/domain hints (E-prefix for new enrollments, U-prefix for changes), and split TS_008 because it merges two independent downstream validators: capitation calculations and finance reporting accuracy.",
+    "gaps": [
+      "TS_008 is over-collapsed: it combines two independent validators that can fail separately\u2014capitation calculation correctness and finance reporting accuracy\u2014under one scenario.",
+      "Missing boundary/negative coverage for the path where eligibility has already begun, Assessment Date is unchanged, and no relevant fields changed; the set does not verify that no unnecessary transaction-effective-date update/span split is created in this no-change case.",
+      "TS_001 and TS_003 do not clearly cover the story's 'When multiple dates come in, use the first one' rule for duplicate Assessment Date values as a dedicated parsing/selection check across inbound date identification logic.",
+      "No scenario covers the story's 'Ensure backward compatibility with existing EDI processing where applicable.' requirement/consideration in a traceable way.",
+      "No scenario grounds file-type behavior from the authoritative hints: new enrollment should use E-prefix files and change/update paths should use U-prefix files; this is a story-specific setup rule missing from titles/descriptions."
+    ],
+    "strengths": [
+      "Maps each main acceptance-criteria rule to at least one scenario, including negative coverage for restricting Maintenance Date usage.",
+      "Uses the domain-hint relevant fields and named groupings correctly in TS_004 and TS_005 rather than splitting them into redundant scenarios.",
+      "Traceability is generally good: acceptanceCriteriaRef values align to actual acceptance criteria or story text."
+    ]
+  },
+  "handoff": {
+    "repo": "Hrishi1312/self_healing",
+    "branch": "main",
+    "path": "scenarios/640764/scenarios.json"
+  },
+  "agentcalls": 4,
+  "elapsedms": 157969,
+  "log": [
+    "[ORCH] ts=2026-09-07T11:34:05Z step=start stage=scenarios story=640764 maxscenarios=20 tcper=6 steps=7-24 rounds=3 workers=20 pass_=90/50 judge=off scenjudge=704 deadline=450s",
+    "[ORCH] ts=2026-09-07T11:34:05Z step=fetch story=640764 titlechars=85 descchars=3518 acchars=2096 ms=168",
+    "[ORCH] ts=2026-09-07T11:35:09Z step=scenarios count=11 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007,TS_008,TS_009,TS_010,TS_011 ms=63731",
+    "[ORCH] ts=2026-09-07T11:35:23Z step=scenreview round=1 confidence=62 approved=False gaps=5 ms=14437",
+    "[ORCH] ts=2026-09-07T11:36:27Z step=scenarios rework=1 count=8 ids=TS_001,TS_002,TS_003,TS_004,TS_005,TS_006,TS_007,TS_008 ms=63801",
+    "[ORCH] ts=2026-09-07T11:36:42Z step=scenreview round=2 confidence=64 approved=False gaps=5 ms=14426",
+    "[ORCH] ts=2026-09-07T11:36:43Z step=handoff action=write path=scenarios/640764/scenarios.json scenarios=8 chars=27341",
+    "[ORCH] ts=2026-09-07T11:36:43Z step=outcome stage=scenarios story=640764 scenarios=8 confidence=64 approved=False elapsed=2m37s"
+  ]
+}
